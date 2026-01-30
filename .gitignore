@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+.astro/
+.wrangler/
+
+# environment/secrets
+.env
+.env.*
+.dev.vars
+
+# logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# local claude settings
+.claude/settings.local.json

@@ -1,0 +1,21 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+import SkillsetGrid from '@components/SkillsetGrid';
+import { mockSkillsets } from '@/utils/mockData';
+
+const skillsets = [...mockSkillsets].sort((a, b) => b.stars - a.stars);
+---
+
+<BaseLayout title="Skillsets.cc - Verified Agentic Workflows">
+  <main class="max-w-7xl mx-auto px-4 py-12">
+    <header class="mb-8 border-b border-border-ink pb-6">
+      <h1 class="text-6xl md:text-8xl font-serif font-medium text-text-ink tracking-tight">
+        Skillsets
+      </h1>
+    </header>
+
+    <SkillsetGrid client:load skillsets={skillsets} />
+  </main>
+</BaseLayout>

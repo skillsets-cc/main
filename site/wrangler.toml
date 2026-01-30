@@ -1,0 +1,30 @@
+name = "skillsets-site"
+compatibility_date = "2026-01-30"
+compatibility_flags = ["nodejs_compat"]
+
+# KV Namespaces - IDs populated after running:
+#   npx wrangler kv:namespace create STARS
+#   npx wrangler kv:namespace create AUTH
+
+[[kv_namespaces]]
+binding = "STARS"
+id = "YOUR_STARS_KV_NAMESPACE_ID"
+preview_id = "YOUR_STARS_KV_NAMESPACE_PREVIEW_ID"
+
+[[kv_namespaces]]
+binding = "AUTH"
+id = "YOUR_AUTH_KV_NAMESPACE_ID"
+preview_id = "YOUR_AUTH_KV_NAMESPACE_PREVIEW_ID"
+
+# Environment variables are configured via:
+#   npx wrangler secret put GITHUB_CLIENT_ID
+#   npx wrangler secret put GITHUB_CLIENT_SECRET
+#   npx wrangler secret put JWT_SECRET
+#
+# Or via Cloudflare Dashboard > Workers & Pages > Settings > Variables
+
+[vars]
+# Non-sensitive configuration (production)
+# For local dev, these are overridden in .dev.vars
+CALLBACK_URL = "https://skillsets.cc/callback"
+SITE_URL = "https://skillsets.cc"

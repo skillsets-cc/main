@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://skillsets.cc/schema/skillset.schema.json",
+  "title": "Skillset Manifest",
+  "description": "Schema for skillset.yaml manifest files in the skillsets.cc registry",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "name",
+    "version",
+    "description",
+    "author",
+    "verification",
+    "tags"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Schema version for manifest format"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Skillset name (alphanumeric, hyphens, underscores only)"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version (e.g., 1.0.0)"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 200,
+      "description": "Brief description of the skillset (10-200 characters)"
+    },
+    "author": {
+      "type": "object",
+      "required": ["handle"],
+      "properties": {
+        "handle": {
+          "type": "string",
+          "pattern": "^@[A-Za-z0-9_-]+$",
+          "description": "GitHub handle (e.g., @username)"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Author's website or GitHub profile URL"
+        }
+      },
+      "additionalProperties": false
+    },
+    "verification": {
+      "type": "object",
+      "required": ["production_url", "audit_report"],
+      "properties": {
+        "production_url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to live deployment, repository, or case study"
+        },
+        "production_proof": {
+          "type": "string",
+          "pattern": "^\\./.+",
+          "description": "Path to PROOF.md file with screenshots/testimonials (optional)"
+        },
+        "audit_report": {
+          "type": "string",
+          "pattern": "^\\./.+",
+          "description": "Path to AUDIT_REPORT.md file"
+        }
+      },
+      "additionalProperties": false
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]+$",
+        "minLength": 2,
+        "maxLength": 30
+      },
+      "minItems": 1,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "description": "Keywords for discovery (lowercase, hyphens only, 1-10 tags)"
+    },
+    "compatibility": {
+      "type": "object",
+      "properties": {
+        "claude_code_version": {
+          "type": "string",
+          "pattern": "^(>=|>|<=|<|=)?[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "description": "Claude Code version requirement (e.g., >=1.0.0)"
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9+-]+$"
+          },
+          "uniqueItems": true,
+          "description": "Compatible programming languages (lowercase)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "deprecated", "archived"],
+      "default": "active",
+      "description": "Lifecycle status of the skillset"
+    },
+    "entry_point": {
+      "type": "string",
+      "pattern": "^\\./.+",
+      "description": "Path to main documentation file (e.g., ./content/CLAUDE.md)"
+    }
+  },
+  "additionalProperties": false
+}

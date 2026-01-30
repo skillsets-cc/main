@@ -1,0 +1,78 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About - Skillsets.cc">
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <header class="mb-8 border-b border-border-ink pb-6">
+      <h1 class="text-4xl font-medium font-serif text-text-ink">About Skillsets.cc</h1>
+    </header>
+
+    <div class="space-y-8 font-serif text-text-secondary leading-relaxed">
+      <section>
+        <h2 class="text-2xl font-bold text-text-ink mb-4">The Problem</h2>
+        <p class="mb-4">
+          Individual skills often conflict—namespace collisions, context window hogging, incompatible assumptions.
+          Many work in isolation or simple demos but fail in complex production environments. The value isn't
+          just in the tools themselves, but in the <em>orchestration strategies</em> and <em>context bridging</em> between them.
+        </p>
+        <p>
+          Atomic skill marketplaces give you ingredients. We give you the recipe—and proof that the dish has been served.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-text-ink mb-4">The Solution</h2>
+        <p>
+          A skillset is a reproducible configuration verified by real usage. Not a list of links—a complete
+          workflow with skills, agents, prompts, MCP servers, and plugins that work together. Each one has
+          shipped production software, with evidence to prove it.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-text-ink mb-4">Why Verification?</h2>
+        <p>
+          We use high friction to ensure high quality. Every skillset in the registry must provide
+          production proof—a link to a live product, repository, or case study demonstrating real-world usage.
+          This isn't a dump of untested configs; it's a curated collection of battle-tested workflows.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-text-ink mb-4">How It Works</h2>
+        <ul class="list-disc list-inside space-y-2">
+          <li>Browse or search the registry for workflows that match your needs</li>
+          <li>Install with <code class="bg-stone-50 border border-border-ink px-2 py-0.5 font-mono text-sm">npx skillsets install @namespace/name</code></li>
+          <li>Files are extracted directly to your project—no .git folders, no bloat</li>
+          <li>Verify integrity with checksums against the registry</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-text-ink mb-4">Built With The_Skillset</h2>
+        <p>
+          This registry was architected and built by <a href="https://github.com/supercollectible" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">@supercollectible</a> using
+          <a href="/skillset/@supercollectible/The_Skillset" class="text-orange-500 hover:underline">The_Skillset</a>—the first entry in the registry.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-bold text-text-ink mb-4">Open & Public Domain</h2>
+        <p>
+          The registry infrastructure is open source. Individual skillsets are licensed by their authors.
+          We believe production-proven workflows should be shared, studied, and improved upon.
+        </p>
+      </section>
+
+      <section class="pt-4 border-t border-border-ink">
+        <p class="text-text-secondary text-sm">
+          Have a production-verified workflow? <a href="/contribute" class="text-orange-500 hover:underline">Contribute it</a>.
+          Got the chops to review submissions? <a href="https://github.com/skillsets-cc/registry" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">Become a co-maintainer</a>.
+        </p>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

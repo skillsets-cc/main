@@ -1,0 +1,34 @@
+{
+  "name": "site",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "dev:cf": "astro build && wrangler pages dev dist --local --persist-to .wrangler/state",
+    "build": "astro build",
+    "preview": "wrangler pages dev dist --local --persist-to .wrangler/state",
+    "astro": "astro",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^12.6.12",
+    "@astrojs/react": "^4.4.2",
+    "@astrojs/tailwind": "^6.0.2",
+    "astro": "^5.17.1",
+    "fuse.js": "^7.1.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^3.4.19"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250124.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "jsdom": "^27.4.0",
+    "vitest": "^4.0.18",
+    "wrangler": "^4.0.0"
+  }
+}
