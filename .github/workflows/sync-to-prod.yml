@@ -63,9 +63,16 @@ jobs:
                -d '{"message":"test","content":"dGVzdA=="}' | head -30
 
       - name: Push to production
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Clear any credential cache and set up fresh credentials
+          git config --global credential.helper store
+          echo "https://x-access-token:${GH_TOKEN}@github.com" > ~/.git-credentials
 
           # Stage all changes (including deletions)
           git add -A
@@ -76,6 +83,6 @@ jobs:
           Automated sync excluding dev-only files.
           Source: ${{ github.repository }}@${{ github.sha }}"
 
-          # Force push to prod using GitHub App token
-          git remote add prod https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/skillsets-cc/main.git
+          # Force push to prod
+          git remote add prod https://github.com/skillsets-cc/main.git
           git push prod HEAD:main --force
