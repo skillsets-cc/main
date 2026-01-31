@@ -19,8 +19,8 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       </p>
     </div>
 
-    <div class="border border-border-ink bg-stone-50 p-8 rounded-none mb-8">
-      <h2 class="text-2xl font-bold font-serif mb-6 text-text-ink border-b border-border-ink pb-2 inline-block">Submission Process</h2>
+    <div class="border border-transparent p-8 rounded-none mb-8">
+      <h2 class="text-2xl font-bold font-serif mb-6 text-text-ink">Submission Process</h2>
 
       <div class="space-y-6">
         <div class="flex gap-4">
@@ -34,7 +34,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
               to validate your submission structure.
             </p>
             <a
-              href="https://github.com/skillsets-cc/registry/tree/main/tools/audit_skillset"
+              href="https://github.com/skillsets-cc/main/tree/main/tools/audit_skillset"
               class="text-orange-500 font-mono font-bold hover:underline"
               target="_blank"
               rel="noopener noreferrer"
@@ -45,15 +45,15 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
             2
           </div>
           <div>
-            <h3 class="text-lg font-bold mb-2">Prepare Your Skillset</h3>
-            <p class="text-text-secondary mb-3">
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Prepare Your Skillset</h3>
+            <p class="text-text-secondary mb-3 font-serif">
               Create a folder with the following structure:
             </p>
-            <pre class="bg-surface-glassDark p-4 rounded text-sm overflow-x-auto"><code>your-skillset/
+            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>your-skillset/
 ├── skillset.yaml          # Manifest (required)
 ├── README.md              # User instructions (required)
 ├── PROOF.md               # Production evidence (required)
@@ -63,29 +63,29 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
             3
           </div>
           <div>
-            <h3 class="text-lg font-bold mb-2">Run the Audit</h3>
-            <p class="text-text-secondary mb-3">
-              Execute <code class="bg-surface-glassDark px-2 py-1 rounded">/audit_skillset</code> in Claude Code
-              to generate an <code class="bg-surface-glassDark px-2 py-1 rounded">AUDIT_REPORT.md</code>.
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Run the Audit</h3>
+            <p class="text-text-secondary mb-3 font-serif">
+              Execute <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">/audit_skillset</code> in Claude Code
+              to generate an <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">AUDIT_REPORT.md</code>.
             </p>
           </div>
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
             4
           </div>
           <div>
-            <h3 class="text-lg font-bold mb-2">Open a Pull Request</h3>
-            <p class="text-text-secondary mb-3">
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Open a Pull Request</h3>
+            <p class="text-text-secondary mb-3 font-serif">
               Submit your skillset to the registry with the audit report and production proof.
             </p>
             <a
-              href="https://github.com/skillsets-cc/registry"
+              href="https://github.com/skillsets-cc/main"
               class="text-orange-500 font-mono font-bold hover:underline"
               target="_blank"
               rel="noopener noreferrer"
@@ -96,12 +96,12 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold">
+          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
             5
           </div>
           <div>
-            <h3 class="text-lg font-bold mb-2">Review & Merge</h3>
-            <p class="text-text-secondary">
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Review & Merge</h3>
+            <p class="text-text-secondary font-serif">
               Maintainers will review your production proof and validate the audit report.
               Once approved, your skillset will be published to the registry.
             </p>
@@ -113,8 +113,8 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             6
           </div>
           <div>
-            <h3 class="text-lg font-bold mb-2">Be Patient!</h3>
-            <p class="text-text-secondary">
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Be Patient!</h3>
+            <p class="text-text-secondary font-serif">
               Feel the urge to complain about how long it takes to get your material reviewed,
               but then realize this is just one guy trying to do something nice for the community—so
               you sign up as a co-maintainer.
@@ -142,11 +142,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       </div>
     </div>
 
-    <div class="border border-border-ink bg-stone-50 p-8 rounded-none mb-8">
-      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Requirements</h2>
+    <div class="border border-transparent p-8 rounded-none mb-8">
+      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink">Requirements</h2>
       <ul class="list-disc list-inside space-y-2 text-text-secondary font-serif">
         <li><strong class="text-text-ink">Production Proof:</strong> URL to a live product or repository showing real usage</li>
-        <li><strong class="text-text-ink">Complete Documentation:</strong> Clear README with installation and usage instructions</li>
+        <li><strong class="text-text-ink">Complete Documentation:</strong> Clear README with installation and usage instructions (the first <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs"># heading</code> is stripped—it's shown in the page header)</li>
         <li><strong class="text-text-ink">Valid Schema:</strong> Must pass <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">skillset.yaml</code> validation</li>
         <li><strong class="text-text-ink">Audit Report:</strong> Generated by the official audit skill</li>
         <li><strong class="text-text-ink">Verification-First:</strong> High friction ensures high quality</li>
@@ -155,7 +155,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
     <div class="mt-8 text-center">
       <a
-        href="https://github.com/skillsets-cc/registry/blob/main/CONTRIBUTING.md"
+        href="https://github.com/skillsets-cc/main/blob/main/CONTRIBUTING.md"
         class="text-orange-500 font-mono font-bold hover:underline"
         target="_blank"
         rel="noopener noreferrer"

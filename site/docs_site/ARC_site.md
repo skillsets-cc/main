@@ -26,10 +26,8 @@ site/
 │   │           └── [name].astro  # Dynamic detail page (SSR)
 │   ├── styles/
 │   │   └── global.css        # Tailwind + custom styles
-│   ├── types/
-│   │   └── index.ts          # TypeScript definitions
-│   └── utils/
-│       └── mockData.ts       # Development mock data
+│   └── types/
+│       └── index.ts          # TypeScript definitions
 ├── astro.config.mjs          # Astro + Cloudflare config
 ├── tailwind.config.js        # Tailwind design system
 ├── tsconfig.json             # TypeScript config with paths
@@ -57,7 +55,6 @@ site/
 | File | Purpose |
 |------|---------|
 | `src/types/index.ts` | TypeScript types for Skillset and SearchIndex |
-| `src/utils/mockData.ts` | Mock skillset data for development |
 | `src/styles/global.css` | Tailwind imports + custom utility classes |
 | `tailwind.config.js` | Design system tokens (colors, spacing) |
 
@@ -88,7 +85,7 @@ CDN → Prerendered HTML → Client
 Runtime (Dynamic Pages):
 Request → Cloudflare Pages SSR → [namespace]/[name].astro → Response
   ↓
-Mock Data (Dev) / Registry API (Prod)
+search-index.json
 
 Interactive Islands:
 User Action → React Component → Worker API → KV → Response
@@ -136,7 +133,7 @@ interface CopyCommandProps {
 ```
 
 ## Integration Points
-- **Upstream**: GitHub Registry (via build-time fetch or mock data)
+- **Upstream**: GitHub Registry (via search-index.json)
 - **Downstream**: Cloudflare Workers (auth, stars) via `/api/*` routes
 - **Parallel**: CLI (shares TypeScript types, consumes same search index)
 

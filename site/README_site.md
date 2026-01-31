@@ -24,10 +24,8 @@ site/
 │   │   └── skillset/[namespace]/[name].astro # Detail (SSR)
 │   ├── styles/
 │   │   └── global.css       # Tailwind + utilities
-│   ├── types/
-│   │   └── index.ts         # TypeScript types
-│   └── utils/
-│       └── mockData.ts      # Dev mock data
+│   └── types/
+│       └── index.ts         # TypeScript types
 ├── docs_site/               # Documentation
 │   └── ARC_site.md          # Architecture reference
 ├── astro.config.mjs         # Astro configuration
@@ -57,7 +55,6 @@ site/
 | File | Purpose |
 |------|---------|
 | `types/index.ts` | Skillset and SearchIndex types |
-| `utils/mockData.ts` | Development mock data |
 | `styles/global.css` | Tailwind + custom utilities |
 
 ## Dependencies
@@ -89,8 +86,7 @@ Request
 └────────┬────────┘
          │
          ▼
-    Mock Data (Dev)
-    Registry API (Prod)
+    search-index.json
 
 Interactive Islands:
 User Action → React Island → Worker API → KV → UI Update

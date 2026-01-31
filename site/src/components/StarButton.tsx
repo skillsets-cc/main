@@ -1,33 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 
 interface StarButtonProps {
   skillsetId: string;
   initialStars?: number;
-  initialStarred?: boolean;
 }
+
+const BASE_STYLES =
+  'flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-mono font-bold transition-all border';
+const STARRED_STYLES = 'bg-orange-500 text-white border-orange-500';
+const UNSTARRED_STYLES =
+  'bg-stone-50 border-border-ink text-text-secondary hover:border-orange-500 hover:text-orange-500';
 
 export default function StarButton({
   skillsetId,
   initialStars = 0,
-  initialStarred = false,
-}: StarButtonProps) {
+}: StarButtonProps): ReactElement {
   const [stars, setStars] = useState(initialStars);
-  const [starred, setStarred] = useState(initialStarred);
+  const [starred, setStarred] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleToggleStar = async () => {
+  // Fetch actual star state on mount
+  useEffect(() => {
+    async function fetchStarState(): Promise<void> {
+      try {
+        const response = await fetch(`/api/star?skillsetId=${encodeURIComponent(skillsetId)}`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStars(data.count);
+          setStarred(data.starred);
+        }
+      } catch (error) {
+        console.error('[StarButton] Failed to fetch star state:', error);
+      }
+    }
+    fetchStarState();
+  }, [skillsetId]);
+
+  async function handleToggleStar(): Promise<void> {
     setLoading(true);
 
     try {
       const response = await fetch('/api/star', {
-        method: starred ? 'DELETE' : 'POST',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ skillsetId }),
         credentials: 'include',
       });
 
       if (response.status === 401) {
-        window.location.href = '/api/login';
+        window.location.href = '/login';
         return;
       }
 
@@ -42,16 +65,15 @@ export default function StarButton({
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  const buttonStyles = starred ? STARRED_STYLES : UNSTARRED_STYLES;
 
   return (
     <button
       onClick={handleToggleStar}
       disabled={loading}
-      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-mono font-bold transition-all border ${starred
-          ? 'bg-orange-500 text-white border-orange-500'
-          : 'bg-stone-50 border-border-ink text-text-secondary hover:border-orange-500 hover:text-orange-500'
-        }`}
+      className={`${BASE_STYLES} ${buttonStyles}`}
     >
       <svg
         className={`w-5 h-5 ${starred ? 'fill-current' : 'stroke-current fill-none'}`}

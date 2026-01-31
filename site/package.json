@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "dev:cf": "astro build && wrangler pages dev dist --local --persist-to .wrangler/state",
     "build": "astro build",
+    "build:index": "tsx scripts/build-index.ts",
     "preview": "wrangler pages dev dist --local --persist-to .wrangler/state",
     "astro": "astro",
     "test": "vitest",
@@ -15,11 +16,14 @@
     "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/react": "^4.4.2",
     "@astrojs/tailwind": "^6.0.2",
+    "@tailwindcss/typography": "^0.5.19",
     "astro": "^5.17.1",
     "fuse.js": "^7.1.0",
+    "marked": "^17.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "tailwindcss": "^3.4.19"
+    "tailwindcss": "^3.4.19",
+    "yaml": "^2.8.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250124.0",
@@ -28,6 +32,7 @@
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "jsdom": "^27.4.0",
+    "tsx": "^4.21.0",
     "vitest": "^4.0.18",
     "wrangler": "^4.0.0"
   }

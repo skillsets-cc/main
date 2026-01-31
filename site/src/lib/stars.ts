@@ -97,17 +97,6 @@ export async function isStarred(
 }
 
 /**
- * Get all skillsets starred by a user.
- */
-export async function getUserStars(
-  kv: KVNamespace,
-  userId: string
-): Promise<string[]> {
-  const userKey = `user:${userId}:stars`;
-  return retryKVRead<string[]>(kv, userKey, []);
-}
-
-/**
  * Get star count for a skillset.
  */
 export async function getStarCount(
@@ -116,23 +105,6 @@ export async function getStarCount(
 ): Promise<number> {
   const countKey = `stars:${skillsetId}`;
   return retryKVRead<number>(kv, countKey, 0);
-}
-
-/**
- * Get star counts for multiple skillsets.
- * Optimized batch fetch.
- */
-export async function getStarCounts(
-  kv: KVNamespace,
-  skillsetIds: string[]
-): Promise<Record<string, number>> {
-  const results = await Promise.all(
-    skillsetIds.map(async (id) => {
-      const count = await getStarCount(kv, id);
-      return [id, count] as const;
-    })
-  );
-  return Object.fromEntries(results);
 }
 
 // --- KV retry helpers with exponential backoff ---

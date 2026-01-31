@@ -3,9 +3,9 @@ export const prerender = true;
 
 import BaseLayout from '@layouts/BaseLayout.astro';
 import SkillsetGrid from '@components/SkillsetGrid';
-import { mockSkillsets } from '@/utils/mockData';
+import { getSkillsets } from '@/lib/data';
 
-const skillsets = [...mockSkillsets].sort((a, b) => b.stars - a.stars);
+const skillsets = getSkillsets();
 ---
 
 <BaseLayout title="Skillsets.cc - Verified Agentic Workflows">
@@ -14,6 +14,9 @@ const skillsets = [...mockSkillsets].sort((a, b) => b.stars - a.stars);
       <h1 class="text-6xl md:text-8xl font-serif font-medium text-text-ink tracking-tight">
         Skillsets
       </h1>
+      <p class="mt-4 text-xl md:text-2xl font-serif text-text-secondary">
+        A community-driven collection of production-verified workflows
+      </p>
     </header>
 
     <SkillsetGrid client:load skillsets={skillsets} />

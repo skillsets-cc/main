@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-01-31T15:33:15.928Z",
+  "skillsets": [
+    {
+      "id": "@supercollectible/The_Skillset",
+      "name": "The_Skillset",
+      "description": "Spec-driven SDLC with adversarial review, quality gates, and multi-model validation for production-ready code.",
+      "tags": [
+        "sdlc",
+        "planning",
+        "multi-agent",
+        "adversarial-review",
+        "quality-gates",
+        "spec-driven"
+      ],
+      "author": {
+        "handle": "@supercollectible",
+        "url": "https://github.com/supercollectible"
+      },
+      "stars": 0,
+      "version": "1.0.0",
+      "status": "active",
+      "verification": {
+        "production_url": "https://github.com/supercollectible/The_Skillset",
+        "production_proof": "./PROOF.md",
+        "audit_report": "./AUDIT_REPORT.md"
+      },
+      "compatibility": {
+        "claude_code_version": ">=1.0.0",
+        "languages": [
+          "any"
+        ]
+      },
+      "entry_point": "./content/CLAUDE.md",
+      "checksum": "sha256:e5b1814d10a5a904c5dcf2c02b38f8a26dcab29d54fd5ae1299c9064df81bfa1",
+      "files": {
+        "AUDIT_REPORT.md": "sha256:7d2d648ec887658da2388d8705c57f05778efe9ae22575bf84f6246b4df5a6df",
+        "PROOF.md": "sha256:733d5816c8e6ab1a05656b478cdc45e8662e0817822e5be5cc730434367c8a06",
+        "README.md": "sha256:154c22fe8128fcb4d5affbd4316fb57b75abb5525c0868eb17e50c6a330035e1",
+        "content/.claude/agents/adversarial_reviewer.md": "sha256:d76de8e940989db0950037951cd14215bdac21dabf20dbc75faef4291024ce90",
+        "content/.claude/agents/opus_designer.md": "sha256:13880dfa376cb4cbddc9445fba9ef6c664ba36beda026ec0dd14fbe2263612a1",
+        "content/.claude/agents/sonnet_builder.md": "sha256:0b0e7c4f97d8240b0f1518d4f6edf28ce2ec6a218979c65ded55792e212d0ba6",
+        "content/.claude/skills/adversarial_review/SKILL.md": "sha256:f1c9b8e8060a77482a60249aa873724473b9f8c93b778a94077135eea3c01d2a",
+        "content/.claude/skills/design_spec/SKILL.md": "sha256:3a188c62ed3335537dc4bf6024291c7f0bc8b471709dcb9e2d76faf5ae90a99e",
+        "content/.claude/skills/execution_plan/SKILL.md": "sha256:3a3ad38f8b5f68efb7e243409a6aea667663f78959653e8bffe9202114a68326",
+        "content/.claude/skills/quality_gate/SKILL.md": "sha256:4cb1abe38cd563eb39d79bfbd1bf5e588c5de2e4a85f20372962ce5a7e2f560b",
+        "content/CLAUDE.md": "sha256:3002fca65a1d215c512352f7c43557c85cd7e2ae96e11099972c448e1228592c",
+        "skillset.yaml": "sha256:a8e5b634d08e2593253d0eb4c9a0461563899cc4681168a8bb70d079dbfe2f1d"
+      }
+    }
+  ]
+}

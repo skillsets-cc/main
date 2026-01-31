@@ -51,7 +51,7 @@
           │ fetches at build time
           ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    skillsets-cc/registry                             │
+│                    skillsets-cc/main                             │
 │                       (GitHub Mono-repo)                             │
 │                                                                      │
 │  skillsets/                                                          │
@@ -73,7 +73,7 @@
 │  └── deploy-site.yml                ◄── Trigger site rebuild         │
 └─────────────────────────────────────────────────────────────────────┘
           ▲
-          │ npx degit skillsets-cc/registry/skillsets/@user/name
+          │ npx degit skillsets-cc/main/skillsets/@user/name
           │
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         npx skillsets                                │
@@ -258,7 +258,7 @@ import degit from 'degit';
 import crypto from 'crypto';
 
 async function install(skillsetId: string) {
-  const emitter = degit(`skillsets-cc/registry/skillsets/${skillsetId}`);
+  const emitter = degit(`skillsets-cc/main/skillsets/${skillsetId}`);
   await emitter.clone('.');
 
   // Verify checksums

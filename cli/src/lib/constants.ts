@@ -1,0 +1,6 @@
+export const CDN_BASE_URL = 'https://skillsets.cc';
+export const SEARCH_INDEX_URL = `${CDN_BASE_URL}/search-index.json`;
+export const REGISTRY_REPO = 'skillsets-cc/main';
+export const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+export const DEFAULT_SEARCH_LIMIT = 10;
+export const BACKUP_DIR_NAME = '.claude.backup';

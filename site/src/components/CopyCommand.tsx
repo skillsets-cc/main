@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, type ReactElement } from 'react';
 
 interface CopyCommandProps {
   command: string;
 }
 
-export default function CopyCommand({ command }: CopyCommandProps) {
+export default function CopyCommand({ command }: CopyCommandProps): ReactElement {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async () => {
+  async function handleCopy(): Promise<void> {
     try {
       await navigator.clipboard.writeText(command);
       setCopied(true);
@@ -15,22 +15,22 @@ export default function CopyCommand({ command }: CopyCommandProps) {
     } catch (error) {
       console.error('[CopyCommand] Failed to copy:', error);
     }
-  };
+  }
 
   return (
-    <div className="glass-surface p-6 rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Install</h2>
-      <div className="flex items-center gap-2 bg-surface-glassDark p-4 rounded">
+    <section className="border border-border-ink bg-stone-50 p-6 rounded-none">
+      <h2 className="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Install</h2>
+      <div className="flex items-center gap-2 bg-white border border-border-ink p-4 rounded-none">
         <pre className="flex-1 overflow-x-auto">
           <code>{command}</code>
         </pre>
         <button
           onClick={handleCopy}
-          className="px-4 py-2 rounded-none bg-orange-500 text-white hover:bg-opacity-90 transition-colors flex-shrink-0 font-mono text-sm font-bold"
+          className="text-orange-500 font-mono text-sm font-bold hover:underline transition-colors flex-shrink-0"
         >
           {copied ? '✓ Copied!' : 'Copy'}
         </button>
       </div>
-    </div>
+    </section>
   );
 }

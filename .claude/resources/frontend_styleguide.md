@@ -15,7 +15,7 @@ import SkillsetGrid from '@components/SkillsetGrid.astro';
 import SearchBar from '@components/SearchBar.tsx';
 
 // Fetch data at build time
-const response = await fetch('https://api.github.com/repos/skillsets-cc/registry/contents/skillsets');
+const response = await fetch('https://api.github.com/repos/skillsets-cc/main/contents/skillsets');
 const skillsets = await response.json();
 ---
 
@@ -182,7 +182,7 @@ const { namespace, name } = Astro.params;
 
 // Fetch skillset data on-demand
 const response = await fetch(
-  `https://api.github.com/repos/skillsets-cc/registry/contents/skillsets/@${namespace}/${name}/skillset.yaml`
+  `https://api.github.com/repos/skillsets-cc/main/contents/skillsets/@${namespace}/${name}/skillset.yaml`
 );
 
 if (!response.ok) {

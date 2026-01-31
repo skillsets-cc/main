@@ -3,41 +3,41 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import StarButton from '@components/StarButton';
 import CopyCommand from '@components/CopyCommand';
 import ProofGallery from '@components/ProofGallery.astro';
-import { mockSkillsets } from '@/utils/mockData';
-import type { Skillset } from '@/types';
+import { getSkillsetById } from '@/lib/data';
+import { marked } from 'marked';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const { namespace, name } = Astro.params;
 
 const skillsetId = `${namespace}/${name}`;
-const skillsetEntry = mockSkillsets.find(s => s.id === skillsetId);
+const skillset = getSkillsetById(skillsetId);
 
-if (!skillsetEntry) {
+if (!skillset) {
   return Astro.redirect('/404');
 }
 
-const skillset: Skillset = {
-  schema_version: '1.0',
-  name: skillsetEntry.name,
-  version: skillsetEntry.version,
-  description: skillsetEntry.description,
-  author: {
-    handle: skillsetEntry.author,
-    url: `https://github.com/${skillsetEntry.author.replace('@', '')}`,
-  },
-  verification: {
-    production_url: 'https://example.com/shipped-product',
-    audit_report: './AUDIT_REPORT.md',
-  },
-  tags: skillsetEntry.tags,
-  compatibility: {
-    claude_code_version: '>=1.0.0',
-    languages: ['any'],
-  },
-  status: 'active',
-  entry_point: './content/CLAUDE.md',
-};
-
+const authorUrl = skillset.author.url || `https://github.com/${skillset.author.handle.replace('@', '')}`;
 const installCommand = `npx skillsets install ${skillsetId}`;
+
+// Read README from local skillsets directory
+let readmeHtml = '';
+const readmePath = path.join(process.cwd(), '..', 'skillsets', skillsetId, 'README.md');
+
+if (fs.existsSync(readmePath)) {
+  let readmeContent = fs.readFileSync(readmePath, 'utf-8');
+  // Strip the first h1 since we already show the title in the page header
+  readmeContent = readmeContent.replace(/^#\s+.+\n+/, '');
+  readmeHtml = marked.parse(readmeContent);
+} else {
+  // Fallback - just show description since title is in header
+  readmeHtml = marked.parse(skillset.description);
+}
+
+// Status indicator color
+const statusColor = skillset.status === 'active' ? 'bg-green-500'
+  : skillset.status === 'deprecated' ? 'bg-yellow-500'
+  : 'bg-gray-500';
 ---
 
 <BaseLayout title={`${skillset.name} - Skillsets.cc`}>
@@ -47,7 +47,7 @@ const installCommand = `npx skillsets install ${skillsetId}`;
         <div>
           <h1 class="text-4xl font-bold font-serif mb-2 text-text-ink">{skillset.name}</h1>
           <p class="text-text-secondary font-serif">
-            by <a href={skillset.author.url} class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
+            by <a href={authorUrl} class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
               {skillset.author.handle}
             </a>
           </p>
@@ -56,8 +56,7 @@ const installCommand = `npx skillsets install ${skillsetId}`;
         <StarButton
           client:load
           skillsetId={skillsetId}
-          initialStars={skillsetEntry.stars}
-          initialStarred={false}
+          initialStars={skillset.stars}
         />
       </div>
 
@@ -73,30 +72,19 @@ const installCommand = `npx skillsets install ${skillsetId}`;
 
       <div class="flex items-center gap-4 text-sm text-text-tertiary font-mono">
         <span class="flex items-center gap-1">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
-          Version {skillset.version}
+          v{skillset.version}
         </span>
         <span class="flex items-center gap-1">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-          </svg>
+          <span class={`w-2 h-2 rounded-full ${statusColor}`}></span>
           {skillset.status}
         </span>
       </div>
     </header>
 
     <div class="space-y-6">
-      <section class="border border-border-ink bg-stone-50 p-6 rounded-none">
+      <section class="p-6 rounded-none">
         <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
-        <div class="prose prose-sm max-w-none text-text-secondary font-serif leading-relaxed">
-          <p>
-            This is a production-verified skillset that has been validated and tested in real-world applications.
-            It includes complete documentation, audit reports, and proof of production usage.
-          </p>
-          <!-- README content will be rendered here -->
-        </div>
+        <article class="prose max-w-none" set:html={readmeHtml} />
       </section>
 
       <CopyCommand client:load command={installCommand} />
@@ -106,8 +94,8 @@ const installCommand = `npx skillsets install ${skillsetId}`;
         hasAuditReport={!!skillset.verification.audit_report}
       />
 
-      <section>
-        <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider">Compatibility</h2>
+      <section class="border border-border-ink bg-stone-50 p-6 rounded-none">
+        <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Compatibility</h2>
         <dl class="space-y-3">
           <div>
             <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary mb-1">Claude Code Version</dt>

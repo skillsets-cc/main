@@ -1,4 +1,5 @@
 name = "skillsets-site"
+pages_build_output_dir = "dist"
 compatibility_date = "2026-01-30"
 compatibility_flags = ["nodejs_compat"]
 
@@ -8,13 +9,13 @@ compatibility_flags = ["nodejs_compat"]
 
 [[kv_namespaces]]
 binding = "STARS"
-id = "YOUR_STARS_KV_NAMESPACE_ID"
-preview_id = "YOUR_STARS_KV_NAMESPACE_PREVIEW_ID"
+id = "179bfbf61185432cb84f2958a5ea1d6c"
+preview_id = "b2203e22919b4caf84e2120bdc7029ab"
 
 [[kv_namespaces]]
 binding = "AUTH"
-id = "YOUR_AUTH_KV_NAMESPACE_ID"
-preview_id = "YOUR_AUTH_KV_NAMESPACE_PREVIEW_ID"
+id = "4f1aacbb6d1748a29dfebd7ad919e68e"
+preview_id = "7eb56e18367d4fe6aa1aa594866365ae"
 
 # Environment variables are configured via:
 #   npx wrangler secret put GITHUB_CLIENT_ID

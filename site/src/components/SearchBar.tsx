@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, type ReactElement } from 'react';
 import Fuse from 'fuse.js';
 import type { SearchIndexEntry } from '@/types';
 
@@ -7,7 +7,10 @@ interface SearchBarProps {
   onResultsChange: (results: SearchIndexEntry[]) => void;
 }
 
-export default function SearchBar({ skillsets, onResultsChange }: SearchBarProps) {
+export default function SearchBar({
+  skillsets,
+  onResultsChange,
+}: SearchBarProps): ReactElement {
   const [query, setQuery] = useState('');
 
   const fuse = useMemo(
@@ -24,7 +27,7 @@ export default function SearchBar({ skillsets, onResultsChange }: SearchBarProps
     return fuse.search(query).map((result) => result.item);
   }, [query, fuse, skillsets]);
 
-  useMemo(() => {
+  useEffect(() => {
     onResultsChange(results);
   }, [results, onResultsChange]);
 

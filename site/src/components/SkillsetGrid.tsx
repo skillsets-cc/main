@@ -1,17 +1,28 @@
-import { useState } from 'react';
+import { useState, useMemo, type ReactElement } from 'react';
 import type { SearchIndexEntry } from '@/types';
-import SearchBar from './SearchBar';
-import TagFilter from './TagFilter';
+import SearchBar from './SearchBar.js';
+import TagFilter from './TagFilter.js';
 
 interface SkillsetGridProps {
   skillsets: SearchIndexEntry[];
 }
 
-export default function SkillsetGrid({ skillsets }: SkillsetGridProps) {
-  const [searchResults, setSearchResults] = useState<SearchIndexEntry[]>(skillsets);
+export default function SkillsetGrid({
+  skillsets,
+}: SkillsetGridProps): ReactElement {
+  const [searchResults, setSearchResults] =
+    useState<SearchIndexEntry[]>(skillsets);
   const [tagResults, setTagResults] = useState<SearchIndexEntry[]>(skillsets);
 
-  const finalResults = searchResults.filter(s => tagResults.includes(s));
+  const tagResultIds = useMemo(
+    () => new Set(tagResults.map((s) => s.id)),
+    [tagResults]
+  );
+
+  const finalResults = useMemo(
+    () => searchResults.filter((s) => tagResultIds.has(s.id)),
+    [searchResults, tagResultIds]
+  );
 
   return (
     <div>
@@ -29,7 +40,7 @@ export default function SkillsetGrid({ skillsets }: SkillsetGridProps) {
                     {skillset.name}
                   </h3>
                   <span className="font-mono text-xs text-text-tertiary">
-                    v{skillset.version} • {skillset.author}
+                    v{skillset.version} • {skillset.author.handle}
                   </span>
                 </div>
                 <p className="text-text-secondary font-serif leading-relaxed max-w-3xl mb-3">

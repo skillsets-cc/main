@@ -13,7 +13,7 @@ This document provides evidence that The_Skillset has been used to ship real, pr
 **Description**: The skillsets.cc platform itself was built using The_Skillset workflow. This is a meta proof—the tool that catalogs production-verified workflows was itself built with a production-verified workflow.
 
 **Evidence**:
-- **Repository**: [skillsets-cc/registry](https://github.com/skillsets-cc/registry)
+- **Repository**: [skillsets-cc/main](https://github.com/skillsets-cc/main)
 - **Design Documents**: `PROCESS_DOCS/design/skillsets-cc-design.md`
 - **Execution Plans**: `PROCESS_DOCS/execution/skillsets-cc-execution.md`
 - **Deployed Site**: Live at skillsets.cc on Cloudflare Pages
@@ -191,8 +191,8 @@ The_Skillset itself follows its own workflow:
 
 ### Public Repositories Using The_Skillset
 
-1. **skillsets-cc/registry**
-   - URL: https://github.com/skillsets-cc/registry
+1. **skillsets-cc/main**
+   - URL: https://github.com/skillsets-cc/main
    - Stars: Growing
    - Uses: Complete SDLC workflow
    - Evidence: Check `PROCESS_DOCS/` for design and execution documents
@@ -216,7 +216,7 @@ project/
 To verify The_Skillset is being used in production:
 
 1. Visit [skillsets.cc](https://skillsets.cc)
-2. Check the [GitHub repository](https://github.com/skillsets-cc/registry)
+2. Check the [GitHub repository](https://github.com/skillsets-cc/main)
 3. Review `PROCESS_DOCS/` in the repository
 4. Examine commit history showing spec-first development
 5. Review test coverage and quality metrics

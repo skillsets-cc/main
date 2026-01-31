@@ -1,0 +1,61 @@
+name: Sync to Production
+
+on:
+  push:
+    branches:
+      - master  # or main, whatever your dev branch is
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dev repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: skillsets-cc
+          repositories: main
+
+      - name: Remove dev-only files
+        run: |
+          # Remove dev-only directories and files
+          rm -rf .claude/
+          rm -rf CLAUDE.md
+          rm -rf docker/
+          rm -rf PROCESS_DOCS/
+
+          # Remove this workflow itself (not needed in prod)
+          rm -f .github/workflows/sync-to-prod.yml
+
+          echo "Removed dev-only files:"
+          echo "  - .claude/"
+          echo "  - CLAUDE.md"
+          echo "  - docker/"
+          echo "  - PROCESS_DOCS/"
+          echo "  - .github/workflows/sync-to-prod.yml"
+
+      - name: Push to production
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+          # Stage all changes (including deletions)
+          git add -A
+
+          # Commit if there are changes
+          git diff --staged --quiet || git commit -m "Sync from dev
+
+          Automated sync excluding dev-only files.
+          Source: ${{ github.repository }}@${{ github.sha }}"
+
+          # Force push to prod using GitHub App token
+          git remote add prod https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/skillsets-cc/main.git
+          git push prod HEAD:main --force

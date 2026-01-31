@@ -155,7 +155,7 @@ export async function install(skillsetId: string, options: InstallOptions) {
 
     // Install using degit
     spinner.text = 'Downloading skillset...';
-    const emitter = degit(`skillsets-cc/registry/skillsets/${skillsetId}`, {
+    const emitter = degit(`skillsets-cc/main/skillsets/${skillsetId}`, {
       cache: true,
       force: true,
       verbose: false,

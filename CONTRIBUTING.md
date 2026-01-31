@@ -182,7 +182,7 @@ Create `PROOF.md` with evidence that your workflow has been used in production:
 
 ### Step 6: Submit Pull Request
 
-1. **Fork** the [skillsets-cc/registry](https://github.com/skillsets-cc/registry) repository
+1. **Fork** the [skillsets-cc/main](https://github.com/skillsets-cc/main) repository
 
 2. **Clone** your fork:
    ```bash
@@ -337,8 +337,8 @@ To archive (remove from discovery):
 - **Documentation**: Check this guide and example skillsets
 - **Audit Issues**: Review the audit report error messages
 - **CI Failures**: Read the GitHub Actions logs
-- **General Help**: Open a [Discussion](https://github.com/skillsets-cc/registry/discussions)
-- **Bugs**: Report via [Issues](https://github.com/skillsets-cc/registry/issues)
+- **General Help**: Open a [Discussion](https://github.com/skillsets-cc/main/discussions)
+- **Bugs**: Report via [Issues](https://github.com/skillsets-cc/main/issues)
 
 ### Community
 - **Discussions**: Share experiences and get feedback

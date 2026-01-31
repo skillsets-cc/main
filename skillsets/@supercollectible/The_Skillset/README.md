@@ -1,4 +1,4 @@
-# The_Skillset
+# The Skillset
 
 A complete, spec-driven Software Development Lifecycle (SDLC) workflow for Claude Code that emphasizes adversarial review, quality gates, and multi-model validation.
 
@@ -28,7 +28,7 @@ npx skillsets verify
 
 ```bash
 # Clone the registry and copy content
-git clone https://github.com/skillsets-cc/registry.git
+git clone https://github.com/skillsets-cc/main.git
 cp -r registry/skillsets/@supercollectible/The_Skillset/content/* .
 ```
 
@@ -160,8 +160,8 @@ Each agent in `.claude/agents/` can be customized:
 
 ## Support & Community
 
-- **Issues**: Report issues via the [registry](https://github.com/skillsets-cc/registry/issues)
-- **Discussions**: Share experiences on [GitHub Discussions](https://github.com/skillsets-cc/registry/discussions)
+- **Issues**: Report issues via the [registry](https://github.com/skillsets-cc/main/issues)
+- **Discussions**: Share experiences on [GitHub Discussions](https://github.com/skillsets-cc/main/discussions)
 - **Updates**: Star on skillsets.cc to track updates
 
 ## License

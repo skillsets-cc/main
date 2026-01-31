@@ -251,7 +251,7 @@ For issues or questions:
 - Check the [README](../README.md)
 - Review the [PROOF](../PROOF.md) for examples
 - Visit [skillsets.cc](https://skillsets.cc)
-- Open issues on the [registry](https://github.com/skillsets-cc/registry)
+- Open issues on the [registry](https://github.com/skillsets-cc/main)
 
 ## License
 
