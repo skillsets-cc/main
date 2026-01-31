@@ -17,7 +17,7 @@ jobs:
 
       - name: Generate GitHub App token
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
@@ -41,6 +41,29 @@ jobs:
           echo "  - docker/"
           echo "  - PROCESS_DOCS/"
           echo "  - .github/workflows/sync-to-prod.yml"
+
+      - name: Debug token permissions
+        run: |
+          echo "Testing token against GitHub API..."
+
+          # Check token scopes
+          curl -s -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
+               -H "Accept: application/vnd.github+json" \
+               https://api.github.com/rate_limit | head -20
+
+          # Check repo access
+          echo "---"
+          echo "Checking repo access..."
+          curl -s -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
+               -H "Accept: application/vnd.github+json" \
+               https://api.github.com/repos/skillsets-cc/main
+
+          # Check if we can get repo contents
+          echo "---"
+          echo "Checking repo permissions..."
+          curl -s -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
+               -H "Accept: application/vnd.github+json" \
+               https://api.github.com/repos/skillsets-cc/main/collaborators/permissions
 
       - name: Push to production
         run: |
