@@ -5,8 +5,6 @@ import CopyCommand from '@components/CopyCommand';
 import ProofGallery from '@components/ProofGallery.astro';
 import { getSkillsetById } from '@/lib/data';
 import { marked } from 'marked';
-import fs from 'node:fs';
-import path from 'node:path';
 
 const { namespace, name } = Astro.params;
 
@@ -20,18 +18,24 @@ if (!skillset) {
 const authorUrl = skillset.author.url || `https://github.com/${skillset.author.handle.replace('@', '')}`;
 const installCommand = `npx skillsets install ${skillsetId}`;
 
-// Read README from local skillsets directory
+// Fetch README from GitHub at runtime
 let readmeHtml = '';
-const readmePath = path.join(process.cwd(), '..', 'skillsets', skillsetId, 'README.md');
+const readmeUrl = `https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/${skillsetId}/README.md`;
 
-if (fs.existsSync(readmePath)) {
-  let readmeContent = fs.readFileSync(readmePath, 'utf-8');
-  // Strip the first h1 since we already show the title in the page header
-  readmeContent = readmeContent.replace(/^#\s+.+\n+/, '');
-  readmeHtml = marked.parse(readmeContent);
-} else {
-  // Fallback - just show description since title is in header
-  readmeHtml = marked.parse(skillset.description);
+try {
+  const response = await fetch(readmeUrl);
+  if (response.ok) {
+    let readmeContent = await response.text();
+    // Strip the first h1 since we already show the title in the page header
+    readmeContent = readmeContent.replace(/^#\s+.+\n+/, '');
+    readmeHtml = await marked.parse(readmeContent);
+  } else {
+    // Fallback to description
+    readmeHtml = await marked.parse(skillset.description);
+  }
+} catch {
+  // Fallback to description on network error
+  readmeHtml = await marked.parse(skillset.description);
 }
 
 // Status indicator color
