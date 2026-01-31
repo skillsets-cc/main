@@ -3,8 +3,8 @@ name: Sync to Production
 on:
   push:
     branches:
-      - master  # or main, whatever your dev branch is
-  workflow_dispatch: # Allow manual trigger
+      - master
+  workflow_dispatch:
 
 jobs:
   sync:
@@ -15,74 +15,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-          owner: skillsets-cc
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Remove dev-only files
         run: |
-          # Remove dev-only directories and files
           rm -rf .claude/
-          rm -rf CLAUDE.md
+          rm -f CLAUDE.md
           rm -rf docker/
           rm -rf PROCESS_DOCS/
-
-          # Remove this workflow itself (not needed in prod)
           rm -f .github/workflows/sync-to-prod.yml
 
-          echo "Removed dev-only files:"
-          echo "  - .claude/"
-          echo "  - CLAUDE.md"
-          echo "  - docker/"
-          echo "  - PROCESS_DOCS/"
-          echo "  - .github/workflows/sync-to-prod.yml"
-
-      - name: Debug token permissions
-        run: |
-          echo "=== 1. Check installation info ==="
-          curl -s -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
-               -H "Accept: application/vnd.github+json" \
-               https://api.github.com/installation/repositories
-
-          echo ""
-          echo "=== 2. Check repo permissions (with headers) ==="
-          curl -si -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
-               -H "Accept: application/vnd.github+json" \
-               https://api.github.com/repos/skillsets-cc/main | head -50
-
-          echo ""
-          echo "=== 3. Try to create a file via API (will show required permissions) ==="
-          curl -si -X PUT \
-               -H "Authorization: token ${{ steps.app-token.outputs.token }}" \
-               -H "Accept: application/vnd.github+json" \
-               https://api.github.com/repos/skillsets-cc/main/contents/test-permission.txt \
-               -d '{"message":"test","content":"dGVzdA=="}' | head -30
+          echo "Removed dev-only files"
 
       - name: Push to production
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          # Clear any credential cache and set up fresh credentials
-          git config --global credential.helper store
-          echo "https://x-access-token:${GH_TOKEN}@github.com" > ~/.git-credentials
-
-          # Stage all changes (including deletions)
           git add -A
-
-          # Commit if there are changes
           git diff --staged --quiet || git commit -m "Sync from dev
 
           Automated sync excluding dev-only files.
           Source: ${{ github.repository }}@${{ github.sha }}"
 
-          # Force push to prod
-          git remote add prod https://github.com/skillsets-cc/main.git
-          git push prod HEAD:main --force
+          git remote add prod git@github.com:skillsets-cc/main.git
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" git push prod HEAD:main --force
