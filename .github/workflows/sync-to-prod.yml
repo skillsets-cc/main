@@ -55,9 +55,11 @@ jobs:
           npm run build
 
       - name: Deploy to Cloudflare Pages
-        run: |
-          cd site
-          npx wrangler pages deploy dist --project-name=skillsets-site --branch=main
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: skillsets-site
+          directory: site/dist
+          branch: main
+          wranglerVersion: '3'
