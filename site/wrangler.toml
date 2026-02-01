@@ -2,6 +2,8 @@ name = "skillsets-site"
 main = "dist/_worker.js/index.js"
 compatibility_date = "2026-01-30"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+preview_urls = true
 
 [assets]
 binding = "ASSETS"
