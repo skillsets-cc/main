@@ -1,12 +1,12 @@
 # LiteLLM Configuration for Adversarial Review Council
-# Provides Gemini and Deepseek access with Context7 MCP grounding
+# Provides Kimi and Deepseek access with Context7 MCP grounding
 
 model_list:
-  # Gemini 3 Pro - broad knowledge, best practices
-  - model_name: gemini-review
+  # Kimi K2.5 - broad knowledge, best practices
+  - model_name: kimi-review
     litellm_params:
-      model: gemini/gemini-3-pro-preview
-      api_key: os.environ/GEMINI_API_KEY
+      model: moonshot/kimi-k2.5
+      api_key: os.environ/KIMI_API_KEY
 
   # Deepseek R1 - strong reasoning, alternative perspective
   - model_name: deepseek-review

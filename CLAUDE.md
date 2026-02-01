@@ -4,7 +4,6 @@
 
 **What we're building**: A curated registry of complete, production-verified Claude Code workflows. Unlike atomic skill marketplaces (SkillsMP's 87k+ skills) or limited official examples, skillsets.cc indexes **complete production stacks**—validated combinations of skills, agents, prompts, and configurations that have shipped real software.
 
-**Core value proposition**: "I want what actually shipped, not what demos well."
 
 **The first contribution**: [The_Skillset](https://github.com/supercollectible/The_Skillset) — a spec-driven SDLC with adversarial review, quality gates, and multi-model validation.
 
@@ -41,36 +40,36 @@
 │                         skillsets.cc                                 │
 │                       (Cloudflare Workers)                           │
 │                                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                  │
-│  │   Astro     │  │   GitHub    │  │   Star      │                  │
-│  │   Static    │  │   OAuth     │  │   Worker    │                  │
-│  │   Site      │  │   Worker    │  │   + KV      │                  │
-│  └──────┬──────┘  └─────────────┘  └─────────────┘                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                   │
+│  │   Astro     │  │   GitHub    │  │   Star      │                   │
+│  │   Static    │  │   OAuth     │  │   Worker    │                   │
+│  │   Site      │  │   Worker    │  │   + KV      │                   │
+│  └──────┬──────┘  └─────────────┘  └─────────────┘                   │
 │         │                                                            │
 └─────────┼────────────────────────────────────────────────────────────┘
           │ fetches at build time
           ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    skillsets-cc/main                             │
-│                       (GitHub Mono-repo)                             │
-│                                                                      │
-│  skillsets/                                                          │
-│  ├── @supercollectible/                                              │
-│  │   └── The_Skillset/                                               │
-│  │       ├── skillset.yaml          ◄── Manifest                     │
-│  │       ├── README.md              ◄── User instructions            │
-│  │       ├── AUDIT_REPORT.md        ◄── Structural validation        │
-│  │       └── content/               ◄── Files to install             │
-│  │           ├── .claude/                                            │
-│  │           ├── TheSkillset/                                        │
-│  │           └── CLAUDE.md                                           │
-│                                                                      │
-│  schema/                                                             │
-│  └── skillset.schema.json           ◄── Validation schema            │
-│                                                                      │
-│  .github/workflows/                                                  │
-│  ├── validate-submission.yml        ◄── PR validation                │
-│  └── deploy-site.yml                ◄── Trigger site rebuild         │
+│                    skillsets-cc/main                                │
+│                       (GitHub Mono-repo)                            │
+│                                                                     │
+│  skillsets/                                                         │
+│  ├── @supercollectible/                                             │
+│  │   └── The_Skillset/                                              │
+│  │       ├── skillset.yaml          ◄── Manifest                    │
+│  │       ├── README.md              ◄── User instructions           │
+│  │       ├── AUDIT_REPORT.md        ◄── Structural validation       │
+│  │       └── content/               ◄── Files to install            │
+│  │           ├── .claude/                                           │
+│  │           ├── TheSkillset/                                       │
+│  │           └── CLAUDE.md                                          │
+│                                                                     │
+│  schema/                                                            │
+│  └── skillset.schema.json           ◄── Validation schema           │
+│                                                                     │
+│  .github/workflows/                                                 │
+│  ├── validate-submission.yml        ◄── PR validation               │
+│  └── deploy-site.yml                ◄── Trigger site rebuild        │
 └─────────────────────────────────────────────────────────────────────┘
           ▲
           │ npx degit skillsets-cc/main/skillsets/@user/name

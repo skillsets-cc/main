@@ -1,6 +1,6 @@
 ---
 name: ar
-description: Opus-orchestrated adversarial review with cost/benefit analysis. Launches ar-o, ar-g, ar-d in parallel, synthesizes findings. Use for validating design docs before /plan.
+description: Opus-orchestrated adversarial review with cost/benefit analysis. Launches ar-o, ar-k, ar-d in parallel, synthesizes findings. Use for validating design docs before /plan.
 disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Task, Bash
 argument-hint: "[path/to/document]"
@@ -23,7 +23,7 @@ All agents have codebase access (filesystem MCP) and library docs (Context7 MCP)
 | Agent | Model | Launch Method |
 |-------|-------|---------------|
 | `ar-o` | Opus | Task tool (`subagent_type: ar-o`) |
-| `ar-g` | Gemini | LiteLLM HTTP (`model: gemini-review`) |
+| `ar-k` | Kimi | LiteLLM HTTP (`model: kimi-review`) |
 | `ar-d` | Deepseek | LiteLLM HTTP (`model: deepseek-review`) |
 
 **LiteLLM call pattern:**
@@ -31,9 +31,9 @@ All agents have codebase access (filesystem MCP) and library docs (Context7 MCP)
 curl -X POST http://localhost:4000/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gemini-review",
+    "model": "kimi-review",
     "messages": [
-      {"role": "system", "content": "<ar-g agent protocol>"},
+      {"role": "system", "content": "<ar-k agent protocol>"},
       {"role": "user", "content": "Review this design. Explore the codebase for architecture docs and existing patterns. Use Context7 for library best practices.\n\n<design document>"}
     ]
   }'

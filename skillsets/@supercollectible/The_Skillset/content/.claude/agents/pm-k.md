@@ -1,7 +1,7 @@
 ---
-name: pm-d
-description: Pattern matching agent (Deepseek). Extracts claims from source document and validates against target. Use with /pmatch for alignment checking.
-model: litellm:deepseek-review
+name: pm-k
+description: Pattern matching agent (Kimi). Extracts claims from source document and validates against target. Use with /pmatch for alignment checking.
+model: litellm:kimi-review
 endpoint: http://localhost:4000/chat/completions
 ---
 

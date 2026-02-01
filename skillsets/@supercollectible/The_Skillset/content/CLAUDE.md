@@ -48,27 +48,6 @@
 3. Reference style guides for implementation patterns
 4. Dont parse code if you can read docs
 
-### Plugins
-LSP plugins (`pyright`, `vtsls`) enable precise code navigation. Requires `export ENABLE_LSP_TOOL=1`.
-
-| Use Case | Operation | Benefit |
-|----------|-----------|---------|
-| Find where function is defined | `goToDefinition` | Jump directly instead of grep |
-| Check if code is used anywhere | `findReferences` | Confident dead code detection |
-| Get type info without reading file | `hover` | Quick context, fewer tokens |
-| Map file structure | `documentSymbol` | Understand module at a glance |
-| Search across codebase | `workspaceSymbol` | Find by name, not pattern |
-| Check for errors before running | `getDiagnostics` | Catch issues early |
-
-### Domain Skills
-Knowledge modules loaded on demand. Add to `.claude/skills/` as needed—ensure patterns don't conflict with style guides.
-
-| Skill | Triggers |
-|-------|----------|
-| *Add project-specific skills* | *Your domain keywords* |
-
-**Full workflow docs**: [README.md](README.md) in The Skillset repo
-
 ---
 
 ## 3. Code Patterns

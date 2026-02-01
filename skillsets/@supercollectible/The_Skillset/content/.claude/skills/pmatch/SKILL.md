@@ -47,18 +47,18 @@ Run both agents in parallel:
 | Agent | Model | Method |
 |-------|-------|--------|
 | `pm-s` | Sonnet | Task tool with `subagent_type: pm-s` |
-| `pm-d` | Deepseek | LiteLLM HTTP call |
+| `pm-k` | Kimi | LiteLLM HTTP call |
 
 **For pm-s**: Use Task tool directly.
 
-**For pm-d**: Call LiteLLM endpoint:
+**For pm-k**: Call LiteLLM endpoint:
 ```bash
 curl -X POST http://localhost:4000/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "deepseek-review",
+    "model": "kimi-review",
     "messages": [
-      {"role": "system", "content": "<pm-d agent protocol>"},
+      {"role": "system", "content": "<pm-k agent protocol>"},
       {"role": "user", "content": "<source doc> + <target doc or path>"}
     ]
   }'
@@ -109,7 +109,7 @@ Consensus: [High/Mixed] (agents agreed on X/Y items)
 ## Ambiguous ?
 | # | Claim | Why Unclear |
 |---|-------|-------------|
-| 6 | [claim] | [pm-s: matched, pm-d: gap] |
+| 6 | [claim] | [pm-s: matched, pm-k: gap] |
 
 ## Extras in Target +
 | Item | Location |
@@ -145,7 +145,7 @@ Consensus: [High/Mixed] (agents agreed on X/Y items)
 |-----------|--------|-------|
 | Orchestrator | ~5K | Opus |
 | pm-s | ~15-30K | Sonnet |
-| pm-d | ~15-30K | Deepseek |
+| pm-k | ~15-30K | Kimi |
 | **Total** | ~35-65K | Mixed |
 
 ~3-5x cheaper than `/ar` due to minimal orchestrator context and no ar-o (Opus subagent).

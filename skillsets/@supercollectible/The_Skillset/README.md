@@ -144,8 +144,8 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 │            ┌──────────────────────┼──────────────────────┐         │    │
 │            ↓                      ↓                      ↓         │    │
 │       ┌─────────┐            ┌─────────┐            ┌─────────┐    │    │
-│       │  ar-o   │            │  ar-g   │            │  ar-d   │    │    │
-│       │  Opus   │            │ Gemini  │            │Deepseek │    │    │
+│       │  ar-o   │            │  ar-k   │            │  ar-d   │    │    │
+│       │  Opus   │            │  Kimi   │            │Deepseek │    │    │
 │       └────┬────┘            └────┬────┘            └────┬────┘    │    │
 │            │                      │                      │         │    │
 │            │   Each agent: First Principles Challenge    │         │    │
@@ -187,8 +187,8 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 │ Protocol: SKILL_pmatch.md                                               │
 │                                                                         │
 │                  ┌──────────┐           ┌──────────┐                    │
-│                  │   pm-s   │           │   pm-d   │                    │
-│                  │  Sonnet  │           │ Deepseek │                    │
+│                  │   pm-s   │           │   pm-k   │                    │
+│                  │  Sonnet  │           │   Kimi   │                    │
 │                  └────┬─────┘           └────┬─────┘                    │
 │                       └───────────┬──────────┘                          │
 │                                   ↓                                     │
@@ -252,7 +252,7 @@ Seven checkpoints, each blocking forward progress until validation passes. The s
 | Gate | Mechanism | Validates |
 |------|-----------|-----------|
 | **Brief** | /arm | Requirements, constraints, style, key concepts extracted |
-| **Design** | ar-o / ar-g / ar-d | First principles, internal consistency, best practices |
+| **Design** | ar-o / ar-k / ar-d | First principles, internal consistency, best practices |
 | **Plan** | /pmatch | Plan matches design, complete acceptance criteria |
 | **Per-task** | /build workflow | Acceptance criteria, test cases |
 | **Code quality** | /denoise | Dead code, comments, redundancy, complexity |
@@ -299,24 +299,6 @@ Context7 pulls live library documentation via MCP—structured, authoritative, c
 
 Context7 is *required* for any library not already validated in the codebase. Web search fills gaps—especially useful for "has anyone else hit this?" questions.
 
-### Code Navigation (LSP)
-
-Grep finds text; LSP understands types. `findReferences` knows the difference between a variable named `config` and a string containing "config"—that's why it enables confident dead code detection. The language server runs in the background; operations are fast and type-aware.
-
-| Plugin | Auto-enabled |
-|--------|--------------|
-| `pyright@claude-code-lsps` | `.py` files |
-| `vtsls@claude-code-lsps` | `.ts`/`.tsx` files |
-
-| Operation | Use Case |
-|-----------|----------|
-| `goToDefinition` | Jump to source instead of grep |
-| `findReferences` | Confident dead code detection |
-| `hover` | Type info without reading file |
-| `documentSymbol` | Map file structure at a glance |
-| `workspaceSymbol` | Find by name across codebase |
-| `getDiagnostics` | Catch type errors before running |
-
 ---
 
 ## Meet The Team
@@ -337,12 +319,12 @@ The cost curve: Opus is expensive but catches design flaws that compound downstr
 
 ### Adversarial Review
 
-Three models, same protocol, different blind spots. The value isn't any single critique—it's where they *disagree*. When Opus flags an edge case that Gemini missed, or Deepseek questions an assumption both others accepted, that's signal. Unanimous approval means either the design is solid or all three share a blind spot.
+Three models, same protocol, different blind spots. The value isn't any single critique—it's where they *disagree*. When Opus flags an edge case that Kimi missed, or Deepseek questions an assumption both others accepted, that's signal. Unanimous approval means either the design is solid or all three share a blind spot.
 
 | Agent | Model | Strength |
 |-------|-------|----------|
 | `ar-o` | Opus | Exhaustive edge cases, deep assumption chains |
-| `ar-g` | Gemini | Broad knowledge base, fast pattern recognition |
+| `ar-k` | Kimi | Broad knowledge base, fast pattern recognition |
 | `ar-d` | Deepseek | Alternative training distribution, cost-effective |
 
 The orchestrator aggregates findings, deduplicates overlapping critiques, and presents cost/benefit recommendations. Human decides which critiques warrant design changes.
@@ -354,7 +336,7 @@ Spec drift is real. The design says one thing; the code does another. Pattern ma
 | Agent | Model | Protocol |
 |-------|-------|----------|
 | `pm-s` | Sonnet | [SKILL_pmatch.md](TheSkillset/skills/SKILL_pmatch.md) |
-| `pm-d` | Deepseek | [SKILL_pmatch.md](TheSkillset/skills/SKILL_pmatch.md) |
+| `pm-k` | Kimi | [SKILL_pmatch.md](TheSkillset/skills/SKILL_pmatch.md) |
 
 Output: list of claims with VALIDATED/VIOLATED/MISSING status, citations to both documents.
 
@@ -377,8 +359,8 @@ Adversarial review and pattern matching require access to models outside Claude.
 
 **Architecture**:
 ```
-Claude Code (Opus) ──► LiteLLM Proxy ──┬──► Gemini (ar-g)
-                                       ├──► Deepseek (ar-d, pm-d)
+Claude Code (Opus) ──► LiteLLM Proxy ──┬──► Kimi (ar-k, pm-k)
+                                       ├──► Deepseek (ar-d)
                                        ├──► Context7 MCP (library docs)
                                        └──► Filesystem MCP (codebase access)
 ```
@@ -387,19 +369,19 @@ Claude Code (Opus) ──► LiteLLM Proxy ──┬──► Gemini (ar-g)
 
 | Model | Agent | Purpose |
 |-------|-------|---------|
-| `gemini/gemini-3-pro-preview` | ar-g | Broad knowledge, fast pattern recognition |
-| `deepseek/deepseek-reasoner` | ar-d, pm-d | Strong reasoning, alternative perspective |
+| `moonshot/kimi-k2.5` | ar-k, pm-k | Broad knowledge, fast pattern recognition |
+| `deepseek/deepseek-reasoner` | ar-d | Strong reasoning, alternative perspective |
 
 **MCP integration**: External agents get two MCP servers:
 - **Context7**: Library documentation via `resolve-library-id` and `query-docs`
 - **Filesystem**: Read-only codebase access via `read_text_file`, `search_files`, `list_directory`, `directory_tree`
 
-This gives ar-g and ar-d the same grounding capabilities as ar-o—they can explore architecture docs, module READMEs, and existing code independently.
+This gives ar-k and ar-d the same grounding capabilities as ar-o—they can explore architecture docs, module READMEs, and existing code independently.
 
 **Setup**:
 ```bash
 cd docker/litellm
-cp .env.example .env  # Add GEMINI_API_KEY, DEEPSEEK_API_KEY, CONTEXT7_API_KEY
+cp .env.example .env  # Add KIMI_API_KEY, DEEPSEEK_API_KEY, CONTEXT7_API_KEY
 docker-compose up -d
 ```
 
@@ -430,10 +412,10 @@ docker-compose up -d
 │   ├── qa-f.md                # Frontend module audit
 │   ├── qa-b.md                # Backend module audit
 │   ├── ar-o.md                # Adversarial review (Opus)
-│   ├── ar-g.md                # Adversarial review (Gemini via LiteLLM)
+│   ├── ar-k.md                # Adversarial review (Kimi via LiteLLM)
 │   ├── ar-d.md                # Adversarial review (Deepseek via LiteLLM)
 │   ├── pm-s.md                # Pattern matching (Sonnet)
-│   └── pm-d.md                # Pattern matching (Deepseek via LiteLLM)
+│   └── pm-k.md                # Pattern matching (Kimi via LiteLLM)
 │
 └── resources/                 # Shared resources (style guides, templates)
     ├── frontend_styleguide.md
@@ -443,10 +425,6 @@ docker-compose up -d
     ├── README_module_template.md
     └── file_doc_template.md
 
-TheSkillset/                   # Documentation (reference copies)
-├── skills/                    # Skill protocol documentation
-├── agents/                    # Agent protocol documentation
-└── resources/                 # Template documentation
 ```
 
 ---
@@ -486,62 +464,6 @@ A complete feature lifecycle. In practice, you skip or repeat phases based on co
 
 ---
 
-## Quick Start
-
-### 1. Install Claude Code
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-Requires Node.js 18+ and an Anthropic API key. See [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code) for details.
-
-### 2. Copy to Your Project
-
-```bash
-# Clone The Skillset
-git clone https://github.com/nooqta/The_Skillset.git
-
-# Copy workflow infrastructure to your project
-cp -r The_Skillset/.claude /path/to/your-project/
-cp The_Skillset/claude.md.example /path/to/your-project/CLAUDE.md
-```
-
-The `.claude/` folder contains everything: skills, agents, and resources. `TheSkillset/` is documentation only—not required for operation.
-
-### 3. Customize
-
-See [QUICKSTART.md](QUICKSTART.md) for the full customization checklist.
-
-### 4. Multi-Model Setup
-
-Required for adversarial review (`/ar`) and pattern matching (`/pmatch`). 
-
-```bash
-# Copy LiteLLM infrastructure
-cp -r The_Skillset/docker /path/to/your-project/
-
-# Configure and run
-cd /path/to/your-project/docker/litellm
-cp .env.example .env
-# Add: GEMINI_API_KEY, DEEPSEEK_API_KEY
-docker-compose up -d
-```
-
-### 5. Verify
-
-```bash
-cd /path/to/your-project
-claude
-
-# Test the workflow
-/arm I want to add a simple feature
-```
-
----
-
 ## License
-
-![Licence](/assets/by-sa.png)
 
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

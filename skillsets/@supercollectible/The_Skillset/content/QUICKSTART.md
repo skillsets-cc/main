@@ -1,54 +1,26 @@
-# Quick Start
+# Customization Guide
 
-Copy The Skillset's workflow infrastructure to your project, then customize for your stack.
+After installing via `npx skillsets install @supercollectible/The_Skillset`, customize the workflow for your project.
 
 ---
 
-## 0. Installation
-
-### Prerequisites
-- Node.js 18+
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed (`npm install -g @anthropic-ai/claude-code`)
-- Anthropic API key configured
-
-### Copy to Your Project
-
-```bash
-# Clone The Skillset
-git clone https://github.com/nooqta/The_Skillset.git
-
-# Copy to your project
-cp -r The_Skillset/.claude /path/to/your-project/
-cp -r The_Skillset/TheSkillset /path/to/your-project/
-cp The_Skillset/claude.md.example /path/to/your-project/CLAUDE.md
-
-# Optional: multi-model infrastructure
-cp -r The_Skillset/docker /path/to/your-project/
-```
-
-### What You Just Copied
+## What Was Installed
 
 ```
 your-project/
 ├── .claude/
 │   ├── skills/           # Workflow skills (/arm, /design, /build, etc.)
-│   │   ├── arm/          # Add domain skills here as needed
-│   │   ├── design/
-│   │   └── ...
-│   └── agents/           # Sub-agent definitions (build, qa-*, ar-*, pm-*)
-├── TheSkillset/
-│   ├── skills/           # Skill protocols (SKILL_*.md)
-│   ├── agents/           # Agent protocols (AGENT_*.md)
-│   └── resources/        # Style guides & templates ← CUSTOMIZE
-├── CLAUDE.md             # Project config ← CUSTOMIZE
+│   ├── agents/           # Sub-agent definitions (ar-*, pm-*, qa-*, build)
+│   └── resources/        # Style guides & templates
+├── CLAUDE.md             # Project config ← START HERE
 └── docker/litellm/       # Multi-model proxy (optional)
 ```
 
 ---
 
-## 1. CLAUDE.md (Required)
+## CLAUDE.md 
 
-Copy `claude.md.example` to `CLAUDE.md` in your project root. This is always in context and defines how Claude operates.
+The installed `CLAUDE.md` is a template. Replace the placeholder content with your project's specifics.
 
 ### Sections to Customize
 
@@ -56,14 +28,13 @@ Copy `claude.md.example` to `CLAUDE.md` in your project root. This is always in 
 |---------|----------------|
 | **Identity & Constraints** | Your project vision, hard constraints, architecture overview |
 | **Documentation Map** | Paths to your architecture docs, module docs, style guides |
-| **Domain Skills** | Keep/remove skills relevant to your stack |
 | **Code Patterns** | Your module structure, frontend/backend patterns |
 | **Lessons Learned** | Start empty, add entries as patterns emerge |
 
-### Identity & Constraints Checklist
+### Identity & Constraints Template
 
 ```markdown
-## 1. Identity & Constraints
+## Identity & Constraints
 
 **What we're building**: [One paragraph - your product vision]
 
@@ -85,9 +56,9 @@ Copy `claude.md.example` to `CLAUDE.md` in your project root. This is always in 
 
 ---
 
-## 2. Style Guides (Required)
+## Style Guides 
 
-Located in `TheSkillset/resources/`. These encode your coding standards so agents follow them.
+Located in `.claude/resources/`. These encode your coding standards so agents follow them.
 
 | File | Customize For |
 |------|---------------|
@@ -110,43 +81,18 @@ Located in `TheSkillset/resources/`. These encode your coding standards so agent
 
 ---
 
-## 3. Domain Skills (Optional)
+## Agents 
 
-Located in `.claude/skills/`. Knowledge modules loaded on demand. None included by default—add your own as needed.
-
-### To Add a Domain Skill
-
-```
-.claude/skills/your-skill/
-├── SKILL.md              # Entry point (required)
-├── reference1.md         # Supporting docs
-└── reference2.md         # Examples, patterns
-```
-
-Reference in your CLAUDE.md:
-```markdown
-| [Your Skill](.claude/skills/your-skill/SKILL.md) | Triggers: keyword1, keyword2 |
-```
-
-### Style Guide Conflicts
-
-Domain skills provide context and patterns for specific technologies. If a skill recommends patterns that conflict with your style guides, the **style guide wins**—it defines your project's constraints. Either:
-- Modify the skill to align with your style guide
-- Don't add the skill if the conflict is fundamental
-
----
-
-## 4. QA Agents (Recommended)
-
-Located in `TheSkillset/agents/`. Project-specific audit patterns.
+Located in `.claude/agents/`. Customize for your stack.
 
 | File | Customize For |
 |------|---------------|
-| `AGENT_qa-f.md` | Frontend audit: your design system, component patterns, accessibility rules |
-| `AGENT_qa-b.md` | Backend audit: your DI patterns, logging format, error handling conventions |
-| `AGENT_build.md` | Build workflow: test commands, environment setup, cleanup checks |
+| `qa-f.md` | Frontend audit: your design system, component patterns, accessibility rules, etc |
+| `qa-b.md` | Backend audit: your DI patterns, logging format, error handling conventions, etc |
+| `qa-docs.md` | Documentation audit: your doc structure, ARC/README templates |
+| `build.md` | Build workflow: test commands, environment setup, cleanup checks |
 
-### AGENT_build.md Checklist
+### build.md Checklist
 
 - [ ] Update test environment commands for your stack
 - [ ] Set style guide references to your guides
@@ -155,9 +101,9 @@ Located in `TheSkillset/agents/`. Project-specific audit patterns.
 
 ---
 
-## 5. Documentation Templates (Optional)
+## Documentation Templates
 
-Located in `TheSkillset/resources/`. Structure for generated docs.
+Located in `.claude/resources/`. Structure for generated docs.
 
 | Template | Customize If... |
 |----------|-----------------|
@@ -168,36 +114,48 @@ Located in `TheSkillset/resources/`. Structure for generated docs.
 
 ---
 
-## 6. Multi-Model Infrastructure (Optional)
+## Multi-Model Infrastructure
 
 Required only for adversarial review (`/ar`) and pattern matching (`/pmatch`).
 
 ```bash
-cd /path/to/your-project/docker/litellm
+cd docker/litellm
 cp .env.example .env
 # Add your API keys:
-# - GEMINI_API_KEY
+# - KIMI_API_KEY
 # - DEEPSEEK_API_KEY
 docker-compose up -d
 ```
 
-Skip if you only need single-model workflow (design → plan → build).
+### External Agents
+
+Located in `.claude/agents/`. These run via LiteLLM proxy.
+
+| File | Model | Used By |
+|------|-------|---------|
+| `ar-k.md` | Kimi | `/ar` |
+| `ar-d.md` | Deepseek | `/ar` |
+| `pm-k.md` | Kimi | `/pmatch` |
+
+**What you can customize:**
+
+1. **Swap models** — Edit `docker/litellm/config.yaml` and `.env`:
+   ```yaml
+   # config.yaml
+   - model_name: kimi-review
+     litellm_params:
+       model: your-preferred-model  # Any LiteLLM-supported model
+       api_key: os.environ/YOUR_API_KEY
+   ```
+   ```bash
+   # .env
+   YOUR_API_KEY=sk-...
+   ```
+
+2. **Change endpoint** — If running LiteLLM elsewhere, update agent frontmatter:
+   ```yaml
+   endpoint: http://your-host:4000/chat/completions
+   ```
 
 ---
 
-## Verification
-
-After setup, test the workflow:
-
-```bash
-# Should load your CLAUDE.md context
-claude
-
-# Test crystallization
-/arm I want to add [simple feature]
-
-# Test design (if /arm works)
-/design [output from arm]
-```
-
-If agents reference wrong paths or patterns, update your CLAUDE.md and style guides.

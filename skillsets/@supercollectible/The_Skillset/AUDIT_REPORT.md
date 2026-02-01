@@ -63,10 +63,10 @@ No secrets detected.
 | File | Size |
 |------|------|
 | .claude/agents/ar-d.md | 3.4 KB |
-| .claude/agents/ar-g.md | 3.4 KB |
+| .claude/agents/ar-k.md | 3.4 KB |
 | .claude/agents/ar-o.md | 3.6 KB |
 | .claude/agents/build.md | 5.4 KB |
-| .claude/agents/pm-d.md | 2.2 KB |
+| .claude/agents/pm-k.md | 2.2 KB |
 | .claude/agents/pm-s.md | 2.2 KB |
 | .claude/agents/qa-b.md | 4.7 KB |
 | .claude/agents/qa-docs.md | 3.8 KB |
@@ -122,10 +122,10 @@ No secrets detected.
 | assets/by-sa.png | 17.2 KB |
 | claude.md.example | 7.7 KB |
 | content/.claude/agents/ar-d.md | 3.4 KB |
-| content/.claude/agents/ar-g.md | 3.4 KB |
+| content/.claude/agents/ar-k.md | 3.4 KB |
 | content/.claude/agents/ar-o.md | 3.6 KB |
 | content/.claude/agents/build.md | 5.4 KB |
-| content/.claude/agents/pm-d.md | 2.2 KB |
+| content/.claude/agents/pm-k.md | 2.2 KB |
 | content/.claude/agents/pm-s.md | 2.2 KB |
 | content/.claude/agents/qa-b.md | 4.7 KB |
 | content/.claude/agents/qa-docs.md | 3.8 KB |
@@ -186,7 +186,7 @@ All validation checks passed. You can now submit this skillset to the registry.
 | Type | Count | Files |
 |------|-------|-------|
 | Skills | 11 | `/ar`, `/arm`, `/build`, `/denoise`, `/design`, `/plan`, `/pmatch`, `/qb`, `/qd`, `/qf`, `/skillset-audit` |
-| Agents | 9 | `ar-d`, `ar-g`, `ar-o`, `build`, `pm-d`, `pm-s`, `qa-b`, `qa-docs`, `qa-f` |
+| Agents | 9 | `ar-d`, `ar-k`, `ar-o`, `build`, `pm-k`, `pm-s`, `qa-b`, `qa-docs`, `qa-f` |
 | Resources | 6 | `ARC_doc_template`, `README_module_template`, `backend_styleguide`, `claude-execution-template`, `file_doc_template`, `frontend_styleguide` |
 | CLAUDE.md | Yes | `content/CLAUDE.md` (example template) |
 | Infrastructure | Yes | `docker/litellm/` (multi-model proxy) |
@@ -220,7 +220,7 @@ All validation checks passed. You can now submit this skillset to the registry.
 |----------|------|----------------|----------|
 | Project Brief | `PROCESS_DOCS/briefs/PROJECT_BRIEF.md` | `/arm` | Requirements crystallization |
 | Design Doc | `PROCESS_DOCS/design/skillsets-cc-design.md` | `/design` | Architecture decisions, tech stack |
-| AR Review | `PROCESS_DOCS/reviews/skillsets-cc-ar-review.md` | `/ar` | Multi-model critique (Opus, Deepseek, Gemini) |
+| AR Review | `PROCESS_DOCS/reviews/skillsets-cc-ar-review.md` | `/ar` | Multi-model critique (Opus, Deepseek, Kimi) |
 | Design Review | `PROCESS_DOCS/reviews/skillsets-cc-design-review.md` | `/ar` | Additional review pass |
 | Execution Plan | `PROCESS_DOCS/execution/skillsets-cc-execution.md` | `/plan` | Task breakdown with acceptance criteria |
 
@@ -231,7 +231,7 @@ The artifacts demonstrate the complete SDLC flow:
 /arm → PROJECT_BRIEF.md → /design → skillsets-cc-design.md → /ar → ar-review.md → /plan → execution.md
 ```
 
-The AR review shows unanimous multi-model findings (ar-o, ar-d, ar-g) on critical issues like GitHub API rate limits, demonstrating genuine adversarial validation rather than rubber-stamping.
+The AR review shows unanimous multi-model findings (ar-o, ar-d, ar-k) on critical issues like GitHub API rate limits, demonstrating genuine adversarial validation rather than rubber-stamping.
 
 ### Issues
 
