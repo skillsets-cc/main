@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { existsSync, writeFileSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 
 // Mock child_process before importing submit
 vi.mock('child_process', () => ({
@@ -177,12 +177,14 @@ entry_point: "./content/CLAUDE.md"
       if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
       if (cmd.includes('gh repo fork')) return Buffer.from('');
       if (cmd.includes('gh repo clone')) return Buffer.from('');
-      if (cmd.includes('git checkout')) return Buffer.from('');
-      if (cmd.includes('git add')) return Buffer.from('');
-      if (cmd.includes('git commit')) return Buffer.from('');
-      if (cmd.includes('git push')) return Buffer.from('');
-      if (cmd.includes('gh pr create')) return opts?.encoding ? prUrl : Buffer.from(prUrl);
       return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    vi.mocked(spawnSync).mockImplementation((cmd: string, args?: string[]) => {
+      if (cmd === 'gh' && args?.[0] === 'pr') {
+        return { status: 0, stdout: prUrl, stderr: '', pid: 0, output: [], signal: null };
+      }
+      return { status: 0, stdout: '', stderr: '', pid: 0, output: [], signal: null };
     });
 
     // Create valid structure
@@ -248,12 +250,14 @@ entry_point: "./content/CLAUDE.md"
       if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
       if (cmd.includes('gh repo fork')) return Buffer.from('');
       if (cmd.includes('gh repo clone')) return Buffer.from('');
-      if (cmd.includes('git checkout')) return Buffer.from('');
-      if (cmd.includes('git add')) return Buffer.from('');
-      if (cmd.includes('git commit')) return Buffer.from('');
-      if (cmd.includes('git push')) return Buffer.from('');
-      if (cmd.includes('gh pr create')) return opts?.encoding ? prUrl : Buffer.from(prUrl);
       return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    vi.mocked(spawnSync).mockImplementation((cmd: string, args?: string[]) => {
+      if (cmd === 'gh' && args?.[0] === 'pr') {
+        return { status: 0, stdout: prUrl, stderr: '', pid: 0, output: [], signal: null };
+      }
+      return { status: 0, stdout: '', stderr: '', pid: 0, output: [], signal: null };
     });
 
     // Mock existing skillset with lower version
@@ -285,5 +289,112 @@ entry_point: "./content/CLAUDE.md"
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining('Update complete')
     );
+  });
+
+  describe('command injection protection', () => {
+    beforeEach(() => {
+      vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+        if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+        if (cmd === 'gh auth status') return Buffer.from('Logged in');
+        if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+        return opts?.encoding ? '' : Buffer.from('');
+      });
+    });
+
+    it('rejects name with command substitution $(...)', async () => {
+      const maliciousYaml = `schema_version: "1.0"
+name: "test$(whoami)"
+version: "1.0.0"
+description: "Malicious skillset attempting command injection"
+author:
+  handle: "@testuser"
+  url: "https://github.com/testuser"
+verification:
+  production_url: "https://example.com"
+  audit_report: "./AUDIT_REPORT.md"
+tags:
+  - "test"
+status: "active"
+entry_point: "./content/CLAUDE.md"
+`;
+      writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
+
+      await expect(submit()).rejects.toThrow('Process exit');
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('skillset.yaml not found or invalid')
+      );
+    });
+
+    it('rejects name with backtick command substitution', async () => {
+      const maliciousYaml = `schema_version: "1.0"
+name: "test\`whoami\`"
+version: "1.0.0"
+description: "Malicious skillset attempting command injection"
+author:
+  handle: "@testuser"
+  url: "https://github.com/testuser"
+verification:
+  production_url: "https://example.com"
+  audit_report: "./AUDIT_REPORT.md"
+tags:
+  - "test"
+status: "active"
+entry_point: "./content/CLAUDE.md"
+`;
+      writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
+
+      await expect(submit()).rejects.toThrow('Process exit');
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('skillset.yaml not found or invalid')
+      );
+    });
+
+    it('rejects name with semicolon command chaining', async () => {
+      const maliciousYaml = `schema_version: "1.0"
+name: "test; rm -rf /"
+version: "1.0.0"
+description: "Malicious skillset attempting command injection"
+author:
+  handle: "@testuser"
+  url: "https://github.com/testuser"
+verification:
+  production_url: "https://example.com"
+  audit_report: "./AUDIT_REPORT.md"
+tags:
+  - "test"
+status: "active"
+entry_point: "./content/CLAUDE.md"
+`;
+      writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
+
+      await expect(submit()).rejects.toThrow('Process exit');
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('skillset.yaml not found or invalid')
+      );
+    });
+
+    it('rejects author handle with shell metacharacters', async () => {
+      const maliciousYaml = `schema_version: "1.0"
+name: "test-skillset"
+version: "1.0.0"
+description: "Malicious skillset attempting command injection"
+author:
+  handle: "@test$(id)"
+  url: "https://github.com/testuser"
+verification:
+  production_url: "https://example.com"
+  audit_report: "./AUDIT_REPORT.md"
+tags:
+  - "test"
+status: "active"
+entry_point: "./content/CLAUDE.md"
+`;
+      writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
+
+      await expect(submit()).rejects.toThrow('Process exit');
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('skillset.yaml not found or invalid')
+      );
+    });
   });
 });

@@ -61,11 +61,16 @@ function parseSkillsetYaml(cwd: string): { name: string; author: string; version
   try {
     const content = readFileSync(yamlPath, 'utf-8');
     const data = yaml.load(content) as Record<string, any>;
-    return {
-      name: data.name,
-      author: data.author?.handle?.replace('@', ''),
-      version: data.version,
-    };
+    const name = data.name;
+    const author = data.author?.handle?.replace('@', '');
+    const version = data.version;
+
+    // Validate format to prevent command injection
+    if (!name || !/^[A-Za-z0-9_-]+$/.test(name)) return null;
+    if (!author || !/^[A-Za-z0-9_-]+$/.test(author)) return null;
+    if (!version || !/^[0-9]+\.[0-9]+\.[0-9]+$/.test(version)) return null;
+
+    return { name, author, version };
   } catch {
     return null;
   }
@@ -202,7 +207,7 @@ export async function submit(): Promise<void> {
 
     // Create branch
     spinner.text = 'Creating branch...';
-    execSync(`git checkout -b "${branchName}"`, { cwd: tempDir, stdio: 'ignore' });
+    spawnSync('git', ['checkout', '-b', branchName], { cwd: tempDir, stdio: 'ignore' });
 
     // Create skillset directory
     const skillsetDir = join(tempDir, 'skillsets', `@${skillset.author}`, skillset.name);
@@ -219,15 +224,15 @@ export async function submit(): Promise<void> {
 
     // Commit
     spinner.text = 'Committing changes...';
-    execSync('git add .', { cwd: tempDir, stdio: 'ignore' });
+    spawnSync('git', ['add', '.'], { cwd: tempDir, stdio: 'ignore' });
     const commitMsg = isUpdate
       ? `Update ${skillsetId} to v${skillset.version}`
       : `Add ${skillsetId}`;
-    execSync(`git commit -m "${commitMsg}"`, { cwd: tempDir, stdio: 'ignore' });
+    spawnSync('git', ['commit', '-m', commitMsg], { cwd: tempDir, stdio: 'ignore' });
 
     // Push to fork
     spinner.text = 'Pushing to fork...';
-    execSync(`git push -u origin "${branchName}" --force`, { cwd: tempDir, stdio: 'ignore' });
+    spawnSync('git', ['push', '-u', 'origin', branchName, '--force'], { cwd: tempDir, stdio: 'ignore' });
 
     // Create PR
     spinner.text = 'Creating pull request...';
@@ -279,10 +284,13 @@ _Add any additional context for reviewers here._
 Submitted via \`npx skillsets submit\`
 `;
 
-    const prResult = execSync(
-      `gh pr create --repo ${REGISTRY_REPO} --title "${prTitle}" --body "${prBody.replace(/"/g, '\\"')}"`,
-      { cwd: tempDir, encoding: 'utf-8' }
-    );
+    const prResult = spawnSync('gh', ['pr', 'create', '--repo', REGISTRY_REPO, '--title', prTitle, '--body', prBody], {
+      cwd: tempDir,
+      encoding: 'utf-8',
+    });
+    if (prResult.status !== 0) {
+      throw new Error(prResult.stderr || 'Failed to create PR');
+    }
 
     // Cleanup
     spinner.text = 'Cleaning up...';
@@ -291,7 +299,7 @@ Submitted via \`npx skillsets submit\`
     spinner.succeed('Pull request created');
 
     // Extract PR URL from result
-    const prUrl = prResult.trim();
+    const prUrl = (prResult.stdout || '').trim();
 
     console.log(chalk.green(`\n✓ ${isUpdate ? 'Update' : 'Submission'} complete!\n`));
     console.log(`  Skillset: ${chalk.bold(skillsetId)}`);

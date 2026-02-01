@@ -7,7 +7,7 @@ interface StarButtonProps {
 
 const BASE_STYLES =
   'flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-mono font-bold transition-all border';
-const STARRED_STYLES = 'bg-orange-500 text-white border-orange-500';
+const STARRED_STYLES = 'bg-stone-50 border-orange-500 text-orange-500';
 const UNSTARRED_STYLES =
   'bg-stone-50 border-border-ink text-text-secondary hover:border-orange-500 hover:text-orange-500';
 
