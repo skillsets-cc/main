@@ -6,7 +6,6 @@ import ProofGallery from '@components/ProofGallery.astro';
 import { getSkillsetById } from '@/lib/data';
 import { marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
-import { sanitizeHtml } from '@/lib/sanitize';
 
 marked.use(gfmHeadingId());
 
@@ -33,14 +32,14 @@ try {
     let readmeContent = await response.text();
     // Strip the first h1 since we already show the title in the page header
     readmeContent = readmeContent.replace(/^#\s+.+\n+/, '');
-    readmeHtml = sanitizeHtml(await marked.parse(readmeContent));
+    readmeHtml = await marked.parse(readmeContent);
   } else {
     // Fallback to description
-    readmeHtml = sanitizeHtml(await marked.parse(skillset.description));
+    readmeHtml = await marked.parse(skillset.description);
   }
 } catch {
   // Fallback to description on network error
-  readmeHtml = sanitizeHtml(await marked.parse(skillset.description));
+  readmeHtml = await marked.parse(skillset.description);
 }
 
 // Status indicator color
