@@ -1,0 +1,113 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { list } from '../list.js';
+import * as api from '../../lib/api.js';
+
+vi.mock('../../lib/api.js');
+
+describe('list command', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+  });
+
+  const mockIndex = {
+    version: '1.0',
+    generated_at: '2024-01-01',
+    skillsets: [
+      {
+        id: '@user/alpha',
+        name: 'Alpha',
+        description: 'First skillset',
+        tags: ['test'],
+        author: { handle: '@user', url: 'https://github.com/user' },
+        stars: 10,
+        version: '1.0.0',
+        status: 'active',
+        verification: { production_url: 'https://example.com', audit_report: './AUDIT_REPORT.md' },
+        compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
+        entry_point: './content/CLAUDE.md',
+        checksum: 'abc123',
+        files: {},
+      },
+      {
+        id: '@user/beta',
+        name: 'Beta',
+        description: 'Second skillset',
+        tags: ['production'],
+        author: { handle: '@other', url: 'https://github.com/other' },
+        stars: 25,
+        version: '2.0.0',
+        status: 'active',
+        verification: { production_url: 'https://example.com', audit_report: './AUDIT_REPORT.md' },
+        compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
+        entry_point: './content/CLAUDE.md',
+        checksum: 'def456',
+        files: {},
+      },
+    ],
+  };
+
+  it('lists all skillsets', async () => {
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(mockIndex);
+
+    await list({});
+
+    expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+    expect(console.log).toHaveBeenCalled();
+  });
+
+  it('sorts by name by default', async () => {
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(mockIndex);
+
+    await list({ sort: 'name' });
+
+    expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+  });
+
+  it('sorts by stars', async () => {
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(mockIndex);
+
+    await list({ sort: 'stars' });
+
+    expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+  });
+
+  it('limits results', async () => {
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(mockIndex);
+
+    await list({ limit: '1' });
+
+    expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+  });
+
+  it('outputs JSON when requested', async () => {
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(mockIndex);
+
+    await list({ json: true });
+
+    expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+    // Check JSON was output
+    const calls = vi.mocked(console.log).mock.calls;
+    const jsonOutput = calls.find(call => {
+      try {
+        JSON.parse(call[0] as string);
+        return true;
+      } catch {
+        return false;
+      }
+    });
+    expect(jsonOutput).toBeDefined();
+  });
+
+  it('handles empty registry', async () => {
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue({
+      version: '1.0',
+      generated_at: '2024-01-01',
+      skillsets: [],
+    });
+
+    await list({});
+
+    expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+  });
+});

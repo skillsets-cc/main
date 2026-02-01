@@ -28,19 +28,17 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             1
           </div>
           <div>
-            <h3 class="text-lg font-bold font-serif text-text-ink mb-2">Download the Audit Skill</h3>
+            <h3 class="text-lg font-bold font-serif text-text-ink mb-2">Initialize Your Skillset</h3>
             <p class="text-text-secondary mb-3 font-serif">
-              Get the <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">/audit_skillset</code> skill
-              to validate your submission structure.
+              Run the init command in your project directory. It will auto-detect existing
+              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">.claude/</code> and
+              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">CLAUDE.md</code> files.
             </p>
-            <a
-              href="https://github.com/skillsets-cc/main/tree/main/tools/audit_skillset"
-              class="text-orange-500 font-mono font-bold hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Download Audit Skill →
-            </a>
+            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>npx skillsets init</code></pre>
+            <p class="text-text-tertiary mt-3 font-serif text-sm">
+              This creates: <code class="font-mono">skillset.yaml</code>, <code class="font-mono">README.md</code>,
+              <code class="font-mono">PROOF.md</code>, and <code class="font-mono">content/</code>
+            </p>
           </div>
         </div>
 
@@ -49,16 +47,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             2
           </div>
           <div>
-            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Prepare Your Skillset</h3>
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Add Production Proof</h3>
             <p class="text-text-secondary mb-3 font-serif">
-              Create a folder with the following structure:
+              Edit <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">PROOF.md</code>
+              with evidence of your skillset in production: screenshots, testimonials, project links, or case studies.
             </p>
-            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>your-skillset/
-├── skillset.yaml          # Manifest (required)
-├── README.md              # User instructions (required)
-├── PROOF.md               # Production evidence (required)
-└── content/               # Files to install
-    └── ...your files...</code></pre>
           </div>
         </div>
 
@@ -69,8 +62,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           <div>
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Run the Audit</h3>
             <p class="text-text-secondary mb-3 font-serif">
-              Execute <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">/audit_skillset</code> in Claude Code
-              to generate an <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">AUDIT_REPORT.md</code>.
+              Validate your skillset structure and generate an audit report.
+            </p>
+            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>npx skillsets audit</code></pre>
+            <p class="text-text-tertiary mt-3 font-serif text-sm">
+              Checks: manifest schema, required files, content structure, file sizes, secrets detection
             </p>
           </div>
         </div>
@@ -80,18 +76,15 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             4
           </div>
           <div>
-            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Open a Pull Request</h3>
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Submit via CLI</h3>
             <p class="text-text-secondary mb-3 font-serif">
-              Submit your skillset to the registry with the audit report and production proof.
+              Once your audit passes, submit directly from the command line.
+              Requires <a href="https://cli.github.com/" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">GitHub CLI</a> installed and authenticated.
             </p>
-            <a
-              href="https://github.com/skillsets-cc/main"
-              class="text-orange-500 font-mono font-bold hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View Registry →
-            </a>
+            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>npx skillsets submit</code></pre>
+            <p class="text-text-tertiary mt-3 font-serif text-sm">
+              This forks the registry, creates a branch, and opens a PR automatically.
+            </p>
           </div>
         </div>
 
@@ -107,50 +100,57 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             </p>
           </div>
         </div>
-
-        <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
-            6
-          </div>
-          <div>
-            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Be Patient!</h3>
-            <p class="text-text-secondary font-serif">
-              Feel the urge to complain about how long it takes to get your material reviewed,
-              but then realize this is just one guy trying to do something nice for the community—so
-              you sign up as a co-maintainer.
-            </p>
-          </div>
-        </div>
       </div>
     </div>
 
     <div class="border border-border-ink bg-stone-50 p-8 rounded-none mb-8">
-      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Example: Good Submission</h2>
-      <div class="bg-white border border-border-ink p-4 rounded-none font-mono text-sm">
-        <p class="text-text-secondary mb-2"><strong class="text-text-ink">The_Skillset</strong> by @supercollectible</p>
-        <p class="text-text-secondary mb-2">
-          Spec-driven SDLC with adversarial review, quality gates, and multi-model validation.
-        </p>
-        <p class="text-xs text-text-tertiary">
-          Tags: sdlc, planning, multi-agent, adversarial-review
-        </p>
-        <p class="text-xs text-orange-500 font-bold mt-2">
-          ✓ Production URL verified<br />
-          ✓ Audit report complete<br />
-          ✓ Complete documentation
-        </p>
-      </div>
+      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Quick Reference</h2>
+      <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code># Initialize (detects existing .claude/ and CLAUDE.md)
+npx skillsets init
+
+# Validate structure and generate AUDIT_REPORT.md
+npx skillsets audit
+
+# Submit PR to registry (requires gh CLI)
+npx skillsets submit</code></pre>
+    </div>
+
+    <div class="border border-transparent p-8 rounded-none mb-8">
+      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink">Generated Structure</h2>
+      <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>your-skillset/
+├── skillset.yaml          # Manifest (required)
+├── README.md              # User instructions (required)
+├── PROOF.md               # Production evidence (required)
+├── AUDIT_REPORT.md        # Generated by audit command
+└── content/               # Files to install
+    ├── .claude/           # Claude Code settings
+    └── CLAUDE.md          # Project instructions</code></pre>
     </div>
 
     <div class="border border-transparent p-8 rounded-none mb-8">
       <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink">Requirements</h2>
       <ul class="list-disc list-inside space-y-2 text-text-secondary font-serif">
         <li><strong class="text-text-ink">Production Proof:</strong> URL to a live product or repository showing real usage</li>
-        <li><strong class="text-text-ink">Complete Documentation:</strong> Clear README with installation and usage instructions (the first <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs"># heading</code> is stripped—it's shown in the page header)</li>
+        <li><strong class="text-text-ink">Complete Documentation:</strong> Clear README with installation and usage instructions</li>
         <li><strong class="text-text-ink">Valid Schema:</strong> Must pass <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">skillset.yaml</code> validation</li>
-        <li><strong class="text-text-ink">Audit Report:</strong> Generated by the official audit skill</li>
+        <li><strong class="text-text-ink">Passing Audit:</strong> Generated by <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">npx skillsets audit</code></li>
         <li><strong class="text-text-ink">Verification-First:</strong> High friction ensures high quality</li>
       </ul>
+    </div>
+
+    <div class="border border-border-ink bg-stone-50 p-8 rounded-none mb-8">
+      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Manual Submission</h2>
+      <p class="text-text-secondary mb-4 font-serif">
+        Prefer to submit manually? You can fork the registry and open a PR directly.
+      </p>
+      <a
+        href="https://github.com/skillsets-cc/main"
+        class="text-orange-500 font-mono font-bold hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        View Registry →
+      </a>
     </div>
 
     <div class="mt-8 text-center">
