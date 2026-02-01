@@ -1,0 +1,40 @@
+# LiteLLM Configuration for Adversarial Review Council
+# Provides Gemini and Deepseek access with Context7 MCP grounding
+
+model_list:
+  # Gemini 3 Pro - broad knowledge, best practices
+  - model_name: gemini-review
+    litellm_params:
+      model: gemini/gemini-3-pro-preview
+      api_key: os.environ/GEMINI_API_KEY
+
+  # Deepseek R1 - strong reasoning, alternative perspective
+  - model_name: deepseek-review
+    litellm_params:
+      model: deepseek/deepseek-reasoner
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+# MCP Servers
+mcp_servers:
+  # Context7 for library documentation
+  context7:
+    transport: stdio
+    command: npx
+    args: ["-y", "@upstash/context7-mcp"]
+    env:
+      CONTEXT7_API_KEY: os.environ/CONTEXT7_API_KEY
+
+  # Filesystem for codebase exploration (read-only)
+  filesystem:
+    transport: stdio
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-filesystem", "/project:ro"]
+
+mcp_settings:
+  auto_register_tools: true
+  max_tool_execution_seconds: 30
+
+# General settings
+litellm_settings:
+  drop_params: true
+  set_verbose: false

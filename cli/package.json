@@ -6,6 +6,18 @@
   "bin": {
     "skillsets": "./dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skillsets-cc/skillsets.cc.git",
+    "directory": "cli"
+  },
+  "homepage": "https://skillsets.cc",
+  "bugs": {
+    "url": "https://github.com/skillsets-cc/skillsets.cc/issues"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc && node dist/index.js",

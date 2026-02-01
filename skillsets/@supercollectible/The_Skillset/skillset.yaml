@@ -1,0 +1,36 @@
+schema_version: "1.0"
+
+# Identity
+name: "The_Skillset"
+version: "3.0.0"
+description: "Built on Claude Code's native primitives, The Skillset is an opinionated path to quality output."
+
+author:
+  handle: "@supercollectible"
+  url: "supercollectible.dev"
+
+# Verification
+verification:
+  production_url: "https://skillsets.cc"
+  production_proof: "./PROOF.md"
+  audit_report: "./AUDIT_REPORT.md"
+
+# Discovery
+tags:
+  - "sdlc"
+  - "multi-agent"
+  - "adversarial-review"
+  - "spec-driven"
+  - "test-driven"
+  - "first-principles"
+
+compatibility:
+  claude_code_version: ">=1.0.0"
+  languages:
+    - "any"
+
+# Lifecycle
+status: "active"
+
+# Content
+entry_point: "./content/CLAUDE.md"
