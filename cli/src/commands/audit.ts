@@ -3,6 +3,7 @@ import ora from 'ora';
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import yaml from 'js-yaml';
+import { fetchSkillsetMetadata } from '../lib/api.js';
 
 interface AuditResult {
   status: 'PASS' | 'FAIL' | 'WARNING';
@@ -17,13 +18,33 @@ interface AuditResults {
   fileSize: AuditResult;
   binary: AuditResult;
   secrets: AuditResult;
+  versionCheck: AuditResult;
   skillsetName?: string;
   skillsetVersion?: string;
   authorHandle?: string;
+  isUpdate: boolean;
+  existingVersion?: string;
   files: { path: string; size: number }[];
   largeFiles: { path: string; size: number }[];
   binaryFiles: string[];
   secretsFound: { file: string; line: number; pattern: string }[];
+}
+
+/**
+ * Compare semver versions. Returns:
+ * -1 if a < b, 0 if a == b, 1 if a > b
+ */
+function compareVersions(a: string, b: string): number {
+  const partsA = a.split('.').map(Number);
+  const partsB = b.split('.').map(Number);
+
+  for (let i = 0; i < 3; i++) {
+    const numA = partsA[i] || 0;
+    const numB = partsB[i] || 0;
+    if (numA < numB) return -1;
+    if (numA > numB) return 1;
+  }
+  return 0;
 }
 
 const MAX_FILE_SIZE = 1048576; // 1MB
@@ -179,7 +200,12 @@ function generateReport(results: AuditResults, cwd: string): string {
     results.requiredFiles.status === 'PASS' &&
     results.contentStructure.status === 'PASS' &&
     results.fileSize.status !== 'FAIL' &&
-    results.secrets.status === 'PASS';
+    results.secrets.status === 'PASS' &&
+    results.versionCheck.status === 'PASS';
+
+  const submissionType = results.isUpdate
+    ? `Update (${results.existingVersion} → ${results.skillsetVersion})`
+    : 'New submission';
 
   const statusIcon = (status: string) => {
     if (status === 'PASS') return '✓ PASS';
@@ -192,6 +218,7 @@ function generateReport(results: AuditResults, cwd: string): string {
 **Generated:** ${timestamp}
 **Skillset:** ${results.skillsetName || 'Unknown'} v${results.skillsetVersion || '0.0.0'}
 **Author:** ${results.authorHandle || 'Unknown'}
+**Type:** ${submissionType}
 
 ---
 
@@ -205,6 +232,7 @@ function generateReport(results: AuditResults, cwd: string): string {
 | File Size Check | ${statusIcon(results.fileSize.status)} | ${results.fileSize.details} |
 | Binary Detection | ${statusIcon(results.binary.status)} | ${results.binary.details} |
 | Secret Detection | ${statusIcon(results.secrets.status)} | ${results.secrets.details} |
+| Version Check | ${statusIcon(results.versionCheck.status)} | ${results.versionCheck.details} |
 
 ---
 
@@ -294,6 +322,8 @@ export async function audit(): Promise<void> {
     fileSize: { status: 'PASS', details: '' },
     binary: { status: 'PASS', details: '' },
     secrets: { status: 'PASS', details: '' },
+    versionCheck: { status: 'PASS', details: '' },
+    isUpdate: false,
     files: [],
     largeFiles: [],
     binaryFiles: [],
@@ -408,6 +438,38 @@ export async function audit(): Promise<void> {
     };
   }
 
+  // 7. Version check (for updates)
+  spinner.text = 'Checking registry...';
+  if (results.skillsetName && results.authorHandle) {
+    const skillsetId = `${results.authorHandle}/${results.skillsetName}`;
+    try {
+      const existing = await fetchSkillsetMetadata(skillsetId);
+      if (existing) {
+        results.isUpdate = true;
+        results.existingVersion = existing.version;
+
+        if (compareVersions(results.skillsetVersion || '0.0.0', existing.version) > 0) {
+          results.versionCheck = {
+            status: 'PASS',
+            details: `Update: ${existing.version} → ${results.skillsetVersion}`,
+          };
+        } else {
+          results.versionCheck = {
+            status: 'FAIL',
+            details: `Version must be > ${existing.version}`,
+            findings: `Current version ${results.skillsetVersion} is not greater than existing ${existing.version}. Bump the version in skillset.yaml.`,
+          };
+        }
+      } else {
+        results.versionCheck = { status: 'PASS', details: 'New submission' };
+      }
+    } catch {
+      results.versionCheck = { status: 'PASS', details: 'Registry unavailable (skipped)' };
+    }
+  } else {
+    results.versionCheck = { status: 'PASS', details: 'Skipped (no manifest)' };
+  }
+
   // Generate report
   spinner.text = 'Generating audit report...';
   const report = generateReport(results, cwd);
@@ -420,7 +482,8 @@ export async function audit(): Promise<void> {
     results.requiredFiles.status === 'PASS' &&
     results.contentStructure.status === 'PASS' &&
     results.fileSize.status !== 'FAIL' &&
-    results.secrets.status === 'PASS';
+    results.secrets.status === 'PASS' &&
+    results.versionCheck.status === 'PASS';
 
   console.log('\n' + chalk.bold('Audit Summary:'));
   console.log('');
@@ -437,6 +500,7 @@ export async function audit(): Promise<void> {
   console.log(`  ${icon(results.fileSize.status)} File Sizes: ${results.fileSize.details}`);
   console.log(`  ${icon(results.binary.status)} Binary Files: ${results.binary.details}`);
   console.log(`  ${icon(results.secrets.status)} Secrets: ${results.secrets.details}`);
+  console.log(`  ${icon(results.versionCheck.status)} Version: ${results.versionCheck.details}`);
 
   console.log('');
 

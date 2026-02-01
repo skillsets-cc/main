@@ -116,6 +116,21 @@ npx skillsets submit</code></pre>
     </div>
 
     <div class="border border-transparent p-8 rounded-none mb-8">
+      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink">Updating an Existing Skillset</h2>
+      <p class="text-text-secondary mb-4 font-serif leading-relaxed">
+        Already have a skillset in the registry? The same commands work for updates.
+      </p>
+      <ol class="list-decimal list-inside space-y-3 text-text-secondary font-serif">
+        <li><strong class="text-text-ink">Bump the version</strong> in <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">skillset.yaml</code> (must be higher than published)</li>
+        <li><strong class="text-text-ink">Run the audit</strong> — it will detect the update and validate the version bump</li>
+        <li><strong class="text-text-ink">Submit</strong> — the PR will be titled "Update @author/name to vX.Y.Z"</li>
+      </ol>
+      <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto mt-4"><code># Edit skillset.yaml: version: "1.0.0" → "1.1.0"
+npx skillsets audit   # Shows: Update: 1.0.0 → 1.1.0
+npx skillsets submit  # Creates update PR</code></pre>
+    </div>
+
+    <div class="border border-transparent p-8 rounded-none mb-8">
       <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink">Generated Structure</h2>
       <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>your-skillset/
 ├── skillset.yaml          # Manifest (required)

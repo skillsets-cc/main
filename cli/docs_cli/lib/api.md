@@ -27,7 +27,7 @@ fetchSearchIndex() → Check cache → If stale: fetch CDN → Update cache → 
 ```
 
 ## Integration Points
-- Called by: `commands/list`, `commands/search`, `commands/install`, `lib/checksum`
+- Called by: `commands/list`, `commands/search`, `commands/install`, `commands/audit`, `commands/submit`, `lib/checksum`
 - Calls: CDN endpoint
 
 ## Configuration

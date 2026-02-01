@@ -5,8 +5,26 @@ import { existsSync, readFileSync, mkdirSync, cpSync, rmSync } from 'fs';
 import { join, basename } from 'path';
 import yaml from 'js-yaml';
 import { tmpdir } from 'os';
+import { fetchSkillsetMetadata } from '../lib/api.js';
 
 const REGISTRY_REPO = 'skillsets-cc/main';
+
+/**
+ * Compare semver versions. Returns:
+ * -1 if a < b, 0 if a == b, 1 if a > b
+ */
+function compareVersions(a: string, b: string): number {
+  const partsA = a.split('.').map(Number);
+  const partsB = b.split('.').map(Number);
+
+  for (let i = 0; i < 3; i++) {
+    const numA = partsA[i] || 0;
+    const numB = partsB[i] || 0;
+    if (numA < numB) return -1;
+    if (numA > numB) return 1;
+  }
+  return 0;
+}
 const REGISTRY_URL = `https://github.com/${REGISTRY_REPO}`;
 
 function checkGhCli(): boolean {
@@ -129,12 +147,38 @@ export async function submit(): Promise<void> {
   }
   console.log(chalk.green('✓ All required files present'));
 
+  // 7. Check if this is an update
+  const skillsetId = `@${skillset.author}/${skillset.name}`;
+  let isUpdate = false;
+  let existingVersion: string | null = null;
+
+  try {
+    const existing = await fetchSkillsetMetadata(skillsetId);
+    if (existing) {
+      isUpdate = true;
+      existingVersion = existing.version;
+
+      // Validate version bump
+      if (compareVersions(skillset.version, existingVersion) <= 0) {
+        console.log(chalk.red(`✗ Version must be greater than ${existingVersion}`));
+        console.log(chalk.gray(`  Current: ${skillset.version}`));
+        console.log(chalk.gray('  Update skillset.yaml with a higher version'));
+        process.exit(1);
+      }
+      console.log(chalk.green(`✓ Update: ${existingVersion} → ${skillset.version}`));
+    } else {
+      console.log(chalk.green('✓ New skillset submission'));
+    }
+  } catch {
+    // Registry unavailable, assume new submission
+    console.log(chalk.yellow('⚠ Could not check registry (assuming new submission)'));
+  }
+
   console.log('');
 
   // Create submission
   const spinner = ora('Preparing submission...').start();
 
-  const skillsetId = `@${skillset.author}/${skillset.name}`;
   const branchName = `submit/${skillset.author}/${skillset.name}`;
   const tempDir = join(tmpdir(), `skillsets-submit-${Date.now()}`);
 
@@ -171,7 +215,10 @@ export async function submit(): Promise<void> {
     // Commit
     spinner.text = 'Committing changes...';
     execSync('git add .', { cwd: tempDir, stdio: 'ignore' });
-    execSync(`git commit -m "Add ${skillsetId}"`, { cwd: tempDir, stdio: 'ignore' });
+    const commitMsg = isUpdate
+      ? `Update ${skillsetId} to v${skillset.version}`
+      : `Add ${skillsetId}`;
+    execSync(`git commit -m "${commitMsg}"`, { cwd: tempDir, stdio: 'ignore' });
 
     // Push to fork
     spinner.text = 'Pushing to fork...';
@@ -179,7 +226,33 @@ export async function submit(): Promise<void> {
 
     // Create PR
     spinner.text = 'Creating pull request...';
-    const prBody = `## New Skillset Submission
+
+    const prTitle = isUpdate
+      ? `Update ${skillsetId} to v${skillset.version}`
+      : `Add ${skillsetId}`;
+
+    const prBody = isUpdate
+      ? `## Skillset Update
+
+**Skillset:** ${skillsetId}
+**Version:** ${existingVersion} → ${skillset.version}
+**Author:** @${skillset.author}
+
+### Checklist
+
+- [x] \`skillset.yaml\` validated against schema
+- [x] Version bumped from ${existingVersion}
+- [x] \`AUDIT_REPORT.md\` generated and passing
+- [x] \`content/\` directory updated
+
+### Changes
+
+_Describe what changed in this version._
+
+---
+Submitted via \`npx skillsets submit\`
+`
+      : `## New Skillset Submission
 
 **Skillset:** ${skillsetId}
 **Version:** ${skillset.version}
@@ -202,7 +275,7 @@ Submitted via \`npx skillsets submit\`
 `;
 
     const prResult = execSync(
-      `gh pr create --repo ${REGISTRY_REPO} --title "Add ${skillsetId}" --body "${prBody.replace(/"/g, '\\"')}"`,
+      `gh pr create --repo ${REGISTRY_REPO} --title "${prTitle}" --body "${prBody.replace(/"/g, '\\"')}"`,
       { cwd: tempDir, encoding: 'utf-8' }
     );
 
@@ -215,8 +288,13 @@ Submitted via \`npx skillsets submit\`
     // Extract PR URL from result
     const prUrl = prResult.trim();
 
-    console.log(chalk.green('\n✓ Submission complete!\n'));
+    console.log(chalk.green(`\n✓ ${isUpdate ? 'Update' : 'Submission'} complete!\n`));
     console.log(`  Skillset: ${chalk.bold(skillsetId)}`);
+    if (isUpdate) {
+      console.log(`  Version: ${chalk.gray(existingVersion)} → ${chalk.bold(skillset.version)}`);
+    } else {
+      console.log(`  Version: ${chalk.bold(skillset.version)}`);
+    }
     console.log(`  PR: ${chalk.cyan(prUrl)}`);
     console.log('');
     console.log(chalk.gray('A maintainer will review your submission.'));

@@ -10,7 +10,13 @@ vi.mock('child_process', () => ({
   spawnSync: vi.fn(),
 }));
 
+// Mock api module
+vi.mock('../../lib/api.js', () => ({
+  fetchSkillsetMetadata: vi.fn(),
+}));
+
 import { submit } from '../submit.js';
+import { fetchSkillsetMetadata } from '../../lib/api.js';
 
 describe('submit command', () => {
   let testDir: string;
@@ -191,6 +197,93 @@ entry_point: "./content/CLAUDE.md"
 
     expect(console.log).toHaveBeenCalledWith(
       expect.stringContaining('Submission complete')
+    );
+  });
+
+  it('rejects update with same or lower version', async () => {
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    // Mock existing skillset in registry with same version
+    vi.mocked(fetchSkillsetMetadata).mockResolvedValue({
+      id: '@testuser/test-skillset',
+      name: 'test-skillset',
+      description: 'Existing skillset',
+      tags: ['test'],
+      author: { handle: '@testuser' },
+      stars: 5,
+      version: '1.0.0', // Same as local
+      status: 'active',
+      verification: { production_url: 'https://example.com', audit_report: './AUDIT_REPORT.md' },
+      compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
+      entry_point: './content/CLAUDE.md',
+      checksum: 'abc123',
+      files: {},
+    });
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    writeFileSync(join(testDir, 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'PROOF.md'), '# Proof');
+    writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
+    mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await expect(submit()).rejects.toThrow('Process exit');
+
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Version must be greater than')
+    );
+  });
+
+  it('creates update PR with higher version', async () => {
+    const prUrl = 'https://github.com/skillsets-cc/main/pull/456';
+
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+      if (cmd.includes('gh repo fork')) return Buffer.from('');
+      if (cmd.includes('gh repo clone')) return Buffer.from('');
+      if (cmd.includes('git checkout')) return Buffer.from('');
+      if (cmd.includes('git add')) return Buffer.from('');
+      if (cmd.includes('git commit')) return Buffer.from('');
+      if (cmd.includes('git push')) return Buffer.from('');
+      if (cmd.includes('gh pr create')) return opts?.encoding ? prUrl : Buffer.from(prUrl);
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    // Mock existing skillset with lower version
+    vi.mocked(fetchSkillsetMetadata).mockResolvedValue({
+      id: '@testuser/test-skillset',
+      name: 'test-skillset',
+      description: 'Existing skillset',
+      tags: ['test'],
+      author: { handle: '@testuser' },
+      stars: 5,
+      version: '0.9.0', // Lower than local 1.0.0
+      status: 'active',
+      verification: { production_url: 'https://example.com', audit_report: './AUDIT_REPORT.md' },
+      compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
+      entry_point: './content/CLAUDE.md',
+      checksum: 'abc123',
+      files: {},
+    });
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    writeFileSync(join(testDir, 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'PROOF.md'), '# Proof');
+    writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
+    mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await submit();
+
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Update complete')
     );
   });
 });

@@ -73,8 +73,8 @@ install → degit → Extract content/ → checksum.ts → Verify
 
 Contributor Flow:
 init → Interactive prompts → Generate scaffold
-audit → Validate manifest + files → Generate AUDIT_REPORT.md
-submit → gh CLI → Fork → Branch → PR
+audit → Validate manifest + files → Check registry (update detection) → Generate AUDIT_REPORT.md
+submit → Check registry (update detection) → Validate version bump → gh CLI → Fork → Branch → PR
 ```
 
 ## Key Patterns
