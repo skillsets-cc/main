@@ -18,7 +18,7 @@
 ### Hard Constraints (never violate)
 - **Mono-repo Registry**: Folders not zips—enables PR diffing and keeps repo small
 - **Static-First Architecture**: Astro SSR with `prerender: true` on static pages, dynamic routes on-demand
-- **Cloudflare Stack**: Pages + Workers + KV (no traditional backend, ~110 lines serverless code total)
+- **Cloudflare Stack**: Workers + KV (no traditional backend, SSR + static assets in single worker)
 - **degit for Distribution**: No .git folder, caches, extracts subfolders
 - **GitHub as Auth**: OAuth for both stars and contributions (dual-purpose)
 - **Build-Time Index**: Search via CDN-hosted JSON, not runtime GitHub API queries
@@ -28,7 +28,7 @@
 
 | Layer | Implementation |
 |-------|----------------|
-| **Site** | Astro 5 (`output: 'server'`) + Tailwind CSS + Cloudflare Pages |
+| **Site** | Astro 5 (`output: 'server'`) + Tailwind CSS + Cloudflare Workers |
 | **Auth** | GitHub OAuth Worker (~50 lines, includes CSRF + PKCE) |
 | **Stars** | Cloudflare Worker + KV (~60 lines, includes rate limiting) |
 | **CLI** | Node.js `npx skillsets` using degit + Fuse.js search |
@@ -39,7 +39,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         skillsets.cc                                 │
-│                    (Cloudflare Pages + Workers)                      │
+│                       (Cloudflare Workers)                           │
 │                                                                      │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                  │
 │  │   Astro     │  │   GitHub    │  │   Star      │                  │
@@ -103,6 +103,7 @@
 | **[ARC_doc_template.md](.claude/resources/ARC_doc_template.md)** | Module architecture template |
 | **[README_module_template.md](.claude/resources/README_module_template.md)** | Module README template |
 | **[file_doc_template.md](.claude/resources/file_doc_template.md)** | Per-file doc template |
+| **[DEPLOYMENT.md](DEPLOYMENT.md)** | CI/CD and Cloudflare Workers deployment |
 
 **Code Documentation** (colocated with code):
 
@@ -349,33 +350,13 @@ entry_point: "./content/CLAUDE.md"
 
 ## 6. Deployment
 
-### Cloudflare Pages (Site)
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete CI/CD and Cloudflare Workers documentation.
 
-- Automatic deploys from `main` branch
-- Build command: `cd site && npm run build`
-- Output directory: `site/dist`
-- Environment variables: None (static)
-
-### Cloudflare Workers (Auth + Stars)
-
-```bash
-cd workers/auth && wrangler deploy
-cd workers/stars && wrangler deploy
-```
-
-Required secrets (via `wrangler secret put`):
-- `GITHUB_CLIENT_ID`
-- `GITHUB_CLIENT_SECRET`
-
-KV namespace bindings in `wrangler.toml`:
-- `KV` → production namespace
-
-### NPM Package (CLI)
-
-```bash
-cd cli && npm run build
-npm publish  # Requires npm account with @skillsets scope
-```
+**Quick reference**:
+- Site runs on Cloudflare Workers (not Pages) for SSR support
+- Deploy via GitHub Actions workflow "Sync to Production"
+- Manual deploy: `cd site && npm run build && npx wrangler deploy`
+- Secrets managed via `npx wrangler secret put <NAME>`
 
 ---
 
