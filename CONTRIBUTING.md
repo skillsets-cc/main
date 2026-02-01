@@ -65,6 +65,22 @@ status: "active"                  # active | deprecated | archived
 entry_point: "./content/CLAUDE.md"
 ```
 
+## README Link Format
+
+Links in your README.md that point to files within your skillset (e.g., skills, agents, resources) must use full GitHub URLs so they work on skillsets.cc:
+
+```markdown
+<!-- ✓ Correct -->
+[SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40username/skillset-name/content/.claude/skills/your-skill/SKILL.md)
+
+<!-- ✗ Incorrect - will 404 on skillsets.cc -->
+[SKILL.md](content/.claude/skills/your-skill/SKILL.md)
+```
+
+Note: Use `%40` for the `@` symbol in the username.
+
+The tier 1 audit (`npx skillsets audit`) will flag relative links that should use this format.
+
 ## Production Proof
 
 Your `PROOF.md` must demonstrate real-world usage:

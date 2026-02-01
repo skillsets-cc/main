@@ -241,4 +241,85 @@ version: "not-semver"
     expect(report).toContain('0.9.0');
     expect(report).toContain('1.0.0');
   });
+
+  describe('README link validation', () => {
+    it('passes when README has no links to content/.claude/', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test\n\n[External](https://example.com)\n[Other](./other.md)');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('README Links | ✓ PASS');
+    });
+
+    it('fails when README has relative links to content/.claude/', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(
+        join(testDir, 'README.md'),
+        '# Test\n\n[Skill](content/.claude/skills/my-skill/SKILL.md)\n[Agent](./content/.claude/agents/my-agent.md)'
+      );
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('NOT READY');
+      expect(report).toContain('README Links | ✗ FAIL');
+      expect(report).toContain('2 relative link(s)');
+      expect(report).toContain('content/.claude/skills/my-skill/SKILL.md');
+      expect(report).toContain('./content/.claude/agents/my-agent.md');
+    });
+
+    it('passes when README uses full GitHub URLs for content/.claude/', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(
+        join(testDir, 'README.md'),
+        '# Test\n\n[Skill](https://github.com/skillsets-cc/main/blob/main/skillsets/%40testuser/test-skillset/content/.claude/skills/my-skill/SKILL.md)'
+      );
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('README Links | ✓ PASS');
+    });
+
+    it('detects multiple relative links on same line', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(
+        join(testDir, 'README.md'),
+        '# Test\n\n| [One](content/.claude/a.md) | [Two](content/.claude/b.md) |'
+      );
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('NOT READY');
+      expect(report).toContain('2 relative link(s)');
+    });
+
+    it('shows correct line numbers for relative links', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(
+        join(testDir, 'README.md'),
+        '# Test\n\nFirst paragraph.\n\n[Link](content/.claude/test.md)\n\nMore text.'
+      );
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('Line 5:');
+    });
+  });
 });

@@ -61,15 +61,15 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 | Command | Purpose | Protocol |
 |---------|---------|----------|
-| `/arm [thoughts]` | Crystallize Fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](content/.claude/skills/arm/SKILL.md) |
-| `/design [brief]` | Design a Solution — research, design doc, architecture decisions | [SKILL_design.md](content/.claude/skills/design/SKILL.md) |
-| `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL_ar.md](content/.claude/skills/ar/SKILL.md) |
-| `/plan [design.md]` | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](content/.claude/skills/plan/SKILL.md) |
-| `/build [exec.md]` | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](content/.claude/skills/build/SKILL.md) |
-| `/pmatch [source] [target]` | Validate target against source claims | [SKILL_pmatch.md](content/.claude/skills/pmatch/SKILL.md) |
+| `/arm [thoughts]` | Crystallize Fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/arm/SKILL.md) |
+| `/design [brief]` | Design a Solution — research, design doc, architecture decisions | [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/design/SKILL.md) |
+| `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/ar/SKILL.md) |
+| `/plan [design.md]` | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/plan/SKILL.md) |
+| `/build [exec.md]` | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/build/SKILL.md) |
+| `/pmatch [source] [target]` | Validate target against source claims | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/pmatch/SKILL.md) |
 | `/denoise [path]` | Post-build cleanup — invokes code-simplifier plugin | [Anthropic plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) |
-| `/qf` `/qb [path]` | QA audit — frontend (design system, a11y) or backend (DI, logging) | [qa-f.md](content/.claude/agents/qa-f.md), [qa-b.md](content/.claude/agents/qa-b.md) |
-| `/qd [path]` | Docs QA — validates and updates documentation | [qa-docs.md](content/.claude/agents/qa-docs.md) |
+| `/qf` `/qb [path]` | QA audit — frontend (design system, a11y) or backend (DI, logging) | [qa-f.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-f.md), [qa-b.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-b.md) |
+| `/qd [path]` | Docs QA — validates and updates documentation | [qa-docs.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-docs.md) |
 | `/security-review` | Security audit — injection, XSS, auth flaws | [Claude Code native](https://www.anthropic.com/news/automate-security-reviews-with-claude-code) |
 
 ---
@@ -286,12 +286,12 @@ Grounding artifacts that constrain how work is done. Style guides encode decisio
 
 | Artifact | Purpose |
 |----------|---------|
-| [frontend_styleguide.md](content/.claude/resources/frontend_styleguide.md) | React, TypeScript, Zustand, Vitest patterns |
-| [backend_styleguide.md](content/.claude/resources/backend_styleguide.md) | Python, FastAPI, pytest patterns |
-| [claude-execution-template.md](content/.claude/resources/claude-execution-template.md) | Execution doc structure — `/plan` output readable by `/build` |
-| [ARC_doc_template.md](content/.claude/resources/ARC_doc_template.md) | Module architecture template — directory structure, data flow, integration |
-| [README_module_template.md](content/.claude/resources/README_module_template.md) | Module README template — purpose, files, dependencies, patterns |
-| [file_doc_template.md](content/.claude/resources/file_doc_template.md) | Per-file doc template — classes, functions, data flow, integration points |
+| [frontend_styleguide.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/frontend_styleguide.md) | React, TypeScript, Zustand, Vitest patterns |
+| [backend_styleguide.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/backend_styleguide.md) | Python, FastAPI, pytest patterns |
+| [claude-execution-template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/claude-execution-template.md) | Execution doc structure — `/plan` output readable by `/build` |
+| [ARC_doc_template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/ARC_doc_template.md) | Module architecture template — directory structure, data flow, integration |
+| [README_module_template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/README_module_template.md) | Module README template — purpose, files, dependencies, patterns |
+| [file_doc_template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/file_doc_template.md) | Per-file doc template — classes, functions, data flow, integration points |
 
 ### External Sources
 
@@ -316,10 +316,10 @@ The cost curve: Opus is expensive but catches design flaws that compound downstr
 
 | Agent | Model | Purpose | Protocol |
 |-------|-------|---------|----------|
-| `arm` | Opus | Crystallize initial thoughts — extract reqs, constraints, style, concepts | [SKILL_arm.md](content/.claude/skills/arm/SKILL.md) |
-| `design` | Opus | Design a feature — research, design doc, architecture decisions | [SKILL_design.md](content/.claude/skills/design/SKILL.md) |
-| `plan` | Opus | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](content/.claude/skills/plan/SKILL.md) |
-| `build` | Sonnet | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](content/.claude/skills/build/SKILL.md), [AGENT_build.md](content/.claude/agents/build.md) |
+| `arm` | Opus | Crystallize initial thoughts — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/arm/SKILL.md) |
+| `design` | Opus | Design a feature — research, design doc, architecture decisions | [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/design/SKILL.md) |
+| `plan` | Opus | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/plan/SKILL.md) |
+| `build` | Sonnet | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/build.md) |
 | `explore` | Haiku | Lightweight reader and information gatherer supporting Opus | CC native |
 
 ### Adversarial Review
@@ -340,8 +340,8 @@ Spec drift is real. The design says one thing; the code does another. Pattern ma
 
 | Agent | Model | Protocol |
 |-------|-------|----------|
-| `pm-s` | Sonnet | [SKILL_pmatch.md](content/.claude/skills/pmatch/SKILL.md) |
-| `pm-k` | Kimi | [SKILL_pmatch.md](content/.claude/skills/pmatch/SKILL.md) |
+| `pm-s` | Sonnet | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/pmatch/SKILL.md) |
+| `pm-k` | Kimi | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/pmatch/SKILL.md) |
 
 Output: list of claims with VALIDATED/VIOLATED/MISSING status, citations to both documents.
 
@@ -352,9 +352,9 @@ Separated by scope: `code-simplifier` handles universal cleanup (any codebase, a
 | Agent | Model | Scope | Protocol |
 |-------|-------|-------|----------|
 | `code-simplifier` | Opus | Dead code, redundancy, type safety, comment cleanup | [Anthropic plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) |
-| `qa-f` | Sonnet | Design system compliance, accessibility, resource cleanup | [qa-f.md](content/.claude/agents/qa-f.md) |
-| `qa-b` | Sonnet | DI patterns, logging, error handling, backwards compat | [qa-b.md](content/.claude/agents/qa-b.md) |
-| `qa-docs` | Sonnet | Doc freshness — ARC files, READMEs match implementation | [qa-docs.md](content/.claude/agents/qa-docs.md) |
+| `qa-f` | Sonnet | Design system compliance, accessibility, resource cleanup | [qa-f.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-f.md) |
+| `qa-b` | Sonnet | DI patterns, logging, error handling, backwards compat | [qa-b.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-b.md) |
+| `qa-docs` | Sonnet | Doc freshness — ARC files, READMEs match implementation | [qa-docs.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-docs.md) |
 | `security-review` | — | Injection, XSS, auth flaws, OWASP vulnerabilities | [Claude Code native](https://www.anthropic.com/news/automate-security-reviews-with-claude-code) |
 
 Run `/denoise` first, then `/qf` or `/qb`, then `/qd`, then `/security-review`.

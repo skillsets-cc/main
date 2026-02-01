@@ -19,6 +19,7 @@ interface AuditResults {
   binary: AuditResult;
   secrets: AuditResult;
   versionCheck: AuditResult;
+  readmeLinks: AuditResult;
   skillsetName?: string;
   skillsetVersion?: string;
   authorHandle?: string;
@@ -28,6 +29,7 @@ interface AuditResults {
   largeFiles: { path: string; size: number }[];
   binaryFiles: string[];
   secretsFound: { file: string; line: number; pattern: string }[];
+  relativeLinks: { line: number; link: string }[];
 }
 
 /**
@@ -106,6 +108,31 @@ function isBinaryFile(filePath: string): boolean {
   } catch {
     return false;
   }
+}
+
+function scanReadmeLinks(cwd: string): { line: number; link: string }[] {
+  const readmePath = join(cwd, 'README.md');
+  if (!existsSync(readmePath)) return [];
+
+  const relativeLinks: { line: number; link: string }[] = [];
+  const content = readFileSync(readmePath, 'utf-8');
+  const lines = content.split('\n');
+
+  // Match markdown links: [text](url)
+  const linkRegex = /\[([^\]]*)\]\(([^)]+)\)/g;
+
+  for (let i = 0; i < lines.length; i++) {
+    let match;
+    while ((match = linkRegex.exec(lines[i])) !== null) {
+      const url = match[2];
+      // Flag relative links to content/.claude/ that aren't using GitHub URLs
+      if (url.startsWith('content/.claude/') || url.startsWith('./content/.claude/')) {
+        relativeLinks.push({ line: i + 1, link: url });
+      }
+    }
+  }
+
+  return relativeLinks;
 }
 
 function scanForSecrets(dir: string): { file: string; line: number; pattern: string }[] {
@@ -201,6 +228,7 @@ function generateReport(results: AuditResults, cwd: string): string {
     results.contentStructure.status === 'PASS' &&
     results.fileSize.status !== 'FAIL' &&
     results.secrets.status === 'PASS' &&
+    results.readmeLinks.status === 'PASS' &&
     results.versionCheck.status === 'PASS';
 
   const submissionType = results.isUpdate
@@ -232,6 +260,7 @@ function generateReport(results: AuditResults, cwd: string): string {
 | File Size Check | ${statusIcon(results.fileSize.status)} | ${results.fileSize.details} |
 | Binary Detection | ${statusIcon(results.binary.status)} | ${results.binary.details} |
 | Secret Detection | ${statusIcon(results.secrets.status)} | ${results.secrets.details} |
+| README Links | ${statusIcon(results.readmeLinks.status)} | ${results.readmeLinks.details} |
 | Version Check | ${statusIcon(results.versionCheck.status)} | ${results.versionCheck.details} |
 
 ---
@@ -270,6 +299,12 @@ ${results.binaryFiles.length > 0 ? '**Binary Files Detected:**\n' + results.bina
 ${results.secrets.findings || 'No secrets detected.'}
 
 ${results.secretsFound.length > 0 ? '**Potential Secrets Found:**\n' + results.secretsFound.map(s => `- ${s.file}:${s.line} (${s.pattern})`).join('\n') : ''}
+
+### 7. README Link Check
+
+${results.readmeLinks.findings || 'All links use valid GitHub URLs.'}
+
+${results.relativeLinks.length > 0 ? '**Relative Links Found:**\n' + results.relativeLinks.map(l => `- Line ${l.line}: ${l.link}`).join('\n') : ''}
 
 ---
 
@@ -323,11 +358,13 @@ export async function audit(): Promise<void> {
     binary: { status: 'PASS', details: '' },
     secrets: { status: 'PASS', details: '' },
     versionCheck: { status: 'PASS', details: '' },
+    readmeLinks: { status: 'PASS', details: '' },
     isUpdate: false,
     files: [],
     largeFiles: [],
     binaryFiles: [],
     secretsFound: [],
+    relativeLinks: [],
   };
 
   // 1. Manifest validation
@@ -438,7 +475,21 @@ export async function audit(): Promise<void> {
     };
   }
 
-  // 7. Version check (for updates)
+  // 7. README link check
+  spinner.text = 'Checking README links...';
+  results.relativeLinks = scanReadmeLinks(cwd);
+
+  if (results.relativeLinks.length === 0) {
+    results.readmeLinks = { status: 'PASS', details: 'All links valid' };
+  } else {
+    results.readmeLinks = {
+      status: 'FAIL',
+      details: `${results.relativeLinks.length} relative link(s)`,
+      findings: 'README links to content/.claude/ must use full GitHub URLs.\nFormat: https://github.com/skillsets-cc/main/blob/main/skillsets/%40username/skillset-name/content/.claude/...',
+    };
+  }
+
+  // 8. Version check (for updates)
   spinner.text = 'Checking registry...';
   if (results.skillsetName && results.authorHandle) {
     const skillsetId = `${results.authorHandle}/${results.skillsetName}`;
@@ -483,6 +534,7 @@ export async function audit(): Promise<void> {
     results.contentStructure.status === 'PASS' &&
     results.fileSize.status !== 'FAIL' &&
     results.secrets.status === 'PASS' &&
+    results.readmeLinks.status === 'PASS' &&
     results.versionCheck.status === 'PASS';
 
   console.log('\n' + chalk.bold('Audit Summary:'));
@@ -500,6 +552,7 @@ export async function audit(): Promise<void> {
   console.log(`  ${icon(results.fileSize.status)} File Sizes: ${results.fileSize.details}`);
   console.log(`  ${icon(results.binary.status)} Binary Files: ${results.binary.details}`);
   console.log(`  ${icon(results.secrets.status)} Secrets: ${results.secrets.details}`);
+  console.log(`  ${icon(results.readmeLinks.status)} README Links: ${results.readmeLinks.details}`);
   console.log(`  ${icon(results.versionCheck.status)} Version: ${results.versionCheck.details}`);
 
   console.log('');
