@@ -20,7 +20,8 @@ const installCommand = `npx skillsets install ${skillsetId}`;
 
 // Fetch README from GitHub at runtime
 let readmeHtml = '';
-const readmeUrl = `https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/${skillsetId}/README.md`;
+const encodedPath = encodeURIComponent(namespace) + '/' + encodeURIComponent(name);
+const readmeUrl = `https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/${encodedPath}/README.md`;
 
 try {
   const response = await fetch(readmeUrl);
