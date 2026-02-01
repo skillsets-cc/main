@@ -1,7 +1,11 @@
 name = "skillsets-site"
-pages_build_output_dir = "dist"
+main = "dist/_worker.js/index.js"
 compatibility_date = "2026-01-30"
 compatibility_flags = ["nodejs_compat"]
+
+[assets]
+binding = "ASSETS"
+directory = "./dist"
 
 # KV Namespaces - IDs populated after running:
 #   npx wrangler kv:namespace create STARS
