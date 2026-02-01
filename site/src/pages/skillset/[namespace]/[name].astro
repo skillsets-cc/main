@@ -5,6 +5,9 @@ import CopyCommand from '@components/CopyCommand';
 import ProofGallery from '@components/ProofGallery.astro';
 import { getSkillsetById } from '@/lib/data';
 import { marked } from 'marked';
+import { gfmHeadingId } from 'marked-gfm-heading-id';
+
+marked.use(gfmHeadingId());
 
 const { namespace, name } = Astro.params;
 

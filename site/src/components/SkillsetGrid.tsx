@@ -1,4 +1,4 @@
-import { useState, useMemo, type ReactElement } from 'react';
+import { useState, useMemo, useEffect, type ReactElement } from 'react';
 import type { SearchIndexEntry } from '@/types';
 import SearchBar from './SearchBar.js';
 import TagFilter from './TagFilter.js';
@@ -13,6 +13,28 @@ export default function SkillsetGrid({
   const [searchResults, setSearchResults] =
     useState<SearchIndexEntry[]>(skillsets);
   const [tagResults, setTagResults] = useState<SearchIndexEntry[]>(skillsets);
+  const [liveStars, setLiveStars] = useState<Record<string, number>>({});
+
+  // Fetch live star counts on mount
+  useEffect(() => {
+    async function fetchStars(): Promise<void> {
+      for (const skillset of skillsets) {
+        try {
+          const response = await fetch(
+            `/api/star?skillsetId=${encodeURIComponent(skillset.id)}`,
+            { credentials: 'include' }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setLiveStars(prev => ({ ...prev, [skillset.id]: data.count }));
+          }
+        } catch {
+          // Keep build-time value on error
+        }
+      }
+    }
+    fetchStars();
+  }, [skillsets]);
 
   const tagResultIds = useMemo(
     () => new Set(tagResults.map((s) => s.id)),
@@ -52,7 +74,7 @@ export default function SkillsetGrid({
                     <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                     </svg>
-                    {skillset.stars}
+                    {liveStars[skillset.id] ?? skillset.stars}
                   </span>
 
                   {skillset.tags.map(tag => (
