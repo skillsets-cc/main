@@ -83,6 +83,202 @@ This skillset has been verified in production.
 [List projects or products built using this skillset]
 `;
 
+const AUDIT_SKILL_MD = `---
+name: skillset-audit
+description: Qualitative review of skillset content against Claude Code best practices. Evaluates all primitives (skills, agents, hooks, MCP, CLAUDE.md) for proper frontmatter, descriptions, and structure. Appends analysis to AUDIT_REPORT.md.
+---
+
+# Skillset Qualitative Audit
+
+## Task
+
+1. Verify \`AUDIT_REPORT.md\` shows "READY FOR SUBMISSION"
+2. Identify all primitives in \`content/\`:
+   - Skills: \`**/SKILL.md\`
+   - Agents: \`**/AGENT.md\` or \`**/*.agent.md\`
+   - Hooks: \`**/hooks.json\`
+   - MCP: \`**/.mcp.json\` or \`**/mcp.json\`
+   - CLAUDE.md: \`CLAUDE.md\` or \`.claude/settings.json\`
+3. Evaluate each against [CRITERIA.md](CRITERIA.md)
+4. Append findings to \`AUDIT_REPORT.md\`
+
+## Per-Primitive Evaluation
+
+### Skills
+- Frontmatter has \`name\` and \`description\`
+- Description includes trigger phrases ("Use when...")
+- Body under 500 lines
+- \`allowed-tools\` if restricting access
+- \`disable-model-invocation\` for side-effect commands
+
+### Agents
+- Description has \`<example>\` blocks
+- System prompt has role, responsibilities, process, output format
+- \`tools\` array if restricting access
+
+### Hooks
+- Valid JSON structure
+- Matchers are specific (not just \`.*\`)
+- Reasonable timeouts
+- Prompts are actionable
+
+### MCP
+- Uses \`\${CLAUDE_PLUGIN_ROOT}\` for paths
+- Env vars use \`\${VAR}\` syntax
+- No hardcoded secrets
+
+### CLAUDE.md
+- Under 300 lines (check line count)
+- Has WHAT/WHY/HOW sections
+- Uses \`file:line\` pointers, not code snippets
+- Progressive disclosure for large content
+
+## Output
+
+Append to \`AUDIT_REPORT.md\`:
+
+\`\`\`markdown
+---
+
+## Qualitative Review
+
+**Reviewed by:** Claude (Opus)
+**Date:** [ISO timestamp]
+
+### Primitives Found
+
+| Type | Count | Files |
+|------|-------|-------|
+| Skills | N | [list] |
+| Agents | N | [list] |
+| Hooks | N | [list] |
+| MCP | N | [list] |
+| CLAUDE.md | Y/N | [path] |
+
+### Issues
+
+[List each issue with file:line and specific fix needed]
+
+### Verdict
+
+**[APPROVED / NEEDS REVISION]**
+
+[If needs revision: prioritized list of must-fix items]
+\`\`\`
+`;
+
+const AUDIT_CRITERIA_MD = `# Evaluation Criteria
+
+Rubric for qualitative skillset review. Each primitive type has specific requirements.
+
+---
+
+## Skills (SKILL.md)
+
+Skills and slash commands are now unified. File at \`.claude/skills/[name]/SKILL.md\` creates \`/name\`.
+
+### Frontmatter Requirements
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| \`name\` | Yes | Becomes the \`/slash-command\`, lowercase with hyphens |
+| \`description\` | Yes | **Critical for discoverability** - Claude uses this to decide when to load |
+| \`version\` | No | Semver for tracking |
+| \`allowed-tools\` | No | Restricts tool access (e.g., \`Read, Write, Bash(git:*)\`) |
+| \`model\` | No | \`sonnet\`, \`opus\`, or \`haiku\` |
+| \`disable-model-invocation\` | No | \`true\` = only user can invoke (for side-effect commands) |
+| \`user-invocable\` | No | \`false\` = only Claude can invoke (background knowledge) |
+
+### Description Quality
+
+**GOOD:** Includes trigger phrases ("Use when reviewing PRs, checking vulnerabilities...")
+**POOR:** Vague ("Helps with code review")
+
+---
+
+## Agents (AGENT.md)
+
+### Frontmatter Requirements
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| \`name\` | Yes | Agent identifier |
+| \`description\` | Yes | **Must include \`<example>\` blocks** for reliable triggering |
+| \`model\` | No | \`inherit\`, \`sonnet\`, \`opus\`, \`haiku\` |
+| \`color\` | No | UI color hint |
+| \`tools\` | No | Array of allowed tools |
+
+### System Prompt (Body)
+
+- Clear role definition ("You are...")
+- Core responsibilities numbered
+- Process/workflow steps
+- Expected output format
+
+---
+
+## Hooks (hooks.json)
+
+### Event Types
+
+| Event | When | Use For |
+|-------|------|---------|
+| \`PreToolUse\` | Before tool executes | Validation, security checks |
+| \`PostToolUse\` | After tool completes | Feedback, logging |
+| \`Stop\` | Task completion | Quality gates, notifications |
+| \`SessionStart\` | Session begins | Context loading, env setup |
+
+### Quality Checks
+
+- Matchers are specific (avoid \`.*\` unless intentional)
+- Timeouts are reasonable
+- Prompts are concise and actionable
+
+---
+
+## MCP Servers (.mcp.json)
+
+### Quality Checks
+
+- Uses \`\${CLAUDE_PLUGIN_ROOT}\` for paths
+- Environment variables use \`\${VAR}\` syntax
+- Sensitive values reference env vars, not hardcoded
+
+---
+
+## CLAUDE.md
+
+### Critical Constraints
+
+- **Under 300 lines** (ideally <60)
+- LLMs follow ~150-200 instructions; Claude Code system prompt uses ~50
+
+### Required Content (WHAT, WHY, HOW)
+
+- **WHAT**: Tech stack, project structure, codebase map
+- **WHY**: Project purpose, component functions
+- **HOW**: Dev workflows, tools, testing, verification
+
+### What to Avoid
+
+- Task-specific instructions
+- Code style rules (use linters + hooks)
+- Code snippets (use \`file:line\` pointers)
+- Hardcoded dates/versions
+
+---
+
+## Verdict Rules
+
+- **APPROVED**: All primitives meet requirements, minor issues only
+- **NEEDS REVISION**: Missing required fields, poor descriptions, oversized files
+
+Priority:
+1. Missing/poor descriptions (affects discoverability)
+2. Oversized CLAUDE.md (degrades all instructions)
+3. Missing agent examples (unreliable triggering)
+`;
+
 function copyDirRecursive(src: string, dest: string): void {
   if (!existsSync(dest)) {
     mkdirSync(dest, { recursive: true });
@@ -255,6 +451,12 @@ export async function init(options: InitOptions): Promise<void> {
     const proof = PROOF_TEMPLATE.replace('{{PRODUCTION_URL}}', productionUrl);
     writeFileSync(join(cwd, 'PROOF.md'), proof);
 
+    // Install skillset-audit skill to .claude/skills/
+    const skillDir = join(cwd, '.claude', 'skills', 'skillset-audit');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), AUDIT_SKILL_MD);
+    writeFileSync(join(skillDir, 'CRITERIA.md'), AUDIT_CRITERIA_MD);
+
     spinner.succeed('Skillset structure created');
 
     // Summary
@@ -268,11 +470,14 @@ export async function init(options: InitOptions): Promise<void> {
     } else {
       console.log('    └── (add your .claude/ and/or CLAUDE.md here)');
     }
+    console.log('  .claude/skills/   - Audit skill installed');
+    console.log('    └── skillset-audit/');
 
     console.log(chalk.cyan('\nNext steps:'));
     console.log('  1. Edit PROOF.md with production evidence');
     console.log('  2. Ensure content/ has your skillset files');
     console.log('  3. Run: npx skillsets audit');
+    console.log('  4. Run: /skillset-audit (qualitative review)');
   } catch (error) {
     spinner.fail('Failed to create structure');
     throw error;

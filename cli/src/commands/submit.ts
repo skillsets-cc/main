@@ -151,26 +151,31 @@ export async function submit(): Promise<void> {
   const skillsetId = `@${skillset.author}/${skillset.name}`;
   let isUpdate = false;
   let existingVersion: string | null = null;
+  let registryAvailable = true;
 
   try {
     const existing = await fetchSkillsetMetadata(skillsetId);
     if (existing) {
       isUpdate = true;
       existingVersion = existing.version;
-
-      // Validate version bump
-      if (compareVersions(skillset.version, existingVersion) <= 0) {
-        console.log(chalk.red(`✗ Version must be greater than ${existingVersion}`));
-        console.log(chalk.gray(`  Current: ${skillset.version}`));
-        console.log(chalk.gray('  Update skillset.yaml with a higher version'));
-        process.exit(1);
-      }
-      console.log(chalk.green(`✓ Update: ${existingVersion} → ${skillset.version}`));
-    } else {
-      console.log(chalk.green('✓ New skillset submission'));
     }
   } catch {
     // Registry unavailable, assume new submission
+    registryAvailable = false;
+  }
+
+  // Validate version bump (outside try-catch so process.exit works in tests)
+  if (isUpdate && existingVersion) {
+    if (compareVersions(skillset.version, existingVersion) <= 0) {
+      console.log(chalk.red(`✗ Version must be greater than ${existingVersion}`));
+      console.log(chalk.gray(`  Current: ${skillset.version}`));
+      console.log(chalk.gray('  Update skillset.yaml with a higher version'));
+      process.exit(1);
+    }
+    console.log(chalk.green(`✓ Update: ${existingVersion} → ${skillset.version}`));
+  } else if (registryAvailable) {
+    console.log(chalk.green('✓ New skillset submission'));
+  } else {
     console.log(chalk.yellow('⚠ Could not check registry (assuming new submission)'));
   }
 

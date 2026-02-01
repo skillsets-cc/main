@@ -1,7 +1,11 @@
 # audit.ts
 
 ## Overview
-**Purpose**: Validate skillset structure and generate AUDIT_REPORT.md with pass/fail status. Detects whether this is a new submission or update and validates version bump.
+**Purpose**: Tier 1 structural validation of skillset submissions. Validates manifest schema, required files, content structure, file sizes, and secrets. Detects updates vs new submissions and validates version bumps.
+
+**Two-Tier Audit Flow**:
+1. `npx skillsets audit` — Programmatic structural validation (this file)
+2. `/skillset-audit` — Qualitative Opus review of all primitives (installed by `init`)
 
 ## Dependencies
 - External: `chalk`, `ora`, `js-yaml`, `fs`
