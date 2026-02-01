@@ -15,7 +15,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <p class="text-text-secondary mb-4 font-serif leading-relaxed">
         Unlike atomic skill marketplaces or limited examples, skillsets.cc indexes
         <strong class="text-text-ink">production-verified workflows</strong> — validated combinations
-        of skills, agents, prompts, and configurations that have shipped real software.
+        of skills, agents, hooks, plugins, and MCP configurations that have shipped real software.
       </p>
     </div>
 
@@ -50,7 +50,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Add Production Proof</h3>
             <p class="text-text-secondary mb-3 font-serif">
               Edit <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-xs">PROOF.md</code>
-              with evidence of your skillset in production: screenshots, testimonials, project links, or case studies.
+              with evidence of your skillset in production: project links, metrics, or links to videos/writeups.
             </p>
           </div>
         </div>
@@ -78,11 +78,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           <div>
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Run the Qualitative Review</h3>
             <p class="text-text-secondary mb-3 font-serif">
-              Once structural audit passes, run the qualitative review in Claude Code.
+              Once structural audit passes, run the qualitative review <strong class="text-text-ink">in the repo where you used the skillset</strong>.
             </p>
-            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>/skillset-audit</code></pre>
+            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>/skillset-audit [AUDIT_REPORT.md]</code></pre>
             <p class="text-text-tertiary mt-3 font-serif text-sm">
-              Tier 2: evaluates all primitives (skills, agents, hooks, MCP, CLAUDE.md) against best practices
+              Tier 2: evaluates primitives against best practices and verifies workflow artifacts
             </p>
           </div>
         </div>
@@ -127,8 +127,8 @@ npx skillsets init
 # Tier 1: Structural validation
 npx skillsets audit
 
-# Tier 2: Qualitative review (in Claude Code)
-/skillset-audit
+# Tier 2: Qualitative review (in reference repo)
+/skillset-audit [AUDIT_REPORT.md]
 
 # Submit PR to registry (requires gh CLI)
 npx skillsets submit</code></pre>
