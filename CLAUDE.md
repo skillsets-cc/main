@@ -30,6 +30,7 @@
 | **Site** | Astro 5 (`output: 'server'`) + Tailwind CSS + Cloudflare Workers |
 | **Auth** | GitHub OAuth Worker (~50 lines, includes CSRF + PKCE) |
 | **Stars** | Cloudflare Worker + KV (~60 lines, includes rate limiting) |
+| **Downloads** | KV-backed counter, incremented by CLI on successful install |
 | **CLI** | Node.js `npx skillsets` using degit + Fuse.js search |
 | **Registry** | GitHub mono-repo with GitHub Actions validation |
 | **Schema** | JSON Schema for `skillset.yaml` validation |
@@ -79,8 +80,9 @@
 │                        (CLI Tool)                                    │
 │                                                                      │
 │  Commands:                                                           │
-│  ├── search <query>    ── Fuzzy search against CDN-hosted index      │
-│  ├── install <name>    ── degit to current directory + verify        │
+│  ├── search <query>    ── Fuzzy search + live stats from API         │
+│  ├── list              ── Browse all + sort by stars/downloads       │
+│  ├── install <name>    ── degit + verify + track download            │
 │  └── verify            ── SHA-256 checksum against registry          │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -213,7 +215,7 @@ See [workers_styleguide.md](.claude/resources/workers_styleguide.md) for complet
 | Pattern | Requirement |
 |---------|-------------|
 | **Stateless Functions** | Workers are stateless; KV is the only persistence |
-| **KV for State** | Use Cloudflare KV for stars, OAuth state (with TTL) |
+| **KV for State** | Use Cloudflare KV for stars, downloads, OAuth state (with TTL) |
 | **Rate Limiting** | Custom KV-based rate limiting (10 ops/min per user) |
 | **Error Handling** | Return proper HTTP status codes; log errors |
 | **Security** | CSRF protection (state param) + PKCE for OAuth |

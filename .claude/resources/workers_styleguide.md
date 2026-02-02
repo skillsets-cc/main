@@ -63,11 +63,14 @@ async function handleLogin(request: Request, env: Env): Promise<Response> {
 // Star counts (per skillset)
 `stars:${skillsetId}`          // No expiration
 
-// User stars (per user per skillset)
-`user:${userId}:star:${skillsetId}`  // No expiration
+// Download counts (per skillset, incremented by CLI)
+`downloads:${skillsetId}`      // No expiration
+
+// User stars (list of skillset IDs per user)
+`user:${userId}:stars`         // No expiration, JSON array
 
 // Rate limiting
-`ratelimit:${userId}:${minute}`  // TTL: 60 seconds
+`ratelimit:${userId}`          // TTL: 60 seconds
 ```
 
 ### Read/Write Pattern

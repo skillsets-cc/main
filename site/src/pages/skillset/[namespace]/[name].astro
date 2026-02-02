@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import StarButton from '@components/StarButton';
+import DownloadCount from '@components/DownloadCount';
 import CopyCommand from '@components/CopyCommand';
 import ProofGallery from '@components/ProofGallery.astro';
 import { getSkillsetById } from '@/lib/data';
@@ -61,11 +62,17 @@ const statusColor = skillset.status === 'active' ? 'bg-green-500'
           </p>
         </div>
 
-        <StarButton
-          client:load
-          skillsetId={skillsetId}
-          initialStars={skillset.stars}
-        />
+        <div class="flex items-center gap-2">
+          <DownloadCount
+            client:load
+            skillsetId={skillsetId}
+          />
+          <StarButton
+            client:load
+            skillsetId={skillsetId}
+            initialStars={skillset.stars}
+          />
+        </div>
       </div>
 
       <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">{skillset.description}</p>

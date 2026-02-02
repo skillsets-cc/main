@@ -78,11 +78,11 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           <div>
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Run the Qualitative Review</h3>
             <p class="text-text-secondary mb-3 font-serif">
-              Once structural audit passes, run the qualitative review <strong class="text-text-ink">in the repo where you used the skillset</strong>.
+              Once structural audit passes, run the qualitative review <strong class="text-text-ink">from your skillset directory</strong>. Grant Claude permission to access the reference repo when prompted.
             </p>
             <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]</code></pre>
             <p class="text-text-tertiary mt-3 font-serif text-sm">
-              Tier 2: evaluates primitives against best practices and verifies workflow artifacts
+              Tier 2: evaluates primitives against best practices, verifying against real workflow artifacts in the reference repo
             </p>
           </div>
         </div>
@@ -127,7 +127,7 @@ npx skillsets init
 # Tier 1: Structural validation
 npx skillsets audit
 
-# Tier 2: Qualitative review
+# Tier 2: Qualitative review (grant permission to access reference repo)
 /audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]
 
 # Submit PR to registry (requires gh CLI)

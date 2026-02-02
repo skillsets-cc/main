@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { fetchSearchIndex } from '../lib/api.js';
+import { fetchSearchIndex, fetchStats, mergeStats } from '../lib/api.js';
 
 interface ListOptions {
   limit?: string;
-  sort?: 'name' | 'stars' | 'recent';
+  sort?: 'name' | 'stars' | 'downloads' | 'recent';
   json?: boolean;
 }
 
@@ -12,15 +12,19 @@ export async function list(options: ListOptions): Promise<void> {
   const spinner = ora('Fetching skillsets...').start();
 
   try {
-    const index = await fetchSearchIndex();
+    // Fetch index and live stats in parallel
+    const [index, stats] = await Promise.all([fetchSearchIndex(), fetchStats()]);
     spinner.stop();
 
-    let skillsets = [...index.skillsets];
+    // Merge live stats into skillsets
+    let skillsets = mergeStats(index.skillsets, stats);
 
     // Sort
     const sortBy = options.sort || 'name';
     if (sortBy === 'stars') {
       skillsets.sort((a, b) => b.stars - a.stars);
+    } else if (sortBy === 'downloads') {
+      skillsets.sort((a, b) => (b.downloads ?? 0) - (a.downloads ?? 0));
     } else if (sortBy === 'name') {
       skillsets.sort((a, b) => a.name.localeCompare(b.name));
     }
@@ -54,22 +58,25 @@ export async function list(options: ListOptions): Promise<void> {
         padEnd('NAME', 30) +
         padEnd('AUTHOR', 20) +
         padEnd('STARS', 8) +
+        padEnd('INSTALLS', 10) +
         'DESCRIPTION'
       )
     );
-    console.log(chalk.gray('─'.repeat(100)));
+    console.log(chalk.gray('─'.repeat(110)));
 
     // Rows
     for (const s of skillsets) {
       const name = padEnd(s.name, 30);
       const author = padEnd(s.author.handle, 20);
       const stars = padEnd(`★ ${s.stars}`, 8);
-      const desc = truncate(s.description, 40);
+      const downloads = padEnd(`↓ ${s.downloads ?? 0}`, 10);
+      const desc = truncate(s.description, 32);
 
       console.log(
         chalk.bold(name) +
         chalk.gray(author) +
         chalk.yellow(stars) +
+        chalk.gray(downloads) +
         desc
       );
     }

@@ -1,6 +1,6 @@
 {
   "name": "skillsets",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "CLI tool for discovering and installing verified skillsets",
   "type": "module",
   "bin": {

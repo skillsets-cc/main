@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { detectConflicts, backupFiles } from '../lib/filesystem.js';
 import { verifyChecksums } from '../lib/checksum.js';
-import { REGISTRY_REPO } from '../lib/constants.js';
+import { REGISTRY_REPO, DOWNLOADS_URL } from '../lib/constants.js';
 
 interface InstallOptions {
   force?: boolean;
@@ -57,6 +57,13 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
   }
 
   spinner.succeed(`Successfully installed ${skillsetId}`);
+
+  // Track download (non-blocking, silent fail)
+  fetch(DOWNLOADS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ skillset: skillsetId }),
+  }).catch(() => {});
 
   // Print next steps
   console.log(chalk.green('\n✓ Installation complete!'));

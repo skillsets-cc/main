@@ -14,6 +14,7 @@ export interface SearchIndexEntry {
     url?: string;
   };
   stars: number;
+  downloads?: number; // Populated from live stats
   version: string;
   status: 'active' | 'deprecated' | 'archived';
   verification: {
@@ -28,6 +29,11 @@ export interface SearchIndexEntry {
   entry_point: string;
   checksum: string;
   files: Record<string, string>; // file path -> SHA-256
+}
+
+export interface StatsResponse {
+  stars: Record<string, number>;
+  downloads: Record<string, number>;
 }
 
 export interface Skillset {

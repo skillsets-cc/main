@@ -1,8 +1,10 @@
-import type { SearchIndex, SearchIndexEntry } from '../types/index.js';
-import { SEARCH_INDEX_URL, CACHE_TTL_MS } from './constants.js';
+import type { SearchIndex, SearchIndexEntry, StatsResponse } from '../types/index.js';
+import { SEARCH_INDEX_URL, STATS_URL, CACHE_TTL_MS } from './constants.js';
 
 let cachedIndex: SearchIndex | null = null;
 let cacheTime: number = 0;
+let cachedStats: StatsResponse | null = null;
+let statsCacheTime: number = 0;
 
 /**
  * Fetches the search index from the CDN.
@@ -34,4 +36,49 @@ export async function fetchSearchIndex(): Promise<SearchIndex> {
 export async function fetchSkillsetMetadata(skillsetId: string): Promise<SearchIndexEntry | undefined> {
   const index = await fetchSearchIndex();
   return index.skillsets.find((s) => s.id === skillsetId);
+}
+
+/**
+ * Fetches live star and download counts from the API.
+ * Implements 1-minute local cache.
+ */
+export async function fetchStats(): Promise<StatsResponse> {
+  const now = Date.now();
+  const STATS_CACHE_TTL_MS = 60 * 1000; // 1 minute for stats
+
+  // Return cached if still valid
+  if (cachedStats && now - statsCacheTime < STATS_CACHE_TTL_MS) {
+    return cachedStats;
+  }
+
+  try {
+    const response = await fetch(STATS_URL);
+    if (!response.ok) {
+      // Return empty stats on error, don't break the command
+      return { stars: {}, downloads: {} };
+    }
+
+    const data = (await response.json()) as StatsResponse;
+    cachedStats = data;
+    statsCacheTime = now;
+
+    return data;
+  } catch {
+    // Return empty stats on network error
+    return { stars: {}, downloads: {} };
+  }
+}
+
+/**
+ * Merges live stats into skillset entries.
+ */
+export function mergeStats(
+  skillsets: SearchIndexEntry[],
+  stats: StatsResponse
+): SearchIndexEntry[] {
+  return skillsets.map((s) => ({
+    ...s,
+    stars: stats.stars[s.id] ?? s.stars,
+    downloads: stats.downloads[s.id] ?? 0,
+  }));
 }

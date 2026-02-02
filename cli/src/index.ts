@@ -21,7 +21,7 @@ program
   .command('list')
   .description('List all available skillsets')
   .option('-l, --limit <number>', 'Limit results')
-  .option('-s, --sort <field>', 'Sort by: name, stars (default: name)')
+  .option('-s, --sort <field>', 'Sort by: name, stars, downloads (default: name)')
   .option('--json', 'Output as JSON')
   .action(async (options) => {
     try {

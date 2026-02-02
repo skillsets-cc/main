@@ -1,5 +1,7 @@
 export const CDN_BASE_URL = 'https://skillsets.cc';
 export const SEARCH_INDEX_URL = `${CDN_BASE_URL}/search-index.json`;
+export const STATS_URL = `${CDN_BASE_URL}/api/stats/counts`;
+export const DOWNLOADS_URL = `${CDN_BASE_URL}/api/downloads`;
 export const REGISTRY_REPO = 'skillsets-cc/main';
 export const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
 export const DEFAULT_SEARCH_LIMIT = 10;

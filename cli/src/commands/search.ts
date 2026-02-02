@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js';
 import chalk from 'chalk';
-import { fetchSearchIndex } from '../lib/api.js';
+import { fetchSearchIndex, fetchStats, mergeStats } from '../lib/api.js';
 import { DEFAULT_SEARCH_LIMIT } from '../lib/constants.js';
 
 interface SearchOptions {
@@ -11,11 +11,14 @@ interface SearchOptions {
 export async function search(query: string, options: SearchOptions): Promise<void> {
   console.log(chalk.blue(`Searching for: ${query}`));
 
-  // Fetch index from CDN
-  const index = await fetchSearchIndex();
+  // Fetch index and live stats in parallel
+  const [index, stats] = await Promise.all([fetchSearchIndex(), fetchStats()]);
+
+  // Merge live stats into skillsets
+  const skillsetsWithStats = mergeStats(index.skillsets, stats);
 
   // Filter by tags if provided
-  let filtered = index.skillsets;
+  let filtered = skillsetsWithStats;
   if (options.tags && options.tags.length > 0) {
     filtered = filtered.filter((skillset) =>
       options.tags!.some((tag) => skillset.tags.includes(tag))
@@ -43,7 +46,7 @@ export async function search(query: string, options: SearchOptions): Promise<voi
     console.log(chalk.bold(item.name));
     console.log(`  ${item.description}`);
     console.log(`  ${chalk.gray(`by ${item.author.handle}`)}`);
-    console.log(`  ${chalk.yellow(`★ ${item.stars}`)} ${chalk.gray(`• v${item.version}`)}`);
+    console.log(`  ${chalk.yellow(`★ ${item.stars}`)} ${chalk.gray(`↓ ${item.downloads ?? 0}`)} ${chalk.gray(`• v${item.version}`)}`);
     console.log(`  ${chalk.cyan(`npx skillsets install ${item.id}`)}`);
     console.log();
   });
