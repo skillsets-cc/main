@@ -24,8 +24,7 @@ npx skillsets install @supercollectible/The_Skillset
 |---------|---------|
 | `list` | Browse all skillsets with live star/download counts |
 | `search <query>` | Fuzzy search by name, description, or tags |
-| `install <id>` | Install skillset to current directory |
-| `verify` | Verify installed skillset checksums |
+| `install <id>` | Install skillset to current directory (verifies checksums) |
 | `init` | Scaffold a new skillset for contribution |
 | `audit` | Validate skillset before submission |
 | `submit` | Open PR to registry (requires `gh` CLI) |

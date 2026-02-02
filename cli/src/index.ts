@@ -4,7 +4,6 @@ import { program } from 'commander';
 import { search } from './commands/search.js';
 import { list } from './commands/list.js';
 import { install } from './commands/install.js';
-import { verify } from './commands/verify.js';
 import { init } from './commands/init.js';
 import { audit } from './commands/audit.js';
 import { submit } from './commands/submit.js';
@@ -54,18 +53,6 @@ program
   .action(async (skillsetId, options) => {
     try {
       await install(skillsetId, options);
-    } catch (error) {
-      handleError(error);
-    }
-  });
-
-program
-  .command('verify')
-  .description('Verify installed skillset checksums against registry')
-  .option('-d, --dir <path>', 'Directory to verify (default: current)', '.')
-  .action(async (options) => {
-    try {
-      await verify(options);
     } catch (error) {
       handleError(error);
     }

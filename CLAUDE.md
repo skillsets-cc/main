@@ -82,8 +82,7 @@
 │  Commands:                                                           │
 │  ├── search <query>    ── Fuzzy search + live stats from API         │
 │  ├── list              ── Browse all + sort by stars/downloads       │
-│  ├── install <name>    ── degit + verify + track download            │
-│  └── verify            ── SHA-256 checksum against registry          │
+│  └── install <name>    ── degit + verify checksums + track download  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -159,7 +158,7 @@ skillsets.cc/
 │
 ├── cli/                      # NPM package
 │   ├── src/
-│   │   ├── commands/        # search, install, verify
+│   │   ├── commands/        # search, install, list, init, audit, submit
 │   │   ├── lib/             # degit wrapper, checksum utils
 │   │   └── index.ts         # CLI entry point
 │   └── package.json
