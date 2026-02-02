@@ -65,7 +65,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <div class="space-y-6">
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">install</h3>
-            <p class="text-text-secondary font-serif mb-3">Install a skillset to the current directory. Files are extracted directly—no .git folders, no bloat.</p>
+            <p class="text-text-secondary font-serif mb-3">Install a skillset to the current directory. Verifies checksums automatically. No .git folders, no bloat.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
               <div><code>npx skillsets install @supercollectible/The_Skillset</code></div>
               <div><code>npx skillsets install @user/name --force</code> <span class="text-text-tertiary"># overwrite existing</span></div>
@@ -73,14 +73,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             </div>
           </div>
 
-          <div class="border-b border-border-ink pb-4">
-            <h3 class="font-mono font-bold text-text-ink mb-2">verify</h3>
-            <p class="text-text-secondary font-serif mb-3">Verify installed skillset checksums against the registry. Ensures files haven't been modified.</p>
-            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
-              <div><code>npx skillsets verify</code></div>
-              <div><code>npx skillsets verify --dir ./my-project</code></div>
-            </div>
-          </div>
         </div>
       </section>
 

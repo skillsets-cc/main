@@ -32,11 +32,6 @@ export default function CopyCommand({ command }: CopyCommandProps): ReactElement
             {copied ? '✓ Copied!' : 'Copy'}
           </button>
         </div>
-        <div className="flex items-center gap-2 text-text-tertiary">
-          <pre className="flex-1 overflow-x-auto">
-            <code>npx skillsets verify</code>
-          </pre>
-        </div>
       </div>
       <p className="mt-3 text-xs text-text-tertiary font-mono">
         <a href="/cli" className="text-orange-500 hover:underline">More CLI commands</a> — search, list
