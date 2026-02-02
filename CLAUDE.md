@@ -390,3 +390,15 @@ See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete CI/CD and Cloudflare Workers
 ## 9. Lessons Learned
 
 *Living section - add entries as patterns emerge or issues are resolved.*
+
+### npx Caching
+
+npx caches packages in `~/.npm/_npx`. After publishing a new CLI version, users may still get the old version. Fix: `rm -rf ~/.npm/_npx` or `npx clear-npx-cache` before retrying.
+
+### .gitignore and Skillset Content
+
+`.env.*` patterns in `.gitignore` can accidentally exclude `.env.example` files in skillset content. Added `!.env.example` exception to allow example env files while still ignoring real secrets.
+
+### Checksum Verification Path Mismatch
+
+The search index stores paths as `content/CLAUDE.md` but degit extracts the content folder's *contents* directly to the target directory. Verification code must strip the `content/` prefix and only verify `content/*` files (not root-level skillset files like PROOF.md).
