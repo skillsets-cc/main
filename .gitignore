@@ -9,6 +9,7 @@ dist/
 # environment/secrets
 .env
 .env.*
+!.env.example
 .dev.vars
 
 # logs

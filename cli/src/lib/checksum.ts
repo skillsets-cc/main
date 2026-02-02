@@ -39,7 +39,13 @@ export async function verifyChecksums(
   const mismatches: Array<{ file: string; expected: string; actual: string }> = [];
 
   for (const [file, expectedChecksum] of Object.entries(metadata.files)) {
-    const filePath = path.join(dir, file);
+    // Only verify files from content/ folder (those are the ones installed)
+    if (!file.startsWith('content/')) {
+      continue;
+    }
+    // Strip 'content/' prefix since degit extracts content folder's contents directly
+    const relativePath = file.slice(8);
+    const filePath = path.join(dir, relativePath);
 
     try {
       const actualChecksum = await computeFileChecksum(filePath);
