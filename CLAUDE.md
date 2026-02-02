@@ -337,9 +337,9 @@ entry_point: "./content/CLAUDE.md"
 
 ### Contributor Flow
 
-1. Download `/audit_skillset` skill from `/contribute` page
+1. Download `/audit-skill` skill from `/contribute` page
 2. Prepare skillset locally with `skillset.yaml`
-3. Run `/audit_skillset` to generate `AUDIT_REPORT.md`
+3. Run `/audit-skill` to generate `AUDIT_REPORT.md`
 4. Open PR with skillset folder + audit report + production proof
 5. CI validates schema + files
 6. Maintainer reviews production proof

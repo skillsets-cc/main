@@ -31,7 +31,7 @@ interface SkillsetYaml {
     url?: string;
   };
   verification: {
-    production_url: string;
+    production_links: Array<{ url: string; label?: string }>;
     production_proof?: string;
     audit_report: string;
   };
@@ -57,7 +57,7 @@ interface SearchIndexEntry {
   version: string;
   status: 'active' | 'deprecated' | 'archived';
   verification: {
-    production_url: string;
+    production_links: Array<{ url: string; label?: string }>;
     production_proof?: string;
     audit_report: string;
   };
@@ -246,7 +246,7 @@ async function buildIndex(): Promise<void> {
         version: manifest.version,
         status: manifest.status || 'active',
         verification: {
-          production_url: manifest.verification.production_url,
+          production_links: manifest.verification.production_links,
           production_proof: manifest.verification.production_proof,
           audit_report: manifest.verification.audit_report,
         },

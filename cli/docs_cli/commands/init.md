@@ -21,8 +21,8 @@
 | `SKILLSET_YAML_TEMPLATE` | `skillset.yaml` |
 | `README_TEMPLATE` | `README.md` |
 | `PROOF_TEMPLATE` | `PROOF.md` |
-| `AUDIT_SKILL_MD` | `.claude/skills/skillset-audit/SKILL.md` |
-| `AUDIT_CRITERIA_MD` | `.claude/skills/skillset-audit/CRITERIA.md` |
+| `AUDIT_SKILL_MD` | `.claude/skills/audit-skill/SKILL.md` |
+| `AUDIT_CRITERIA_MD` | `.claude/skills/audit-skill/CRITERIA.md` |
 
 ### Prompts
 | Field | Validation |
@@ -50,7 +50,7 @@ init() → Detect existing files → Prompt user → Generate templates → Copy
 ├── README.md
 ├── PROOF.md
 ├── .claude/skills/
-│   └── skillset-audit/     # Tier 2 qualitative review skill
+│   └── audit-skill/     # Tier 2 qualitative review skill
 │       ├── SKILL.md        # Opus instructions
 │       └── CRITERIA.md     # Per-primitive evaluation rubric
 └── content/

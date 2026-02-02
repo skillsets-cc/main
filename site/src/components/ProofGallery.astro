@@ -1,10 +1,30 @@
 ---
-interface Props {
-  productionUrl: string;
-  hasAuditReport: boolean;
+interface ProductionLink {
+  url: string;
+  label?: string;
 }
 
-const { productionUrl, hasAuditReport } = Astro.props;
+interface Props {
+  productionLinks: ProductionLink[];
+  hasAuditReport: boolean;
+  skillsetId: string;
+}
+
+const { productionLinks, hasAuditReport, skillsetId } = Astro.props;
+
+// Extract base domain from URL
+function getBaseDomain(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return parsed.hostname;
+  } catch {
+    return url;
+  }
+}
+
+// Build GitHub URL for audit report
+const encodedId = skillsetId.replace('@', '%40');
+const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
 <section class="p-6 rounded-none">
@@ -16,16 +36,20 @@ const { productionUrl, hasAuditReport } = Astro.props;
       <div>
         <h3 class="font-bold font-serif text-text-ink mb-1">Production Verified</h3>
         <p class="text-text-secondary text-sm font-serif mb-2 leading-relaxed">
-          This skillset has been verified in production.
+          This skillset was used to build:
         </p>
-        <a
-          href={productionUrl}
-          class="text-orange-500 hover:underline text-xs font-mono font-bold uppercase"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          [View Source]
-        </a>
+        <div class="space-y-1">
+          {productionLinks.map((link) => (
+            <a
+              href={link.url}
+              class="block text-orange-500 hover:underline text-sm font-mono"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label || getBaseDomain(link.url)}
+            </a>
+          ))}
+        </div>
       </div>
     </div>
 
@@ -34,9 +58,17 @@ const { productionUrl, hasAuditReport } = Astro.props;
         <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
         <div>
           <h3 class="font-bold font-serif text-text-ink mb-1">Audit Complete</h3>
-          <p class="text-text-secondary text-sm font-serif leading-relaxed">
+          <p class="text-text-secondary text-sm font-serif mb-2 leading-relaxed">
             Validated with official audit skill.
           </p>
+          <a
+            href={auditReportUrl}
+            class="text-orange-500 hover:underline text-sm font-mono"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View audit report
+          </a>
         </div>
       </div>
     )}

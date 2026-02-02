@@ -278,7 +278,7 @@
 - **Description**: Create comprehensive submission guide for contributors.
 - **Acceptance Criteria**:
   - [ ] Documents the complete submission workflow
-  - [ ] Explains the `/audit_skillset` skill and where to download it
+  - [ ] Explains the `/audit-skill` skill and where to download it
   - [ ] Lists required files and folder structure
   - [ ] Describes the PR review process (automated CI + manual maintainer review)
   - [ ] Clarifies production proof requirements and quality standards
@@ -472,7 +472,7 @@
 - **Description**: Create the contribution guide page with audit skill download.
 - **Acceptance Criteria**:
   - [ ] Explains submission workflow step-by-step
-  - [ ] Download link for `/audit_skillset` skill
+  - [ ] Download link for `/audit-skill` skill
   - [ ] Examples of good submissions
   - [ ] Link to CONTRIBUTING.md in registry
   - [ ] Prerendered with `export const prerender = true`
@@ -1105,13 +1105,13 @@
 
 ## Build Agent 6: Audit Skill
 
-**Scope**: Create the `/audit_skillset` skill for contributors to run locally.
+**Scope**: Create the `/audit-skill` skill for contributors to run locally.
 
 ### Task 6.1: Audit Skill Implementation
 
 - **Description**: Create downloadable Claude Code skill that validates skillset structure.
 - **Acceptance Criteria**:
-  - [ ] Standard skill format (`.claude/skills/audit_skillset/SKILL.md`)
+  - [ ] Standard skill format (`.claude/skills/audit-skill/SKILL.md`)
   - [ ] Validates `skillset.yaml` exists and has required fields
   - [ ] Checks `README.md` present
   - [ ] Verifies `content/` contains `.claude/` or `CLAUDE.md`
@@ -1119,7 +1119,7 @@
   - [ ] Generates `AUDIT_REPORT.md` with pass/fail checklist
 - **Files to Create**:
   ```
-  tools/audit_skillset/
+  tools/audit-skill/
   ├── SKILL.md
   └── templates/
       └── AUDIT_REPORT_TEMPLATE.md
@@ -1127,7 +1127,7 @@
 - **Code Example (SKILL.md snippet)**:
   ```markdown
   ---
-  name: audit_skillset
+  name: audit-skill
   description: Validates a skillset directory before submission to skillsets.cc
   ---
   

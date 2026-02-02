@@ -11,7 +11,8 @@ author:
 
 # Verification
 verification:
-  production_url: "https://skillsets.cc"
+  production_links:
+    - url: "https://skillsets.cc"
   production_proof: "./PROOF.md"
   audit_report: "./AUDIT_REPORT.md"
 

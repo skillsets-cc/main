@@ -1,5 +1,5 @@
 ---
-name: skillset-audit
+name: audit-skill
 description: Qualitative review of skillset content against Claude Code best practices. Evaluates all primitives (skills, agents, hooks, MCP, CLAUDE.md) for proper frontmatter, descriptions, and structure. Appends analysis to AUDIT_REPORT.md.
 ---
 

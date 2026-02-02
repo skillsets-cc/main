@@ -56,17 +56,35 @@
     },
     "verification": {
       "type": "object",
-      "required": ["production_url", "audit_report"],
+      "required": ["production_links", "audit_report"],
       "properties": {
-        "production_url": {
-          "type": "string",
-          "format": "uri",
-          "description": "URL to live deployment, repository, or case study"
+        "production_links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["url"],
+            "properties": {
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Production URL"
+              },
+              "label": {
+                "type": "string",
+                "maxLength": 50,
+                "description": "Optional label (defaults to domain)"
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "maxItems": 5,
+          "description": "URLs to live deployments, repositories, or case studies (1-5)"
         },
         "production_proof": {
           "type": "string",
           "pattern": "^\\./.+",
-          "description": "Path to PROOF.md file with screenshots/testimonials (optional)"
+          "description": "Path to PROOF.md file (optional)"
         },
         "audit_report": {
           "type": "string",

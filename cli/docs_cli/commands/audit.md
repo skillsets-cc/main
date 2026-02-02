@@ -5,7 +5,7 @@
 
 **Two-Tier Audit Flow**:
 1. `npx skillsets audit` — Programmatic structural validation (this file)
-2. `/skillset-audit` — Qualitative Opus review of all primitives (installed by `init`)
+2. `/audit-skill` — Qualitative Opus review of all primitives (installed by `init`)
 
 ## Dependencies
 - External: `chalk`, `ora`, `js-yaml`, `fs`

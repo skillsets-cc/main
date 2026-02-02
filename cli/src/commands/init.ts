@@ -84,7 +84,7 @@ This skillset has been verified in production.
 `;
 
 const AUDIT_SKILL_MD = `---
-name: skillset-audit
+name: audit-skill
 description: Qualitative review of skillset content against Claude Code best practices. Evaluates all primitives (skills, agents, hooks, MCP, CLAUDE.md) for proper frontmatter, descriptions, and structure. Appends analysis to AUDIT_REPORT.md.
 ---
 
@@ -451,8 +451,8 @@ export async function init(options: InitOptions): Promise<void> {
     const proof = PROOF_TEMPLATE.replace('{{PRODUCTION_URL}}', productionUrl);
     writeFileSync(join(cwd, 'PROOF.md'), proof);
 
-    // Install skillset-audit skill to .claude/skills/
-    const skillDir = join(cwd, '.claude', 'skills', 'skillset-audit');
+    // Install audit-skill skill to .claude/skills/
+    const skillDir = join(cwd, '.claude', 'skills', 'audit-skill');
     mkdirSync(skillDir, { recursive: true });
     writeFileSync(join(skillDir, 'SKILL.md'), AUDIT_SKILL_MD);
     writeFileSync(join(skillDir, 'CRITERIA.md'), AUDIT_CRITERIA_MD);
@@ -471,13 +471,13 @@ export async function init(options: InitOptions): Promise<void> {
       console.log('    └── (add your .claude/ and/or CLAUDE.md here)');
     }
     console.log('  .claude/skills/   - Audit skill installed');
-    console.log('    └── skillset-audit/');
+    console.log('    └── audit-skill/');
 
     console.log(chalk.cyan('\nNext steps:'));
     console.log('  1. Edit PROOF.md with production evidence');
     console.log('  2. Ensure content/ has your skillset files');
     console.log('  3. Run: npx skillsets audit');
-    console.log('  4. Run: /skillset-audit (qualitative review)');
+    console.log('  4. Run: /audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]');
   } catch (error) {
     spinner.fail('Failed to create structure');
     throw error;

@@ -1,107 +1,76 @@
-# Skillsets.cc Registry
+# Skillsets.cc
 
-A curated registry of production-verified Claude Code workflows. Unlike atomic skill marketplaces or limited official examples, skillsets.cc indexes **complete production stacks**—validated combinations of skills, agents, prompts, and configurations that have shipped real software.
+A curated registry of production-verified Claude Code workflows.
 
 ## What is a Skillset?
 
-A skillset is a complete, production-verified Claude Code workflow that includes:
+A cohesive workflow built on interoperable Claude Code primitives—skills, agents, hooks, plugins, and MCP. Each one has shipped production software, with evidence to prove it.
 
-- **Skills & Agents**: Custom Claude Code skills and agent configurations
-- **Prompts**: Proven prompt patterns and templates
-- **Configuration**: Project structure and setup instructions
-- **Production Proof**: Evidence that this workflow shipped real software
+Unlike atomic skill marketplaces, skillsets.cc indexes validated combinations that work together. Not a list of ingredients—a complete recipe, and proof that the dish has been served.
 
-## Repository Structure
+## Browse & Install
 
-```
-skillsets-cc/
-├── skillsets/               # Namespace folders containing skillsets
-│   └── @{namespace}/
-│       └── {skillset-name}/
-│           ├── skillset.yaml       # Manifest
-│           ├── README.md           # Installation/usage guide
-│           ├── AUDIT_REPORT.md     # Structural validation
-│           └── content/            # Files to install
-│               ├── .claude/        # Skills, agents, prompts
-│               └── CLAUDE.md       # Project instructions
-├── schema/                  # JSON Schema for validation
-│   └── skillset.schema.json
-├── .github/workflows/       # CI/CD automation
-│   ├── validate-submission.yml
-│   └── deploy-site.yml
-├── CONTRIBUTING.md          # Submission guide
-└── MAINTAINER_CHECKLIST.md  # Review checklist
-```
+Visit [skillsets.cc](https://skillsets.cc) to browse the registry, or use the CLI:
 
-## Discovery & Installation
-
-### Browse & Search
-Visit [skillsets.cc](https://skillsets.cc) to browse the registry with:
-- Fuzzy search across names, descriptions, and tags
-- Filter by tags and compatibility
-- Star your favorites
-- View production proof and audit reports
-
-### CLI Installation
 ```bash
-# Search for skillsets
 npx skillsets search "sdlc"
-
-# Install to current directory
 npx skillsets install @supercollectible/The_Skillset
-
-# Verify installation integrity
 npx skillsets verify
 ```
 
 ## Contributing
 
-Want to share your production-verified Claude Code workflow? See [CONTRIBUTING.md](./CONTRIBUTING.md) for the submission process.
+Have a production-verified workflow? See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full process.
 
-### Quick Start
-1. Download the `/audit_skillset` skill from [skillsets.cc/contribute](https://skillsets.cc/contribute)
-2. Prepare your skillset locally with `skillset.yaml` manifest
-3. Run `/audit_skillset` to generate validation report
-4. Open PR with your skillset folder + audit report + production proof
-5. Automated CI validates structure and files
-6. Maintainer reviews production proof
-7. Merge → your skillset is live on skillsets.cc
+```bash
+npx skillsets init      # Scaffold structure + install audit skill
+npx skillsets audit     # Tier 1: structural validation
+/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]  # Tier 2: qualitative review
+npx skillsets submit    # Open PR to registry
+```
 
-## Verification Requirements
+**Requirements:**
+- Production proof (URL to live product, repository, or case study)
+- Passing audit (both tiers)
+- Complete documentation
 
-All submissions must include:
-- **Production URL**: Link to live deployment, repository, or case study
-- **Audit Report**: Automated validation confirming structure and content
-- **Production Proof**: Evidence the workflow shipped real software (screenshots, testimonials, metrics)
+High friction ensures high quality.
 
-This verification process ensures the registry contains only battle-tested, production-ready workflows.
+## Repository Structure
 
-## Core Principles
+```
+skillsets-cc/
+├── skillsets/                    # Registry entries
+│   └── @{namespace}/
+│       └── {skillset-name}/
+│           ├── skillset.yaml     # Manifest
+│           ├── README.md         # Documentation
+│           ├── PROOF.md          # Production evidence
+│           ├── AUDIT_REPORT.md   # Validation results
+│           └── content/          # Files to install
+├── site/                         # Astro SSR site
+├── cli/                          # npx skillsets
+├── tools/                        # Audit skill
+├── schema/                       # JSON Schema
+└── .github/workflows/            # CI validation
+```
 
-- **Folders, not zips**: Enables PR diffing and keeps the repo lightweight
-- **Static-first architecture**: Fast, scalable, and CDN-cacheable
-- **GitHub as source of truth**: No separate backend or database
-- **degit for distribution**: Clean installation without .git folders
-- **Build-time indexing**: Search via CDN-hosted JSON, not runtime API queries
+## Technology
 
-## Technology Stack
-
-| Layer | Implementation |
-|-------|----------------|
-| **Registry** | GitHub mono-repo with CI validation |
-| **Site** | Astro 5 + Tailwind CSS + Cloudflare Pages |
-| **Auth** | GitHub OAuth via Cloudflare Workers |
-| **Stars** | Cloudflare Workers + KV namespace |
-| **CLI** | Node.js with degit + Fuse.js search |
-| **Validation** | JSON Schema + GitHub Actions |
+| Component | Implementation |
+|-----------|----------------|
+| Site | Astro 5 SSR on Cloudflare Workers |
+| Auth | GitHub OAuth with PKCE (in Astro) |
+| Stars | KV-backed API (in Astro) |
+| CLI | Node.js + degit + Fuse.js |
+| Validation | JSON Schema + GitHub Actions |
 
 ## Links
 
-- **Website**: [skillsets.cc](https://skillsets.cc)
-- **Contributing Guide**: [CONTRIBUTING.md](./CONTRIBUTING.md)
-- **Maintainer Checklist**: [MAINTAINER_CHECKLIST.md](./MAINTAINER_CHECKLIST.md)
-- **JSON Schema**: [schema/skillset.schema.json](./schema/skillset.schema.json)
+- [skillsets.cc](https://skillsets.cc) — Browse registry
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — Submission guide
+- [MAINTAINER_CHECKLIST.md](./MAINTAINER_CHECKLIST.md) — Review process
 
 ## License
 
-The registry infrastructure is MIT licensed. Individual skillsets are licensed by their respective authors (see each skillset's `skillset.yaml` for licensing information).
+Registry infrastructure is MIT licensed. Individual skillsets are licensed by their authors.

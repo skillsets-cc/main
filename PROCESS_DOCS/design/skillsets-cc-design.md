@@ -232,7 +232,7 @@ Cloudflare KV has 1 write/second soft limit per key. Mitigation:
 | `/` | Browse skillsets, search, filter | No (view), Yes (star) |
 | `/login` | GitHub OAuth flow | — |
 | `/skillset/:namespace/:name` | Detail page, proof gallery, audit badge | No (view), Yes (star) |
-| `/contribute` | Submission guide + `/audit_skillset` skill download | No |
+| `/contribute` | Submission guide + `/audit-skill` skill download | No |
 
 
 ### Data Flow: Submission
@@ -240,12 +240,12 @@ Cloudflare KV has 1 write/second soft limit per key. Mitigation:
 ```
 Contributor                    skillsets.cc/contribute           GitHub
     │                                   │                           │
-    │  1. Downloads /audit_skillset ◄───│                           │
+    │  1. Downloads /audit-skill ◄───│                           │
     │     skill from /contribute        │                           │
     │                                   │                           │
     │  2. Prepares skillset locally     │                           │
     │                                   │                           │
-    │  3. Runs /audit_skillset locally  │                           │
+    │  3. Runs /audit-skill locally  │                           │
     │     (generates AUDIT_REPORT.md)   │                           │
     │                                   │                           │
     │  4. Opens PR with:                │                           │
@@ -446,12 +446,12 @@ When installing into a project with existing `.claude/` or `CLAUDE.md`:
 
 ### Audit Skill (downloadable from /contribute)
 
-**What it is:** A Claude Code `/audit_skillset` skill that contributors download and run locally.
+**What it is:** A Claude Code `/audit-skill` skill that contributors download and run locally.
 
 **Flow:**
 1. Contributor downloads skill from `/contribute` page
 2. Copies to their project's `.claude/skills/`
-3. Runs `/audit_skillset` in Claude Code session
+3. Runs `/audit-skill` in Claude Code session
 4. Skill validates structure, generates `AUDIT_REPORT.md`
 5. Contributor includes report in PR
 
@@ -462,8 +462,8 @@ When installing into a project with existing `.claude/` or `CLAUDE.md`:
 - No obvious issues (huge files, binaries, secrets patterns)
 
 **Implementation:**
-- Standard Claude Code skill (`.claude/skills/audit_skillset/SKILL.md`)
-- Hosted in registry repo under `/tools/audit_skillset/`
+- Standard Claude Code skill (`.claude/skills/audit-skill/SKILL.md`)
+- Hosted in registry repo under `/tools/audit-skill/`
 - `/contribute` page links to download
 
 ---
@@ -475,7 +475,7 @@ When installing into a project with existing `.claude/` or `CLAUDE.md`:
 | Namespace format | Decided | `@handle/skillset-name` as folder names |
 | Star persistence | Decided | Cloudflare KV |
 | Download method | Decided | degit command only (site provides copy button) |
-| Audit skill | Decided | `/audit_skillset` skill, downloaded from `/contribute`, runs locally |
+| Audit skill | Decided | `/audit-skill` skill, downloaded from `/contribute`, runs locally |
 | Site styling | Decided | Tailwind CSS |
 | CLI package name | Decided | `skillsets` (available on npm) |
 

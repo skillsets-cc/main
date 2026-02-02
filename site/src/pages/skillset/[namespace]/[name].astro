@@ -90,17 +90,18 @@ const statusColor = skillset.status === 'active' ? 'bg-green-500'
     </header>
 
     <div class="space-y-6">
+      <ProofGallery
+        productionLinks={skillset.verification.production_links}
+        hasAuditReport={!!skillset.verification.audit_report}
+        skillsetId={skillsetId}
+      />
+
       <section class="p-6 rounded-none">
         <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
         <article class="prose max-w-none" set:html={readmeHtml} />
       </section>
 
       <CopyCommand client:load command={installCommand} />
-
-      <ProofGallery
-        productionUrl={skillset.verification.production_url}
-        hasAuditReport={!!skillset.verification.audit_report}
-      />
 
       <section class="border border-border-ink bg-stone-50 p-6 rounded-none">
         <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Compatibility</h2>
