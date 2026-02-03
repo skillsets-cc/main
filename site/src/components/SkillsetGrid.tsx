@@ -7,6 +7,14 @@ interface SkillsetGridProps {
   skillsets: SearchIndexEntry[];
 }
 
+function StarIcon(): ReactElement {
+  return (
+    <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+    </svg>
+  );
+}
+
 export default function SkillsetGrid({
   skillsets,
 }: SkillsetGridProps): ReactElement {
@@ -25,7 +33,7 @@ export default function SkillsetGrid({
             { credentials: 'include' }
           );
           if (response.ok) {
-            const data = await response.json();
+            const data = (await response.json()) as { count: number };
             setLiveStars(prev => ({ ...prev, [skillset.id]: data.count }));
           }
         } catch {
@@ -71,9 +79,7 @@ export default function SkillsetGrid({
 
                 <div className="flex items-center gap-4">
                   <span className="flex items-center gap-1 text-xs font-mono text-text-tertiary">
-                    <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-                    </svg>
+                    <StarIcon />
                     {liveStars[skillset.id] ?? skillset.stars}
                   </span>
 

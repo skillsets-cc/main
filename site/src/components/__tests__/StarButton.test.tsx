@@ -1,12 +1,17 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import StarButton from '../StarButton';
 
 describe('StarButton', () => {
   const originalFetch = globalThis.fetch;
+  const originalLocation = window.location;
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
   });
 
   it('renders with initial star count', async () => {

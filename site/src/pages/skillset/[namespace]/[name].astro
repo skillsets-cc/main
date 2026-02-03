@@ -43,10 +43,19 @@ try {
   readmeHtml = await marked.parse(skillset.description);
 }
 
-// Status indicator color
-const statusColor = skillset.status === 'active' ? 'bg-green-500'
-  : skillset.status === 'deprecated' ? 'bg-yellow-500'
-  : 'bg-gray-500';
+// Status indicator color mapping
+function getStatusColor(status: string): string {
+  switch (status) {
+    case 'active':
+      return 'bg-green-500';
+    case 'deprecated':
+      return 'bg-yellow-500';
+    default:
+      return 'bg-gray-500';
+  }
+}
+
+const statusColor = getStatusColor(skillset.status);
 ---
 
 <BaseLayout title={`${skillset.name} - Skillsets.cc`}>

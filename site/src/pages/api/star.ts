@@ -6,79 +6,53 @@
 import type { APIRoute } from 'astro';
 import { getSessionFromRequest, type Env } from '../../lib/auth';
 import { toggleStar, isRateLimited, isStarred, getStarCount } from '../../lib/stars';
+import { jsonResponse, errorResponse } from '../../lib/responses';
 
 interface StarRequest {
   skillsetId: string;
 }
 
+/** Validate skillsetId format to prevent KV key injection. */
+function isValidSkillsetId(id: string): boolean {
+  return /^@?[\w-]+\/[\w-]+$/.test(id);
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  // Verify authentication
   const session = await getSessionFromRequest(env, request);
   if (!session) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
+    return errorResponse('Unauthorized', 401);
+  }
+
+  const rateLimited = await isRateLimited(env.STARS, session.userId);
+  if (rateLimited) {
+    return errorResponse('Rate limit exceeded', 429, {
+      message: 'Maximum 10 star operations per minute. Please try again later.',
     });
   }
 
-  // Check rate limit
-  const rateLimited = await isRateLimited(env.STARS, session.userId);
-  if (rateLimited) {
-    return new Response(
-      JSON.stringify({
-        error: 'Rate limit exceeded',
-        message: 'Maximum 10 star operations per minute. Please try again later.',
-      }),
-      {
-        status: 429,
-        headers: {
-          'Content-Type': 'application/json',
-          'Retry-After': '60',
-        },
-      }
-    );
-  }
-
-  // Parse request body
   let body: StarRequest;
   try {
     body = await request.json() as StarRequest;
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Invalid JSON body', 400);
   }
 
   if (!body.skillsetId) {
-    return new Response(JSON.stringify({ error: 'Missing skillsetId' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Missing skillsetId', 400);
   }
 
-  // Validate skillsetId format (prevent KV key injection)
-  if (!/^@?[\w-]+\/[\w-]+$/.test(body.skillsetId)) {
-    return new Response(JSON.stringify({ error: 'Invalid skillsetId format' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  if (!isValidSkillsetId(body.skillsetId)) {
+    return errorResponse('Invalid skillsetId format', 400);
   }
 
   try {
     const result = await toggleStar(env.STARS, session.userId, body.skillsetId);
-    return new Response(JSON.stringify(result), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return jsonResponse(result);
   } catch (error) {
     console.error('[Stars] Toggle failed:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Internal server error', 500);
   }
 };
 
@@ -88,31 +62,19 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const skillsetId = url.searchParams.get('skillsetId');
 
   if (!skillsetId) {
-    return new Response(JSON.stringify({ error: 'Missing skillsetId parameter' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Missing skillsetId parameter', 400);
   }
 
-  // Get star count (always available)
   const count = await getStarCount(env.STARS, skillsetId);
-
-  // Check if user has starred (if authenticated)
   const session = await getSessionFromRequest(env, request);
   const starred = session
     ? await isStarred(env.STARS, session.userId, skillsetId)
     : false;
 
-  return new Response(
-    JSON.stringify({
-      skillsetId,
-      count,
-      starred,
-      authenticated: !!session,
-    }),
-    {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    }
-  );
+  return jsonResponse({
+    skillsetId,
+    count,
+    starred,
+    authenticated: !!session,
+  });
 };

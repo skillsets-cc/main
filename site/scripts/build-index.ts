@@ -120,6 +120,27 @@ function computeSkillsetChecksum(skillsetDir: string): { checksum: string; files
   };
 }
 
+function createCloudflareKVClient(accountId: string, apiToken: string, namespaceId: string) {
+  const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}`;
+  const headers = { Authorization: `Bearer ${apiToken}` };
+
+  return {
+    async listKeys(prefix: string): Promise<string[]> {
+      const response = await fetch(`${baseUrl}/keys?prefix=${prefix}`, {
+        headers: { ...headers, 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) return [];
+      const data = await response.json() as { result: Array<{ name: string }> };
+      return (data.result || []).map((k) => k.name);
+    },
+
+    async getValue(key: string): Promise<string | null> {
+      const response = await fetch(`${baseUrl}/values/${encodeURIComponent(key)}`, { headers });
+      return response.ok ? response.text() : null;
+    },
+  };
+}
+
 async function fetchStarCounts(): Promise<Record<string, number>> {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const apiToken = process.env.CLOUDFLARE_API_TOKEN;
@@ -131,39 +152,14 @@ async function fetchStarCounts(): Promise<Record<string, number>> {
   }
 
   try {
-    // List all keys with prefix "stars:"
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/keys?prefix=stars:`,
-      {
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    if (!response.ok) {
-      console.log(`  Failed to fetch KV keys: ${response.status}`);
-      return {};
-    }
-
-    const data = await response.json() as { result: Array<{ name: string }> };
+    const kv = createCloudflareKVClient(accountId, apiToken, namespaceId);
+    const keys = await kv.listKeys('stars:');
     const starCounts: Record<string, number> = {};
 
-    // Fetch each star count
-    for (const key of data.result || []) {
-      const skillsetId = key.name.replace('stars:', '');
-      const valueResponse = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key.name)}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${apiToken}`,
-          },
-        }
-      );
-
-      if (valueResponse.ok) {
-        const value = await valueResponse.text();
+    for (const key of keys) {
+      const skillsetId = key.replace('stars:', '');
+      const value = await kv.getValue(key);
+      if (value !== null) {
         starCounts[skillsetId] = parseInt(value, 10) || 0;
       }
     }
@@ -208,6 +204,41 @@ function discoverSkillsets(): string[] {
   return skillsets;
 }
 
+function buildSkillsetEntry(
+  id: string,
+  manifest: SkillsetYaml,
+  skillsetDir: string,
+  stars: number
+): SearchIndexEntry {
+  const { checksum, files } = computeSkillsetChecksum(skillsetDir);
+
+  return {
+    id,
+    name: manifest.name,
+    description: manifest.description,
+    tags: manifest.tags,
+    author: {
+      handle: manifest.author.handle,
+      url: manifest.author.url,
+    },
+    stars,
+    version: manifest.version,
+    status: manifest.status || 'active',
+    verification: {
+      production_links: manifest.verification.production_links,
+      production_proof: manifest.verification.production_proof,
+      audit_report: manifest.verification.audit_report,
+    },
+    compatibility: {
+      claude_code_version: manifest.compatibility?.claude_code_version || '>=1.0.0',
+      languages: manifest.compatibility?.languages || ['any'],
+    },
+    entry_point: manifest.entry_point || './content/CLAUDE.md',
+    checksum,
+    files,
+  };
+}
+
 async function buildIndex(): Promise<void> {
   console.log('Building search index...');
   console.log(`  Skillsets directory: ${SKILLSETS_DIR}`);
@@ -230,35 +261,8 @@ async function buildIndex(): Promise<void> {
     try {
       const yamlContent = readFileSync(yamlPath, 'utf-8');
       const manifest = parseYaml(yamlContent) as SkillsetYaml;
-
-      const { checksum, files } = computeSkillsetChecksum(skillsetDir);
-
-      entries.push({
-        id,
-        name: manifest.name,
-        description: manifest.description,
-        tags: manifest.tags,
-        author: {
-          handle: manifest.author.handle,
-          url: manifest.author.url,
-        },
-        stars: starCounts[id] || 0,
-        version: manifest.version,
-        status: manifest.status || 'active',
-        verification: {
-          production_links: manifest.verification.production_links,
-          production_proof: manifest.verification.production_proof,
-          audit_report: manifest.verification.audit_report,
-        },
-        compatibility: {
-          claude_code_version: manifest.compatibility?.claude_code_version || '>=1.0.0',
-          languages: manifest.compatibility?.languages || ['any'],
-        },
-        entry_point: manifest.entry_point || './content/CLAUDE.md',
-        checksum,
-        files,
-      });
-
+      const entry = buildSkillsetEntry(id, manifest, skillsetDir, starCounts[id] || 0);
+      entries.push(entry);
       console.log(`  ✓ ${id} (v${manifest.version})`);
     } catch (error) {
       console.error(`  ✗ ${id}: ${error}`);

@@ -4,10 +4,25 @@
  */
 import type { APIRoute } from 'astro';
 import type { Env } from '../../../lib/auth';
+import { jsonResponse, errorResponse } from '../../../lib/responses';
 
 interface CountsResponse {
   stars: Record<string, number>;
   downloads: Record<string, number>;
+}
+
+/** Build a counts map from KV keys and values. */
+function buildCountsMap(
+  keys: string[],
+  values: (string | null)[],
+  prefix: string
+): Record<string, number> {
+  const counts: Record<string, number> = {};
+  keys.forEach((key, i) => {
+    const skillsetId = key.replace(prefix, '');
+    counts[skillsetId] = parseInt(values[i] || '0', 10);
+  });
+  return counts;
 }
 
 export const GET: APIRoute = async ({ locals }) => {
@@ -19,7 +34,6 @@ export const GET: APIRoute = async ({ locals }) => {
       env.STARS.list({ prefix: 'downloads:' }),
     ]);
 
-    // Fetch all values in parallel
     const starKeys = starsList.keys.map((k) => k.name);
     const downloadKeys = downloadsList.keys.map((k) => k.name);
 
@@ -28,34 +42,16 @@ export const GET: APIRoute = async ({ locals }) => {
       Promise.all(downloadKeys.map((k) => env.STARS.get(k))),
     ]);
 
-    // Build response objects
-    const stars: Record<string, number> = {};
-    const downloads: Record<string, number> = {};
+    const response: CountsResponse = {
+      stars: buildCountsMap(starKeys, starValues, 'stars:'),
+      downloads: buildCountsMap(downloadKeys, downloadValues, 'downloads:'),
+    };
 
-    starKeys.forEach((key, i) => {
-      const skillsetId = key.replace('stars:', '');
-      stars[skillsetId] = parseInt(starValues[i] || '0', 10);
-    });
-
-    downloadKeys.forEach((key, i) => {
-      const skillsetId = key.replace('downloads:', '');
-      downloads[skillsetId] = parseInt(downloadValues[i] || '0', 10);
-    });
-
-    const response: CountsResponse = { stars, downloads };
-
-    return new Response(JSON.stringify(response), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'public, max-age=60', // Cache for 1 minute
-      },
+    return jsonResponse(response, {
+      headers: { 'Cache-Control': 'public, max-age=60' },
     });
   } catch (error) {
     console.error('[Stats] Failed to fetch counts:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Internal server error', 500);
   }
 };

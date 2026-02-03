@@ -5,51 +5,40 @@
 import type { APIRoute } from 'astro';
 import type { Env } from '../../lib/auth';
 import { incrementDownloads } from '../../lib/downloads';
+import { jsonResponse, errorResponse } from '../../lib/responses';
 
 interface DownloadRequest {
   skillset: string;
 }
 
+/** Validate skillset ID format to prevent KV key injection. */
+function isValidSkillsetId(id: string): boolean {
+  return /^@?[\w-]+\/[\w-]+$/.test(id);
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  // Parse request body
   let body: DownloadRequest;
   try {
     body = (await request.json()) as DownloadRequest;
   } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Invalid JSON body', 400);
   }
 
   if (!body.skillset) {
-    return new Response(JSON.stringify({ error: 'Missing skillset' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Missing skillset', 400);
   }
 
-  // Validate skillsetId format (prevent KV key injection)
-  if (!/^@?[\w-]+\/[\w-]+$/.test(body.skillset)) {
-    return new Response(JSON.stringify({ error: 'Invalid skillset format' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  if (!isValidSkillsetId(body.skillset)) {
+    return errorResponse('Invalid skillset format', 400);
   }
 
   try {
     const count = await incrementDownloads(env.STARS, body.skillset);
-    return new Response(JSON.stringify({ skillset: body.skillset, count }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return jsonResponse({ skillset: body.skillset, count });
   } catch (error) {
     console.error('[Downloads] Increment failed:', error);
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return errorResponse('Internal server error', 500);
   }
 };
