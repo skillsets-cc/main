@@ -20,17 +20,17 @@
 | Option | Type | Default | Purpose |
 |--------|------|---------|---------|
 | `limit` | `string` | `0` (all) | Max results |
-| `sort` | `'name' \| 'stars'` | `'name'` | Sort order |
+| `sort` | `'name' \| 'stars' \| 'downloads' \| 'recent'` | `'name'` | Sort order |
 | `json` | `boolean` | `false` | JSON output |
 
 ## Data Flow
 ```
-list() → fetchSearchIndex() → Sort/Limit → Format table → console.log
+list() → fetchSearchIndex() + fetchStats() → mergeStats() → Sort/Limit → Format table → console.log
 ```
 
 ## Integration Points
 - Called by: `index.ts`
-- Calls: `lib/api.fetchSearchIndex()`
+- Calls: `lib/api.fetchSearchIndex()`, `lib/api.fetchStats()`, `lib/api.mergeStats()`
 
 ## Error Handling
 - Spinner fails on fetch error

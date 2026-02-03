@@ -41,4 +41,5 @@ install(id) → detectConflicts() → backupFiles() → degit.clone() → verify
 - Checksum mismatch: Exit 1 with details
 
 ## Testing
-- Test file: N/A (requires network/filesystem mocking)
+- Test file: `__tests__/install.test.ts`
+- Key tests: Conflict detection, backup behavior, checksum verification, download tracking

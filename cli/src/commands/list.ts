@@ -21,14 +21,18 @@ export async function list(options: ListOptions): Promise<void> {
 
     // Sort
     const sortBy = options.sort || 'name';
-    if (sortBy === 'stars') {
-      skillsets.sort((a, b) => b.stars - a.stars);
-    } else if (sortBy === 'downloads') {
-      skillsets.sort((a, b) => (b.downloads ?? 0) - (a.downloads ?? 0));
-    } else if (sortBy === 'name') {
-      skillsets.sort((a, b) => a.name.localeCompare(b.name));
+    switch (sortBy) {
+      case 'stars':
+        skillsets.sort((a, b) => b.stars - a.stars);
+        break;
+      case 'downloads':
+        skillsets.sort((a, b) => (b.downloads ?? 0) - (a.downloads ?? 0));
+        break;
+      case 'name':
+      default:
+        skillsets.sort((a, b) => a.name.localeCompare(b.name));
+        break;
     }
-    // 'recent' would require a date field - skip for now
 
     // Limit
     const limit = parseInt(options.limit || '0', 10);

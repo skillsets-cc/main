@@ -15,7 +15,6 @@
 | `list` | `list()` | - | `--limit`, `--sort`, `--json` |
 | `search` | `search()` | `<query>` | `--tags`, `--limit` |
 | `install` | `install()` | `<skillsetId>` | `--force`, `--backup` |
-| `verify` | `verify()` | - | `--dir` |
 | `init` | `init()` | - | `--yes` |
 | `audit` | `audit()` | - | - |
 | `submit` | `submit()` | - | - |

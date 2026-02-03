@@ -28,12 +28,13 @@ describe('checksum utilities', () => {
         name: 'Test',
         description: 'Test',
         tags: [],
-        author: '@user',
+        author: { handle: '@user' },
         stars: 0,
         version: '1.0.0',
         checksum: 'abc',
         files: {
-          'file.txt': '6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72',
+          // Only content/ files are verified
+          'content/file.txt': '6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72',
         },
       };
 
@@ -52,12 +53,12 @@ describe('checksum utilities', () => {
         name: 'Test',
         description: 'Test',
         tags: [],
-        author: '@user',
+        author: { handle: '@user' },
         stars: 0,
         version: '1.0.0',
         checksum: 'abc',
         files: {
-          'file.txt': 'expected-checksum',
+          'content/file.txt': 'expected-checksum',
         },
       };
 
@@ -68,7 +69,7 @@ describe('checksum utilities', () => {
 
       expect(result.valid).toBe(false);
       expect(result.mismatches).toHaveLength(1);
-      expect(result.mismatches[0].file).toBe('file.txt');
+      expect(result.mismatches[0].file).toBe('content/file.txt');
     });
 
     it('marks missing files as MISSING', async () => {
@@ -77,12 +78,12 @@ describe('checksum utilities', () => {
         name: 'Test',
         description: 'Test',
         tags: [],
-        author: '@user',
+        author: { handle: '@user' },
         stars: 0,
         version: '1.0.0',
         checksum: 'abc',
         files: {
-          'missing.txt': 'expected-checksum',
+          'content/missing.txt': 'expected-checksum',
         },
       };
 
@@ -93,6 +94,31 @@ describe('checksum utilities', () => {
 
       expect(result.valid).toBe(false);
       expect(result.mismatches[0].actual).toBe('MISSING');
+    });
+
+    it('skips non-content files', async () => {
+      const mockMetadata = {
+        id: '@user/test',
+        name: 'Test',
+        description: 'Test',
+        tags: [],
+        author: { handle: '@user' },
+        stars: 0,
+        version: '1.0.0',
+        checksum: 'abc',
+        files: {
+          'skillset.yaml': 'some-checksum',  // Root file, should be skipped
+          'PROOF.md': 'some-checksum',       // Root file, should be skipped
+        },
+      };
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(mockMetadata);
+
+      const result = await verifyChecksums('@user/test', '/test/dir');
+
+      // Should pass because non-content files are skipped
+      expect(result.valid).toBe(true);
+      expect(result.mismatches).toHaveLength(0);
     });
   });
 });

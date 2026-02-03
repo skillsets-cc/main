@@ -2,12 +2,22 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { list } from '../list.js';
 import * as api from '../../lib/api.js';
 
-vi.mock('../../lib/api.js');
+// Mock only the fetch functions, keep mergeStats real
+vi.mock('../../lib/api.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../lib/api.js')>();
+  return {
+    ...actual,
+    fetchSearchIndex: vi.fn(),
+    fetchStats: vi.fn(),
+  };
+});
 
 describe('list command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, 'log').mockImplementation(() => {});
+    // Default mock for fetchStats - can be overridden in individual tests
+    vi.mocked(api.fetchStats).mockResolvedValue({ stars: {}, downloads: {} });
   });
 
   const mockIndex = {

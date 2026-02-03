@@ -33,7 +33,7 @@ npx skillsets install @supercollectible/The_Skillset
 
 ### list
 - `-l, --limit <n>` - Limit number of results
-- `-s, --sort <field>` - Sort by: `name`, `stars`, `downloads`
+- `-s, --sort <field>` - Sort by: `name`, `stars`, `downloads`, `recent`
 - `--json` - Output as JSON
 
 ### search
@@ -53,7 +53,7 @@ The CLI fetches live star and download counts from the API, so you always see cu
 ```bash
 npm install    # Install dependencies
 npm run build  # Build TypeScript
-npm test       # Run tests (43 tests)
+npm test       # Run tests
 ```
 
 ## Documentation

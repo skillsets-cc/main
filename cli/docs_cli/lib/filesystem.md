@@ -31,7 +31,7 @@ detectSkillset() → Read skillset.yaml → Parse author/name
 ```
 
 ## Integration Points
-- Called by: `commands/install`, `commands/verify`
+- Called by: `commands/install`
 - Calls: None (filesystem only)
 
 ## Error Handling

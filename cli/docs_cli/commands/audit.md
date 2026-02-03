@@ -21,6 +21,7 @@
 | `getAllFiles` | Recursive file listing | `dir` → `{path, size}[]` |
 | `isBinaryFile` | Detect binary content | `path` → `boolean` |
 | `scanForSecrets` | Find leaked credentials | `dir` → `{file, line, pattern}[]` |
+| `scanReadmeLinks` | Check README for relative links | `cwd` → `{line, link}[]` |
 | `generateReport` | Create markdown report | `results` → `string` |
 | `compareVersions` | Compare semver versions | `a, b` → `-1 \| 0 \| 1` |
 
@@ -33,6 +34,7 @@
 | File Size | PASS/WARNING | Files under 1MB |
 | Binary Detection | PASS/WARNING | No binary files |
 | Secret Detection | PASS/FAIL | No API keys/tokens |
+| README Links | PASS/FAIL | No relative links to content/.claude/ |
 | Version Check | PASS/FAIL | New submission or version > existing |
 
 ### Secret Patterns

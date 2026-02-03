@@ -22,12 +22,12 @@
 
 ## Data Flow
 ```
-search(query) → fetchSearchIndex() → Filter by tags → Fuse.search() → Display
+search(query) → fetchSearchIndex() + fetchStats() → mergeStats() → Filter by tags → Fuse.search() → Display
 ```
 
 ## Integration Points
 - Called by: `index.ts`
-- Calls: `lib/api.fetchSearchIndex()`
+- Calls: `lib/api.fetchSearchIndex()`, `lib/api.fetchStats()`, `lib/api.mergeStats()`
 
 ## Critical Paths
 **Search Flow**: Query → CDN index → Tag filter → Fuse fuzzy match → Ranked results

@@ -31,6 +31,7 @@ interface SearchIndexEntry {
   tags: string[];
   author: { handle: string; url?: string };
   stars: number;
+  downloads?: number;            // Populated from live stats
   version: string;
   status: 'active' | 'deprecated' | 'archived';
   verification: { production_url, production_proof?, audit_report };
@@ -38,6 +39,15 @@ interface SearchIndexEntry {
   entry_point: string;
   checksum: string;
   files: Record<string, string>; // path -> sha256
+}
+```
+
+#### StatsResponse
+Live stats from API:
+```typescript
+interface StatsResponse {
+  stars: Record<string, number>;      // skillsetId -> count
+  downloads: Record<string, number>;  // skillsetId -> count
 }
 ```
 

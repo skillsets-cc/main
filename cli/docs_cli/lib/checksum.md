@@ -35,8 +35,12 @@ verifyChecksums() → fetchSkillsetMetadata() → For each file: computeFileChec
 ```
 
 ## Integration Points
-- Called by: `commands/install`, `commands/verify`
+- Called by: `commands/install`
 - Calls: `lib/api.fetchSkillsetMetadata()`
+
+## Critical Paths
+
+**Path Handling**: The registry stores paths as `content/CLAUDE.md` but degit extracts the content folder's contents directly to the target directory. Verification strips the `content/` prefix and only verifies `content/*` files (skips root-level files like `PROOF.md`, `skillset.yaml`).
 
 ## Error Handling
 - Missing file: Reports as `actual: 'MISSING'`

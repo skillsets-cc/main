@@ -2,13 +2,23 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { search } from '../search.js';
 import * as api from '../../lib/api.js';
 
-vi.mock('../../lib/api.js');
+// Mock only the fetch functions, keep mergeStats real
+vi.mock('../../lib/api.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../lib/api.js')>();
+  return {
+    ...actual,
+    fetchSearchIndex: vi.fn(),
+    fetchStats: vi.fn(),
+  };
+});
 
 describe('search command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Suppress console output during tests
     vi.spyOn(console, 'log').mockImplementation(() => {});
+    // Default mock for fetchStats
+    vi.mocked(api.fetchStats).mockResolvedValue({ stars: {}, downloads: {} });
   });
 
   it('searches skillsets by name', async () => {
@@ -21,7 +31,7 @@ describe('search command', () => {
           name: 'Test Skillset',
           description: 'A test skillset',
           tags: ['test'],
-          author: '@user',
+          author: { handle: '@user' },
           stars: 10,
           version: '1.0.0',
           checksum: 'abc123',
@@ -35,6 +45,7 @@ describe('search command', () => {
     await search('test', { limit: '10' });
 
     expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+    expect(api.fetchStats).toHaveBeenCalledOnce();
   });
 
   it('filters by tags', async () => {
@@ -47,7 +58,7 @@ describe('search command', () => {
           name: 'Test 1',
           description: 'Frontend test',
           tags: ['frontend'],
-          author: '@user',
+          author: { handle: '@user' },
           stars: 5,
           version: '1.0.0',
           checksum: 'abc',
@@ -58,7 +69,7 @@ describe('search command', () => {
           name: 'Test 2',
           description: 'Backend test',
           tags: ['backend'],
-          author: '@user',
+          author: { handle: '@user' },
           stars: 3,
           version: '1.0.0',
           checksum: 'def',

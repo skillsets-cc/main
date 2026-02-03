@@ -1,7 +1,7 @@
 # CLI Module
 
 ## Purpose
-Command-line tool for discovering, installing, and contributing verified Claude Code skillsets. Provides both consumer workflow (search, install, verify) and contributor workflow (init, audit, submit).
+Command-line tool for discovering, installing, and contributing verified Claude Code skillsets. Provides both consumer workflow (search, install) and contributor workflow (init, audit, submit).
 
 ## Architecture
 ```
@@ -10,14 +10,13 @@ cli/src/
 ├── commands/
 │   ├── list.ts           # Browse all skillsets
 │   ├── search.ts         # Fuzzy search with Fuse.js
-│   ├── install.ts        # degit-based installation
-│   ├── verify.ts         # SHA-256 verification
+│   ├── install.ts        # degit + checksum verification
 │   ├── init.ts           # Scaffold new skillset
 │   ├── audit.ts          # Validate before submission
 │   ├── submit.ts         # PR submission via gh CLI
 │   └── __tests__/        # Command tests
 ├── lib/
-│   ├── api.ts            # CDN index fetching
+│   ├── api.ts            # CDN index fetching + live stats
 │   ├── checksum.ts       # SHA-256 utilities
 │   ├── filesystem.ts     # File operations
 │   ├── errors.ts         # Error handling
@@ -40,8 +39,7 @@ cli/src/
 |------|---------|---------------|
 | `commands/list.ts` | Browse all available skillsets | [Docs](./commands/list.md) |
 | `commands/search.ts` | Fuzzy search against CDN index | [Docs](./commands/search.md) |
-| `commands/install.ts` | Install skillset via degit | [Docs](./commands/install.md) |
-| `commands/verify.ts` | Verify checksums post-install | [Docs](./commands/verify.md) |
+| `commands/install.ts` | Install skillset via degit + verify checksums | [Docs](./commands/install.md) |
 | `commands/init.ts` | Scaffold skillset submission | [Docs](./commands/init.md) |
 | `commands/audit.ts` | Validate and generate report | [Docs](./commands/audit.md) |
 | `commands/submit.ts` | Open PR via gh CLI | [Docs](./commands/submit.md) |
@@ -68,8 +66,8 @@ cli/src/
 ## Data Flow
 ```
 Consumer Flow:
-list/search → api.ts → CDN index → Fuse.js → Terminal output
-install → degit → Extract content/ → checksum.ts → Verify
+list/search → api.ts → CDN index + Live stats → Merge → Fuse.js/Sort → Terminal output
+install → degit → Extract content/ → checksum.ts → Verify → Track download
 
 Contributor Flow:
 init → Interactive prompts → Generate scaffold
@@ -79,18 +77,23 @@ submit → Check registry (update detection) → Validate version bump → gh CL
 
 ## Key Patterns
 - **CDN-First**: Search index fetched from CDN, not GitHub API (avoids rate limits)
-- **1-Hour Cache**: Local caching in api.ts reduces network requests
+- **Live Stats**: Star/download counts fetched from API and merged with index
+- **Dual Caching**: 1-hour cache for index, 1-minute cache for stats
 - **degit Extraction**: Subfolder extraction without .git folder
 - **Checksum Verification**: SHA-256 integrity validation against registry
 - **Conflict Detection**: Prevents accidental file overwrites during install
+- **Update Detection**: Checks registry to differentiate new submissions vs updates
 
 ## Configuration
 | Constant | Value | Purpose |
 |----------|-------|---------|
 | `CDN_BASE_URL` | `https://skillsets.cc` | CDN host |
 | `SEARCH_INDEX_URL` | `${CDN_BASE_URL}/search-index.json` | Index endpoint |
+| `STATS_URL` | `${CDN_BASE_URL}/api/stats/counts` | Live stats endpoint |
+| `DOWNLOADS_URL` | `${CDN_BASE_URL}/api/downloads` | Download tracking endpoint |
 | `REGISTRY_REPO` | `skillsets-cc/main` | GitHub repo |
 | `CACHE_TTL_MS` | `3600000` (1 hour) | Index cache duration |
+| `STATS_CACHE_TTL_MS` | `60000` (1 minute) | Stats cache duration |
 | `DEFAULT_SEARCH_LIMIT` | `10` | Default search results |
 
 ## Testing

@@ -12,7 +12,7 @@ import { handleError } from './lib/errors.js';
 program
   .name('skillsets')
   .description('CLI tool for discovering and installing verified skillsets')
-  .version('0.1.0');
+  .version('0.2.4');
 
 // === Discovery Commands ===
 

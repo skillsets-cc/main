@@ -12,10 +12,6 @@ export async function computeFileChecksum(filePath: string): Promise<string> {
 }
 
 /**
- * Verifies checksums of installed skillset against registry.
- * Returns validation result with list of mismatches.
- */
-/**
  * Strips algorithm prefix from checksum (e.g., "sha256:abc123" -> "abc123").
  */
 function stripChecksumPrefix(checksum: string): string {
