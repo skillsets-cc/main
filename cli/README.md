@@ -1,62 +1,58 @@
 # Skillsets CLI
 
+## Purpose
 Command-line tool for discovering, installing, and contributing verified Claude Code skillsets.
 
-## Quick Start
-
-```bash
-# Browse available skillsets
-npx skillsets list
-
-# Sort by popularity
-npx skillsets list --sort downloads
-
-# Search by keyword
-npx skillsets search "sdlc"
-
-# Install a skillset
-npx skillsets install @supercollectible/The_Skillset
+## Architecture
+```
+cli/
+├── src/
+│   ├── index.ts           # CLI entry point
+│   ├── commands/          # Command implementations
+│   │   ├── list.ts
+│   │   ├── search.ts
+│   │   ├── install.ts
+│   │   ├── init.ts
+│   │   ├── audit.ts
+│   │   └── submit.ts
+│   ├── lib/               # Shared utilities
+│   │   ├── api.ts
+│   │   ├── checksum.ts
+│   │   ├── constants.ts
+│   │   ├── errors.ts
+│   │   └── filesystem.ts
+│   └── types/
+│       └── index.ts
+└── docs_cli/              # Documentation
+    ├── ARC_cli.md
+    ├── commands/
+    └── lib/
 ```
 
-## Commands
+## Files
 
-| Command | Purpose |
-|---------|---------|
-| `list` | Browse all skillsets with live star/download counts |
-| `search <query>` | Fuzzy search by name, description, or tags |
-| `install <id>` | Install skillset to current directory (verifies checksums) |
-| `init` | Scaffold a new skillset for contribution |
-| `audit` | Validate skillset before submission |
-| `submit` | Open PR to registry (requires `gh` CLI) |
+| File | Purpose | Documentation |
+|------|---------|---------------|
+| — | Architecture, data flow, key patterns | [ARC_cli.md](./docs_cli/ARC_cli.md) |
 
-## Options
+### Commands
+| File | Purpose | Documentation |
+|------|---------|---------------|
+| `list.ts` | Browse all skillsets with live stats | [Docs](./docs_cli/commands/list.md) |
+| `search.ts` | Fuzzy search by name, description, tags | [Docs](./docs_cli/commands/search.md) |
+| `install.ts` | Install skillset via degit + verify checksums | [Docs](./docs_cli/commands/install.md) |
+| `init.ts` | Scaffold new skillset for contribution | [Docs](./docs_cli/commands/init.md) |
+| `audit.ts` | Validate skillset before submission | [Docs](./docs_cli/commands/audit.md) |
+| `submit.ts` | Open PR to registry | [Docs](./docs_cli/commands/submit.md) |
 
-### list
-- `-l, --limit <n>` - Limit number of results
-- `-s, --sort <field>` - Sort by: `name`, `stars`, `downloads`, `recent`
-- `--json` - Output as JSON
+### Lib
+| File | Purpose | Documentation |
+|------|---------|---------------|
+| `api.ts` | API client for skillsets.cc | [Docs](./docs_cli/lib/api.md) |
+| `checksum.ts` | SHA-256 verification | [Docs](./docs_cli/lib/checksum.md) |
+| `constants.ts` | Shared constants | [Docs](./docs_cli/lib/constants.md) |
+| `errors.ts` | Error types | [Docs](./docs_cli/lib/errors.md) |
+| `filesystem.ts` | File utilities | [Docs](./docs_cli/lib/filesystem.md) |
 
-### search
-- `-t, --tags <tags...>` - Filter by tags
-- `-l, --limit <n>` - Limit results (default: 10)
-
-### install
-- `-f, --force` - Overwrite existing files
-- `-b, --backup` - Backup existing files before install
-
-## Live Stats
-
-The CLI fetches live star and download counts from the API, so you always see current numbers (not stale build-time data).
-
-## Development
-
-```bash
-npm install    # Install dependencies
-npm run build  # Build TypeScript
-npm test       # Run tests
-```
-
-## Documentation
-
-- [CLI Style Guide](../.claude/resources/cli_styleguide.md) - Development patterns
-- [CLAUDE.md](../CLAUDE.md) - Project overview
+## Related Documentation
+- [CLI Style Guide](../.claude/resources/cli_styleguide.md)
