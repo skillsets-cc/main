@@ -5,6 +5,7 @@ import DownloadCount from '@components/DownloadCount';
 import CopyCommand from '@components/CopyCommand';
 import ProofGallery from '@components/ProofGallery.astro';
 import { getSkillsetById } from '@/lib/data';
+import { sanitizeHtml } from '@/lib/sanitize';
 import { marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
 
@@ -33,14 +34,14 @@ try {
     let readmeContent = await response.text();
     // Strip the first h1 since we already show the title in the page header
     readmeContent = readmeContent.replace(/^#\s+.+\n+/, '');
-    readmeHtml = await marked.parse(readmeContent);
+    readmeHtml = sanitizeHtml(await marked.parse(readmeContent));
   } else {
     // Fallback to description
-    readmeHtml = await marked.parse(skillset.description);
+    readmeHtml = sanitizeHtml(await marked.parse(skillset.description));
   }
 } catch {
   // Fallback to description on network error
-  readmeHtml = await marked.parse(skillset.description);
+  readmeHtml = sanitizeHtml(await marked.parse(skillset.description));
 }
 
 // Status indicator color mapping
