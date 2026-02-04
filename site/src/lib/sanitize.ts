@@ -1,4 +1,4 @@
-import xss, { FilterXSS } from 'xss';
+import { FilterXSS } from 'xss';
 
 // Whitelist for markdown-generated HTML
 const filter = new FilterXSS({
@@ -19,4 +19,17 @@ const filter = new FilterXSS({
 
 export function sanitizeHtml(html: string): string {
   return filter.process(html);
+}
+
+/** Reject non-http(s) URLs (blocks javascript:, data:, vbscript:, etc.) */
+export function sanitizeUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url;
+    }
+    return '#';
+  } catch {
+    return '#';
+  }
 }

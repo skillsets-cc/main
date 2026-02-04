@@ -56,7 +56,8 @@ describe('auth', () => {
       const { redirectUrl } = await initiateOAuth(env, '/skillset/test/foo');
 
       const url = new URL(redirectUrl);
-      const state = url.searchParams.get('state');
+      // Verify state param exists (used as KV key)
+      expect(url.searchParams.get('state')).toBeTruthy();
 
       // Get the stored value
       const putCall = (env.AUTH.put as ReturnType<typeof vi.fn>).mock.calls[0];

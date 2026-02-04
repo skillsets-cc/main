@@ -603,7 +603,7 @@ export interface SearchIndexEntry {
   version: string;
   status: 'active' | 'deprecated' | 'archived';
   verification: {
-    production_url: string;
+    production_links: Array<{ url: string; label?: string }>;
     production_proof?: string;
     audit_report: string;
   };
@@ -631,7 +631,7 @@ export interface Skillset {
     url: string;
   };
   verification: {
-    production_url: string;
+    production_links: Array<{ url: string; label?: string }>;
     production_proof?: string;
     audit_report: string;
   };
@@ -697,7 +697,7 @@ describe('search command', () => {
           stars: 10,
           version: '1.0.0',
           status: 'active',
-          verification: { production_url: 'https://example.com', audit_report: './AUDIT_REPORT.md' },
+          verification: { production_links: [{ url: 'https://example.com' }], audit_report: './AUDIT_REPORT.md' },
           compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
           entry_point: './content/CLAUDE.md',
           checksum: 'abc123',

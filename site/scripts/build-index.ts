@@ -13,7 +13,7 @@
  *   KV_NAMESPACE_ID       - KV namespace ID for stars
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'fs';
 import { join, relative } from 'path';
 import { createHash } from 'crypto';
 import { parse as parseYaml } from 'yaml';

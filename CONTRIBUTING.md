@@ -51,7 +51,8 @@ author:
   url: "https://github.com/your-github-username"
 
 verification:
-  production_url: "https://your-app.com"
+  production_links:
+    - url: "https://your-app.com"
   production_proof: "./PROOF.md"
   audit_report: "./AUDIT_REPORT.md"
 

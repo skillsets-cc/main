@@ -38,7 +38,8 @@ author:
   handle: "@testuser"
   url: "https://github.com/testuser"
 verification:
-  production_url: "https://example.com"
+  production_links:
+    - url: "https://example.com"
   audit_report: "./AUDIT_REPORT.md"
 tags:
   - "test"
@@ -192,7 +193,7 @@ version: "not-semver"
       stars: 5,
       version: '1.0.0', // Same as local
       status: 'active',
-      verification: { production_url: 'https://example.com', audit_report: './AUDIT_REPORT.md' },
+      verification: { production_links: [{ url: 'https://example.com' }], audit_report: './AUDIT_REPORT.md' },
       compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
       entry_point: './content/CLAUDE.md',
       checksum: 'abc123',
@@ -221,7 +222,7 @@ version: "not-semver"
       stars: 5,
       version: '0.9.0', // Lower than local 1.0.0
       status: 'active',
-      verification: { production_url: 'https://example.com', audit_report: './AUDIT_REPORT.md' },
+      verification: { production_links: [{ url: 'https://example.com' }], audit_report: './AUDIT_REPORT.md' },
       compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
       entry_point: './content/CLAUDE.md',
       checksum: 'abc123',

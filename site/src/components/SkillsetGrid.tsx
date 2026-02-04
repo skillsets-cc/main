@@ -23,22 +23,17 @@ export default function SkillsetGrid({
   const [tagResults, setTagResults] = useState<SearchIndexEntry[]>(skillsets);
   const [liveStars, setLiveStars] = useState<Record<string, number>>({});
 
-  // Fetch live star counts on mount
+  // Fetch all live star counts in a single request
   useEffect(() => {
     async function fetchStars(): Promise<void> {
-      for (const skillset of skillsets) {
-        try {
-          const response = await fetch(
-            `/api/star?skillsetId=${encodeURIComponent(skillset.id)}`,
-            { credentials: 'include' }
-          );
-          if (response.ok) {
-            const data = (await response.json()) as { count: number };
-            setLiveStars(prev => ({ ...prev, [skillset.id]: data.count }));
-          }
-        } catch {
-          // Keep build-time value on error
+      try {
+        const response = await fetch('/api/stats/counts');
+        if (response.ok) {
+          const data = (await response.json()) as { stars: Record<string, number> };
+          setLiveStars(data.stars);
         }
+      } catch {
+        // Keep build-time values on error
       }
     }
     fetchStars();
@@ -84,7 +79,7 @@ export default function SkillsetGrid({
                   </span>
 
                   {skillset.tags.map(tag => (
-                    <span key={tag} className="text-xs font-mono text-text-tertiary border border-border-light px-1 rounded-none">
+                    <span key={tag} className="text-xs font-mono text-text-tertiary border border-border-ink px-1 rounded-none">
                       #{tag}
                     </span>
                   ))}

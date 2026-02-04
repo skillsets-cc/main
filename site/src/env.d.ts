@@ -7,7 +7,7 @@
  */
 export interface CloudflareEnv {
   // KV Namespaces
-  STARS: KVNamespace;
+  DATA: KVNamespace;
   AUTH: KVNamespace;
 
   // Secrets (set via wrangler secret put or dashboard)

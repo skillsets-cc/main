@@ -4,20 +4,23 @@
  */
 import type { APIRoute } from 'astro';
 import type { Env } from '../../lib/auth';
-import { incrementDownloads } from '../../lib/downloads';
+import { incrementDownloads, isDownloadRateLimited } from '../../lib/downloads';
 import { jsonResponse, errorResponse } from '../../lib/responses';
+import { isValidSkillsetId } from '../../lib/validation';
 
 interface DownloadRequest {
   skillset: string;
 }
 
-/** Validate skillset ID format to prevent KV key injection. */
-function isValidSkillsetId(id: string): boolean {
-  return /^@?[\w-]+\/[\w-]+$/.test(id);
-}
-
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
+
+  // IP-based rate limiting
+  const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+  const rateLimited = await isDownloadRateLimited(env.DATA, ip);
+  if (rateLimited) {
+    return errorResponse('Rate limit exceeded', 429);
+  }
 
   let body: DownloadRequest;
   try {
@@ -35,7 +38,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    const count = await incrementDownloads(env.STARS, body.skillset);
+    const count = await incrementDownloads(env.DATA, body.skillset);
     return jsonResponse({ skillset: body.skillset, count });
   } catch (error) {
     console.error('[Downloads] Increment failed:', error);

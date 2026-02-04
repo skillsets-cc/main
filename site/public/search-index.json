@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-02-02T12:27:37.123Z",
+  "generated_at": "2026-02-04T17:50:13.982Z",
   "skillsets": [
     {
       "id": "@supercollectible/The_Skillset",
@@ -16,7 +16,7 @@
       ],
       "author": {
         "handle": "@supercollectible",
-        "url": "supercollectible.dev"
+        "url": "https://supercollectible.dev"
       },
       "stars": 0,
       "version": "3.0.0",
@@ -37,7 +37,7 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:03f83af129ceb4398a16fd8ea511646db3239742d71d5ae8244c07fc4fbd6c6e",
+      "checksum": "sha256:c837756c9361a0458e638a00377e80aee8c805f3c56b41bca53f6fd2903fc875",
       "files": {
         "AUDIT_REPORT.md": "sha256:468b6d8277b87096953600473d76729d258fd44b1cdbb320f063dd01fd5d7055",
         "PROOF.md": "sha256:74826b758c9ceaece6f125ce40ed7523be54a1778e7c54cc28bb68031c77d7f4",
@@ -49,10 +49,10 @@
         "content/.claude/agents/pm-k.md": "sha256:636ae7cefea2bf525c3c929d1b6057706f6527805d4b2499b8d6f8c952784fd5",
         "content/.claude/agents/pm-s.md": "sha256:6d507c37403944ba4e2691a65a6374f3634c6a5bdca668c81041243a8ab92380",
         "content/.claude/agents/qa-b.md": "sha256:570a27fe84061c284ae68d5d541263c8dc03a6b2d9620aa0bb69c73892c171f9",
-        "content/.claude/agents/qa-docs.md": "sha256:816dcd6a178d36c4940348bfcc68863782b7d785b3a69ae59b06fe63c20e004d",
+        "content/.claude/agents/qa-docs.md": "sha256:88f6ebb9dde1e9d8e495945d4921214ced21cf4b386662949527e041f6b6bf95",
         "content/.claude/agents/qa-f.md": "sha256:240768e940da5c37a02562100245774464391c667a254a1cac5fbd38ddf80834",
         "content/.claude/resources/ARC_doc_template.md": "sha256:e522b34c737aea16d0e2d7a108ec725c4b89e6a2237e4b0909db856de9fbe86e",
-        "content/.claude/resources/README_module_template.md": "sha256:960e9bc352e1ba274de8a71064d65ba9ea54e97c72b3b20a740b8ef58e05927b",
+        "content/.claude/resources/README_module_template.md": "sha256:a1f638e49c1a60ae709bbb0a24df9660f5a924044c5a57b12facee5ce9b416d7",
         "content/.claude/resources/backend_styleguide.md": "sha256:c1a771cd5361354e613a902a8193cbd16597ad532f798fad4ebe9be852f021f8",
         "content/.claude/resources/claude-execution-template.md": "sha256:121c7d309270d42fd6fd440d5c66f0d3ace84bc4b3a389d51e766d84bb3a5b00",
         "content/.claude/resources/file_doc_template.md": "sha256:625f7bbf0099b49d6d5285c093f42403306a6b548c6c6c1af9ef24b7447b29fc",
@@ -67,14 +67,14 @@
         "content/.claude/skills/plan/SKILL.md": "sha256:bc9b40f57111b734cd2c35d2eea38b7aaba837d0632f640dace0299845a7186c",
         "content/.claude/skills/pmatch/SKILL.md": "sha256:642746cc3c6d0a2008f57a126d494f632c69304aa45a6f7d45c437e22e182c2b",
         "content/.claude/skills/qb/SKILL.md": "sha256:7617771561c70892415270701b0cbd0d44c91b7eaa3b28200835737a0f98ac88",
-        "content/.claude/skills/qd/SKILL.md": "sha256:08db9892d5741b3b931be519e5207de8d77d64df16afbad0f0794d7b5caee3f6",
+        "content/.claude/skills/qd/SKILL.md": "sha256:ebc0273ab2ff234f9f9764411f94adffec0275a0f5f2452788b2a35c7bfd032b",
         "content/.claude/skills/qf/SKILL.md": "sha256:cbe288e36ffc2aabb8daebf4b9f557fa230739c42e452496fd187159d77d53b0",
-        "content/CLAUDE.md": "sha256:26b7276bbe7f2b63ac5155bb0097527cd2a0a795574c211ce8c550bf85755f89",
+        "content/CLAUDE.md": "sha256:e047eaffd2cc175b99259497be5b0827375fca33d86483f65f864f2b734710ff",
         "content/QUICKSTART.md": "sha256:def8a47ac1b03f08742a3a32d57f9876c553f4a03768564eeeeb01874db3351e",
         "content/docker/litellm/.env.example": "sha256:222c04d404b30f064626aa4afd03df830bbc4324f3ff8709db361cf1d9a3eae7",
         "content/docker/litellm/config.yaml": "sha256:60c78d217b1aaf07d35c77c717ddb77596c352558a395ed6e32a68a38460aa42",
         "content/docker/litellm/docker-compose.yaml": "sha256:22f3974636f3b61619ffc41aacc19ddcfe91befa2c20da5b0357825bd0e86703",
-        "skillset.yaml": "sha256:d7e42e5edb349f620cf171364a769fc9cc19990b8e55c7a2e59e199454606cc5"
+        "skillset.yaml": "sha256:a8549c885f259a78e000e589c9db6969e72e3cfb622ea126ca89d1c53cee47d6"
       }
     }
   ]

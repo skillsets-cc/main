@@ -20,7 +20,8 @@ cli/
 │   │   ├── checksum.ts
 │   │   ├── constants.ts
 │   │   ├── errors.ts
-│   │   └── filesystem.ts
+│   │   ├── filesystem.ts
+│   │   └── versions.ts
 │   └── types/
 │       └── index.ts
 └── docs_cli/              # Documentation
@@ -53,6 +54,7 @@ cli/
 | `constants.ts` | Shared constants | [Docs](./docs_cli/lib/constants.md) |
 | `errors.ts` | Error types | [Docs](./docs_cli/lib/errors.md) |
 | `filesystem.ts` | File utilities | [Docs](./docs_cli/lib/filesystem.md) |
+| `versions.ts` | Semver comparison | [Docs](./docs_cli/lib/versions.md) |
 
 ## Related Documentation
 - [CLI Style Guide](../.claude/resources/cli_styleguide.md)

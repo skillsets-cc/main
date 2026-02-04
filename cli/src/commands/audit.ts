@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import ora from 'ora';
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, openSync, readSync, closeSync } from 'fs';
 import { join, relative } from 'path';
 import yaml from 'js-yaml';
 import { fetchSkillsetMetadata } from '../lib/api.js';
@@ -32,22 +32,7 @@ interface AuditResults {
   relativeLinks: { line: number; link: string }[];
 }
 
-/**
- * Compare semver versions. Returns:
- * -1 if a < b, 0 if a == b, 1 if a > b
- */
-function compareVersions(a: string, b: string): number {
-  const partsA = a.split('.').map(Number);
-  const partsB = b.split('.').map(Number);
-
-  for (let i = 0; i < 3; i++) {
-    const numA = partsA[i] || 0;
-    const numB = partsB[i] || 0;
-    if (numA < numB) return -1;
-    if (numA > numB) return 1;
-  }
-  return 0;
-}
+import { compareVersions } from '../lib/versions.js';
 
 const MAX_FILE_SIZE = 1048576; // 1MB
 
@@ -101,9 +86,9 @@ function isBinaryFile(filePath: string): boolean {
   // Check for null bytes in first 512 bytes
   try {
     const buffer = Buffer.alloc(512);
-    const fd = require('fs').openSync(filePath, 'r');
-    require('fs').readSync(fd, buffer, 0, 512, 0);
-    require('fs').closeSync(fd);
+    const fd = openSync(filePath, 'r');
+    readSync(fd, buffer, 0, 512, 0);
+    closeSync(fd);
     return buffer.includes(0);
   } catch {
     return false;
@@ -193,8 +178,8 @@ function validateManifest(cwd: string): { valid: boolean; errors: string[]; data
     if (!data.author?.handle || !/^@[A-Za-z0-9_-]+$/.test(data.author.handle)) {
       errors.push('author.handle must start with @ (e.g., @username)');
     }
-    if (!data.verification?.production_url) {
-      errors.push('verification.production_url is required');
+    if (!Array.isArray(data.verification?.production_links) || data.verification.production_links.length === 0) {
+      errors.push('verification.production_links must be an array with at least one entry');
     }
     if (!data.verification?.audit_report) {
       errors.push('verification.audit_report is required');

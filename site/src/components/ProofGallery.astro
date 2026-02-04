@@ -10,6 +10,8 @@ interface Props {
   skillsetId: string;
 }
 
+import { sanitizeUrl } from '@/lib/sanitize';
+
 const { productionLinks, hasAuditReport, skillsetId } = Astro.props;
 
 // Extract base domain from URL
@@ -41,7 +43,7 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
         <div class="space-y-1">
           {productionLinks.map((link) => (
             <a
-              href={link.url}
+              href={sanitizeUrl(link.url)}
               class="block text-orange-500 hover:underline text-sm font-mono"
               target="_blank"
               rel="noopener noreferrer"

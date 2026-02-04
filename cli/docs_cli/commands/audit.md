@@ -9,7 +9,7 @@
 
 ## Dependencies
 - External: `chalk`, `ora`, `js-yaml`, `fs`
-- Internal: `../lib/api.js` (`fetchSkillsetMetadata`)
+- Internal: `../lib/api.js` (`fetchSkillsetMetadata`), `../lib/versions.js` (`compareVersions`)
 
 ## Key Components
 
@@ -23,7 +23,6 @@
 | `scanForSecrets` | Find leaked credentials | `dir` → `{file, line, pattern}[]` |
 | `scanReadmeLinks` | Check README for relative links | `cwd` → `{line, link}[]` |
 | `generateReport` | Create markdown report | `results` → `string` |
-| `compareVersions` | Compare semver versions | `a, b` → `-1 \| 0 \| 1` |
 
 ### Validation Checks
 | Check | Status | Criteria |

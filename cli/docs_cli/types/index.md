@@ -34,7 +34,7 @@ interface SearchIndexEntry {
   downloads?: number;            // Populated from live stats
   version: string;
   status: 'active' | 'deprecated' | 'archived';
-  verification: { production_url, production_proof?, audit_report };
+  verification: { production_links, production_proof?, audit_report };
   compatibility: { claude_code_version, languages };
   entry_point: string;
   checksum: string;
@@ -60,7 +60,7 @@ interface Skillset {
   version: string;
   description: string;
   author: { handle: string; url: string };
-  verification: { production_url, production_proof?, audit_report };
+  verification: { production_links, production_proof?, audit_report };
   tags: string[];
   compatibility: { claude_code_version, languages };
   status: 'active' | 'deprecated' | 'archived';

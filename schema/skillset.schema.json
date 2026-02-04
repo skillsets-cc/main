@@ -49,6 +49,7 @@
         "url": {
           "type": "string",
           "format": "uri",
+          "pattern": "^https?://",
           "description": "Author's website or GitHub profile URL"
         }
       },
@@ -67,6 +68,7 @@
               "url": {
                 "type": "string",
                 "format": "uri",
+                "pattern": "^https?://",
                 "description": "Production URL"
               },
               "label": {

@@ -36,17 +36,32 @@
 | Area | Entry Point |
 |------|-------------|
 | **Architecture** | [ARCHITECTURE_backend.md](DOCS/ARCHITECTURE_backend.md), [ARCHITECTURE_frontend.md](DOCS/ARCHITECTURE_frontend.md) |
-| **Module Docs** | Backend: `README_*.md` (main) + `docs_*/ARC_*.md` (supplementary)<br>Frontend: `docs_*/ARC_*.md` within each module |
-| **Per-File Docs** | Individual file docs in `docs_*/` (e.g., `streaming_pipeline.md`, `ChatWidget.md`) |
 | **Style Guides** | [Frontend](TheSkillset/resources/frontend_styleguide.md), [Backend](TheSkillset/resources/backend_styleguide.md) |
 | **Protocols** | `TheSkillset/` — skills, agents, resources |
 | **Deployment** | [DEPLOY_AND_AUTH.md](DOCS/DEPLOY_AND_AUTH.md) |
 
+### Module Documentation Structure
+
+Every module follows this layout:
+```
+[module]/
+├── [implementation files]
+├── docs_[name]/                    # All docs live here
+│   ├── ARC_[name].md               # Module architecture (data flow, patterns, integration)
+│   ├── [FileName].md               # Per-file docs (public API, dependencies, key logic)
+│   └── [subdir]/[FileName].md      # Nested files mirror source structure
+└── README.md                       # Module index (purpose, tree, file table with doc links)
+```
+
+**Navigation order**: README → ARC → per-file docs → source code.
+
 ### Exploration Pattern
 1. Start with ARCHITECTURE files for system overview
-2. Drill into module ARC files for component details
-3. Reference style guides for implementation patterns
-4. Dont parse code if you can read docs
+2. Read `README.md` for module overview and file index
+3. Read `ARC_[name].md` for architecture, data flow, and integration points
+4. Read per-file docs for public API and dependencies
+5. Reference style guides for implementation patterns
+6. Only parse source code if docs are missing or stale
 
 ---
 

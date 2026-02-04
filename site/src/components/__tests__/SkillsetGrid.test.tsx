@@ -10,21 +10,23 @@ describe('SkillsetGrid', () => {
     globalThis.fetch = originalFetch;
   });
 
-  function mockFetch() {
+  function mockFetch(starOverrides: Record<string, number> = {}) {
+    const stars: Record<string, number> = {};
+    for (const s of mockSkillsets) {
+      stars[s.id] = starOverrides[s.id] ?? s.stars;
+    }
     globalThis.fetch = vi.fn().mockImplementation((url: string) => {
-      if (url.includes('/api/star')) {
-        const skillsetId = new URL(url, 'http://localhost').searchParams.get('skillsetId');
-        const skillset = mockSkillsets.find((s) => s.id === skillsetId);
+      if (url.includes('/api/stats/counts')) {
         return Promise.resolve({
           ok: true,
-          json: async () => ({ count: skillset?.stars ?? 0, starred: false }),
+          json: async () => ({ stars, downloads: {} }),
         });
       }
       return Promise.resolve({ ok: false });
     }) as typeof fetch;
   }
 
-  // Helper to render and wait for all star fetches to complete
+  // Helper to render and wait for stats fetch to complete
   async function renderAndWaitForStars() {
     mockFetch();
 
@@ -32,11 +34,11 @@ describe('SkillsetGrid', () => {
       render(<SkillsetGrid skillsets={mockSkillsets} />);
     });
 
-    // Wait for all star count fetches to complete
+    // Wait for the stats fetch to complete
     await waitFor(() => {
       const fetchCalls = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const starCalls = fetchCalls.filter((call) => call[0].includes('/api/star'));
-      expect(starCalls.length).toBe(mockSkillsets.length);
+      const statsCalls = fetchCalls.filter((call) => call[0].includes('/api/stats/counts'));
+      expect(statsCalls.length).toBe(1);
     });
   }
 
@@ -139,27 +141,16 @@ describe('SkillsetGrid', () => {
   it('fetches live star counts on mount', async () => {
     await renderAndWaitForStars();
 
-    // Verify API was called for each skillset
+    // Verify bulk stats API was called once
     const fetchCalls = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls;
-    const starCalls = fetchCalls.filter((call) =>
-      call[0].includes('/api/star')
+    const statsCalls = fetchCalls.filter((call) =>
+      call[0].includes('/api/stats/counts')
     );
-    expect(starCalls.length).toBe(mockSkillsets.length);
+    expect(statsCalls.length).toBe(1);
   });
 
   it('displays live star counts when available', async () => {
-    globalThis.fetch = vi.fn().mockImplementation((url: string) => {
-      if (url.includes('supercollectible') && url.includes('The_Skillset')) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ count: 999, starred: false }),
-        });
-      }
-      return Promise.resolve({
-        ok: true,
-        json: async () => ({ count: 0, starred: false }),
-      });
-    }) as typeof fetch;
+    mockFetch({ 'supercollectible/The_Skillset': 999 });
 
     await act(async () => {
       render(<SkillsetGrid skillsets={mockSkillsets} />);

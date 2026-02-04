@@ -64,7 +64,7 @@ describe('StarButton', () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Mock fetch - return ok for initial state, fail on POST
-    globalThis.fetch = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, options?: RequestInit) => {
       // GET request for initial star state - succeed
       if (!options?.method || options.method === 'GET') {
         return Promise.resolve({

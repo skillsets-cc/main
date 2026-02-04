@@ -21,6 +21,7 @@ cli/src/
 │   ├── filesystem.ts     # File operations
 │   ├── errors.ts         # Error handling
 │   ├── constants.ts      # Configuration
+│   ├── versions.ts       # Semver comparison
 │   └── __tests__/        # Library tests
 └── types/
     ├── index.ts          # TypeScript interfaces
@@ -52,6 +53,7 @@ cli/src/
 | `lib/filesystem.ts` | Conflict detection, backups | [Docs](./lib/filesystem.md) |
 | `lib/errors.ts` | Centralized error handling | [Docs](./lib/errors.md) |
 | `lib/constants.ts` | Configuration constants | [Docs](./lib/constants.md) |
+| `lib/versions.ts` | Semver comparison for updates | [Docs](./lib/versions.md) |
 
 ### Types
 | File | Purpose | Documentation |

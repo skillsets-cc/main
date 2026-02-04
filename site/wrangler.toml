@@ -10,11 +10,11 @@ binding = "ASSETS"
 directory = "./dist"
 
 # KV Namespaces - IDs populated after running:
-#   npx wrangler kv:namespace create STARS
+#   npx wrangler kv:namespace create DATA
 #   npx wrangler kv:namespace create AUTH
 
 [[kv_namespaces]]
-binding = "STARS"
+binding = "DATA"
 id = "179bfbf61185432cb84f2958a5ea1d6c"
 preview_id = "b2203e22919b4caf84e2120bdc7029ab"
 

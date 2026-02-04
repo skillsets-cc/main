@@ -4,10 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "dev:cf": "astro build && wrangler pages dev dist --local --persist-to .wrangler/state",
+    "dev:cf": "astro build && wrangler dev --persist-to .wrangler/state",
     "build": "astro build",
     "build:index": "tsx scripts/build-index.ts",
-    "preview": "wrangler pages dev dist --local --persist-to .wrangler/state",
+    "preview": "wrangler dev --persist-to .wrangler/state",
     "astro": "astro",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
@@ -28,6 +28,7 @@
     "yaml": "^2.8.2"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.6",
     "@cloudflare/workers-types": "^4.20250124.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -36,6 +37,7 @@
     "@types/react-dom": "^19.2.3",
     "jsdom": "^27.4.0",
     "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.18",
     "wrangler": "^4.0.0"
   }

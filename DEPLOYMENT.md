@@ -15,7 +15,7 @@ skillsets.cc runs on **Cloudflare Workers** (not Pages). This enables SSR for dy
 │                                                          │
 │  Bindings:                                               │
 │  ├── ASSETS (static files from dist/)                   │
-│  ├── STARS (KV namespace)                               │
+│  ├── DATA (KV namespace)                                │
 │  └── AUTH (KV namespace)                                │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -90,7 +90,7 @@ binding = "ASSETS"                      # Static asset binding
 directory = "./dist"                    # Build output
 
 [[kv_namespaces]]
-binding = "STARS"
+binding = "DATA"
 id = "179bfbf61185432cb84f2958a5ea1d6c"
 preview_id = "b2203e22919b4caf84e2120bdc7029ab"
 
@@ -125,11 +125,11 @@ npx wrangler secret put JWT_SECRET
 
 Created via:
 ```bash
-npx wrangler kv:namespace create STARS
+npx wrangler kv:namespace create DATA
 npx wrangler kv:namespace create AUTH
 ```
 
-- **STARS**: Stores star counts per skillset
+- **DATA**: Stores star counts, download counts, and rate limits per skillset
 - **AUTH**: Stores OAuth state tokens (short TTL)
 
 ---

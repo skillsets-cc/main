@@ -7,24 +7,9 @@ import yaml from 'js-yaml';
 import { tmpdir } from 'os';
 import { fetchSkillsetMetadata } from '../lib/api.js';
 
+import { compareVersions } from '../lib/versions.js';
+
 const REGISTRY_REPO = 'skillsets-cc/main';
-
-/**
- * Compare semver versions. Returns:
- * -1 if a < b, 0 if a == b, 1 if a > b
- */
-function compareVersions(a: string, b: string): number {
-  const partsA = a.split('.').map(Number);
-  const partsB = b.split('.').map(Number);
-
-  for (let i = 0; i < 3; i++) {
-    const numA = partsA[i] || 0;
-    const numB = partsB[i] || 0;
-    if (numA < numB) return -1;
-    if (numA > numB) return 1;
-  }
-  return 0;
-}
 const REGISTRY_URL = `https://github.com/${REGISTRY_REPO}`;
 
 function checkGhCli(): boolean {

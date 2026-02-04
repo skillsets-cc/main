@@ -8,9 +8,10 @@ import { initiateOAuth, type Env } from '../lib/auth';
 export const GET: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  // Get optional return URL from query param
+  // Get optional return URL from query param (must be relative path)
   const url = new URL(request.url);
-  const returnTo = url.searchParams.get('returnTo') || '/';
+  const raw = url.searchParams.get('returnTo') || '/';
+  const returnTo = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/';
 
   try {
     const { redirectUrl } = await initiateOAuth(env, returnTo);

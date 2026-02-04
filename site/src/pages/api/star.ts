@@ -7,14 +7,10 @@ import type { APIRoute } from 'astro';
 import { getSessionFromRequest, type Env } from '../../lib/auth';
 import { toggleStar, isRateLimited, isStarred, getStarCount } from '../../lib/stars';
 import { jsonResponse, errorResponse } from '../../lib/responses';
+import { isValidSkillsetId } from '../../lib/validation';
 
 interface StarRequest {
   skillsetId: string;
-}
-
-/** Validate skillsetId format to prevent KV key injection. */
-function isValidSkillsetId(id: string): boolean {
-  return /^@?[\w-]+\/[\w-]+$/.test(id);
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -25,7 +21,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return errorResponse('Unauthorized', 401);
   }
 
-  const rateLimited = await isRateLimited(env.STARS, session.userId);
+  const rateLimited = await isRateLimited(env.DATA, session.userId);
   if (rateLimited) {
     return errorResponse('Rate limit exceeded', 429, {
       message: 'Maximum 10 star operations per minute. Please try again later.',
@@ -48,7 +44,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   try {
-    const result = await toggleStar(env.STARS, session.userId, body.skillsetId);
+    const result = await toggleStar(env.DATA, session.userId, body.skillsetId);
     return jsonResponse(result);
   } catch (error) {
     console.error('[Stars] Toggle failed:', error);
@@ -65,10 +61,14 @@ export const GET: APIRoute = async ({ request, locals }) => {
     return errorResponse('Missing skillsetId parameter', 400);
   }
 
-  const count = await getStarCount(env.STARS, skillsetId);
+  if (!isValidSkillsetId(skillsetId)) {
+    return errorResponse('Invalid skillsetId format', 400);
+  }
+
+  const count = await getStarCount(env.DATA, skillsetId);
   const session = await getSessionFromRequest(env, request);
   const starred = session
-    ? await isStarred(env.STARS, session.userId, skillsetId)
+    ? await isStarred(env.DATA, session.userId, skillsetId)
     : false;
 
   return jsonResponse({

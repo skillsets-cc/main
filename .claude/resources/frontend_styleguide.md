@@ -384,7 +384,7 @@ export interface Skillset {
     url: string;
   };
   verification: {
-    production_url: string;
+    production_links: Array<{ url: string; label?: string }>;
     production_proof?: string;
     audit_report: string;
   };

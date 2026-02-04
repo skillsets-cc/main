@@ -28,9 +28,9 @@
 | Layer | Implementation |
 |-------|----------------|
 | **Site** | Astro 5 (`output: 'server'`) + Tailwind CSS + Cloudflare Workers |
-| **Auth** | GitHub OAuth Worker (~50 lines, includes CSRF + PKCE) |
-| **Stars** | Cloudflare Worker + KV (~60 lines, includes rate limiting) |
-| **Downloads** | KV-backed counter, incremented by CLI on successful install |
+| **Auth** | GitHub OAuth via CSRF + PKCE (in `site/src/lib/auth.ts`) |
+| **Stars** | KV-backed with rate limiting (in `site/src/lib/stars.ts`) |
+| **Downloads** | KV-backed counter, incremented by CLI on install (in `site/src/lib/downloads.ts`) |
 | **CLI** | Node.js `npx skillsets` using degit + Fuse.js search |
 | **Registry** | GitHub mono-repo with GitHub Actions validation |
 | **Schema** | JSON Schema for `skillset.yaml` validation |
@@ -39,15 +39,15 @@
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         skillsets.cc                                 │
-│                       (Cloudflare Workers)                           │
+│                    (Single Cloudflare Worker)                        │
 │                                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                   │
-│  │   Astro     │  │   GitHub    │  │   Star      │                   │
-│  │   Static    │  │   OAuth     │  │   Worker    │                   │
-│  │   Site      │  │   Worker    │  │   + KV      │                   │
-│  └──────┬──────┘  └─────────────┘  └─────────────┘                   │
-│         │                                                            │
-└─────────┼────────────────────────────────────────────────────────────┘
+│  Astro SSR Worker                                                    │
+│  ├── Static pages (/, /browse, /about, /contribute)                  │
+│  ├── SSR pages (/skillset/[ns]/[name])                               │
+│  ├── Auth routes (/login, /callback, /logout)                        │
+│  └── API routes (/api/star, /api/downloads, /api/stats/counts)       │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
           │ fetches at build time
           ▼
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -70,7 +70,7 @@
 │                                                                     │
 │  .github/workflows/                                                 │
 │  ├── validate-submission.yml        ◄── PR validation               │
-│  └── deploy-site.yml                ◄── Trigger site rebuild        │
+│  └── sync-to-prod.yml              ◄── Deploy to Cloudflare         │
 └─────────────────────────────────────────────────────────────────────┘
           ▲
           │ npx degit skillsets-cc/main/skillsets/@user/name
@@ -107,18 +107,31 @@
 
 **Code Documentation** (colocated with code):
 
-| Module | Structure |
-|--------|-----------|
-| **Site** | `site/src/[module]/` with `ARC_[name].md` for architecture, `docs_*/` for per-file docs |
-| **Workers** | `workers/[name]/` with `README.md` for overview, `docs_*/` for implementation details |
-| **CLI** | `cli/src/` with `README.md` for overview, inline JSDoc for API documentation |
+Every module follows this documentation structure:
+```
+[module]/
+├── [implementation files]
+├── docs_[name]/                    # All docs live here
+│   ├── ARC_[name].md               # Module architecture (data flow, patterns, integration)
+│   ├── [FileName].md               # Per-file docs (public API, dependencies, key logic)
+│   └── [subdir]/[FileName].md      # Nested files mirror source structure
+└── README.md                       # Module index (purpose, tree, file table with doc links)
+```
+
+**Navigation order**: README → ARC → per-file docs → source code.
+
+| Module | README | ARC | Per-file docs |
+|--------|--------|-----|---------------|
+| **Site** | `site/README.md` | `site/docs_site/ARC_site.md` | `site/src/[mod]/docs_[mod]/*.md` |
+| **CLI** | `cli/README.md` | `cli/docs_cli/ARC_cli.md` | `cli/docs_cli/[subdir]/*.md` |
 
 ### Exploration Pattern
 
 1. Reference implementation guides (.claude/resources/) for patterns before writing code
-2. Read colocated docs (ARC/README files) when they exist, rather than parsing code
-3. Create documentation as you build (ARC for module architecture, README for overviews)
-4. Don't parse code if you can read docs
+2. Start with `README.md` for module overview and file index
+3. Read `ARC_[name].md` for architecture, data flow, and integration points
+4. Read per-file docs for public API and dependencies
+5. Only parse source code if docs are missing or stale
 
 ### Plugins
 
@@ -139,22 +152,19 @@ LSP plugins (`vtsls` for TypeScript) enable precise code navigation. Requires `e
 
 ### Project Structure
 
-This is a multi-module project with three distinct codebases:
+This is a multi-module project with two distinct codebases:
 
 ```
 skillsets.cc/
-├── site/                     # Astro static site
+├── site/                     # Astro SSR site (single Cloudflare Worker)
 │   ├── src/
-│   │   ├── pages/           # Routes: /, /skillset/[ns]/[name], /contribute
+│   │   ├── pages/           # Routes + API endpoints
 │   │   ├── components/      # Astro + React components
 │   │   ├── layouts/         # Page layouts
+│   │   ├── lib/             # Auth, stars, downloads, data, sanitize
+│   │   ├── types/           # Shared TypeScript types
 │   │   └── styles/          # Global CSS + Tailwind config
-│   └── public/              # Static assets
-│
-├── workers/                  # Cloudflare Workers
-│   ├── auth/                # GitHub OAuth worker
-│   ├── stars/               # Star/unstar + KV worker
-│   └── shared/              # Shared utilities
+│   └── public/              # Static assets + search-index.json
 │
 ├── cli/                      # NPM package
 │   ├── src/
@@ -167,8 +177,8 @@ skillsets.cc/
 │   └── skillset.schema.json
 │
 └── .github/workflows/        # CI/CD
-    ├── validate.yml         # PR validation
-    └── deploy.yml           # Site rebuild trigger
+    ├── validate-submission.yml  # PR validation
+    └── sync-to-prod.yml        # Deploy to Cloudflare
 ```
 
 ### Module Structure
@@ -176,10 +186,10 @@ skillsets.cc/
 | Rule | Requirement |
 |------|-------------|
 | **Single Responsibility** | Each module has one clear purpose |
-| **Dependency Direction** | `site` ← `workers` ← `cli` are independent; no cross-imports |
+| **Dependency Direction** | `site` and `cli` are independent; no cross-imports |
 | **Barrel Exports** | Each module has `index.ts` exporting public API |
 | **Tests Alongside** | Tests in `__tests__/` or `*.test.ts` files |
-| **No Shared State** | Workers are stateless; KV is the only persistence |
+| **Stateless** | KV is the only persistence; no shared state |
 
 ### Frontend Patterns (Astro + Tailwind)
 
@@ -207,38 +217,18 @@ const { skillset } = Astro.props;
 </div>
 ```
 
-### Workers Patterns (Cloudflare)
+### API & KV Patterns
 
-See [workers_styleguide.md](.claude/resources/workers_styleguide.md) for complete patterns.
+See [workers_styleguide.md](.claude/resources/workers_styleguide.md) for Cloudflare-specific patterns.
 
 | Pattern | Requirement |
 |---------|-------------|
-| **Stateless Functions** | Workers are stateless; KV is the only persistence |
+| **Stateless** | API routes are stateless; KV is the only persistence |
 | **KV for State** | Use Cloudflare KV for stars, downloads, OAuth state (with TTL) |
-| **Rate Limiting** | Custom KV-based rate limiting (10 ops/min per user) |
-| **Error Handling** | Return proper HTTP status codes; log errors |
-| **Security** | CSRF protection (state param) + PKCE for OAuth |
-| **Environment Variables** | Secrets via `wrangler.toml` bindings (never committed) |
-
-**Example**: OAuth worker with CSRF protection
-```typescript
-export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
-    const url = new URL(request.url);
-
-    if (url.pathname === '/login') {
-      const state = crypto.randomUUID();
-      await env.KV.put(`oauth:${state}`, '1', { expirationTtl: 300 });
-
-      const authUrl = `https://github.com/login/oauth/authorize?` +
-        `client_id=${env.GITHUB_CLIENT_ID}&state=${state}`;
-      return Response.redirect(authUrl);
-    }
-
-    // ... callback handling
-  }
-};
-```
+| **Rate Limiting** | KV-based: 10 star ops/min per user, 30 downloads/hr per IP |
+| **Error Handling** | Return proper HTTP status codes via `responses.ts` helpers |
+| **Security** | CSRF (state param) + PKCE for OAuth, open redirect protection |
+| **Environment Variables** | Secrets via `wrangler secret put` (never committed) |
 
 ### CLI Patterns (Node.js)
 
@@ -279,9 +269,6 @@ async function install(skillsetId: string) {
 # Site (Astro + Vitest)
 cd site && npm test
 
-# Workers (Vitest + Miniflare for local KV)
-cd workers && npm test
-
 # CLI (Vitest)
 cd cli && npm test
 ```
@@ -319,7 +306,8 @@ author:
 
 # Verification (the friction)
 verification:
-  production_url: "https://example.com/shipped-product"
+  production_links:
+    - url: "https://example.com/shipped-product"
   production_proof: "./PROOF.md"
   audit_report: "./AUDIT_REPORT.md"
 
@@ -369,7 +357,7 @@ See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete CI/CD and Cloudflare Workers
 | **Rate Limiting** | KV-based: 10 star ops/min per user (custom implementation) |
 | **Session Binding** | JWT in `httpOnly` cookie (not localStorage) |
 | **Input Validation** | JSON Schema validation on PR submissions |
-| **No XSS** | Astro auto-escapes by default; React islands sanitized |
+| **XSS Prevention** | js-xss (`sanitizeHtml`) for README HTML; `sanitizeUrl` protocol allowlist for user-supplied URLs; schema `pattern` blocks non-http(s) URIs |
 
 ---
 
@@ -397,6 +385,10 @@ npx caches packages in `~/.npm/_npx`. After publishing a new CLI version, users 
 ### .gitignore and Skillset Content
 
 `.env.*` patterns in `.gitignore` can accidentally exclude `.env.example` files in skillset content. Added `!.env.example` exception to allow example env files while still ignoring real secrets.
+
+### Sanitization in Cloudflare Workers
+
+DOM-based sanitizers (`isomorphic-dompurify`, `sanitize-html`) don't work in Workers — no DOM APIs, no `process` global. Use `xss` (js-xss) for HTML sanitization: pure string-based parsing, no browser dependencies, explicit Web Worker support. For URL attributes rendered into `href` (author URLs, production links), HTML sanitization doesn't help — use a protocol allowlist (`sanitizeUrl` in `site/src/lib/sanitize.ts`) that parses with `new URL()` and rejects anything other than `http:`/`https:`. Schema `"format": "uri"` does NOT block `javascript:` URIs (valid per RFC 3986), so the schema also needs `"pattern": "^https?://"`.
 
 ### Checksum Verification Path Mismatch
 

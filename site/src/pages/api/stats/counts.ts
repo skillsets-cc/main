@@ -30,16 +30,16 @@ export const GET: APIRoute = async ({ locals }) => {
 
   try {
     const [starsList, downloadsList] = await Promise.all([
-      env.STARS.list({ prefix: 'stars:' }),
-      env.STARS.list({ prefix: 'downloads:' }),
+      env.DATA.list({ prefix: 'stars:' }),
+      env.DATA.list({ prefix: 'downloads:' }),
     ]);
 
     const starKeys = starsList.keys.map((k) => k.name);
     const downloadKeys = downloadsList.keys.map((k) => k.name);
 
     const [starValues, downloadValues] = await Promise.all([
-      Promise.all(starKeys.map((k) => env.STARS.get(k))),
-      Promise.all(downloadKeys.map((k) => env.STARS.get(k))),
+      Promise.all(starKeys.map((k) => env.DATA.get(k))),
+      Promise.all(downloadKeys.map((k) => env.DATA.get(k))),
     ]);
 
     const response: CountsResponse = {

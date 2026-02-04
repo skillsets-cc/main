@@ -5,7 +5,7 @@
 
 ## Dependencies
 - External: `chalk`, `ora`, `js-yaml`, `child_process`, `fs`
-- Internal: `../lib/api.js` (`fetchSkillsetMetadata`)
+- Internal: `../lib/api.js` (`fetchSkillsetMetadata`), `../lib/versions.js` (`compareVersions`)
 
 ## Key Components
 
@@ -18,7 +18,6 @@
 | `getGhUsername` | Get authenticated user | - → `string \| null` |
 | `parseSkillsetYaml` | Extract skillset metadata | `cwd` → `{name, author, version}` |
 | `checkAuditReport` | Verify passing audit | `cwd` → `{exists, passing}` |
-| `compareVersions` | Compare semver versions | `a, b` → `-1 \| 0 \| 1` |
 
 ### Pre-flight Checks
 | Check | Failure Action |

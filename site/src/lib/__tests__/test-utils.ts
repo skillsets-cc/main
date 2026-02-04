@@ -30,7 +30,7 @@ export function createMockKV(): KVNamespace & { _store: Map<string, string> } {
 export function createMockEnv(overrides: Partial<Env> = {}): Env {
   return {
     AUTH: createMockKV(),
-    STARS: createMockKV(),
+    DATA: createMockKV(),
     GITHUB_CLIENT_ID: 'test-client-id',
     GITHUB_CLIENT_SECRET: 'test-client-secret',
     JWT_SECRET: 'test-jwt-secret-at-least-32-chars-long',

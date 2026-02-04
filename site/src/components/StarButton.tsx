@@ -50,7 +50,7 @@ export default function StarButton({
       });
 
       if (response.status === 401) {
-        window.location.href = '/login';
+        window.location.href = `/login?returnTo=${encodeURIComponent(window.location.pathname)}`;
         return;
       }
 

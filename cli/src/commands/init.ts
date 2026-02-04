@@ -21,7 +21,8 @@ author:
 
 # Verification
 verification:
-  production_url: "{{PRODUCTION_URL}}"
+  production_links:
+    - url: "{{PRODUCTION_URL}}"
   production_proof: "./PROOF.md"
   audit_report: "./AUDIT_REPORT.md"
 

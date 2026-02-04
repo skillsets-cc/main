@@ -5,13 +5,17 @@ import DownloadCount from '@components/DownloadCount';
 import CopyCommand from '@components/CopyCommand';
 import ProofGallery from '@components/ProofGallery.astro';
 import { getSkillsetById } from '@/lib/data';
-import { sanitizeHtml } from '@/lib/sanitize';
+import { sanitizeHtml, sanitizeUrl } from '@/lib/sanitize';
 import { marked } from 'marked';
 import { gfmHeadingId } from 'marked-gfm-heading-id';
 
 marked.use(gfmHeadingId());
 
 const { namespace, name } = Astro.params;
+
+if (!namespace || !name) {
+  return Astro.redirect('/404');
+}
 
 const skillsetId = `${namespace}/${name}`;
 const skillset = getSkillsetById(skillsetId);
@@ -20,7 +24,7 @@ if (!skillset) {
   return Astro.redirect('/404');
 }
 
-const authorUrl = skillset.author.url || `https://github.com/${skillset.author.handle.replace('@', '')}`;
+const authorUrl = sanitizeUrl(skillset.author.url || `https://github.com/${skillset.author.handle.replace('@', '')}`);
 const installCommand = `npx skillsets install ${skillsetId}`;
 
 // Fetch README from GitHub at runtime

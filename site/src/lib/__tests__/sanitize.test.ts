@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeHtml } from '../sanitize';
+import { sanitizeHtml, sanitizeUrl } from '../sanitize';
 
 describe('sanitizeHtml', () => {
   describe('allowed elements', () => {
@@ -138,5 +138,48 @@ describe('sanitizeHtml', () => {
     it('preserves HTML entities', () => {
       expect(sanitizeHtml('<p>&lt;script&gt;</p>')).toBe('<p>&lt;script&gt;</p>');
     });
+  });
+});
+
+describe('sanitizeUrl', () => {
+  it('allows https URLs', () => {
+    expect(sanitizeUrl('https://example.com')).toBe('https://example.com');
+  });
+
+  it('allows http URLs', () => {
+    expect(sanitizeUrl('http://example.com')).toBe('http://example.com');
+  });
+
+  it('allows https URLs with paths and query strings', () => {
+    const url = 'https://example.com/path?q=1&r=2#frag';
+    expect(sanitizeUrl(url)).toBe(url);
+  });
+
+  it('blocks javascript: URLs', () => {
+    expect(sanitizeUrl('javascript:alert(1)')).toBe('#');
+  });
+
+  it('blocks javascript: URLs with encoding tricks', () => {
+    expect(sanitizeUrl('javascript:void(fetch("https://evil.com"))')).toBe('#');
+  });
+
+  it('blocks data: URLs', () => {
+    expect(sanitizeUrl('data:text/html,<script>alert(1)</script>')).toBe('#');
+  });
+
+  it('blocks vbscript: URLs', () => {
+    expect(sanitizeUrl('vbscript:MsgBox("xss")')).toBe('#');
+  });
+
+  it('blocks ftp: URLs', () => {
+    expect(sanitizeUrl('ftp://example.com/file')).toBe('#');
+  });
+
+  it('returns # for invalid URLs', () => {
+    expect(sanitizeUrl('not a url')).toBe('#');
+  });
+
+  it('returns # for empty string', () => {
+    expect(sanitizeUrl('')).toBe('#');
   });
 });

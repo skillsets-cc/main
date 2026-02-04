@@ -56,7 +56,8 @@ author:
   handle: "@testuser"
   url: "https://github.com/testuser"
 verification:
-  production_url: "https://example.com"
+  production_links:
+    - url: "https://example.com"
   audit_report: "./AUDIT_REPORT.md"
 tags: ["test"]
 status: "active"
