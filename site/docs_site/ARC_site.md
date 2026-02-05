@@ -83,7 +83,7 @@ site/src/
 ### Dynamic Pages (SSR)
 | Route | Page | Description |
 |-------|------|-------------|
-| `/skillset/[ns]/[name]` | [name].astro | Detail page with README, stars, downloads |
+| `/skillset/[ns]/[name]` | [name].astro | Detail page with README, stars, downloads, MCP servers |
 
 ### Auth Endpoints
 | Route | Method | Description |
@@ -135,6 +135,8 @@ Fetch README.md from GitHub raw content API
 marked → HTML → sanitizeHtml (js-xss)
   ↓
 Render with StarButton, DownloadCount, CopyCommand islands
+  ↓
+If mcp_servers: render MCP section (native/docker grouped, reputation, runtime caveat)
 ```
 
 ### Authentication
@@ -199,7 +201,7 @@ dl-rate:{ip}             → "12"                (download ops count, 3600s TTL)
 
 - **Static-First**: `prerender: true` on all content pages; SSR only for skillset detail (runtime README fetch)
 - **Islands Architecture**: Static HTML default, React hydrated with `client:load` for interactivity
-- **Build-Time Index**: Search via CDN-hosted JSON, no runtime GitHub API for browsing
+- **Build-Time Index**: Search via CDN-hosted JSON (includes MCP server metadata), no runtime GitHub API for browsing
 - **Filter Intersection**: SearchBar results AND TagFilter results (Set-based O(1) lookup)
 - **Optimistic-ish Stars**: Waits for server response, but immediate loading state
 - **KV Retry**: Exponential backoff on 429s (100ms → 200ms → 400ms, 3 attempts)

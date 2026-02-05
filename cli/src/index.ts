@@ -50,6 +50,7 @@ program
   .argument('<skillsetId>', 'Skillset ID (e.g., @user/skillset-name)')
   .option('-f, --force', 'Overwrite existing files')
   .option('-b, --backup', 'Backup existing files before install')
+  .option('--accept-mcp', 'Accept MCP servers without prompting (required for non-interactive environments)')
   .action(async (skillsetId, options) => {
     try {
       await install(skillsetId, options);
@@ -75,9 +76,10 @@ program
 program
   .command('audit')
   .description('Validate skillset and generate audit report')
-  .action(async () => {
+  .option('--check', 'Validate without writing AUDIT_REPORT.md (used by CI)')
+  .action(async (options) => {
     try {
-      await audit();
+      await audit(options);
     } catch (error) {
       handleError(error);
     }

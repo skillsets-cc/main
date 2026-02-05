@@ -78,6 +78,12 @@ export default function SkillsetGrid({
                     {liveStars[skillset.id] ?? skillset.stars}
                   </span>
 
+                  {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
+                    <span className="text-xs font-mono text-orange-500 border border-orange-300 px-1 rounded-none" title={`${skillset.mcp_servers.length} MCP server(s)`}>
+                      MCP
+                    </span>
+                  )}
+
                   {skillset.tags.map(tag => (
                     <span key={tag} className="text-xs font-mono text-text-tertiary border border-border-ink px-1 rounded-none">
                       #{tag}

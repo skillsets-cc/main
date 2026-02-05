@@ -26,6 +26,7 @@ jobs:
           rm -rf docker/
           rm -rf PROCESS_DOCS/
           rm -f .github/workflows/sync-to-prod.yml
+          # DO NOT remove tools/ — tools/audit-skill/ is fetched by CLI `init` via degit
 
           echo "Removed dev-only files"
 

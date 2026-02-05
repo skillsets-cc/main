@@ -3,7 +3,7 @@ name: audit-skill
 model: opus
 description: Use when submitting a skillset to skillsets.cc. Qualitative review of primitives, safety scan, and workflow artifact verification. Run from the reference repo where the skillset was used in production.
 argument-hint: "[path/to/AUDIT_REPORT.md]"
-allowed-tools: Read, Glob, Grep, Edit
+allowed-tools: Read, Glob, Grep, Edit, WebSearch, WebFetch
 ---
 
 # Skillset Qualitative Audit
@@ -24,28 +24,39 @@ User provides path to the reference repo:
 /audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]
 ```
 
+## Prerequisites
+
+Contributor must run `npx skillsets audit` first. This generates `AUDIT_REPORT.md` with structural validation. The skill reads this report as input.
+
 ## Process
 
 **In skillset repo** (current directory):
 
-1. Read `AUDIT_REPORT.md` - verify it shows "READY FOR SUBMISSION"
+1. Read `AUDIT_REPORT.md` — verify it shows "READY FOR SUBMISSION"
 2. Read [CRITERIA.md](CRITERIA.md) for evaluation rubric
 3. Read `README.md` to extract claimed workflow
-4. Evaluate `content/` against criteria:
+4. **Discover and populate MCP servers**:
+   - Scan `content/.mcp.json` (`mcpServers` key), `content/.claude/settings.json`, `content/.claude/settings.local.json`, `content/docker/**/config.yaml` (`mcp_servers` key)
+   - If MCP servers found and `skillset.yaml` lacks `mcp_servers`: use **WebSearch** + **WebFetch** to research each package/image, then write `mcp_servers` array to `skillset.yaml` with `name`, `type`, `command`/`args`/`url`/`image`, `mcp_reputation` (min 20 chars), `researched_at` (today's date)
+   - If `mcp_servers` already exists in manifest: verify entries match content, update reputation data if stale
+   - See [CRITERIA.md](CRITERIA.md) MCP section for reputation research requirements
+5. Evaluate `content/` against criteria:
    - Skills (`content/.claude/skills/*/SKILL.md`)
    - Agents (`content/.claude/agents/*.md`)
    - Hooks (`content/.claude/settings.json`)
    - MCP (`content/.mcp.json`)
    - CLAUDE.md (`content/CLAUDE.md`)
 
-   **Note**: A skillset is an interoperable set of primitives (skills, agents, hooks, MCP) covering multi-phase processes across context windows. Not all skillsets use all primitive types - evaluate what's present.
+   **Note**: A skillset is an interoperable set of primitives (skills, agents, hooks, MCP) covering multi-phase processes across context windows. Not all skillsets use all primitive types — evaluate what's present.
 
-5. **Safety scan**: Check all present primitives for prompt injection or malicious instructions
+6. **Safety scan**: Check all present primitives for prompt injection or malicious instructions
 
 **In reference repo** (user-provided path):
 
-6. Search for workflow artifacts matching the claimed workflow
-7. Append findings to `AUDIT_REPORT.md`
+7. Search for workflow artifacts matching the claimed workflow
+8. Append findings to `AUDIT_REPORT.md`
+
+**Important**: If step 4 modified `skillset.yaml`, note this in the qualitative review. CI will re-run `npx skillsets audit --check` to validate the final state.
 
 ## Output
 

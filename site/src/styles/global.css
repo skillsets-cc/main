@@ -8,6 +8,14 @@
     scrollbar-gutter: stable;
   }
 
+  /* Optically balance JetBrains Mono with Crimson Pro.
+     JetBrains has a larger x-height, so at the same px size it looks bigger.
+     Scale mono down ~90% to visually match serif body text. */
+  code, pre, kbd, samp, .font-mono {
+    font-size: 0.95em;
+    font-weight: 500;
+  }
+
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 14px;

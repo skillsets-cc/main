@@ -21,6 +21,7 @@ cli/src/
 │   ├── filesystem.ts     # File operations
 │   ├── errors.ts         # Error handling
 │   ├── constants.ts      # Configuration
+│   ├── validate-mcp.ts   # MCP server validation
 │   ├── versions.ts       # Semver comparison
 │   └── __tests__/        # Library tests
 └── types/
@@ -40,9 +41,9 @@ cli/src/
 |------|---------|---------------|
 | `commands/list.ts` | Browse all available skillsets | [Docs](./commands/list.md) |
 | `commands/search.ts` | Fuzzy search against CDN index | [Docs](./commands/search.md) |
-| `commands/install.ts` | Install skillset via degit + verify checksums | [Docs](./commands/install.md) |
+| `commands/install.ts` | Install skillset via degit + MCP warning + verify checksums | [Docs](./commands/install.md) |
 | `commands/init.ts` | Scaffold skillset submission | [Docs](./commands/init.md) |
-| `commands/audit.ts` | Validate and generate report | [Docs](./commands/audit.md) |
+| `commands/audit.ts` | Validate + MCP check + generate report | [Docs](./commands/audit.md) |
 | `commands/submit.ts` | Open PR via gh CLI | [Docs](./commands/submit.md) |
 
 ### Libraries
@@ -53,6 +54,7 @@ cli/src/
 | `lib/filesystem.ts` | Conflict detection, backups | [Docs](./lib/filesystem.md) |
 | `lib/errors.ts` | Centralized error handling | [Docs](./lib/errors.md) |
 | `lib/constants.ts` | Configuration constants | [Docs](./lib/constants.md) |
+| `lib/validate-mcp.ts` | MCP server bidirectional validation | [Docs](./lib/validate-mcp.md) |
 | `lib/versions.ts` | Semver comparison for updates | [Docs](./lib/versions.md) |
 
 ### Types
@@ -69,11 +71,11 @@ cli/src/
 ```
 Consumer Flow:
 list/search → api.ts → CDN index + Live stats → Merge → Fuse.js/Sort → Terminal output
-install → degit → Extract content/ → checksum.ts → Verify → Track download
+install → Fetch metadata → MCP warning (if any) → degit → Extract content/ → checksum.ts → Verify → Track download
 
 Contributor Flow:
 init → Interactive prompts → Generate scaffold
-audit → Validate manifest + files → Check registry (update detection) → Generate AUDIT_REPORT.md
+audit → Validate manifest + files → MCP validation → Check registry (update detection) → Generate AUDIT_REPORT.md
 submit → Check registry (update detection) → Validate version bump → gh CLI → Fork → Branch → PR
 ```
 
@@ -85,6 +87,7 @@ submit → Check registry (update detection) → Validate version bump → gh CL
 - **Checksum Verification**: SHA-256 integrity validation against registry
 - **Conflict Detection**: Prevents accidental file overwrites during install
 - **Update Detection**: Checks registry to differentiate new submissions vs updates
+- **MCP Transparency**: Bidirectional validation of MCP servers between content and manifest; install-time warning with `--accept-mcp` bypass
 
 ## Configuration
 | Constant | Value | Purpose |

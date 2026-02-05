@@ -112,36 +112,64 @@ System prompt should include:
 
 ---
 
-## MCP Servers (`.mcp.json` at project root)
+## MCP Servers (`.mcp.json`, `.claude/settings.json`, Docker configs)
 
-**Format**
+### Configuration Sources
 
-```json
-{
-  "mcpServers": {
-    "server-name": {
-      "type": "http|stdio",
-      "url": "https://api.example.com/mcp",
-      "command": "/path/to/server",
-      "args": ["--flag", "value"],
-      "env": { "API_KEY": "${API_KEY}" }
-    }
-  }
-}
-```
+| Source | Path | Key |
+|--------|------|-----|
+| Claude Code native | `content/.mcp.json` | `mcpServers` |
+| Claude Code settings | `content/.claude/settings.json` | `mcpServers` |
+| Claude Code local settings | `content/.claude/settings.local.json` | `mcpServers` |
+| Docker-hosted | `content/docker/**/config.yaml` | `mcp_servers` |
 
-**Environment Variables**
+### Per-Server Evaluation
+
+For each MCP server found, evaluate:
+
+1. **Purpose justification**: Does the README explain why this server is needed?
+2. **Transport risk assessment**:
+   - `stdio` = local execution (lower risk but runs arbitrary code)
+   - `http` = remote data transmission via Streamable HTTP (data leaves the machine)
+   - SSE transport is deprecated (MCP spec 2025-03-26); flag if found
+3. **Package reputation** (use WebSearch + WebFetch — mandatory):
+   - npm/PyPI: download counts, last publish date, maintainer identity
+   - GitHub: stars, open issues, last commit date
+   - Container images: registry, publisher, pull counts
+4. **Version pinning**: Flag unpinned `npx -y` as a warning; recommend pinned versions (e.g., `@upstash/context7-mcp@1.0.0`)
+5. **Least privilege**: read-only vs read-write access, scoped paths vs broad access
+6. **Alternative analysis**: Could a local tool or built-in capability replace a remote MCP server?
+
+### Docker-Specific Evaluation
+
+For each Docker-hosted MCP setup:
+
+1. **Container image reputation** (same web lookup as packages)
+2. **Inner MCP servers**: What servers run inside the container? List each with same per-server evaluation
+3. **Port exposure**: What ports are exposed? Are they necessary?
+4. **Volume mounts**: What directories are mounted? Are they read-only where possible?
+5. **README documentation**: Must document the Docker setup and what it runs
+
+**Convention note:** CI scans `content/docker/**/config.yaml` for the `mcp_servers` key. This is currently based on LiteLLM's config format (the only Docker MCP provider in the registry). Contributors using other Docker MCP providers must declare their servers in the same `mcp_servers` key structure, or document an alternative config path for CI scanning.
+
+### Environment Variables
 
 - `${VAR}` = expand from environment
 - `${VAR:-default}` = expand with fallback
-- `${CLAUDE_PLUGIN_ROOT}` = plugin root (plugins only)
+- Sensitive values MUST reference env vars, not hardcoded values
 
-**Red Flags**
+### Red Flags
 
 - Hardcoded secrets (use `${VAR}` instead)
 - Missing `type` field
 - `stdio` servers without clear command path
 - Unnecessary remote servers for local tasks
+- Unpinned package versions in production
+- Overly broad filesystem access (e.g., `/` instead of scoped path)
+
+### Runtime Caveat (must include in audit report)
+
+MCP packages are fetched at runtime and may have changed since audit. `researched_at` captures when the lookup was performed, not ongoing validity.
 
 ---
 

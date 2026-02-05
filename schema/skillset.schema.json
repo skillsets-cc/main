@@ -139,6 +139,61 @@
       "type": "string",
       "pattern": "^\\./.+",
       "description": "Path to main documentation file (e.g., ./content/CLAUDE.md)"
+    },
+    "mcp_servers": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "mcp_reputation", "researched_at"],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "enum": ["stdio", "http", "docker"] },
+          "command": { "type": "string" },
+          "args": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "url": { "type": "string", "pattern": "^https?://" },
+          "image": { "type": "string" },
+          "servers": {
+            "type": "array",
+            "maxItems": 10,
+            "items": {
+              "type": "object",
+              "required": ["name", "command", "mcp_reputation", "researched_at"],
+              "properties": {
+                "name": { "type": "string" },
+                "command": { "type": "string" },
+                "args": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "mcp_reputation": { "type": "string", "minLength": 20 },
+                "researched_at": { "type": "string", "format": "date" }
+              },
+              "unevaluatedProperties": false
+            }
+          },
+          "mcp_reputation": { "type": "string", "minLength": 20 },
+          "researched_at": { "type": "string", "format": "date" }
+        },
+        "unevaluatedProperties": false,
+        "allOf": [
+          {
+            "if": { "properties": { "type": { "const": "stdio" } }, "required": ["type"] },
+            "then": { "required": ["command"] }
+          },
+          {
+            "if": { "properties": { "type": { "const": "http" } }, "required": ["type"] },
+            "then": { "required": ["url"] }
+          },
+          {
+            "if": { "properties": { "type": { "const": "docker" } }, "required": ["type"] },
+            "then": { "required": ["image", "servers"] }
+          }
+        ]
+      }
     }
   },
   "additionalProperties": false

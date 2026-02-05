@@ -10,8 +10,14 @@ vi.mock('@inquirer/prompts', () => ({
   checkbox: vi.fn(),
 }));
 
+// Mock degit to avoid network calls
+vi.mock('degit', () => ({
+  default: vi.fn(),
+}));
+
 import { init } from '../init.js';
 import { input, confirm, checkbox } from '@inquirer/prompts';
+import degit from 'degit';
 
 describe('init command', () => {
   let testDir: string;
@@ -37,6 +43,10 @@ describe('init command', () => {
 
     vi.mocked(confirm).mockResolvedValue(false);
     vi.mocked(checkbox).mockResolvedValue([]);
+
+    // Mock degit clone
+    const mockClone = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(degit).mockReturnValue({ clone: mockClone } as any);
   });
 
   afterEach(() => {
@@ -158,5 +168,46 @@ describe('init command', () => {
       (call[0] as any).message?.includes('handle')
     );
     expect(handleCall).toBeDefined();
+  });
+
+  it('fetches audit-skill via degit from correct registry path', async () => {
+    await init({});
+
+    expect(degit).toHaveBeenCalledWith(
+      'skillsets-cc/main/tools/audit-skill',
+      expect.objectContaining({
+        cache: false,
+        force: true,
+        verbose: false,
+      })
+    );
+  });
+
+  it('clones audit-skill into .claude/skills/audit-skill', async () => {
+    const mockClone = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(degit).mockReturnValue({ clone: mockClone } as any);
+
+    await init({});
+
+    expect(mockClone).toHaveBeenCalledWith(
+      join(testDir, '.claude', 'skills', 'audit-skill')
+    );
+  });
+
+  it('does not overwrite existing README.md', async () => {
+    writeFileSync(join(testDir, 'README.md'), '# My Custom README');
+
+    await init({});
+
+    const content = readFileSync(join(testDir, 'README.md'), 'utf-8');
+    expect(content).toBe('# My Custom README');
+  });
+
+  it('generates tags in skillset.yaml', async () => {
+    await init({});
+
+    const content = readFileSync(join(testDir, 'skillset.yaml'), 'utf-8');
+    expect(content).toContain('"test"');
+    expect(content).toContain('"example"');
   });
 });

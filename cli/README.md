@@ -21,6 +21,7 @@ cli/
 │   │   ├── constants.ts
 │   │   ├── errors.ts
 │   │   ├── filesystem.ts
+│   │   ├── validate-mcp.ts
 │   │   └── versions.ts
 │   └── types/
 │       └── index.ts
@@ -41,9 +42,9 @@ cli/
 |------|---------|---------------|
 | `list.ts` | Browse all skillsets with live stats | [Docs](./docs_cli/commands/list.md) |
 | `search.ts` | Fuzzy search by name, description, tags | [Docs](./docs_cli/commands/search.md) |
-| `install.ts` | Install skillset via degit + verify checksums | [Docs](./docs_cli/commands/install.md) |
+| `install.ts` | Install skillset via degit + MCP warning + verify checksums | [Docs](./docs_cli/commands/install.md) |
 | `init.ts` | Scaffold new skillset for contribution | [Docs](./docs_cli/commands/init.md) |
-| `audit.ts` | Validate skillset before submission | [Docs](./docs_cli/commands/audit.md) |
+| `audit.ts` | Validate skillset + MCP servers before submission | [Docs](./docs_cli/commands/audit.md) |
 | `submit.ts` | Open PR to registry | [Docs](./docs_cli/commands/submit.md) |
 
 ### Lib
@@ -55,6 +56,7 @@ cli/
 | `errors.ts` | Error types | [Docs](./docs_cli/lib/errors.md) |
 | `filesystem.ts` | File utilities | [Docs](./docs_cli/lib/filesystem.md) |
 | `versions.ts` | Semver comparison | [Docs](./docs_cli/lib/versions.md) |
+| `validate-mcp.ts` | MCP server bidirectional validation | [Docs](./docs_cli/lib/validate-mcp.md) |
 
 ## Related Documentation
 - [CLI Style Guide](../.claude/resources/cli_styleguide.md)

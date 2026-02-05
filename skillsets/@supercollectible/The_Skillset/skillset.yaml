@@ -13,6 +13,7 @@ author:
 verification:
   production_links:
     - url: "https://skillsets.cc"
+    - url: "https://supercollectible.dev"
   production_proof: "./PROOF.md"
   audit_report: "./AUDIT_REPORT.md"
 
@@ -35,3 +36,22 @@ status: "active"
 
 # Content
 entry_point: "./content/CLAUDE.md"
+
+# MCP Servers
+mcp_servers:
+  - name: "litellm-proxy"
+    type: "docker"
+    image: "ghcr.io/berriai/litellm:main-latest"
+    mcp_reputation: "Widely used LLM proxy, active maintenance, 20k+ GitHub stars"
+    researched_at: "2026-02-05"
+    servers:
+      - name: "context7"
+        command: "npx"
+        args: ["-y", "@upstash/context7-mcp"]
+        mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"
+        researched_at: "2026-02-05"
+      - name: "filesystem"
+        command: "npx"
+        args: ["-y", "@modelcontextprotocol/server-filesystem", "/project:ro"]
+        mcp_reputation: "npm: @modelcontextprotocol/server-filesystem, official Anthropic MCP server"
+        researched_at: "2026-02-05"

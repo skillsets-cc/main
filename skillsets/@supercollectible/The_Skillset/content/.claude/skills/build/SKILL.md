@@ -27,21 +27,23 @@ Validate the stated dependencies between agent sections:
 - **Parallel**: If sections are independent, spawn agents concurrently
 
 #### 3. Spawn Sonnet Build Agent Per Section
-For each agent section in the execution document:
-```typescript
-// Conceptual - actual implementation uses Claude Code agent spawning
-SpawnAgent({
-  agent: "build-agent",
-  model: "sonnet",
-  protocol: "AGENT_build.md",
-  context: [
-    "DOCS/execution/[execution-doc].md", // The single execution doc
-    ".claude/resources/frontend_styleguide.md", // or backend_styleguide.md
-    "claude.md"
-  ],
-  instruction: "Implement the section '## Build Agent X' in the execution document following AGENT_build.md protocol"
-})
+
+**CRITICAL: Pass the doc path, not the content.** The build agent reads the execution doc itself. The orchestrator MUST NOT summarize, paraphrase, or re-encode the execution doc content into the agent prompt. Summaries are lossy — the execution doc contains exact line numbers, exact code blocks, and exact acceptance criteria that must be read verbatim by the agent.
+
+For each agent section, use the Task tool with `subagent_type: "build"` and a prompt that contains ONLY:
+1. The execution doc file path
+2. The section header to implement (e.g., `## Build Agent 1: ...`)
+3. The working directory
+
 ```
+Task prompt template (use this exactly):
+
+  Read the execution document at [ABSOLUTE_PATH_TO_EXECUTION_DOC].
+  Implement the section "## Build Agent N: [Title]".
+  Working directory: [WORKING_DIRECTORY]
+```
+
+The build agent protocol (AGENT_build.md) handles everything else — it will read the doc, create todos from the tasks, implement them in order, and run tests. Do not duplicate that logic in the prompt.
 
 ### Phase 2: Monitor
 Monitor agents for critical failures or stalls. If an agent gets stuck or reports a blocker, intervene. Otherwise, let them work.

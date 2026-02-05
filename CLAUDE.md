@@ -322,17 +322,27 @@ status: "active"  # active | deprecated | archived
 
 # Content
 entry_point: "./content/CLAUDE.md"
+
+# Optional: MCP servers (if your skillset uses them)
+# mcp_servers:
+#   - name: "context7"
+#     type: stdio              # stdio | http | docker
+#     command: "npx"
+#     args: ["-y", "@upstash/context7-mcp"]
+#     mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads"
+#     researched_at: "2026-02-04"
 ```
 
 ### Contributor Flow
 
-1. Download `/audit-skill` skill from `/contribute` page
+1. Run `npx skillsets init` to scaffold structure (installs audit skill via degit)
 2. Prepare skillset locally with `skillset.yaml`
-3. Run `/audit-skill` to generate `AUDIT_REPORT.md`
-4. Open PR with skillset folder + audit report + production proof
-5. CI validates schema + files
-6. Maintainer reviews production proof
-7. PR merged → site rebuild triggered
+3. Run `npx skillsets audit` — structural validation (MCP shows as "pending qualitative review")
+4. Run `/audit-skill` — discovers MCP servers, populates `mcp_servers` in manifest, qualitative Opus review
+5. Run `npx skillsets submit` to open PR
+6. CI runs `npx skillsets audit --check` (re-validates including MCP consistency) + author verification
+7. Maintainer reviews production proof + MCP justification
+8. PR merged → site rebuild triggered
 
 ---
 

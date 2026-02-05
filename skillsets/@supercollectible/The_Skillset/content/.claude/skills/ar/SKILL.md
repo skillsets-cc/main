@@ -1,8 +1,7 @@
 ---
 name: ar
 description: Opus-orchestrated adversarial review with cost/benefit analysis. Launches ar-o, ar-k, ar-d in parallel, synthesizes findings. Use for validating design docs before /plan.
-disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Task, Bash
+allowed-tools: Read, Glob, Grep, Task
 argument-hint: "[path/to/document]"
 ---
 
@@ -14,30 +13,31 @@ You orchestrate adversarial review agents and synthesize their findings into act
 
 ## Step 1: Launch Reviewers
 
-Read the target design document, then launch all three reviewers in parallel with minimal context.
+Read the target design document, then launch all three reviewers in parallel.
 
-All agents have codebase access (filesystem MCP) and library docs (Context7 MCP). They establish their own context—this ensures fresh-eyes analysis without inherited assumptions.
+All agents have their own built-in protocols, full tool access (filesystem, Context7, web search), and establish their own codebase context. You just point them at the document.
 
 ### 1.1 Launch in Parallel
 
-| Agent | Model | Launch Method |
-|-------|-------|---------------|
-| `ar-o` | Opus | Task tool (`subagent_type: ar-o`) |
-| `ar-k` | Kimi | LiteLLM HTTP (`model: kimi-review`) |
-| `ar-d` | Deepseek | LiteLLM HTTP (`model: deepseek-review`) |
+Send a **single message** with three Task tool calls, all with `run_in_background: true`:
 
-**LiteLLM call pattern:**
-```bash
-curl -X POST http://localhost:4000/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "kimi-review",
-    "messages": [
-      {"role": "system", "content": "<ar-k agent protocol>"},
-      {"role": "user", "content": "Review this design. Explore the codebase for architecture docs and existing patterns. Use Context7 for library best practices.\n\n<design document>"}
-    ]
-  }'
+| `subagent_type` | Description |
+|-----------------|-------------|
+| `ar-o` | Opus reviewer |
+| `ar-k` | Kimi reviewer |
+| `ar-d` | Deepseek reviewer |
+
+**Prompt**: Pass the document path from the `/ar` argument. Example:
+
 ```
+Review the design document at PROCESS_DOCS/design/feature-name.md
+```
+
+The agents handle the rest — codebase exploration, library lookups, structured critique.
+
+### 1.2 Error Handling
+
+If an agent fails or is killed, proceed with the remaining agents. Two-of-three is sufficient. Note reduced confidence in the report if fewer than three complete.
 
 ---
 

@@ -54,6 +54,7 @@ Dynamic skillset detail page displaying full information about a specific skills
 - **DownloadCount**: Live download count from API
 - **CopyCommand**: Install command with copy button
 - **ProofGallery**: Verification section with production links and audit report
+- **MCP Section**: Displayed when skillset has `mcp_servers`. Shows native (Claude Code managed) and Docker hosted servers with reputation info, researched_at dates, and runtime caveat warning
 
 ### Security
 - XSS protection via `sanitizeHtml()` on user-contributed README content

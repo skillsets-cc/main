@@ -243,6 +243,198 @@ version: "not-semver"
     expect(report).toContain('1.0.0');
   });
 
+  describe('MCP server validation', () => {
+    it('passes when no MCP servers present', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('MCP Servers | ✓ PASS');
+    });
+
+    it('passes when content MCP matches manifest', async () => {
+      const yamlWithMcp = validSkillsetYaml + `\nmcp_servers:\n  - name: context7\n    type: stdio\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n    mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"\n    researched_at: "2026-02-04"\n`;
+      writeFileSync(join(testDir, 'skillset.yaml'), yamlWithMcp);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
+        mcpServers: {
+          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
+        }
+      }));
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('MCP Servers | ✓ PASS');
+    });
+
+    it('reports MCP as pending qualitative review in normal mode (pre-skill)', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
+        mcpServers: {
+          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
+        }
+      }));
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('MCP Servers | ⚠ WARNING');
+      expect(report).toContain('Pending qualitative review');
+    });
+
+    it('fails MCP mismatch in --check mode (CI)', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
+        mcpServers: {
+          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
+        }
+      }));
+
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+      await audit({ check: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      exitSpy.mockRestore();
+    });
+
+    it('fails when manifest has MCP but content does not in --check mode', async () => {
+      const yamlWithMcp = validSkillsetYaml + `\nmcp_servers:\n  - name: context7\n    type: stdio\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n    mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"\n    researched_at: "2026-02-04"\n`;
+      writeFileSync(join(testDir, 'skillset.yaml'), yamlWithMcp);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+      await audit({ check: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      exitSpy.mockRestore();
+    });
+
+    it('passes with Docker MCP when content and manifest match', async () => {
+      const yamlWithDocker = validSkillsetYaml + `\nmcp_servers:\n  - name: litellm-proxy\n    type: docker\n    image: "ghcr.io/berriai/litellm:main-latest"\n    mcp_reputation: "ghcr: berriai/litellm, widely used LLM proxy"\n    researched_at: "2026-02-04"\n    servers:\n      - name: context7\n        command: npx\n        args: ["-y", "@upstash/context7-mcp"]\n        mcp_reputation: "npm: @upstash/context7-mcp"\n        researched_at: "2026-02-04"\n`;
+      writeFileSync(join(testDir, 'skillset.yaml'), yamlWithDocker);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content', 'docker'), { recursive: true });
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'docker', 'docker-compose.yaml'), 'services:\n  litellm:\n    image: ghcr.io/berriai/litellm:main-latest\n');
+      writeFileSync(join(testDir, 'content', 'docker', 'config.yaml'), 'mcp_servers:\n  context7:\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n');
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('MCP Servers | ✓ PASS');
+    });
+
+    it('includes MCP error details in findings section', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
+        mcpServers: {
+          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
+        }
+      }));
+
+      await audit();
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      // Error details appear in findings even in normal mode (informational)
+      expect(report).toContain('### 8. MCP Server Validation');
+      expect(report).toContain('context7');
+      expect(report).toContain('not declared');
+      // Report still passes (MCP pending qualitative review in normal mode)
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('Pending qualitative review');
+    });
+  });
+
+  describe('--check flag', () => {
+    it('does not write AUDIT_REPORT.md in check mode', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit({ check: true });
+
+      expect(existsSync(join(testDir, 'AUDIT_REPORT.md'))).toBe(false);
+    });
+
+    it('preserves existing AUDIT_REPORT.md in check mode', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'AUDIT_REPORT.md'), '# Existing report\n\n## Qualitative Review\nApproved by Opus');
+
+      await audit({ check: true });
+
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('Qualitative Review');
+      expect(report).toContain('Approved by Opus');
+    });
+
+    it('exits with code 1 on failure in check mode', async () => {
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      // Missing README and content — will fail
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit({ check: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      exitSpy.mockRestore();
+    });
+
+    it('does not exit with code 1 on success in check mode', async () => {
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit({ check: true });
+
+      expect(exitSpy).not.toHaveBeenCalled();
+      exitSpy.mockRestore();
+    });
+
+    it('still writes AUDIT_REPORT.md without check flag', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      writeFileSync(join(testDir, 'README.md'), '# Test');
+      mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+      await audit();
+
+      expect(existsSync(join(testDir, 'AUDIT_REPORT.md'))).toBe(true);
+      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      expect(report).toContain('READY FOR SUBMISSION');
+    });
+  });
+
   describe('README link validation', () => {
     it('passes when README has no links to content/.claude/', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);

@@ -6,14 +6,14 @@ skillsets.cc runs on **Cloudflare Workers** (not Pages). This enables SSR for dy
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  Cloudflare Workers                      │
-│                                                          │
-│  skillsets-site (Worker)                                 │
+│                  Cloudflare Workers                     │
+│                                                         │
+│  skillsets-site (Worker)                                │
 │  ├── Static assets (/, /browse, /about, /contribute)    │
 │  ├── SSR routes (/skillset/[ns]/[name])                 │
 │  └── API routes (/callback, /api/*)                     │
-│                                                          │
-│  Bindings:                                               │
+│                                                         │
+│  Bindings:                                              │
 │  ├── ASSETS (static files from dist/)                   │
 │  ├── DATA (KV namespace)                                │
 │  └── AUTH (KV namespace)                                │
@@ -58,7 +58,7 @@ Manual dispatch only (`.github/workflows/sync-to-prod.yml`):
 ### Steps
 
 1. **Checkout** dev repo
-2. **Remove dev-only files**: `.claude/`, `CLAUDE.md`, `docker/`, `PROCESS_DOCS/`
+2. **Remove dev-only files**: `.claude/`, `CLAUDE.md`, `docker/`, `PROCESS_DOCS/` (preserves `tools/` — fetched by CLI `init` via degit)
 3. **Push to production** repo (skillsets-cc/main) via deploy key
 4. **Build** the Astro site (`npm run build` in site/)
 5. **Deploy** to Cloudflare Workers (`npx wrangler deploy`)

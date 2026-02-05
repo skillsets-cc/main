@@ -28,4 +28,25 @@ export interface SearchIndexEntry {
   entry_point: string;
   checksum: string;
   files: Record<string, string>;
+  mcp_servers?: McpServer[];
+}
+
+export interface McpServerInner {
+  name: string;
+  command: string;
+  args?: string[];
+  mcp_reputation: string;
+  researched_at: string;
+}
+
+export interface McpServer {
+  name: string;
+  type: 'stdio' | 'http' | 'docker';
+  command?: string;
+  args?: string[];
+  url?: string;
+  image?: string;
+  servers?: McpServerInner[];
+  mcp_reputation: string;
+  researched_at: string;
 }

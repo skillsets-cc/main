@@ -1,8 +1,7 @@
 ---
 name: pmatch
 description: Pattern matching validation. Compares source-of-truth against target to check alignment. Lighter than /ar. Use to validate plans against designs, or implementations against plans.
-disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Task, Bash
+allowed-tools: Read, Glob, Grep, Task
 argument-hint: "<source> <target>"
 ---
 
@@ -23,50 +22,39 @@ You orchestrate pattern matching agents to validate alignment between a source-o
 
 ### Step 1: Parse Inputs
 
-Identify source and target:
+Parse the `/pmatch` arguments to get source and target paths.
 
 | Target Type | Detection | Handling |
 |-------------|-----------|----------|
-| Document | Ends in `.md` | Read file directly |
-| Directory | Path exists as dir | Agents search within path |
-| `codebase` | Literal keyword | Agents search full project |
+| Document | Ends in `.md` | Pass path to agents |
+| Directory | Path exists as dir | Pass path to agents (they search within) |
+| `codebase` | Literal keyword | Pass keyword to agents (they search full project) |
 
-### Step 2: Prepare Context Bundle
+### Step 2: Launch Pattern Matching Agents
 
-Minimal context for agents:
-1. Read the source document
-2. If target is a document, read it
-3. If target is codebase/directory, pass the path
+All agents have their own built-in protocols, full tool access (filesystem search), and establish their own context. You just point them at the documents.
 
-**Do NOT load architecture docs**—this is pattern matching, not adversarial review.
+Send a **single message** with two Task tool calls, both with `run_in_background: true`:
 
-### Step 3: Launch Pattern Matching Agents
+| `subagent_type` | Description |
+|-----------------|-------------|
+| `pm-s` | Sonnet pattern matcher |
+| `pm-k` | Kimi pattern matcher |
 
-Run both agents in parallel:
+**Prompt**: Pass the source and target paths from the `/pmatch` arguments. Example:
 
-| Agent | Model | Method |
-|-------|-------|--------|
-| `pm-s` | Sonnet | Task tool with `subagent_type: pm-s` |
-| `pm-k` | Kimi | LiteLLM HTTP call |
-
-**For pm-s**: Use Task tool directly.
-
-**For pm-k**: Call LiteLLM endpoint:
-```bash
-curl -X POST http://localhost:4000/chat/completions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "model": "kimi-review",
-    "messages": [
-      {"role": "system", "content": "<pm-k agent protocol>"},
-      {"role": "user", "content": "<source doc> + <target doc or path>"}
-    ]
-  }'
+```
+Pattern match source (source of truth): PROCESS_DOCS/execution/feature-name.md
+Target: PROCESS_DOCS/design/feature-name.md
 ```
 
-Each agent extracts claims from source and validates against target.
+The agents handle the rest — reading files, extracting claims, validating alignment.
 
-### Step 4: Merge Findings
+### Error Handling
+
+If an agent fails or is killed, proceed with the remaining agent. One-of-two is sufficient. Note reduced confidence in the report.
+
+### Step 3: Merge Findings
 
 Combine results from both agents:
 
@@ -77,7 +65,7 @@ Combine results from both agents:
    - Disagreement → Flag for review ?
 3. **Merge extras** - Union of extras found by each agent
 
-### Step 5: Produce Report
+### Step 4: Produce Report
 
 Output structured alignment report:
 

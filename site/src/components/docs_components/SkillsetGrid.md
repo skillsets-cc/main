@@ -42,7 +42,8 @@ Orchestrates search and filter functionality for skillsets, displaying a filtere
 
 ### Grid Rendering
 - Each skillset is a clickable article linking to `/skillset/{namespace}/{name}`
-- Displays: name, version, author, description, star count, tags
+- Displays: name, version, author, description, star count, MCP badge (if applicable), tags
+- MCP badge: orange "MCP" pill with server count tooltip, shown when `mcp_servers` is non-empty
 - Hover effect: light background, orange title color
 - Responsive layout: stacked on mobile, row on desktop
 

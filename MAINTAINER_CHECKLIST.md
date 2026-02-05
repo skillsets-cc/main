@@ -4,7 +4,7 @@ Skillsets.cc uses high-friction contributor gating. By the time a PR reaches you
 
 - **Tier 1** (`npx skillsets audit`): Structure validated
 - **Tier 2** (`/audit-skill`): Opus qualitative review passed
-- **CI**: Schema, files, secrets, author verification passed
+- **CI**: Schema, files, secrets, MCP validation, author verification passed
 
 Your job is curation, not QA. The question isn't "is this valid?" - it's "is this worth including?"
 
@@ -14,7 +14,8 @@ Your job is curation, not QA. The question isn't "is this valid?" - it's "is thi
 
 1. **Is it a real workflow?** Not just a prompt dump or thin wrapper
 2. **Does it add something new?** Not duplicating what's already in the registry
-3. **Is it novel or clever?** Interesting approach, useful pattern, worth sharing
+3. **MCP servers justified?** If `mcp_servers` declared, check reputation info is reasonable and servers are necessary for the workflow
+4. **Is it novel or clever?** Interesting approach, useful pattern, worth sharing
 
 ---
 

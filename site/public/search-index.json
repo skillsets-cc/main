@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-02-04T17:50:13.982Z",
+  "generated_at": "2026-02-05T19:08:31.924Z",
   "skillsets": [
     {
       "id": "@supercollectible/The_Skillset",
@@ -37,7 +37,7 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:c837756c9361a0458e638a00377e80aee8c805f3c56b41bca53f6fd2903fc875",
+      "checksum": "sha256:776eb2d51d5ef900e5e5fae8c449a3a4a511cb9729db1b002fe18abaa55eadca",
       "files": {
         "AUDIT_REPORT.md": "sha256:468b6d8277b87096953600473d76729d258fd44b1cdbb320f063dd01fd5d7055",
         "PROOF.md": "sha256:74826b758c9ceaece6f125ce40ed7523be54a1778e7c54cc28bb68031c77d7f4",
@@ -57,25 +57,57 @@
         "content/.claude/resources/claude-execution-template.md": "sha256:121c7d309270d42fd6fd440d5c66f0d3ace84bc4b3a389d51e766d84bb3a5b00",
         "content/.claude/resources/file_doc_template.md": "sha256:625f7bbf0099b49d6d5285c093f42403306a6b548c6c6c1af9ef24b7447b29fc",
         "content/.claude/resources/frontend_styleguide.md": "sha256:dc63fd38342daaf39266fce387326aba2e8c9c055be233200e5b3663eee6aeac",
-        "content/.claude/skills/ar/SKILL.md": "sha256:437311cce4ae7ada526056475a2bc8cea4f08aa9d686acd691e6951774b8c55b",
+        "content/.claude/skills/ar/SKILL.md": "sha256:8f9eee9bf952c2a23badcaef3d84f876a824403b2d4b2501cf86e1fb0b5bad14",
         "content/.claude/skills/arm/SKILL.md": "sha256:8447ecb20f9c0718d47c4e95d7f15b92e90d7560bab02775bab3400816d4509c",
         "content/.claude/skills/audit-skill/CRITERIA.md": "sha256:1dda3d3a386dc5eca85c0c16c4fdcdf9335214199b195c0e58c5f5691a0d5220",
         "content/.claude/skills/audit-skill/SKILL.md": "sha256:742eec825cd6132e159427f0817cc53fc82616bd8b61b8574bb363126d0ed85f",
-        "content/.claude/skills/build/SKILL.md": "sha256:5df8811e079a6c4044afd95bc1497ca6eb6db6ff5d047af0a37ee85a0232aab6",
+        "content/.claude/skills/build/SKILL.md": "sha256:df3635dcae83e8282d3f757a01acd9c4f278bfd02ddeadf96dcab98ef7c3a3b2",
         "content/.claude/skills/denoise/SKILL.md": "sha256:93e083a1c46fb38ad63fd173e26c16a00a1532890f0c59c9369dc9a52cefc5bc",
         "content/.claude/skills/design/SKILL.md": "sha256:d2121ee8f9eee92d6227198291d6559fc18edf3f601a471b32441a6f6137a14d",
         "content/.claude/skills/plan/SKILL.md": "sha256:bc9b40f57111b734cd2c35d2eea38b7aaba837d0632f640dace0299845a7186c",
-        "content/.claude/skills/pmatch/SKILL.md": "sha256:642746cc3c6d0a2008f57a126d494f632c69304aa45a6f7d45c437e22e182c2b",
+        "content/.claude/skills/pmatch/SKILL.md": "sha256:d62e2f3f009cfcabee784a3defc5a7dd7fd39bda757fbf7480e77c6cbfed5383",
         "content/.claude/skills/qb/SKILL.md": "sha256:7617771561c70892415270701b0cbd0d44c91b7eaa3b28200835737a0f98ac88",
-        "content/.claude/skills/qd/SKILL.md": "sha256:ebc0273ab2ff234f9f9764411f94adffec0275a0f5f2452788b2a35c7bfd032b",
+        "content/.claude/skills/qd/SKILL.md": "sha256:ea38c803bedde87e4ab4f9ca65b295168755522756f46b1aa08c0d103b2f0e82",
         "content/.claude/skills/qf/SKILL.md": "sha256:cbe288e36ffc2aabb8daebf4b9f557fa230739c42e452496fd187159d77d53b0",
         "content/CLAUDE.md": "sha256:e047eaffd2cc175b99259497be5b0827375fca33d86483f65f864f2b734710ff",
         "content/QUICKSTART.md": "sha256:def8a47ac1b03f08742a3a32d57f9876c553f4a03768564eeeeb01874db3351e",
         "content/docker/litellm/.env.example": "sha256:222c04d404b30f064626aa4afd03df830bbc4324f3ff8709db361cf1d9a3eae7",
         "content/docker/litellm/config.yaml": "sha256:60c78d217b1aaf07d35c77c717ddb77596c352558a395ed6e32a68a38460aa42",
         "content/docker/litellm/docker-compose.yaml": "sha256:22f3974636f3b61619ffc41aacc19ddcfe91befa2c20da5b0357825bd0e86703",
-        "skillset.yaml": "sha256:a8549c885f259a78e000e589c9db6969e72e3cfb622ea126ca89d1c53cee47d6"
-      }
+        "skillset.yaml": "sha256:a1165790de44884c8a19ff51e9bf93001baaa7e1aa0f4ef1d813ca9ce6a10297"
+      },
+      "mcp_servers": [
+        {
+          "name": "litellm-proxy",
+          "type": "docker",
+          "image": "ghcr.io/berriai/litellm:main-latest",
+          "mcp_reputation": "ghcr: berriai/litellm, widely used LLM proxy, active maintenance, 20k+ GitHub stars",
+          "researched_at": "2026-02-05",
+          "servers": [
+            {
+              "name": "context7",
+              "command": "npx",
+              "args": [
+                "-y",
+                "@upstash/context7-mcp"
+              ],
+              "mcp_reputation": "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash",
+              "researched_at": "2026-02-05"
+            },
+            {
+              "name": "filesystem",
+              "command": "npx",
+              "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/project:ro"
+              ],
+              "mcp_reputation": "npm: @modelcontextprotocol/server-filesystem, official Anthropic MCP server",
+              "researched_at": "2026-02-05"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

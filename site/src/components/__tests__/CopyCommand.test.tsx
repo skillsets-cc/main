@@ -100,17 +100,24 @@ describe('CopyCommand', () => {
     consoleSpy.mockRestore();
   });
 
-  it('renders Install heading', () => {
-    render(<CopyCommand command="npx skillsets install test/skillset" />);
+  it('renders heading when provided', () => {
+    render(<CopyCommand command="npx skillsets install test/skillset" heading="Install" />);
 
     expect(screen.getByText('Install')).toBeDefined();
   });
 
-  it('renders link to CLI docs', () => {
-    render(<CopyCommand command="npx skillsets install test/skillset" />);
+  it('renders link to CLI docs when heading provided', () => {
+    render(<CopyCommand command="npx skillsets install test/skillset" heading="Install" />);
 
     const link = screen.getByText('More CLI commands');
     expect(link).toBeDefined();
     expect(link.getAttribute('href')).toBe('/cli');
+  });
+
+  it('renders inline mode without heading', () => {
+    render(<CopyCommand command="npx skillsets init" />);
+
+    expect(screen.getByText('npx skillsets init')).toBeDefined();
+    expect(screen.queryByText('Install')).toBeNull();
   });
 });

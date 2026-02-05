@@ -42,6 +42,23 @@ interface SkillsetYaml {
   };
   status?: 'active' | 'deprecated' | 'archived';
   entry_point?: string;
+  mcp_servers?: Array<{
+    name: string;
+    type: 'stdio' | 'http' | 'docker';
+    command?: string;
+    args?: string[];
+    url?: string;
+    image?: string;
+    servers?: Array<{
+      name: string;
+      command: string;
+      args?: string[];
+      mcp_reputation: string;
+      researched_at: string;
+    }>;
+    mcp_reputation: string;
+    researched_at: string;
+  }>;
 }
 
 interface SearchIndexEntry {
@@ -68,6 +85,7 @@ interface SearchIndexEntry {
   entry_point: string;
   checksum: string;
   files: Record<string, string>;
+  mcp_servers?: SkillsetYaml['mcp_servers'];
 }
 
 interface SearchIndex {
@@ -236,6 +254,7 @@ function buildSkillsetEntry(
     entry_point: manifest.entry_point || './content/CLAUDE.md',
     checksum,
     files,
+    mcp_servers: manifest.mcp_servers,
   };
 }
 

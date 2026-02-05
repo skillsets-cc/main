@@ -69,7 +69,7 @@ const statusColor = getStatusColor(skillset.status);
       <div class="flex items-start justify-between mb-6">
         <div>
           <h1 class="text-4xl font-bold font-serif mb-2 text-text-ink">{skillset.name}</h1>
-          <p class="text-text-secondary font-serif">
+          <p class="text-lg text-text-secondary font-serif">
             by <a href={authorUrl} class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
               {skillset.author.handle}
             </a>
@@ -122,7 +122,68 @@ const statusColor = getStatusColor(skillset.status);
         <article class="prose max-w-none" set:html={readmeHtml} />
       </section>
 
-      <CopyCommand client:load command={installCommand} />
+      <CopyCommand client:load command={installCommand} heading="Install" disclaimer="Submissions are reviewed on a best-effort basis with no security guarantees. You are the final quality gate, as with any OSS." />
+
+      {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
+        <section class="p-6 rounded-none">
+          <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">
+            MCP Servers
+          </h2>
+          <div class="space-y-4">
+            {skillset.mcp_servers.filter(s => s.type !== 'docker').length > 0 && (
+              <div>
+                <h3 class="font-bold font-serif text-text-ink mb-2">Claude Code Managed</h3>
+                {skillset.mcp_servers.filter(s => s.type !== 'docker').map(server => (
+                  <div class="flex items-start gap-4 mb-3">
+                    <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
+                    <div>
+                      <p class="font-bold font-serif text-text-ink mb-1">
+                        {server.name}
+                        <span class="text-text-tertiary font-normal"> ({server.type})</span>
+                      </p>
+                      {server.command && (
+                        <p class="text-sm text-text-secondary font-mono leading-relaxed">
+                          {server.command} {(server.args || []).join(' ')}
+                        </p>
+                      )}
+                      {server.url && (
+                        <p class="text-sm text-text-secondary font-mono leading-relaxed">{server.url}</p>
+                      )}
+                      <p class="text-lg text-text-secondary font-serif mt-1 leading-relaxed">
+                        {server.mcp_reputation} <span class="italic">(as of {server.researched_at})</span>
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {skillset.mcp_servers.filter(s => s.type === 'docker').length > 0 && (
+              <div>
+                <h3 class="font-bold font-serif text-text-ink mb-2">Docker Hosted</h3>
+                {skillset.mcp_servers.filter(s => s.type === 'docker').map(server => (
+                  <div class="flex items-start gap-4 mb-3">
+                    <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
+                    <div>
+                      <p class="font-bold font-mono text-text-ink mb-1">{server.image}</p>
+                      <p class="text-lg text-text-secondary font-serif leading-relaxed">
+                        {server.mcp_reputation} <span class="italic">(as of {server.researched_at})</span>
+                      </p>
+                      {server.servers && server.servers.length > 0 && (
+                        <p class="text-lg text-text-secondary font-serif mt-1 leading-relaxed">
+                          Runs: {server.servers.map(s => s.name).join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <p class="text-lg text-text-tertiary mt-4 font-serif italic">
+            MCP packages are fetched at runtime and may have changed since audit.
+          </p>
+        </section>
+      )}
 
       <section class="border border-border-ink bg-stone-50 p-6 rounded-none">
         <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Compatibility</h2>

@@ -8,7 +8,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
   <main class="max-w-4xl mx-auto px-4 py-12">
     <header class="mb-8 border-b border-border-ink pb-6">
       <h1 class="text-4xl font-medium font-serif text-text-ink">CLI Reference</h1>
-      <p class="mt-2 text-text-secondary font-serif">
+      <p class="mt-2 text-lg text-text-secondary font-serif">
         The terminal-native way to work with skillsets.
       </p>
     </header>
@@ -39,7 +39,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <div class="space-y-6">
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">list</h3>
-            <p class="text-text-secondary font-serif mb-3">Browse all available skillsets in the registry.</p>
+            <p class="text-lg text-text-secondary font-serif mb-3">Browse all available skillsets in the registry.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
               <div><code>npx skillsets list</code></div>
               <div><code>npx skillsets list --sort stars</code></div>
@@ -49,7 +49,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">search</h3>
-            <p class="text-text-secondary font-serif mb-3">Fuzzy search by name, description, or tags.</p>
+            <p class="text-lg text-text-secondary font-serif mb-3">Fuzzy search by name, description, or tags.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
               <div><code>npx skillsets search "adversarial review"</code></div>
               <div><code>npx skillsets search "sdlc" --tags multi-agent</code></div>
@@ -65,7 +65,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <div class="space-y-6">
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">install</h3>
-            <p class="text-text-secondary font-serif mb-3">Install a skillset to the current directory. Verifies checksums automatically. No .git folders, no bloat.</p>
+            <p class="text-lg text-text-secondary font-serif mb-3">Install a skillset to the current directory. Verifies checksums automatically. No .git folders, no bloat.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
               <div><code>npx skillsets install @supercollectible/The_Skillset</code></div>
               <div><code>npx skillsets install @user/name --force</code> <span class="text-text-tertiary"># overwrite existing</span></div>
@@ -79,13 +79,13 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <!-- Contribution Commands -->
       <section>
         <h2 class="text-2xl font-bold text-text-ink mb-4 font-serif">Contribution</h2>
-        <p class="text-text-secondary font-serif mb-4">
+        <p class="text-lg text-text-secondary font-serif mb-4">
           Commands for skillset authors. See <a href="/contribute" class="text-orange-500 hover:underline">Contribute</a> for the full workflow.
         </p>
         <div class="space-y-6">
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">init</h3>
-            <p class="text-text-secondary font-serif mb-3">Scaffold a new skillset submission with the required structure.</p>
+            <p class="text-lg text-text-secondary font-serif mb-3">Scaffold a new skillset submission with the required structure.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm">
               <code>npx skillsets init</code>
             </div>
@@ -93,7 +93,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">audit</h3>
-            <p class="text-text-secondary font-serif mb-3">Validate your skillset before submission. Generates AUDIT_REPORT.md.</p>
+            <p class="text-lg text-text-secondary font-serif mb-3">Validate your skillset before submission. Generates AUDIT_REPORT.md.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm">
               <code>npx skillsets audit</code>
             </div>
@@ -101,7 +101,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">submit</h3>
-            <p class="text-text-secondary font-serif mb-3">Open a PR to the registry. Requires <code class="bg-white border border-border-ink px-1">gh</code> CLI.</p>
+            <p class="text-lg text-text-secondary font-serif mb-3">Open a PR to the registry. Requires <code class="bg-white border border-border-ink px-1">gh</code> CLI.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm">
               <code>npx skillsets submit</code>
             </div>
@@ -111,7 +111,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
       <!-- Source -->
       <section class="pt-4 border-t border-border-ink">
-        <p class="text-text-secondary text-sm font-serif">
+        <p class="text-text-secondary text-lg font-serif">
           Source: <a href="https://github.com/skillsets-cc/main/tree/main/cli" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">github.com/skillsets-cc/main/cli</a>
         </p>
       </section>

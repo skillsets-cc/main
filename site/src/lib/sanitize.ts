@@ -3,7 +3,7 @@ import { FilterXSS } from 'xss';
 // Whitelist for markdown-generated HTML
 const filter = new FilterXSS({
   whiteList: {
-    h1: [], h2: [], h3: [], h4: [], h5: [], h6: [],
+    h1: ['id'], h2: ['id'], h3: ['id'], h4: ['id'], h5: ['id'], h6: ['id'],
     p: [], br: [], hr: [],
     ul: [], ol: [], li: [],
     a: ['href', 'title', 'target', 'rel'],

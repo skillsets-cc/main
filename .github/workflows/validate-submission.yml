@@ -14,9 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install ajv-cli for JSON Schema validation
-        run: npm install -g ajv-cli ajv-formats
-
       - name: Install yq for YAML parsing
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
@@ -40,196 +37,24 @@ jobs:
             echo "dirs=$DIRS_SPACED" >> $GITHUB_OUTPUT
           fi
 
-      - name: Validate skillset.yaml against schema
+      - name: Setup Node.js
+        if: steps.changed.outputs.dirs != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run skillsets audit
         if: steps.changed.outputs.dirs != ''
         run: |
           EXIT_CODE=0
           for dir in ${{ steps.changed.outputs.dirs }}; do
             echo "=========================================="
-            echo "Validating $dir/skillset.yaml"
+            echo "Running audit on $dir"
             echo "=========================================="
 
-            if [ ! -f "$dir/skillset.yaml" ]; then
-              echo "❌ ERROR: Missing skillset.yaml in $dir"
-              EXIT_CODE=1
-              continue
-            fi
-
-            # Convert YAML to JSON for ajv validation
-            yq eval -o=json "$dir/skillset.yaml" > /tmp/skillset.json
-
-            # Validate against schema
-            if ajv validate -s schema/skillset.schema.json -d /tmp/skillset.json --spec=draft2020 -c ajv-formats; then
-              echo "✅ Schema validation passed for $dir"
-            else
-              echo "❌ Schema validation failed for $dir"
-              EXIT_CODE=1
-            fi
-          done
-
-          exit $EXIT_CODE
-
-      - name: Check required files exist
-        if: steps.changed.outputs.dirs != ''
-        run: |
-          EXIT_CODE=0
-          for dir in ${{ steps.changed.outputs.dirs }}; do
-            echo "=========================================="
-            echo "Checking required files in $dir"
-            echo "=========================================="
-
-            # Check README.md
-            if [ ! -f "$dir/README.md" ]; then
-              echo "❌ ERROR: Missing README.md in $dir"
-              EXIT_CODE=1
-            else
-              echo "✅ README.md exists"
-            fi
-
-            # Check AUDIT_REPORT.md
-            if [ ! -f "$dir/AUDIT_REPORT.md" ]; then
-              echo "❌ ERROR: Missing AUDIT_REPORT.md in $dir"
-              EXIT_CODE=1
-            else
-              echo "✅ AUDIT_REPORT.md exists"
-            fi
-
-            # Check content/ directory
-            if [ ! -d "$dir/content" ]; then
-              echo "❌ ERROR: Missing content/ directory in $dir"
-              EXIT_CODE=1
-            else
-              echo "✅ content/ directory exists"
-            fi
-          done
-
-          exit $EXIT_CODE
-
-      - name: Verify content structure
-        if: steps.changed.outputs.dirs != ''
-        run: |
-          EXIT_CODE=0
-          for dir in ${{ steps.changed.outputs.dirs }}; do
-            echo "=========================================="
-            echo "Verifying content structure in $dir"
-            echo "=========================================="
-
-            if [ ! -d "$dir/content" ]; then
-              # Already caught in previous step
-              continue
-            fi
-
-            # Must contain either .claude/ directory or CLAUDE.md file
-            if [ ! -d "$dir/content/.claude" ] && [ ! -f "$dir/content/CLAUDE.md" ]; then
-              echo "❌ ERROR: $dir/content/ must contain either .claude/ directory or CLAUDE.md file"
-              EXIT_CODE=1
-            else
-              if [ -d "$dir/content/.claude" ]; then
-                echo "✅ Found .claude/ directory"
-              fi
-              if [ -f "$dir/content/CLAUDE.md" ]; then
-                echo "✅ Found CLAUDE.md file"
-              fi
-            fi
-          done
-
-          exit $EXIT_CODE
-
-      - name: Validate file sizes and types
-        if: steps.changed.outputs.dirs != ''
-        run: |
-          EXIT_CODE=0
-          for dir in ${{ steps.changed.outputs.dirs }}; do
-            echo "=========================================="
-            echo "Checking file sizes and types in $dir"
-            echo "=========================================="
-
-            # Check for files larger than 1MB
-            LARGE_FILES=$(find "$dir" -type f -size +1M 2>/dev/null || true)
-            if [ -n "$LARGE_FILES" ]; then
-              echo "❌ ERROR: Files larger than 1MB found in $dir:"
-              echo "$LARGE_FILES"
-              EXIT_CODE=1
-            else
-              echo "✅ No files exceed 1MB limit"
-            fi
-
-            # Detect binary files (excluding common text file extensions)
-            if [ -d "$dir/content" ]; then
-              BINARIES=$(find "$dir/content" -type f \
-                ! -name "*.md" \
-                ! -name "*.txt" \
-                ! -name "*.json" \
-                ! -name "*.yaml" \
-                ! -name "*.yml" \
-                ! -name "*.js" \
-                ! -name "*.ts" \
-                ! -name "*.tsx" \
-                ! -name "*.jsx" \
-                ! -name "*.py" \
-                ! -name "*.sh" \
-                ! -name "*.toml" \
-                ! -name "*.xml" \
-                ! -name "*.html" \
-                ! -name "*.css" \
-                ! -name "*.env.example" \
-                ! -name ".gitignore" \
-                ! -name ".gitkeep" \
-                ! -name "LICENSE" \
-                ! -name "Makefile" \
-                -exec file {} \; 2>/dev/null | grep -v "text" | grep -v "empty" | grep -v "ASCII" || true)
-
-              if [ -n "$BINARIES" ]; then
-                echo "⚠️  WARNING: Binary files detected in $dir/content:"
-                echo "$BINARIES"
-                echo ""
-                echo "Binary files are discouraged. If necessary, please justify in PR description."
-                # This is a warning, not an error
-              else
-                echo "✅ No binary files detected"
-              fi
-            fi
-          done
-
-          exit $EXIT_CODE
-
-      - name: Scan for potential secrets
-        if: steps.changed.outputs.dirs != ''
-        run: |
-          EXIT_CODE=0
-          for dir in ${{ steps.changed.outputs.dirs }}; do
-            echo "=========================================="
-            echo "Scanning for potential secrets in $dir"
-            echo "=========================================="
-
-            # Look for common secret patterns
-            # Pattern matches: api_key, api-key, apikey, password, secret, token, bearer, authorization
-            # followed by = or : and then 20+ alphanumeric characters
-            SECRETS=$(grep -r -i -E "(api[_-]?key|password|secret|token|bearer|authorization|client[_-]?secret|private[_-]?key)['\"]?\s*[:=]\s*['\"]?[a-zA-Z0-9_\-]{20,}" "$dir" \
-              --include="*.md" \
-              --include="*.txt" \
-              --include="*.json" \
-              --include="*.yaml" \
-              --include="*.yml" \
-              --include="*.js" \
-              --include="*.ts" \
-              --include="*.py" \
-              --include="*.sh" \
-              --exclude="*test*" \
-              --exclude="*example*" \
-              --exclude="*template*" \
-              2>/dev/null || true)
-
-            if [ -n "$SECRETS" ]; then
-              echo "❌ ERROR: Potential secrets detected in $dir"
-              echo "$SECRETS"
-              echo ""
-              echo "Please remove all API keys, tokens, passwords, and secrets before submitting."
-              echo "Use placeholder values (e.g., 'your_api_key_here') or environment variables."
-              EXIT_CODE=1
-            else
-              echo "✅ No secret patterns detected"
-            fi
+            cd "$dir"
+            npx skillsets@latest audit --check || EXIT_CODE=1
+            cd "$GITHUB_WORKSPACE"
           done
 
           exit $EXIT_CODE
@@ -244,7 +69,8 @@ jobs:
             echo "=========================================="
 
             if [ ! -f "$dir/skillset.yaml" ]; then
-              # Already caught in earlier step
+              echo "❌ ERROR: Missing skillset.yaml in $dir"
+              EXIT_CODE=1
               continue
             fi
 

@@ -4,6 +4,7 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync, openSyn
 import { join, relative } from 'path';
 import yaml from 'js-yaml';
 import { fetchSkillsetMetadata } from '../lib/api.js';
+import { validateMcpServers } from '../lib/validate-mcp.js';
 
 interface AuditResult {
   status: 'PASS' | 'FAIL' | 'WARNING';
@@ -20,6 +21,7 @@ interface AuditResults {
   secrets: AuditResult;
   versionCheck: AuditResult;
   readmeLinks: AuditResult;
+  mcpServers: AuditResult;
   skillsetName?: string;
   skillsetVersion?: string;
   authorHandle?: string;
@@ -206,7 +208,7 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function generateReport(results: AuditResults, cwd: string): string {
+function generateReport(results: AuditResults, cwd: string, enforceMcp: boolean = false): string {
   const timestamp = new Date().toISOString();
   const allPassed = results.manifest.status === 'PASS' &&
     results.requiredFiles.status === 'PASS' &&
@@ -214,7 +216,8 @@ function generateReport(results: AuditResults, cwd: string): string {
     results.fileSize.status !== 'FAIL' &&
     results.secrets.status === 'PASS' &&
     results.readmeLinks.status === 'PASS' &&
-    results.versionCheck.status === 'PASS';
+    results.versionCheck.status === 'PASS' &&
+    (enforceMcp ? results.mcpServers.status === 'PASS' : true);
 
   const submissionType = results.isUpdate
     ? `Update (${results.existingVersion} → ${results.skillsetVersion})`
@@ -247,6 +250,7 @@ function generateReport(results: AuditResults, cwd: string): string {
 | Secret Detection | ${statusIcon(results.secrets.status)} | ${results.secrets.details} |
 | README Links | ${statusIcon(results.readmeLinks.status)} | ${results.readmeLinks.details} |
 | Version Check | ${statusIcon(results.versionCheck.status)} | ${results.versionCheck.details} |
+| MCP Servers | ${statusIcon(results.mcpServers.status)} | ${results.mcpServers.details} |
 
 ---
 
@@ -291,6 +295,10 @@ ${results.readmeLinks.findings || 'All links use valid GitHub URLs.'}
 
 ${results.relativeLinks.length > 0 ? '**Relative Links Found:**\n' + results.relativeLinks.map(l => `- Line ${l.line}: ${l.link}`).join('\n') : ''}
 
+### 8. MCP Server Validation
+
+${results.mcpServers.findings || 'MCP server declarations are consistent between content and manifest.'}
+
 ---
 
 ## File Inventory
@@ -331,7 +339,11 @@ ${allPassed
   return report;
 }
 
-export async function audit(): Promise<void> {
+interface AuditOptions {
+  check?: boolean;
+}
+
+export async function audit(options: AuditOptions = {}): Promise<void> {
   const spinner = ora('Auditing skillset...').start();
   const cwd = process.cwd();
 
@@ -344,6 +356,7 @@ export async function audit(): Promise<void> {
     secrets: { status: 'PASS', details: '' },
     versionCheck: { status: 'PASS', details: '' },
     readmeLinks: { status: 'PASS', details: '' },
+    mcpServers: { status: 'PASS', details: '' },
     isUpdate: false,
     files: [],
     largeFiles: [],
@@ -506,12 +519,34 @@ export async function audit(): Promise<void> {
     results.versionCheck = { status: 'PASS', details: 'Skipped (no manifest)' };
   }
 
+  // 9. MCP server validation
+  spinner.text = 'Validating MCP servers...';
+  const mcpResult = validateMcpServers(cwd);
+  if (mcpResult.valid) {
+    results.mcpServers = { status: 'PASS', details: 'MCP declarations valid' };
+  } else if (options.check) {
+    results.mcpServers = {
+      status: 'FAIL',
+      details: `${mcpResult.errors.length} MCP error(s)`,
+      findings: mcpResult.errors.map(e => `- ${e}`).join('\n'),
+    };
+  } else {
+    results.mcpServers = {
+      status: 'WARNING',
+      details: 'Pending qualitative review',
+      findings: 'MCP servers detected in content. The `/audit-skill` will populate `skillset.yaml` and CI will re-validate.\n\n' +
+        mcpResult.errors.map(e => `- ${e}`).join('\n'),
+    };
+  }
+
   // Generate report
   spinner.text = 'Generating audit report...';
-  const report = generateReport(results, cwd);
-  writeFileSync(join(cwd, 'AUDIT_REPORT.md'), report);
+  const report = generateReport(results, cwd, options.check);
+  if (!options.check) {
+    writeFileSync(join(cwd, 'AUDIT_REPORT.md'), report);
+  }
 
-  spinner.succeed('Audit complete');
+  spinner.succeed(options.check ? 'Validation complete' : 'Audit complete');
 
   // Summary
   const allPassed = results.manifest.status === 'PASS' &&
@@ -520,7 +555,8 @@ export async function audit(): Promise<void> {
     results.fileSize.status !== 'FAIL' &&
     results.secrets.status === 'PASS' &&
     results.readmeLinks.status === 'PASS' &&
-    results.versionCheck.status === 'PASS';
+    results.versionCheck.status === 'PASS' &&
+    (options.check ? results.mcpServers.status === 'PASS' : true);
 
   console.log('\n' + chalk.bold('Audit Summary:'));
   console.log('');
@@ -539,16 +575,24 @@ export async function audit(): Promise<void> {
   console.log(`  ${icon(results.secrets.status)} Secrets: ${results.secrets.details}`);
   console.log(`  ${icon(results.readmeLinks.status)} README Links: ${results.readmeLinks.details}`);
   console.log(`  ${icon(results.versionCheck.status)} Version: ${results.versionCheck.details}`);
+  console.log(`  ${icon(results.mcpServers.status)} MCP Servers: ${results.mcpServers.details}`);
 
   console.log('');
 
   if (allPassed) {
     console.log(chalk.green('✓ READY FOR SUBMISSION'));
-    console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
-    console.log(chalk.cyan('\nNext: npx skillsets submit'));
+    if (!options.check) {
+      console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
+      console.log(chalk.cyan('\nNext: npx skillsets submit'));
+    }
   } else {
     console.log(chalk.red('✗ NOT READY - Fix issues above'));
-    console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
-    console.log(chalk.cyan('\nRe-run after fixes: npx skillsets audit'));
+    if (!options.check) {
+      console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
+      console.log(chalk.cyan('\nRe-run after fixes: npx skillsets audit'));
+    }
+    if (options.check) {
+      process.exit(1);
+    }
   }
 }

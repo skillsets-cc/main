@@ -8,7 +8,7 @@ Skillsets.cc is a curated registry of **production-verified** Claude Code workfl
 # 1. Initialize (scaffolds structure + installs audit skill)
 npx skillsets init
 
-# 2. Edit PROOF.md with production evidence
+# 2. Develop skillset in /content. Edit PROOF.md with production evidence
 
 # 3. Tier 1: Structural validation
 npx skillsets audit
@@ -19,8 +19,6 @@ npx skillsets audit
 # 5. Submit PR to registry (requires gh CLI)
 npx skillsets submit
 ```
-
-See [skillsets.cc/contribute](https://skillsets.cc/contribute) for detailed instructions.
 
 ## Generated Structure
 
@@ -34,6 +32,7 @@ your-skillset/
 │   └── audit-skill/    # Qualitative review skill
 └── content/               # Files to install
     ├── .claude/           # Claude Code primitives
+    ├── .mcp.json          # MCP servers (if any)
     └── CLAUDE.md          # Project instructions
 ```
 
@@ -64,6 +63,17 @@ compatibility:
 
 status: "active"                  # active | deprecated | archived
 entry_point: "./content/CLAUDE.md"
+
+# Optional: MCP servers (populated by /audit-skill if your skillset uses them)
+# You don't need to write this manually — the qualitative review discovers
+# MCP servers in your content, researches their reputation, and adds this section.
+mcp_servers:
+  - name: "context7"
+    type: stdio                    # stdio | http | docker
+    command: "npx"
+    args: ["-y", "@upstash/context7-mcp"]
+    mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"
+    researched_at: "2026-02-04"    # Date reputation was verified
 ```
 
 ## README Link Format
@@ -109,8 +119,8 @@ Update `status` in `skillset.yaml`:
 
 ## Review Process
 
-1. **Automated CI**: Schema validation, file checks, secrets scan
-2. **Maintainer Review**: Production proof quality, documentation clarity, overall value
+1. **Automated CI**: Runs `npx skillsets audit --check` to re-validate the full structural audit (schema, files, content, secrets, MCP consistency) and verifies the PR author matches the skillset author
+2. **Maintainer Review**: Production proof quality, documentation clarity, MCP server justification, overall value
 
 ## Help
 
