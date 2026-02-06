@@ -1,6 +1,5 @@
-import { useState, useMemo, useEffect, type ReactElement } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 import type { SearchIndexEntry } from '@/types';
-import SearchBar from './SearchBar.js';
 import TagFilter from './TagFilter.js';
 
 interface SkillsetGridProps {
@@ -18,8 +17,6 @@ function StarIcon(): ReactElement {
 export default function SkillsetGrid({
   skillsets,
 }: SkillsetGridProps): ReactElement {
-  const [searchResults, setSearchResults] =
-    useState<SearchIndexEntry[]>(skillsets);
   const [tagResults, setTagResults] = useState<SearchIndexEntry[]>(skillsets);
   const [liveStars, setLiveStars] = useState<Record<string, number>>({});
 
@@ -39,19 +36,10 @@ export default function SkillsetGrid({
     fetchStars();
   }, [skillsets]);
 
-  const tagResultIds = useMemo(
-    () => new Set(tagResults.map((s) => s.id)),
-    [tagResults]
-  );
-
-  const finalResults = useMemo(
-    () => searchResults.filter((s) => tagResultIds.has(s.id)),
-    [searchResults, tagResultIds]
-  );
+  const finalResults = tagResults;
 
   return (
     <div>
-      <SearchBar skillsets={skillsets} onResultsChange={setSearchResults} />
       <TagFilter skillsets={skillsets} onResultsChange={setTagResults} />
 
       <div className="flex flex-col border-t border-border-ink">

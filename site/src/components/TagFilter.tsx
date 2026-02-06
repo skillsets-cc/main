@@ -32,7 +32,7 @@ export default function TagFilter({
   }, [filteredResults, onResultsChange]);
 
   const baseButtonStyles =
-    'px-3 py-1 text-sm rounded-full transition-colors';
+    'px-3 py-1 text-sm rounded-none transition-colors';
   const activeStyles = 'bg-orange-500 text-white';
   const inactiveStyles =
     'bg-stone-50 border border-border-ink text-text-secondary hover:border-orange-500';
