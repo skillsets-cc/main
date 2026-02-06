@@ -115,6 +115,12 @@ Output: [Destination] → [Format, validation]
               return False
           # ... rest of implementation
   ```
+- **Test Cases** (file: `backend/app/managers/tests_managers/test_connection_manager.py`):
+  - `test_connection_limit_per_ip`: Connect 3 clients from same IP → 4th rejected with 1008
+  - `test_total_connection_limit`: Fill to MAX_TOTAL_CONNECTIONS → next connection rejected
+  - `test_memory_threshold_cleanup`: Mock memory at 86% → triggers eviction of oldest connection
+  - `test_concurrent_accept`: 10 simultaneous `can_accept()` calls → no race condition, count consistent
+  - Setup: pytest-asyncio, mock WebSocket fixtures, `ConnectionManager(max_per_ip=3, max_total=500)`
 
 #### Task 2: **[Next Task Name]** (Module: `frontend/src/[exact/path]/`)
 

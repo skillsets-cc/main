@@ -54,7 +54,8 @@ Each agent section follows the template:
    - Exact file paths
    - Dependencies between tasks
    - Code examples showing the pattern
-4. **Testing Strategy** - Unit tests, integration tests, performance targets
+   - **Test cases** — named tests with setup, assertion, and file path. The builder implements them, not invents them.
+4. **Testing Strategy** - Framework, structure, coverage targets (per-task test cases go in the task breakdown, not here)
 5. **Risk Mitigation** - 3-5 risks with probability, impact, mitigation, fallback, detection
 6. **Success Criteria** - Functional and non-functional requirements
 7. **Implementation Notes** - Gotchas, helpful commands, critical configuration
@@ -73,6 +74,7 @@ Before finalizing, ensure:
 
 ### Completeness
 - [ ] Every task has acceptance criteria
+- [ ] Every task has named test cases with setup and assertions (not just "tests written")
 - [ ] All file paths are exact (no ambiguity)
 - [ ] Dependencies between tasks are explicit
 - [ ] Test requirements specified (framework, structure)
@@ -115,16 +117,22 @@ GOOD: "Implement WebSocket endpoint at /ws/voice with:
 ### ❌ Missing Test Details
 ```markdown
 BAD: "Write tests for connection manager"
+BAD: "Tests written and passing" (as acceptance criterion without specifying which tests)
 ```
 
-### ✅ Test Requirements Clear
+### ✅ Test Cases Defined at Plan Time
 ```markdown
-GOOD: "Write tests in test_connection_manager.py:
-- test_connection_limit_per_ip: Verify 3 connection limit
-- test_memory_monitoring: Check 85% threshold triggers cleanup
-- test_lru_eviction: Verify oldest connections dropped first
-Using pytest-asyncio with mock WebSocket fixtures"
+GOOD:
+- **Test File**: `tests_managers/test_connection_manager.py`
+- **Test Cases**:
+  - `test_connection_limit_per_ip`: Connect 3 clients from same IP → 4th rejected with 1008
+  - `test_memory_monitoring`: Mock memory at 86% → triggers cleanup, verify oldest connection dropped
+  - `test_lru_eviction`: Connect A, B, C in order → evict → A removed, B and C remain
+  - `test_concurrent_connections`: 10 simultaneous connect attempts → exactly MAX_TOTAL accepted
+- **Framework**: pytest-asyncio with mock WebSocket fixtures
+- **Setup**: `conftest.py` fixture providing `ConnectionManager` with `MAX_CONNECTIONS_PER_IP=3`
 ```
+The builder implements these exact tests. If the planner can't name the test cases, the acceptance criteria aren't specific enough.
 
 ### ❌ Ambiguous Paths
 ```markdown

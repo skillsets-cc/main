@@ -40,16 +40,24 @@ cd frontend && npm test
 3. **Style Guides** - [Frontend](../resources/frontend_styleguide.md) / [Backend](../resources/backend_styleguide.md)
 
 
-### Step 2: Create Your Todo List
-Transform the execution plan tasks into todos:
+### Step 2: Create Your Task List
+Transform the execution plan tasks into tracked tasks. Create one task per execution plan item — each task gets its own ID for dependency tracking and progress visibility:
 ```typescript
-TodoWrite({
-  todos: [
-    { content: "Set up project structure and dependencies", status: "pending", activeForm: "Setting up project structure" },
-    { content: "Configure Redis memory-only", status: "pending", activeForm: "Configuring Redis memory-only" },
-    // ... etc
-  ]
+TaskCreate({
+  subject: "Set up project structure and dependencies",
+  description: "See execution doc Task 1.1 — initialize project with folder hierarchy and config",
+  activeForm: "Setting up project structure"
 })
+TaskCreate({
+  subject: "Configure Redis memory-only",
+  description: "See execution doc Task 1.2 — Redis config with no persistence, connection pooling",
+  activeForm: "Configuring Redis memory-only"
+})
+// ... one TaskCreate per execution plan task
+```
+After creating all tasks, set up dependency ordering where tasks must run sequentially:
+```typescript
+TaskUpdate({ taskId: "2", addBlockedBy: ["1"] })  // Task 2 waits for Task 1
 ```
 
 ## Implementation Workflow
@@ -58,7 +66,7 @@ TodoWrite({
 
 #### 1. Mark Task In Progress
 ```typescript
-TodoWrite: Update task status to "in_progress" (only one task in_progress at a time)
+TaskUpdate({ taskId: "<id>", status: "in_progress" })  // only one task in_progress at a time
 ```
 
 #### 2. Implement Following Execution Document
@@ -92,7 +100,7 @@ npm run test [your_test]
 
 #### 6. Mark Task Complete
 ```typescript
-TodoWrite: Update task to "completed"
+TaskUpdate({ taskId: "<id>", status: "completed" })
 ```
 
 ## Quality Gates Before Marking Complete
@@ -114,7 +122,7 @@ TodoWrite: Update task to "completed"
 ## Success Metrics
 
 You're successful when:
-1. ✅ All todos marked complete
+1. ✅ All tasks marked complete (verify with TaskList)
 2. ✅ All tests passing
 3. ✅ No linting errors
 4. ✅ Execution plan's success criteria met
