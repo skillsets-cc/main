@@ -44,9 +44,9 @@ describe('GhostCard', () => {
         isOwn={false}
       />
     );
-    expect(screen.getByText('Claimed')).toBeDefined();
+    expect(screen.getByText(/Claimed by/)).toBeDefined();
     expect(screen.queryByText('Cancel')).toBeNull();
-    const article = screen.getByText('Claimed').closest('article');
+    const article = screen.getByText(/Claimed by/).closest('article');
     expect(article?.className).toContain('border-orange-500/30');
   });
 

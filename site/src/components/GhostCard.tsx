@@ -88,7 +88,9 @@ export default function GhostCard({
     >
       <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
         {status === 'reserved' ? (
-          <span className="text-text-tertiary font-mono text-sm">Claimed</span>
+          <span className="text-text-tertiary font-mono text-sm flex items-center gap-2">
+            Claimed by <span className={`${placeholderColor} inline-block h-3 w-28 rounded-none`} />
+          </span>
         ) : (
           <div className={`${placeholderColor} rounded-none h-4 w-48`} />
         )}
