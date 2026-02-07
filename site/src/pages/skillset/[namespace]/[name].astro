@@ -118,49 +118,32 @@ const statusColor = getStatusColor(skillset.status);
         contextImageUrl={skillset.context_image_url}
       />
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
-          <h2 class="text-sm font-bold font-mono mb-3 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Install</h2>
-          <CopyCommand client:load command={installCommand} />
-          <p class="mt-2 text-xs text-text-tertiary font-mono">
-            <a href="/cli" class="text-orange-500 hover:underline">More CLI commands</a> — search, list
-          </p>
-          <p class="mt-1 text-xs text-text-tertiary font-serif italic">
-            Reviewed on a best-effort basis with no security guarantees. You are the final quality gate, as with any OSS.
-          </p>
-        </section>
-
-        <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
-          <h2 class="text-sm font-bold font-mono mb-3 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Compatibility</h2>
-          <dl class="space-y-2">
-            <div>
-              <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary mb-0.5">Claude Code Version</dt>
-              <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.claude_code_version}</dd>
-            </div>
-            <div>
-              <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary mb-0.5">Languages</dt>
-              <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.languages.join(', ')}</dd>
-            </div>
-          </dl>
-        </section>
-      </div>
+      <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
+        <div class="flex gap-6">
+          <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap pt-2">Install</h2>
+          <div class="flex-1 min-w-0">
+            <CopyCommand client:load command={installCommand} />
+            <p class="mt-1.5 text-sm text-text-tertiary font-serif italic">
+              Reviewed best-effort with no security guarantees. You are the final quality gate, as with any OSS.
+              <a href="/cli" class="text-orange-500 hover:underline font-mono not-italic text-xs ml-2">More CLI commands</a>
+            </p>
+          </div>
+        </div>
+      </section>
 
       {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
         <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
-          <h2 class="text-sm font-bold font-mono mb-3 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">
-            MCP Servers
-          </h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-            {skillset.mcp_servers.filter(s => s.type !== 'docker').length > 0 && (
-              <div>
-                <h3 class="font-bold font-serif text-text-ink text-sm mb-1">Claude Code Managed</h3>
+          <div class="flex gap-6">
+            <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">MCP Servers</h2>
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap gap-x-8 gap-y-2">
                 {skillset.mcp_servers.filter(s => s.type !== 'docker').map(server => (
-                  <div class="flex items-start gap-3 mb-2">
+                  <div class="flex items-start gap-2">
                     <div class="w-1 self-stretch bg-orange-500 flex-shrink-0"></div>
                     <div>
                       <p class="font-bold font-serif text-sm text-text-ink">
                         {server.name}
-                        <span class="text-text-tertiary font-normal"> ({server.type})</span>
+                        <span class="text-text-tertiary font-normal text-xs"> ({server.type})</span>
                       </p>
                       {server.command && (
                         <p class="text-xs text-text-secondary font-mono">
@@ -170,19 +153,14 @@ const statusColor = getStatusColor(skillset.status);
                       {server.url && (
                         <p class="text-xs text-text-secondary font-mono">{server.url}</p>
                       )}
-                      <p class="text-xs text-text-secondary font-serif mt-0.5">
+                      <p class="text-xs text-text-secondary font-serif">
                         {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
                       </p>
                     </div>
                   </div>
                 ))}
-              </div>
-            )}
-            {skillset.mcp_servers.filter(s => s.type === 'docker').length > 0 && (
-              <div>
-                <h3 class="font-bold font-serif text-text-ink text-sm mb-1">Docker Hosted</h3>
                 {skillset.mcp_servers.filter(s => s.type === 'docker').map(server => (
-                  <div class="flex items-start gap-3 mb-2">
+                  <div class="flex items-start gap-2">
                     <div class="w-1 self-stretch bg-orange-500 flex-shrink-0"></div>
                     <div>
                       <p class="font-bold font-mono text-sm text-text-ink">{server.image}</p>
@@ -190,7 +168,7 @@ const statusColor = getStatusColor(skillset.status);
                         {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
                       </p>
                       {server.servers && server.servers.length > 0 && (
-                        <p class="text-xs text-text-secondary font-serif mt-0.5">
+                        <p class="text-xs text-text-secondary font-serif">
                           Runs: {server.servers.map(s => s.name).join(', ')}
                         </p>
                       )}
@@ -198,13 +176,29 @@ const statusColor = getStatusColor(skillset.status);
                   </div>
                 ))}
               </div>
-            )}
+              <p class="text-xs text-text-tertiary mt-2 font-serif italic">
+                Packages fetched at runtime and may have changed since audit.
+              </p>
+            </div>
           </div>
-          <p class="text-xs text-text-tertiary mt-2 font-serif italic">
-            MCP packages are fetched at runtime and may have changed since audit.
-          </p>
         </section>
       )}
+
+      <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
+        <div class="flex gap-6">
+          <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">Compatibility</h2>
+          <div class="flex-1 min-w-0 flex flex-wrap gap-x-8 gap-y-1">
+            <div>
+              <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary">Claude Code Version</dt>
+              <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.claude_code_version}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary">Languages</dt>
+              <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.languages.join(', ')}</dd>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section class="p-6 rounded-none">
         <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
