@@ -198,6 +198,9 @@ export async function init(options: InitOptions): Promise<void> {
   if (existsSync(join(cwd, 'CLAUDE.md'))) {
     detectedFiles.push('CLAUDE.md');
   }
+  if (existsSync(join(cwd, 'README.md'))) {
+    detectedFiles.push('README.md');
+  }
 
   let filesToCopy: string[] = [];
   if (detectedFiles.length > 0) {
@@ -243,14 +246,14 @@ export async function init(options: InitOptions): Promise<void> {
 
     writeFileSync(join(cwd, 'skillset.yaml'), skillsetYaml);
 
-    // Generate README.md (if not copying existing)
-    if (!existsSync(join(cwd, 'README.md'))) {
+    // Generate content/README.md (if not copying existing)
+    if (!existsSync(join(cwd, 'content', 'README.md'))) {
       const readme = README_TEMPLATE
         .replace(/\{\{NAME\}\}/g, name)
         .replace(/\{\{DESCRIPTION\}\}/g, description)
         .replace(/\{\{AUTHOR_HANDLE\}\}/g, authorHandle);
 
-      writeFileSync(join(cwd, 'README.md'), readme);
+      writeFileSync(join(cwd, 'content', 'README.md'), readme);
     }
 
     // Generate PROOF.md
@@ -272,9 +275,9 @@ export async function init(options: InitOptions): Promise<void> {
     // Summary
     console.log(chalk.green('\n✓ Initialized skillset submission:\n'));
     console.log('  skillset.yaml     - Manifest (edit as needed)');
-    console.log('  README.md         - Documentation');
     console.log('  PROOF.md          - Production evidence (add details)');
     console.log('  content/          - Installable files');
+    console.log('    ├── README.md   - Documentation');
     if (filesToCopy.length > 0) {
       filesToCopy.forEach((f) => console.log(`    └── ${f}`));
     } else {

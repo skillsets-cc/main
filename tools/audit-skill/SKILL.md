@@ -34,7 +34,7 @@ Contributor must run `npx skillsets audit` first. This generates `AUDIT_REPORT.m
 
 1. Read `AUDIT_REPORT.md` — verify it shows "READY FOR SUBMISSION"
 2. Read [CRITERIA.md](CRITERIA.md) for evaluation rubric
-3. Read `README.md` to extract claimed workflow
+3. Read `content/README.md` to extract claimed workflow
 4. **Discover and populate MCP servers**:
    - Scan `content/.mcp.json` (`mcpServers` key), `content/.claude/settings.json`, `content/.claude/settings.local.json`, `content/docker/**/config.yaml` (`mcp_servers` key)
    - If MCP servers found and `skillset.yaml` lacks `mcp_servers`: use **WebSearch** + **WebFetch** to research each package/image, then write `mcp_servers` array to `skillset.yaml` with `name`, `type`, `command`/`args`/`url`/`image`, `mcp_reputation` (min 20 chars), `researched_at` (today's date)

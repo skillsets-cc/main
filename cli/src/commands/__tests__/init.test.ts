@@ -65,12 +65,12 @@ describe('init command', () => {
     expect(content).toContain('@testuser');
   });
 
-  it('creates README.md', async () => {
+  it('creates content/README.md', async () => {
     await init({});
 
-    expect(existsSync(join(testDir, 'README.md'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'README.md'))).toBe(true);
 
-    const content = readFileSync(join(testDir, 'README.md'), 'utf-8');
+    const content = readFileSync(join(testDir, 'content', 'README.md'), 'utf-8');
     expect(content).toContain('test-skillset');
     expect(content).toContain('npx skillsets install');
   });
@@ -114,6 +114,20 @@ describe('init command', () => {
 
     // Check that CLAUDE.md was copied to content/
     expect(existsSync(join(testDir, 'content', 'CLAUDE.md'))).toBe(true);
+  });
+
+  it('detects and offers to copy existing README.md', async () => {
+    // Create existing README.md at project root
+    writeFileSync(join(testDir, 'README.md'), '# My Project README');
+
+    vi.mocked(checkbox).mockResolvedValue(['README.md']);
+
+    await init({});
+
+    // Check that README.md was copied to content/
+    expect(existsSync(join(testDir, 'content', 'README.md'))).toBe(true);
+    const content = readFileSync(join(testDir, 'content', 'README.md'), 'utf-8');
+    expect(content).toBe('# My Project README');
   });
 
   it('asks for confirmation if skillset.yaml exists', async () => {
@@ -194,12 +208,13 @@ describe('init command', () => {
     );
   });
 
-  it('does not overwrite existing README.md', async () => {
-    writeFileSync(join(testDir, 'README.md'), '# My Custom README');
+  it('does not overwrite existing content/README.md', async () => {
+    mkdirSync(join(testDir, 'content'), { recursive: true });
+    writeFileSync(join(testDir, 'content', 'README.md'), '# My Custom README');
 
     await init({});
 
-    const content = readFileSync(join(testDir, 'README.md'), 'utf-8');
+    const content = readFileSync(join(testDir, 'content', 'README.md'), 'utf-8');
     expect(content).toBe('# My Custom README');
   });
 

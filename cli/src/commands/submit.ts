@@ -128,7 +128,7 @@ export async function submit(): Promise<void> {
   console.log(chalk.green('✓ Audit report passing'));
 
   // 6. Check required files
-  const requiredFiles = ['skillset.yaml', 'README.md', 'PROOF.md', 'AUDIT_REPORT.md', 'content'];
+  const requiredFiles = ['skillset.yaml', 'PROOF.md', 'AUDIT_REPORT.md', 'content'];
   for (const file of requiredFiles) {
     if (!existsSync(join(cwd, file))) {
       console.log(chalk.red(`✗ Missing required: ${file}`));
@@ -200,7 +200,7 @@ export async function submit(): Promise<void> {
 
     // Copy files
     spinner.text = 'Copying skillset files...';
-    const filesToCopy = ['skillset.yaml', 'README.md', 'PROOF.md', 'AUDIT_REPORT.md', 'content'];
+    const filesToCopy = ['skillset.yaml', 'PROOF.md', 'AUDIT_REPORT.md', 'content'];
     for (const file of filesToCopy) {
       const src = join(cwd, file);
       const dest = join(skillsetDir, file);

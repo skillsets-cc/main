@@ -98,7 +98,7 @@ function isBinaryFile(filePath: string): boolean {
 }
 
 function scanReadmeLinks(cwd: string): { line: number; link: string }[] {
-  const readmePath = join(cwd, 'README.md');
+  const readmePath = join(cwd, 'content', 'README.md');
   if (!existsSync(readmePath)) return [];
 
   const relativeLinks: { line: number; link: string }[] = [];
@@ -383,14 +383,14 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
 
   // 2. Required files
   spinner.text = 'Checking required files...';
-  const hasReadme = existsSync(join(cwd, 'README.md'));
   const hasContent = existsSync(join(cwd, 'content'));
+  const hasReadme = existsSync(join(cwd, 'content', 'README.md'));
   const hasSkillsetYaml = existsSync(join(cwd, 'skillset.yaml'));
 
   const missingFiles: string[] = [];
   if (!hasSkillsetYaml) missingFiles.push('skillset.yaml');
-  if (!hasReadme) missingFiles.push('README.md');
   if (!hasContent) missingFiles.push('content/');
+  if (!hasReadme) missingFiles.push('content/README.md');
 
   if (missingFiles.length === 0) {
     results.requiredFiles = { status: 'PASS', details: 'All present' };

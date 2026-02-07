@@ -58,9 +58,9 @@
 │  ├── @supercollectible/                                             │
 │  │   └── Valence/                                                   │
 │  │       ├── skillset.yaml          ◄── Manifest                    │
-│  │       ├── README.md              ◄── User instructions           │
 │  │       ├── AUDIT_REPORT.md        ◄── Structural validation       │
 │  │       └── content/               ◄── Files to install            │
+│  │           ├── README.md          ◄── User instructions           │
 │  │           ├── .claude/                                           │
 │  │           ├── Valence/                                           │
 │  │           └── CLAUDE.md                                          │

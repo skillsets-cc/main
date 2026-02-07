@@ -51,8 +51,8 @@ entry_point: "./content/CLAUDE.md"
   it('passes with valid structure', async () => {
     // Create valid structure
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test\n\nDescription');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test\n\nDescription');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await audit();
@@ -65,8 +65,8 @@ entry_point: "./content/CLAUDE.md"
   });
 
   it('fails without skillset.yaml', async () => {
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await audit();
@@ -90,7 +90,6 @@ entry_point: "./content/CLAUDE.md"
 
   it('fails without content directory', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
 
     await audit();
 
@@ -101,8 +100,8 @@ entry_point: "./content/CLAUDE.md"
 
   it('fails without .claude or CLAUDE.md in content', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'other.txt'), 'something');
 
     await audit();
@@ -113,8 +112,8 @@ entry_point: "./content/CLAUDE.md"
 
   it('passes with .claude directory instead of CLAUDE.md', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', '.claude', 'settings.json'), '{}');
 
     await audit();
@@ -129,8 +128,8 @@ name: "invalid name with spaces"
 version: "not-semver"
 `;
     writeFileSync(join(testDir, 'skillset.yaml'), invalidYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await audit();
@@ -142,8 +141,8 @@ version: "not-semver"
 
   it('detects potential secrets', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test\n\napi_key = "sk-1234567890abcdefghijklmnopqrstuvwxyz123456789012"');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test\n\napi_key = "sk-1234567890abcdefghijklmnopqrstuvwxyz123456789012"');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await audit();
@@ -155,8 +154,8 @@ version: "not-semver"
 
   it('warns about large files', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
     // Create a large file (>1MB)
     writeFileSync(join(testDir, 'content', 'large.txt'), 'x'.repeat(1024 * 1024 + 1));
@@ -172,8 +171,8 @@ version: "not-semver"
     vi.mocked(fetchSkillsetMetadata).mockResolvedValue(undefined);
 
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await audit();
@@ -201,8 +200,8 @@ version: "not-semver"
     });
 
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await audit();
@@ -230,8 +229,8 @@ version: "not-semver"
     });
 
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    writeFileSync(join(testDir, 'README.md'), '# Test');
     mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await audit();
@@ -246,8 +245,8 @@ version: "not-semver"
   describe('MCP server validation', () => {
     it('passes when no MCP servers present', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit();
@@ -260,8 +259,8 @@ version: "not-semver"
     it('passes when content MCP matches manifest', async () => {
       const yamlWithMcp = validSkillsetYaml + `\nmcp_servers:\n  - name: context7\n    type: stdio\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n    mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"\n    researched_at: "2026-02-04"\n`;
       writeFileSync(join(testDir, 'skillset.yaml'), yamlWithMcp);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
@@ -278,8 +277,8 @@ version: "not-semver"
 
     it('reports MCP as pending qualitative review in normal mode (pre-skill)', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
@@ -297,8 +296,8 @@ version: "not-semver"
 
     it('fails MCP mismatch in --check mode (CI)', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
@@ -316,8 +315,8 @@ version: "not-semver"
     it('fails when manifest has MCP but content does not in --check mode', async () => {
       const yamlWithMcp = validSkillsetYaml + `\nmcp_servers:\n  - name: context7\n    type: stdio\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n    mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"\n    researched_at: "2026-02-04"\n`;
       writeFileSync(join(testDir, 'skillset.yaml'), yamlWithMcp);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
@@ -330,8 +329,8 @@ version: "not-semver"
     it('passes with Docker MCP when content and manifest match', async () => {
       const yamlWithDocker = validSkillsetYaml + `\nmcp_servers:\n  - name: litellm-proxy\n    type: docker\n    image: "ghcr.io/berriai/litellm:main-latest"\n    mcp_reputation: "ghcr: berriai/litellm, widely used LLM proxy"\n    researched_at: "2026-02-04"\n    servers:\n      - name: context7\n        command: npx\n        args: ["-y", "@upstash/context7-mcp"]\n        mcp_reputation: "npm: @upstash/context7-mcp"\n        researched_at: "2026-02-04"\n`;
       writeFileSync(join(testDir, 'skillset.yaml'), yamlWithDocker);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content', 'docker'), { recursive: true });
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'content', 'docker', 'docker-compose.yaml'), 'services:\n  litellm:\n    image: ghcr.io/berriai/litellm:main-latest\n');
       writeFileSync(join(testDir, 'content', 'docker', 'config.yaml'), 'mcp_servers:\n  context7:\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n');
@@ -345,8 +344,8 @@ version: "not-semver"
 
     it('includes MCP error details in findings section', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
@@ -370,8 +369,8 @@ version: "not-semver"
   describe('--check flag', () => {
     it('does not write AUDIT_REPORT.md in check mode', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit({ check: true });
@@ -381,8 +380,8 @@ version: "not-semver"
 
     it('preserves existing AUDIT_REPORT.md in check mode', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'AUDIT_REPORT.md'), '# Existing report\n\n## Qualitative Review\nApproved by Opus');
 
@@ -397,7 +396,7 @@ version: "not-semver"
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      // Missing README and content — will fail
+      // Missing content/README.md — will fail
       mkdirSync(join(testDir, 'content'));
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
@@ -411,8 +410,8 @@ version: "not-semver"
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit({ check: true });
@@ -423,8 +422,8 @@ version: "not-semver"
 
     it('still writes AUDIT_REPORT.md without check flag', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit();
@@ -438,8 +437,8 @@ version: "not-semver"
   describe('README link validation', () => {
     it('passes when README has no links to content/.claude/', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      writeFileSync(join(testDir, 'README.md'), '# Test\n\n[External](https://example.com)\n[Other](./other.md)');
       mkdirSync(join(testDir, 'content'));
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test\n\n[External](https://example.com)\n[Other](./other.md)');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit();
@@ -451,11 +450,11 @@ version: "not-semver"
 
     it('fails when README has relative links to content/.claude/', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      mkdirSync(join(testDir, 'content'));
       writeFileSync(
-        join(testDir, 'README.md'),
+        join(testDir, 'content', 'README.md'),
         '# Test\n\n[Skill](content/.claude/skills/my-skill/SKILL.md)\n[Agent](./content/.claude/agents/my-agent.md)'
       );
-      mkdirSync(join(testDir, 'content'));
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit();
@@ -470,11 +469,11 @@ version: "not-semver"
 
     it('passes when README uses full GitHub URLs for content/.claude/', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      mkdirSync(join(testDir, 'content'));
       writeFileSync(
-        join(testDir, 'README.md'),
+        join(testDir, 'content', 'README.md'),
         '# Test\n\n[Skill](https://github.com/skillsets-cc/main/blob/main/skillsets/%40testuser/test-skillset/content/.claude/skills/my-skill/SKILL.md)'
       );
-      mkdirSync(join(testDir, 'content'));
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit();
@@ -486,11 +485,11 @@ version: "not-semver"
 
     it('detects multiple relative links on same line', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      mkdirSync(join(testDir, 'content'));
       writeFileSync(
-        join(testDir, 'README.md'),
+        join(testDir, 'content', 'README.md'),
         '# Test\n\n| [One](content/.claude/a.md) | [Two](content/.claude/b.md) |'
       );
-      mkdirSync(join(testDir, 'content'));
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit();
@@ -502,11 +501,11 @@ version: "not-semver"
 
     it('shows correct line numbers for relative links', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      mkdirSync(join(testDir, 'content'));
       writeFileSync(
-        join(testDir, 'README.md'),
+        join(testDir, 'content', 'README.md'),
         '# Test\n\nFirst paragraph.\n\n[Link](content/.claude/test.md)\n\nMore text.'
       );
-      mkdirSync(join(testDir, 'content'));
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
       await audit();
