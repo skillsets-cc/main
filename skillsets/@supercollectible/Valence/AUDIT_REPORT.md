@@ -1,7 +1,7 @@
 # Audit Report
 
 **Generated:** 2026-02-01T18:02:31.526Z
-**Skillset:** The_Skillset v3.0.0
+**Skillset:** Valence v3.0.0
 **Author:** @supercollectible
 **Type:** Update (1.0.0 → 3.0.0)
 
@@ -101,24 +101,24 @@ No secrets detected.
 | PROOF.md | 1.3 KB |
 | QUICKSTART.md | 5.9 KB |
 | README.md | 38.2 KB |
-| TheSkillset/agents/AGENT_ar.md | 4.3 KB |
-| TheSkillset/agents/AGENT_build.md | 5.3 KB |
-| TheSkillset/agents/AGENT_code-simplifier.md | 3.1 KB |
-| TheSkillset/agents/AGENT_qa-b.md | 5.1 KB |
-| TheSkillset/agents/AGENT_qa-docs.md | 2.9 KB |
-| TheSkillset/agents/AGENT_qa-f.md | 5.2 KB |
-| TheSkillset/resources/ARC_doc_template.md | 2.7 KB |
-| TheSkillset/resources/README_module_template.md | 2.9 KB |
-| TheSkillset/resources/backend_styleguide.md | 7.3 KB |
-| TheSkillset/resources/claude-execution-template.md | 6.5 KB |
-| TheSkillset/resources/file_doc_template.md | 1.5 KB |
-| TheSkillset/resources/frontend_styleguide.md | 8.7 KB |
-| TheSkillset/skills/SKILL_ar.md | 3.9 KB |
-| TheSkillset/skills/SKILL_arm.md | 3.0 KB |
-| TheSkillset/skills/SKILL_build.md | 2.5 KB |
-| TheSkillset/skills/SKILL_design.md | 4.2 KB |
-| TheSkillset/skills/SKILL_plan.md | 4.8 KB |
-| TheSkillset/skills/SKILL_pmatch.md | 3.8 KB |
+| Valence/agents/AGENT_ar.md | 4.3 KB |
+| Valence/agents/AGENT_build.md | 5.3 KB |
+| Valence/agents/AGENT_code-simplifier.md | 3.1 KB |
+| Valence/agents/AGENT_qa-b.md | 5.1 KB |
+| Valence/agents/AGENT_qa-docs.md | 2.9 KB |
+| Valence/agents/AGENT_qa-f.md | 5.2 KB |
+| Valence/resources/ARC_doc_template.md | 2.7 KB |
+| Valence/resources/README_module_template.md | 2.9 KB |
+| Valence/resources/backend_styleguide.md | 7.3 KB |
+| Valence/resources/claude-execution-template.md | 6.5 KB |
+| Valence/resources/file_doc_template.md | 1.5 KB |
+| Valence/resources/frontend_styleguide.md | 8.7 KB |
+| Valence/skills/SKILL_ar.md | 3.9 KB |
+| Valence/skills/SKILL_arm.md | 3.0 KB |
+| Valence/skills/SKILL_build.md | 2.5 KB |
+| Valence/skills/SKILL_design.md | 4.2 KB |
+| Valence/skills/SKILL_plan.md | 4.8 KB |
+| Valence/skills/SKILL_pmatch.md | 3.8 KB |
 | assets/by-sa.png | 17.2 KB |
 | claude.md.example | 7.7 KB |
 | content/.claude/agents/ar-d.md | 3.4 KB |
@@ -245,7 +245,7 @@ None blocking. The skillset content follows Claude Code best practices:
 
 **APPROVED**
 
-The Skillset demonstrates:
+Valence demonstrates:
 1. Complete primitives coverage (skills, agents, resources, infrastructure)
 2. Validated production usage via skillsets.cc collaboration artifacts
 3. Coherent SDLC workflow from brief → design → review → plan → build

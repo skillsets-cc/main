@@ -25,6 +25,7 @@ export interface SearchIndexEntry {
     claude_code_version: string;
     languages: string[];
   };
+  context_image_url?: string;
   entry_point: string;
   checksum: string;
   files: Record<string, string>;
@@ -49,4 +50,22 @@ export interface McpServer {
   servers?: McpServerInner[];
   mcp_reputation: string;
   researched_at: string;
+}
+
+/**
+ * Represents a single ghost entry slot in the reservation system.
+ */
+export interface GhostSlot {
+  slotId: string;
+  status: 'available' | 'reserved';
+  expiresAt?: number;
+}
+
+/**
+ * Complete state of the reservation system, including all slots and user's reservation.
+ */
+export interface ReservationState {
+  slots: Record<string, { status: 'available' | 'reserved'; expiresAt?: number }>;
+  totalGhostSlots: number;
+  userSlot: string | null;
 }

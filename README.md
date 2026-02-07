@@ -14,7 +14,7 @@ Visit [skillsets.cc](https://skillsets.cc) to browse the registry, or use the CL
 
 ```bash
 npx skillsets search "sdlc"
-npx skillsets install @supercollectible/The_Skillset
+npx skillsets install @supercollectible/Valence
 ```
 
 ## Contributing

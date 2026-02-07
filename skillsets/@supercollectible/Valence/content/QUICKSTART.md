@@ -1,6 +1,6 @@
 # Customization Guide
 
-After installing via `npx skillsets install @supercollectible/The_Skillset`, customize the workflow for your project.
+After installing via `npx skillsets install @supercollectible/Valence`, customize the workflow for your project.
 
 ---
 

@@ -3,11 +3,11 @@ import { isValidSkillsetId } from '../validation';
 
 describe('isValidSkillsetId', () => {
   it('accepts namespace/name format', () => {
-    expect(isValidSkillsetId('supercollectible/The_Skillset')).toBe(true);
+    expect(isValidSkillsetId('supercollectible/Valence')).toBe(true);
   });
 
   it('accepts @namespace/name format', () => {
-    expect(isValidSkillsetId('@supercollectible/The_Skillset')).toBe(true);
+    expect(isValidSkillsetId('@supercollectible/Valence')).toBe(true);
   });
 
   it('accepts hyphens in namespace and name', () => {

@@ -9,7 +9,7 @@ const skillsets = getSkillsets();
 ---
 
 <BaseLayout title="Skillsets.cc">
-  <main class="max-w-7xl mx-auto px-4 py-12">
+  <main class="max-w-7xl mx-auto px-4 py-12 pb-20">
     <header class="mb-8 border-b border-border-ink pb-6">
       <div class="space-y-2">
         <h1 class="text-7xl md:text-9xl font-serif font-medium text-text-ink">
@@ -31,11 +31,29 @@ const skillsets = getSkillsets();
         <div class="space-y-2">
           <span class="font-bold text-text-ink font-mono text-sm">2. USAGE</span>
           <p class="text-lg md:text-xl font-serif text-text-ink leading-relaxed">
-            Go from ad-hoc prompts to a repeatable process in one command.
+            Replace your fragmented tool-kit with a proven exoskeleton.
           </p>
         </div>
       </div>
     </header>
+
+    <section class="mb-8 text-lg md:text-xl text-text-secondary font-serif leading-relaxed space-y-3">
+      <p>
+        <span class="font-bold text-text-ink">Skillsets.cc</span> is a community-driven registry of consolidated Claude Code workflows.
+      </p>
+      <p>
+        Limited, high-friction submissions that actually shipped, actively maintained and improved by the authors.
+      </p>
+      <p>
+        Install with <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets install &lt;name&gt;</code>.
+      </p>
+      <p>
+        Skillsets come with all the guarantees of probable space — as with any OSS, verify before you trust.
+      </p>
+      <p>
+        We bet your skillset kicks ass. <a href="/contribute" class="underline hover:text-accent-primary">Cohort 1, assemble!</a>
+      </p>
+    </section>
 
     <SkillsetGrid client:load skillsets={skillsets} />
   </main>

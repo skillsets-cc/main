@@ -100,7 +100,7 @@ Your `PROOF.md` must demonstrate real-world usage:
 - Metrics (test coverage, deployments, code shipped)
 - Links to videos, writeups, or case studies (external links, not embedded)
 
-See [@supercollectible/The_Skillset/PROOF.md](./skillsets/@supercollectible/The_Skillset/PROOF.md) for an example.
+See [@supercollectible/Valence/PROOF.md](./skillsets/@supercollectible/Valence/PROOF.md) for an example.
 
 ## Updating a Skillset
 
@@ -126,4 +126,4 @@ Update `status` in `skillset.yaml`:
 
 - [Discussions](https://github.com/skillsets-cc/main/discussions) - Questions and feedback
 - [Issues](https://github.com/skillsets-cc/main/issues) - Bug reports
-- [@supercollectible/The_Skillset](./skillsets/@supercollectible/The_Skillset/) - Complete example
+- [@supercollectible/Valence](./skillsets/@supercollectible/Valence/) - Complete example

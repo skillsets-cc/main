@@ -5,7 +5,7 @@
 **What we're building**: A curated registry of complete, production-verified Claude Code workflows. Unlike atomic skill marketplaces (SkillsMP's 87k+ skills) or limited official examples, skillsets.cc indexes **complete production stacks**—validated combinations of skills, agents, prompts, and configurations that have shipped real software.
 
 
-**The first contribution**: [The_Skillset](https://github.com/supercollectible/The_Skillset) — a spec-driven SDLC with adversarial review, quality gates, and multi-model validation.
+**The first contribution**: [Valence](https://github.com/supercollectible/Valence) — a spec-driven SDLC with adversarial review, quality gates, and multi-model validation.
 
 ### Design Philosophy
 - **First Principles**: Understand the system before you reach for abstractions. Know what the framework hides; know what the library costs. Custom solutions beat cargo-culted patterns. If you need a hack, your model is wrong—fix the design. Actively seek what could break it.
@@ -56,13 +56,13 @@
 │                                                                     │
 │  skillsets/                                                         │
 │  ├── @supercollectible/                                             │
-│  │   └── The_Skillset/                                              │
+│  │   └── Valence/                                                   │
 │  │       ├── skillset.yaml          ◄── Manifest                    │
 │  │       ├── README.md              ◄── User instructions           │
 │  │       ├── AUDIT_REPORT.md        ◄── Structural validation       │
 │  │       └── content/               ◄── Files to install            │
 │  │           ├── .claude/                                           │
-│  │           ├── TheSkillset/                                       │
+│  │           ├── Valence/                                           │
 │  │           └── CLAUDE.md                                          │
 │                                                                     │
 │  schema/                                                            │
@@ -297,7 +297,7 @@ The manifest that makes skillsets discoverable:
 schema_version: "1.0"
 
 # Identity
-name: "The_Skillset"
+name: "Valence"
 version: "1.0.0"  # semver
 description: "Spec-driven SDLC with adversarial review and quality gates."
 author:

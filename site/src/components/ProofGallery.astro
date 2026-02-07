@@ -8,11 +8,12 @@ interface Props {
   productionLinks: ProductionLink[];
   hasAuditReport: boolean;
   skillsetId: string;
+  contextImageUrl?: string;
 }
 
 import { sanitizeUrl } from '@/lib/sanitize';
 
-const { productionLinks, hasAuditReport, skillsetId } = Astro.props;
+const { productionLinks, hasAuditReport, skillsetId, contextImageUrl } = Astro.props;
 
 // Extract base domain from URL
 function getBaseDomain(url: string): string {
@@ -29,60 +30,48 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<section class="border border-border-ink bg-stone-50 p-6 rounded-none">
-  <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Verification Proofs</h2>
-
-  <div class="space-y-4">
-    <div class="flex items-start gap-4">
-      <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
-      <div>
-        <h3 class="font-bold font-serif text-text-ink mb-1">Production Verified</h3>
-        <p class="text-text-secondary text-lg font-serif mb-2 leading-relaxed">
-          This skillset was used to build:
-        </p>
-        <div class="space-y-1">
-          {productionLinks.map((link) => (
-            <a
-              href={sanitizeUrl(link.url)}
-              class="block text-orange-500 hover:underline text-sm font-mono"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {link.label || getBaseDomain(link.url)}
-            </a>
-          ))}
-        </div>
-      </div>
+<section class="border border-orange-500 bg-stone-50 p-6 rounded-none">
+  {contextImageUrl && (
+    <div class="mb-6">
+      <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Cold Start Context</h2>
+      <img
+        src={sanitizeUrl(contextImageUrl)}
+        alt="Cold start context usage breakdown"
+        class="w-full rounded-none border border-border-ink"
+        loading="lazy"
+      />
     </div>
+  )}
+
+  <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Verification</h2>
+  <div class="flex flex-wrap gap-2">
+    {productionLinks.map((link) => (
+      <a
+        href={sanitizeUrl(link.url)}
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-white border border-orange-500 text-orange-500 rounded-none"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+        shipped {link.label || getBaseDomain(link.url)}
+      </a>
+    ))}
 
     {hasAuditReport && (
-      <div class="flex items-start gap-4">
-        <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
-        <div>
-          <h3 class="font-bold font-serif text-text-ink mb-1">Audit Complete</h3>
-          <p class="text-text-secondary text-lg font-serif mb-2 leading-relaxed">
-            Validated with official audit skill.
-          </p>
-          <a
-            href={auditReportUrl}
-            class="text-orange-500 hover:underline text-sm font-mono"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            View audit report
-          </a>
-        </div>
-      </div>
+      <a
+        href={auditReportUrl}
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-white border border-orange-500 text-orange-500 rounded-none"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+        audit complete
+      </a>
     )}
 
-    <div class="flex items-start gap-4">
-        <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
-      <div>
-        <h3 class="font-bold font-serif text-text-ink mb-1">Schema Valid</h3>
-        <p class="text-text-secondary text-lg font-serif leading-relaxed">
-          Passed JSON schema validation.
-        </p>
-      </div>
-    </div>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-white border border-orange-500 text-orange-500 rounded-none">
+      <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+      schema valid
+    </span>
   </div>
 </section>

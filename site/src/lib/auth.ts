@@ -13,9 +13,11 @@
 export interface Env {
   AUTH: KVNamespace;
   DATA: KVNamespace;
+  RESERVATIONS: DurableObjectNamespace;
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
   JWT_SECRET: string;
+  MAINTAINER_USER_IDS: string;
   CALLBACK_URL: string;
   SITE_URL: string;
 }

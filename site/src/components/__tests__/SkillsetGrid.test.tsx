@@ -10,23 +10,39 @@ describe('SkillsetGrid', () => {
     globalThis.fetch = originalFetch;
   });
 
-  function mockFetch(starOverrides: Record<string, number> = {}) {
+  function mockFetch(
+    starOverrides: Record<string, number> = {},
+    reservationOverrides: { slots?: Record<string, { status: string; expiresAt?: number }>; totalGhostSlots?: number; userSlot?: string | null } = {}
+  ) {
     const stars: Record<string, number> = {};
     for (const s of mockSkillsets) {
       stars[s.id] = starOverrides[s.id] ?? s.stars;
     }
-    globalThis.fetch = vi.fn().mockImplementation((url: string) => {
-      if (url.includes('/api/stats/counts')) {
+    const defaultReservations = {
+      slots: {},
+      totalGhostSlots: 0,
+      userSlot: null,
+      ...reservationOverrides,
+    };
+    globalThis.fetch = vi.fn().mockImplementation((url: string | URL) => {
+      const urlStr = typeof url === 'string' ? url : url.toString();
+      if (urlStr.includes('/api/stats/counts')) {
         return Promise.resolve({
           ok: true,
           json: async () => ({ stars, downloads: {} }),
+        });
+      }
+      if (urlStr.includes('/api/reservations')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => defaultReservations,
         });
       }
       return Promise.resolve({ ok: false });
     }) as typeof fetch;
   }
 
-  // Helper to render and wait for stats fetch to complete
+  // Helper to render and wait for stats + reservations fetches to complete
   async function renderAndWaitForStars() {
     mockFetch();
 
@@ -34,18 +50,26 @@ describe('SkillsetGrid', () => {
       render(<SkillsetGrid skillsets={mockSkillsets} />);
     });
 
-    // Wait for the stats fetch to complete
+    // Wait for both fetches to complete
     await waitFor(() => {
       const fetchCalls = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const statsCalls = fetchCalls.filter((call) => call[0].includes('/api/stats/counts'));
+      const statsCalls = fetchCalls.filter((call) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
+        return url.includes('/api/stats/counts');
+      });
+      const reservationCalls = fetchCalls.filter((call) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
+        return url.includes('/api/reservations');
+      });
       expect(statsCalls.length).toBe(1);
+      expect(reservationCalls.length).toBe(1);
     });
   }
 
   it('renders all skillsets', async () => {
     await renderAndWaitForStars();
 
-    expect(screen.getByText('The Skillset')).toBeDefined();
+    expect(screen.getByText('Valence')).toBeDefined();
     expect(screen.getByText('Code Review Assistant')).toBeDefined();
     expect(screen.getByText('Testing Framework')).toBeDefined();
   });
@@ -64,28 +88,10 @@ describe('SkillsetGrid', () => {
     expect(screen.getByText(/@supercollectible/)).toBeDefined();
   });
 
-  it('renders search bar', async () => {
-    await renderAndWaitForStars();
-
-    expect(screen.getByPlaceholderText('Search skillsets...')).toBeDefined();
-  });
-
   it('renders tag filter', async () => {
     await renderAndWaitForStars();
 
     expect(screen.getByText('All')).toBeDefined();
-  });
-
-  it('filters by search query', async () => {
-    await renderAndWaitForStars();
-
-    const input = screen.getByPlaceholderText('Search skillsets...');
-    fireEvent.change(input, { target: { value: 'testing' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('Testing Framework')).toBeDefined();
-      expect(screen.queryByText('The Skillset')).toBeNull();
-    });
   });
 
   it('filters by tag', async () => {
@@ -94,48 +100,16 @@ describe('SkillsetGrid', () => {
     fireEvent.click(screen.getByText('sdlc'));
 
     await waitFor(() => {
-      expect(screen.getByText('The Skillset')).toBeDefined();
+      expect(screen.getByText('Valence')).toBeDefined();
       expect(screen.queryByText('Code Review Assistant')).toBeNull();
-    });
-  });
-
-  it('combines search and tag filters', async () => {
-    await renderAndWaitForStars();
-
-    // Filter by quality tag (matches 2 skillsets)
-    fireEvent.click(screen.getByText('quality'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Code Review Assistant')).toBeDefined();
-      expect(screen.getByText('Testing Framework')).toBeDefined();
-    });
-
-    // Then search for "testing" (matches 1 of those 2)
-    const input = screen.getByPlaceholderText('Search skillsets...');
-    fireEvent.change(input, { target: { value: 'testing' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('Testing Framework')).toBeDefined();
-      expect(screen.queryByText('Code Review Assistant')).toBeNull();
-    });
-  });
-
-  it('shows empty message when no results', async () => {
-    await renderAndWaitForStars();
-
-    const input = screen.getByPlaceholderText('Search skillsets...');
-    fireEvent.change(input, { target: { value: 'nonexistent-query-xyz' } });
-
-    await waitFor(() => {
-      expect(screen.getByText('No skillsets found matching your criteria.')).toBeDefined();
     });
   });
 
   it('links to skillset detail page', async () => {
     await renderAndWaitForStars();
 
-    const link = screen.getByText('The Skillset').closest('a');
-    expect(link?.getAttribute('href')).toBe('/skillset/supercollectible/The_Skillset');
+    const link = screen.getByText('Valence').closest('a');
+    expect(link?.getAttribute('href')).toBe('/skillset/supercollectible/Valence');
   });
 
   it('fetches live star counts on mount', async () => {
@@ -150,7 +124,7 @@ describe('SkillsetGrid', () => {
   });
 
   it('displays live star counts when available', async () => {
-    mockFetch({ 'supercollectible/The_Skillset': 999 });
+    mockFetch({ 'supercollectible/Valence': 999 });
 
     await act(async () => {
       render(<SkillsetGrid skillsets={mockSkillsets} />);

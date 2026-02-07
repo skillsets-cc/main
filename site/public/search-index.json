@@ -3,9 +3,9 @@
   "generated_at": "2026-02-05T19:08:31.924Z",
   "skillsets": [
     {
-      "id": "@supercollectible/The_Skillset",
-      "name": "The_Skillset",
-      "description": "Built on Claude Code's native primitives, The Skillset is an opinionated path to quality output.",
+      "id": "@supercollectible/Valence",
+      "name": "Valence",
+      "description": "Built on Claude Code's native primitives, Valence is an opinionated path to quality output.",
       "tags": [
         "sdlc",
         "multi-agent",
@@ -36,6 +36,7 @@
           "any"
         ]
       },
+      "context_image_url": "https://iili.io/fmReA3Q.png",
       "entry_point": "./content/CLAUDE.md",
       "checksum": "sha256:776eb2d51d5ef900e5e5fae8c449a3a4a511cb9729db1b002fe18abaa55eadca",
       "files": {

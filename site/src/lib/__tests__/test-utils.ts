@@ -31,9 +31,11 @@ export function createMockEnv(overrides: Partial<Env> = {}): Env {
   return {
     AUTH: createMockKV(),
     DATA: createMockKV(),
+    RESERVATIONS: {} as DurableObjectNamespace,
     GITHUB_CLIENT_ID: 'test-client-id',
     GITHUB_CLIENT_SECRET: 'test-client-secret',
     JWT_SECRET: 'test-jwt-secret-at-least-32-chars-long',
+    MAINTAINER_USER_IDS: '',
     CALLBACK_URL: 'https://skillsets.cc/callback',
     SITE_URL: 'https://skillsets.cc',
     ...overrides,

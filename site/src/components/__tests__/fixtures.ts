@@ -2,8 +2,8 @@ import type { SearchIndexEntry } from '@/types';
 
 export const mockSkillsets: SearchIndexEntry[] = [
   {
-    id: 'supercollectible/The_Skillset',
-    name: 'The Skillset',
+    id: 'supercollectible/Valence',
+    name: 'Valence',
     description: 'Spec-driven SDLC with adversarial review and quality gates',
     tags: ['sdlc', 'planning', 'multi-agent'],
     author: { handle: '@supercollectible', url: 'https://github.com/supercollectible' },

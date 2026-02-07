@@ -1,10 +1,12 @@
-Built on Claude Code's native primitives, The Skillset is an opinionated path to quality output. No wrappers, no frameworks, no external silver-bullet. Just paying attention to what Boris actually said.
+![Banner](/assets/Valence08.png)
+
+Built on Claude Code's native primitives, Valence is an opinionated path to quality output. No wrappers, no frameworks, no external silver-bullet. Just paying attention to what Boris actually said.
 
 The core problem: **preserving intent and agency** against the grain of automated gaslighting and cognitive offloading. My intention should flow through to implementation without being lost or distorted. Decisions and rationale are mine to own. The system should flag my bullshit requirements, not enable poor life choices. I dont want a magic button, I just want to know what happens when I can finally work at the speed of thought.
 
 This flow is what survived iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded multi-agent workflow with formalized quality gates, adversarial reviews and auditable handoffs. 
 
-Note: The Skillset v3 optimizes for correctness > velocity and agency > automation. It assumes you have a vision and care about standards; the workflow simply provides the exoskeleton to execute without distortion.
+Note: Valence v3 optimizes for correctness > velocity and agency > automation. It assumes you have a vision and care about standards; the workflow simply provides the exoskeleton to execute without distortion.
 
 ---
 
@@ -18,6 +20,7 @@ Note: The Skillset v3 optimizes for correctness > velocity and agency > automati
 - [Meet The Team](#meet-the-team) — Agents, models, infrastructure
 - [Filetree](#filetree) — Repository structure
 - [Usage](#usage) — Example workflow
+- [Quick Start](#quick-start) — Setup and customization
 
 ---
 
@@ -61,16 +64,16 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 | Command | Purpose | Protocol |
 |---------|---------|----------|
-| `/arm [thoughts]` | Crystallize Fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/arm/SKILL.md) |
-| `/design [brief]` | Design a Solution — research, design doc, architecture decisions | [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/design/SKILL.md) |
-| `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/ar/SKILL.md) |
-| `/plan [design.md]` | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/plan/SKILL.md) |
-| `/build [exec.md]` | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/build/SKILL.md) |
-| `/pmatch [source] [target]` | Validate target against source claims | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/pmatch/SKILL.md) |
-| `/denoise [path]` | Post-build cleanup — invokes code-simplifier plugin | [Anthropic plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) |
-| `/qf` `/qb [path]` | QA audit — frontend (design system, a11y) or backend (DI, logging) | [qa-f.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-f.md), [qa-b.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-b.md) |
-| `/qd [path]` | Docs QA — validates and updates documentation | [qa-docs.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-docs.md) |
-| `/security-review` | Security audit — injection, XSS, auth flaws | [Claude Code native](https://www.anthropic.com/news/automate-security-reviews-with-claude-code) |
+| `/arm [thoughts]` | Crystallize Fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](Valence/skills/SKILL_arm.md) |
+| `/design [brief]` | Design a Solution — research, design doc, architecture decisions | [SKILL_design.md](Valence/skills/SKILL_design.md) |
+| `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL_ar.md](Valence/skills/SKILL_ar.md) |
+| `/plan [design.md]` | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](Valence/skills/SKILL_plan.md) |
+| `/build [exec.md]` | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](Valence/skills/SKILL_build.md) |
+| `/pmatch [source] [target]` | Validate target against source claims | [SKILL_pmatch.md](Valence/skills/SKILL_pmatch.md) |
+| `/denoise [path]` | Post-build cleanup — invokes code-simplifier plugin | [AGENT_code-simplifier.md](Valence/agents/AGENT_code-simplifier.md) |
+| `/qf [path]` | Frontend QA — design system, resource cleanup, accessibility | [AGENT_qa-f.md](Valence/agents/AGENT_qa-f.md) |
+| `/qb [path]` | Backend QA — DI, logging, error handling, type hints | [AGENT_qa-b.md](Valence/agents/AGENT_qa-b.md) |
+| `/qd [path]` | Docs QA — validates and updates documentation | [AGENT_qa-docs.md](Valence/agents/AGENT_qa-docs.md) |
 
 ---
 
@@ -187,7 +190,7 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 │                                                                         │
 │                  ┌──────────┐           ┌──────────┐                    │
 │                  │   pm-s   │           │   pm-k   │                    │
-│                  │  Sonnet  │           │   Kimi   │                    │
+│                  │  Sonnet  │           │  Kimi    │                    │
 │                  └────┬─────┘           └────┬─────┘                    │
 │                       └───────────┬──────────┘                          │
 │                                   ↓                                     │
@@ -236,11 +239,6 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 └─────────────────────────────────────────────────────────────────────────┘
                                     ↓
 ┌─────────────────────────────────────────────────────────────────────────┐
-│ /security-review                                                        │
-│ Native Claude Code command. Scans for injection, XSS, auth flaws.       │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
 │ BUILD VALIDATION                                                        │
 │ Validates build against original design document, triggers revision     │
 │ if needed. Rerun test suite, write golden path tests if needed.         │
@@ -251,7 +249,7 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ## Quality Gates
 
-Eight checkpoints, each blocking forward progress until validation passes. The sequence matters: requirements solidify before design starts, design locks before planning, plans finalize before code. Later gates assume earlier gates passed—QA agents don't re-validate requirements, they trust the design gate caught that.
+Seven checkpoints, each blocking forward progress until validation passes. The sequence matters: requirements solidify before design starts, design locks before planning, plans finalize before code. Later gates assume earlier gates passed—QA agents don't re-validate requirements, they trust the design gate caught that.
 
 | Gate | Mechanism | Validates |
 |------|-----------|-----------|
@@ -262,7 +260,6 @@ Eight checkpoints, each blocking forward progress until validation passes. The s
 | **Code quality** | /denoise | Dead code, comments, redundancy, complexity |
 | **Project patterns** | qa-f / qa-b | Design system, DI, logging, accessibility |
 | **Documentation** | qa-docs | Docs match implementation |
-| **Security** | /security-review | Injection, XSS, auth flaws, OWASP vulnerabilities |
 
 ## Grounding & Navigation
 
@@ -286,12 +283,13 @@ Grounding artifacts that constrain how work is done. Style guides encode decisio
 
 | Artifact | Purpose |
 |----------|---------|
-| [frontend_styleguide.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/frontend_styleguide.md) | React, TypeScript, Zustand, Vitest patterns |
-| [backend_styleguide.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/backend_styleguide.md) | Python, FastAPI, pytest patterns |
-| [claude-execution-template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/claude-execution-template.md) | Execution doc structure — `/plan` output readable by `/build` |
-| [ARC_doc_template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/ARC_doc_template.md) | Module architecture template — directory structure, data flow, integration |
-| [README_module_template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/README_module_template.md) | Module README template — purpose, files, dependencies, patterns |
-| [file_doc_template.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/resources/file_doc_template.md) | Per-file doc template — classes, functions, data flow, integration points |
+| [frontend_styleguide.md](.claude/resources/frontend_styleguide.md) | Astro, TypeScript, Tailwind, React Islands patterns |
+| [workers_styleguide.md](.claude/resources/workers_styleguide.md) | Cloudflare Workers, KV, OAuth, rate limiting patterns |
+| [cli_styleguide.md](.claude/resources/cli_styleguide.md) | Node.js CLI, Commander.js, degit, checksum patterns |
+| [claude-execution-template.md](.claude/resources/claude-execution-template.md) | Execution doc structure — `/plan` output readable by `/build` |
+| [ARC_doc_template.md](.claude/resources/ARC_doc_template.md) | Module architecture template — directory structure, data flow, integration |
+| [README_module_template.md](.claude/resources/README_module_template.md) | Module README template — purpose, files, dependencies, patterns |
+| [file_doc_template.md](.claude/resources/file_doc_template.md) | Per-file doc template — classes, functions, data flow, integration points |
 
 ### External Sources
 
@@ -303,6 +301,24 @@ Context7 pulls live library documentation via MCP—structured, authoritative, c
 | **Web Search** | Technology decisions | Recent gotchas, breaking changes, community consensus |
 
 Context7 is *required* for any library not already validated in the codebase. Web search fills gaps—especially useful for "has anyone else hit this?" questions.
+
+### Code Navigation (LSP)
+
+Grep finds text; LSP understands types. `findReferences` knows the difference between a variable named `config` and a string containing "config"—that's why it enables confident dead code detection. The language server runs in the background; operations are fast and type-aware.
+
+| Plugin | Auto-enabled |
+|--------|--------------|
+| `pyright@claude-code-lsps` | `.py` files |
+| `vtsls@claude-code-lsps` | `.ts`/`.tsx` files |
+
+| Operation | Use Case |
+|-----------|----------|
+| `goToDefinition` | Jump to source instead of grep |
+| `findReferences` | Confident dead code detection |
+| `hover` | Type info without reading file |
+| `documentSymbol` | Map file structure at a glance |
+| `workspaceSymbol` | Find by name across codebase |
+| `getDiagnostics` | Catch type errors before running |
 
 ---
 
@@ -316,11 +332,11 @@ The cost curve: Opus is expensive but catches design flaws that compound downstr
 
 | Agent | Model | Purpose | Protocol |
 |-------|-------|---------|----------|
-| `arm` | Opus | Crystallize initial thoughts — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/arm/SKILL.md) |
-| `design` | Opus | Design a feature — research, design doc, architecture decisions | [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/design/SKILL.md) |
-| `plan` | Opus | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/plan/SKILL.md) |
-| `build` | Sonnet | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/build.md) |
-| `explore` | Haiku | Lightweight reader and information gatherer supporting Opus | CC native |
+| `arm` | Opus | Crystallize initial thoughts — extract reqs, constraints, style, concepts | [SKILL_arm.md](Valence/skills/SKILL_arm.md) |
+| `design` | Opus | Design a feature — research, design doc, architecture decisions | [SKILL_design.md](Valence/skills/SKILL_design.md) |
+| `plan` | Opus | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](Valence/skills/SKILL_plan.md) |
+| `build` | Sonnet | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](Valence/skills/SKILL_build.md), [AGENT_build.md](Valence/agents/AGENT_build.md) |
+| `explore` | Haiku | Lightweight reader and information gatherer supporting Opus | Built-in |
 
 ### Adversarial Review
 
@@ -340,24 +356,23 @@ Spec drift is real. The design says one thing; the code does another. Pattern ma
 
 | Agent | Model | Protocol |
 |-------|-------|----------|
-| `pm-s` | Sonnet | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/pmatch/SKILL.md) |
-| `pm-k` | Kimi | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/skills/pmatch/SKILL.md) |
+| `pm-s` | Sonnet | [SKILL_pmatch.md](Valence/skills/SKILL_pmatch.md) |
+| `pm-k` | Kimi | [SKILL_pmatch.md](Valence/skills/SKILL_pmatch.md) |
 
 Output: list of claims with VALIDATED/VIOLATED/MISSING status, citations to both documents.
 
 ### QA Agents
 
-Separated by scope: `code-simplifier` handles universal cleanup (any codebase, any language), `qa-f`/`qa-b` handle project-specific patterns (your design system, your DI conventions), `qa-docs` maintains the documentation hierarchy, `security-review` scans for vulnerabilities. Order matters—simplify first so the pattern auditors don't waste cycles flagging noise that's about to be deleted.
+Separated by scope: `code-simplifier` handles universal cleanup (any codebase, any language), `qa-f`/`qa-b` handle project-specific patterns (your design system, your DI conventions), `qa-docs` maintains the documentation hierarchy. Order matters—simplify first so the pattern auditors don't waste cycles flagging noise that's about to be deleted.
 
 | Agent | Model | Scope | Protocol |
 |-------|-------|-------|----------|
-| `code-simplifier` | Opus | Dead code, redundancy, type safety, comment cleanup | [Anthropic plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) |
-| `qa-f` | Sonnet | Design system compliance, accessibility, resource cleanup | [qa-f.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-f.md) |
-| `qa-b` | Sonnet | DI patterns, logging, error handling, backwards compat | [qa-b.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-b.md) |
-| `qa-docs` | Sonnet | Doc freshness — ARC files, READMEs match implementation | [qa-docs.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/The_Skillset/content/.claude/agents/qa-docs.md) |
-| `security-review` | — | Injection, XSS, auth flaws, OWASP vulnerabilities | [Claude Code native](https://www.anthropic.com/news/automate-security-reviews-with-claude-code) |
+| `code-simplifier` | Opus | Dead code, redundancy, type safety, comment cleanup | [AGENT_code-simplifier.md](Valence/agents/AGENT_code-simplifier.md) |
+| `qa-f` | Sonnet | Design system compliance, accessibility, resource cleanup | [AGENT_qa-f.md](Valence/agents/AGENT_qa-f.md) |
+| `qa-b` | Sonnet | DI patterns, logging, error handling, backwards compat | [AGENT_qa-b.md](Valence/agents/AGENT_qa-b.md) |
+| `qa-docs` | Sonnet | Doc freshness — ARC files, READMEs match implementation | [AGENT_qa-docs.md](Valence/agents/AGENT_qa-docs.md) |
 
-Run `/denoise` first, then `/qf` or `/qb`, then `/qd`, then `/security-review`.
+Run `/denoise` first, then `/qf` or `/qb`, then `/qd`.
 
 ### Multi-Model Infrastructure
 
@@ -387,7 +402,7 @@ This gives ar-k and ar-d the same grounding capabilities as ar-o—they can expl
 **Setup**:
 ```bash
 cd docker/litellm
-cp .env.example .env  # Add KIMI_API_KEY, DEEPSEEK_API_KEY, CONTEXT7_API_KEY
+cp .env.example .env  # Add GEMINI_API_KEY, DEEPSEEK_API_KEY, CONTEXT7_API_KEY
 docker-compose up -d
 ```
 
@@ -395,41 +410,46 @@ docker-compose up -d
 
 ## Filetree
 
+[CLAUDE.md](CLAUDE.md) is always in context and defines product vision, toolkit, architecture, and global constraints.
+
 ```
-your-project/
-├── CLAUDE.md                      # Always in context — product vision, toolkit, architecture
-└── .claude/                       # Active protocols (what Claude Code uses)
-    ├── skills/                    # Skills (slash commands + full protocols)
-    │   ├── arm/SKILL.md           # /arm → crystallization workflow
-    │   ├── design/SKILL.md        # /design → design workflow
-    │   ├── plan/SKILL.md          # /plan → execution planning workflow
-    │   ├── ar/SKILL.md            # /ar → adversarial review orchestration
-    │   ├── build/SKILL.md         # /build → implementation workflow
-    │   ├── denoise/SKILL.md       # /denoise → code-simplifier plugin
-    │   ├── pmatch/SKILL.md        # /pmatch → pattern matching validation
-    │   ├── qf/SKILL.md            # /qf → frontend QA agent
-    │   ├── qb/SKILL.md            # /qb → backend QA agent
-    │   ├── qd/SKILL.md            # /qd → docs QA agent
-    │   └── [your-skill]/          # Add domain skills here
-    │
-    ├── agents/                    # Sub-agents (autonomous tasks)
-    │   ├── build.md               # Build worker (Sonnet)
-    │   ├── qa-docs.md             # Documentation freshness validator
-    │   ├── qa-f.md                # Frontend module audit
-    │   ├── qa-b.md                # Backend module audit
-    │   ├── ar-o.md                # Adversarial review (Opus)
-    │   ├── ar-k.md                # Adversarial review (Kimi via LiteLLM)
-    │   ├── ar-d.md                # Adversarial review (Deepseek via LiteLLM)
-    │   ├── pm-s.md                # Pattern matching (Sonnet)
-    │   └── pm-k.md                # Pattern matching (Kimi via LiteLLM)
-    │
-    └── resources/                 # Shared resources (style guides, templates)
-        ├── frontend_styleguide.md
-        ├── backend_styleguide.md
-        ├── claude-execution-template.md
-        ├── ARC_doc_template.md
-        ├── README_module_template.md
-        └── file_doc_template.md
+.claude/                       # Active protocols (what Claude Code uses)
+├── skills/                    # Skills (slash commands + full protocols)
+│   ├── arm/SKILL.md           # /arm → crystallization workflow
+│   ├── design/SKILL.md        # /design → design workflow
+│   ├── plan/SKILL.md          # /plan → execution planning workflow
+│   ├── ar/SKILL.md            # /ar → adversarial review orchestration
+│   ├── build/SKILL.md         # /build → implementation workflow
+│   ├── denoise/SKILL.md       # /denoise → code-simplifier plugin
+│   ├── pmatch/SKILL.md        # /pmatch → pattern matching validation
+│   ├── qf/SKILL.md            # /qf → frontend QA agent
+│   ├── qb/SKILL.md            # /qb → backend QA agent
+│   ├── qd/SKILL.md            # /qd → docs QA agent
+│   └── [your-skill]/          # Add domain skills here
+│
+├── agents/                    # Sub-agents (autonomous tasks)
+│   ├── build.md               # Build worker (Sonnet)
+│   ├── qa-docs.md             # Documentation freshness validator
+│   ├── qa-f.md                # Frontend module audit
+│   ├── qa-b.md                # Backend module audit
+│   ├── ar-o.md                # Adversarial review (Opus)
+│   ├── ar-k.md                # Adversarial review (Kimi via LiteLLM)
+│   ├── ar-d.md                # Adversarial review (Deepseek via LiteLLM)
+│   ├── pm-s.md                # Pattern matching (Sonnet)
+│   └── pm-k.md                # Pattern matching (Kimi via LiteLLM)
+│
+└── resources/                 # Shared resources (style guides, templates)
+    ├── frontend_styleguide.md
+    ├── backend_styleguide.md
+    ├── claude-execution-template.md
+    ├── ARC_doc_template.md
+    ├── README_module_template.md
+    └── file_doc_template.md
+
+Valence/                   # Documentation (reference copies)
+├── skills/                    # Skill protocol documentation
+├── agents/                    # Agent protocol documentation
+└── resources/                 # Template documentation
 ```
 
 ---
@@ -469,6 +489,62 @@ A complete feature lifecycle. In practice, you skip or repeat phases based on co
 
 ---
 
+## Quick Start
+
+### 1. Install Claude Code
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+Requires Node.js 18+ and an Anthropic API key. See [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code) for details.
+
+### 2. Copy to Your Project
+
+```bash
+# Clone Valence
+git clone https://github.com/nooqta/Valence.git
+
+# Copy workflow infrastructure to your project
+cp -r Valence/.claude /path/to/your-project/
+cp Valence/claude.md.example /path/to/your-project/CLAUDE.md
+```
+
+The `.claude/` folder contains everything: skills, agents, and resources. `Valence/` is documentation only—not required for operation.
+
+### 3. Customize
+
+See [QUICKSTART.md](QUICKSTART.md) for the full customization checklist.
+
+### 4. Multi-Model Setup
+
+Required for adversarial review (`/ar`) and pattern matching (`/pmatch`). 
+
+```bash
+# Copy LiteLLM infrastructure
+cp -r Valence/docker /path/to/your-project/
+
+# Configure and run
+cd /path/to/your-project/docker/litellm
+cp .env.example .env
+# Add: GEMINI_API_KEY, DEEPSEEK_API_KEY
+docker-compose up -d
+```
+
+### 5. Verify
+
+```bash
+cd /path/to/your-project
+claude
+
+# Test the workflow
+/arm I want to add a simple feature
+```
+
+---
+
 ## License
+
+![Licence](/assets/by-sa.png)
 
 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)

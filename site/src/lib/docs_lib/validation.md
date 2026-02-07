@@ -22,7 +22,7 @@ Input validation for API endpoints. Prevents KV key injection by validating skil
 ## Key Logic
 
 ### Pattern: `^@?[\w-]+\/[\w-]+$`
-- Optional `@` prefix (for namespaced IDs like `@supercollectible/The_Skillset`)
+- Optional `@` prefix (for namespaced IDs like `@supercollectible/Valence`)
 - Namespace: one or more word characters or hyphens
 - Single `/` separator
 - Name: one or more word characters or hyphens

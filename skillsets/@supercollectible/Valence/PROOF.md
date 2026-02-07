@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Skillset is a spec-driven, multi-agent SDLC workflow that has been used to build production software. Its core value proposition—preserving intent through formalized quality gates and adversarial review—has been validated through real-world usage.
+Valence is a spec-driven, multi-agent SDLC workflow that has been used to build production software. Its core value proposition—preserving intent through formalized quality gates and adversarial review—has been validated through real-world usage.
 
 ## Production URL
 
@@ -12,7 +12,7 @@ https://skillsets.cc
 
 ### skillsets.cc
 
-The Skillsets.cc registry platform itself was designed and built using The Skillset workflow:
+The Skillsets.cc registry platform itself was designed and built using the Valence workflow:
 
 - **Design phase**: `/design` skill used to create the system architecture, including the mono-repo registry structure, Astro SSR site, and CLI tooling
 - **Adversarial review**: `/ar` skill orchestrated multi-model critique of the design document before implementation

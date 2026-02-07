@@ -29,7 +29,7 @@ Dynamic skillset detail page displaying full information about a specific skills
 
 ### URL Parameters
 - `namespace`: Author namespace (e.g., "@supercollectible")
-- `name`: Skillset name (e.g., "The_Skillset")
+- `name`: Skillset name (e.g., "Valence")
 - Combined as `skillsetId` for lookups
 
 ### Data Loading

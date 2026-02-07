@@ -36,8 +36,8 @@
 | Area | Entry Point |
 |------|-------------|
 | **Architecture** | [ARCHITECTURE_backend.md](DOCS/ARCHITECTURE_backend.md), [ARCHITECTURE_frontend.md](DOCS/ARCHITECTURE_frontend.md) |
-| **Style Guides** | [Frontend](TheSkillset/resources/frontend_styleguide.md), [Backend](TheSkillset/resources/backend_styleguide.md) |
-| **Protocols** | `TheSkillset/` — skills, agents, resources |
+| **Style Guides** | [Frontend](Valence/resources/frontend_styleguide.md), [Backend](Valence/resources/backend_styleguide.md) |
+| **Protocols** | `Valence/` — skills, agents, resources |
 | **Deployment** | [DEPLOY_AND_AUTH.md](DOCS/DEPLOY_AND_AUTH.md) |
 
 ### Module Documentation Structure

@@ -344,7 +344,7 @@ const { title, description = 'Verified registry of agentic workflows' } = Astro.
 
     <footer class="border-t border-border-medium mt-20">
       <div class="max-w-7xl mx-auto px-4 py-8 text-center text-text-secondary">
-        <p>Powered by The Skillset</p>
+        <p>Powered by Valence</p>
       </div>
     </footer>
   </body>

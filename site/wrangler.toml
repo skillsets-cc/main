@@ -3,7 +3,7 @@ main = "dist/_worker.js/index.js"
 compatibility_date = "2026-01-30"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
-preview_urls = true
+preview_urls = false
 
 [assets]
 binding = "ASSETS"
@@ -35,3 +35,12 @@ preview_id = "7eb56e18367d4fe6aa1aa594866365ae"
 # For local dev, these are overridden in .dev.vars
 CALLBACK_URL = "https://skillsets.cc/callback"
 SITE_URL = "https://skillsets.cc"
+
+# Durable Objects
+[[durable_objects.bindings]]
+name = "RESERVATIONS"
+class_name = "ReservationCoordinator"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ReservationCoordinator"]

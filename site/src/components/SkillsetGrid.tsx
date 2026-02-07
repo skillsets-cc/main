@@ -1,6 +1,7 @@
 import { useState, useEffect, type ReactElement } from 'react';
-import type { SearchIndexEntry } from '@/types';
+import type { SearchIndexEntry, ReservationState } from '@/types';
 import TagFilter from './TagFilter.js';
+import GhostCard from './GhostCard.js';
 
 interface SkillsetGridProps {
   skillsets: SearchIndexEntry[];
@@ -19,6 +20,7 @@ export default function SkillsetGrid({
 }: SkillsetGridProps): ReactElement {
   const [tagResults, setTagResults] = useState<SearchIndexEntry[]>(skillsets);
   const [liveStars, setLiveStars] = useState<Record<string, number>>({});
+  const [reservations, setReservations] = useState<ReservationState | null>(null);
 
   // Fetch all live star counts in a single request
   useEffect(() => {
@@ -36,13 +38,29 @@ export default function SkillsetGrid({
     fetchStars();
   }, [skillsets]);
 
+  // Fetch reservation state
+  useEffect(() => {
+    async function fetchReservations(): Promise<void> {
+      try {
+        const response = await fetch('/api/reservations', { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json() as ReservationState;
+          setReservations(data);
+        }
+      } catch {
+        // No ghost cards on error
+      }
+    }
+    fetchReservations();
+  }, []);
+
   const finalResults = tagResults;
 
   return (
     <div>
       <TagFilter skillsets={skillsets} onResultsChange={setTagResults} />
 
-      <div className="flex flex-col border-t border-border-ink">
+      <div className="flex flex-col border-t border-orange-500">
         {finalResults.map(skillset => {
           const [namespace, name] = skillset.id.split('/');
           return (
@@ -83,6 +101,45 @@ export default function SkillsetGrid({
           );
         })}
       </div>
+
+      {reservations && Object.keys(reservations.slots).length > 0 && (
+        <div className="flex flex-col border-t border-dashed border-border-ink mt-0">
+          {Object.entries(reservations.slots).map(([slotId, slot], idx) => (
+            <GhostCard
+              key={slotId}
+              slotId={slotId}
+              index={skillsets.length + idx + 1}
+              total={skillsets.length + Object.keys(reservations.slots).length}
+              status={slot.status}
+              expiresAt={slot.expiresAt}
+              isOwn={reservations.userSlot === slotId}
+              onReserved={(sid, exp) => {
+                setReservations(prev => prev ? {
+                  ...prev,
+                  userSlot: sid,
+                  slots: { ...prev.slots, [sid]: { status: 'reserved', expiresAt: exp } },
+                } : prev);
+              }}
+              onCancelled={() => {
+                setReservations(prev => prev ? {
+                  ...prev,
+                  userSlot: null,
+                  slots: {
+                    ...prev.slots,
+                    ...(prev.userSlot ? { [prev.userSlot]: { status: 'available' } } : {}),
+                  },
+                } : prev);
+              }}
+              onConflict={() => {
+                fetch('/api/reservations', { credentials: 'include' })
+                  .then(r => r.json())
+                  .then(data => setReservations(data as ReservationState))
+                  .catch(() => {});
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       {finalResults.length === 0 && (
         <div className="text-center py-12 text-text-secondary">
