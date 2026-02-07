@@ -22,6 +22,8 @@ npx skillsets submit
 
 ## Generated Structure
 
+`npx skillsets init` auto-detects existing `.claude/`, `CLAUDE.md`, and `README.md` in your project root and offers to copy them into `content/`.
+
 ```
 your-skillset/
 ├── skillset.yaml          # Manifest (required)

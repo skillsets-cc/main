@@ -50,8 +50,10 @@ import CopyCommand from '@components/CopyCommand';
             <h3 class="text-lg font-bold font-serif text-text-ink mb-2">Initialize Your Skillset</h3>
             <p class="text-lg text-text-secondary mb-3 font-serif">
               Run the init command in your skillset repo. It will auto-detect existing
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.claude/</code> and
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">CLAUDE.md</code> files.
+              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.claude/</code>,
+              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">CLAUDE.md</code>, and
+              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">README.md</code>
+              and offer to copy them into <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">content/</code>.
             </p>
             <CopyCommand client:load command="npx skillsets init" />
             <p class="text-lg text-text-tertiary mt-3 mb-2 font-serif">This scaffolds the following structure:</p>
