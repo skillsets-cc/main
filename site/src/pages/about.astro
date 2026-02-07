@@ -7,70 +7,73 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 <BaseLayout title="About - Skillsets.cc">
   <main class="max-w-4xl mx-auto px-4 py-12">
     <header class="mb-8 border-b border-border-ink pb-6">
-      <h1 class="text-4xl font-medium font-serif text-text-ink">About Skillsets.cc</h1>
+      <h1 class="text-4xl font-medium font-serif text-text-ink">About</h1>
     </header>
 
     <div class="space-y-8 text-lg font-serif text-text-secondary leading-relaxed">
+      <div class="border-l-4 border-orange-500 pl-6 md:pl-8">
+        <p class="text-xl text-text-ink">
+          Atomic skill marketplaces give you ingredients. Skillsets.cc gives you the recipe — and proof that the dish has been served.
+        </p>
+      </div>
+
       <section>
-        <h2 class="text-2xl font-bold text-text-ink mb-4">The Problem</h2>
         <p class="mb-4">
-          Individual skills often conflict—namespace collisions, context window hogging, incompatible assumptions.
-          Many work in isolation or simple demos but fail in complex production environments. The value isn't
-          just in the tools themselves, but in the <em>orchestration strategies</em> and <em>context bridging</em> between them.
+          Individual Claude Code primitives — skills, agents, hooks, MCP servers — often conflict when combined.
+          Namespace collisions, context window bloat, incompatible assumptions.
+          They work in isolation but break under production pressure.
         </p>
         <p>
-          Atomic skill marketplaces give you ingredients. We give you the recipe—and proof that the dish has been served.
+          The value isn't in the parts. It's in the <em>orchestration</em> — how primitives are wired together,
+          how context flows between them, how the whole system behaves under real workloads.
+        </p>
+      </section>
+
+      <div class="border border-border-ink bg-stone-50 p-8 rounded-none">
+        <h2 class="text-2xl font-bold text-text-ink mb-4 font-serif">What's in a skillset</h2>
+        <p class="mb-4">
+          A complete, reproducible workflow. Not a list of links — a battle-tested stack of skills, agents, prompts,
+          MCP servers, and plugins that ship together as one unit.
+        </p>
+        <p>
+          Every entry has <strong class="text-text-ink">shipped production software</strong>, with evidence to prove it.
+        </p>
+      </div>
+
+      <section>
+        <h2 class="text-2xl font-bold text-text-ink mb-4 font-serif">High friction by design</h2>
+        <p class="mb-4">
+          Submissions require production proof — a live product, public repo, or case study.
+          Then a structural audit. Then an Opus qualitative review.
+        </p>
+        <p>
+          This isn't a dump of untested configs. It's a curated, limited-admission registry of workflows that work.
         </p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-bold text-text-ink mb-4">The Solution</h2>
-        <p>
-          A skillset is a reproducible configuration verified by real usage. Not a list of links—a complete
-          workflow with skills, agents, prompts, MCP servers, and plugins that work together. Each one has
-          shipped production software, with evidence to prove it.
-        </p>
-      </section>
-
-      <section>
-        <h2 class="text-2xl font-bold text-text-ink mb-4">Why Verification?</h2>
-        <p>
-          We use high friction to ensure high quality. Every skillset in the registry must provide
-          production proof—a link to a live product, repository, or case study demonstrating real-world usage.
-          This isn't a dump of untested configs; it's a curated collection of battle-tested workflows.
-        </p>
-      </section>
-
-      <section>
-        <h2 class="text-2xl font-bold text-text-ink mb-4">How It Works</h2>
-        <ul class="list-disc list-inside space-y-2">
-          <li>Browse or search the registry for workflows that match your needs</li>
-          <li>Install with <code class="bg-stone-50 border border-border-ink px-2 py-0.5 font-mono text-sm">npx skillsets install @namespace/name</code></li>
-          <li>Files are extracted directly to your project—no .git folders, no bloat</li>
-          <li>Verify integrity with checksums against the registry</li>
+        <h2 class="text-2xl font-bold text-text-ink mb-4 font-serif">How it works</h2>
+        <ul class="space-y-3">
+          <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">1.</span> <span>Browse the registry or <code class="bg-white border border-border-ink px-2 py-0.5 font-mono text-sm">npx skillsets search</code></span></li>
+          <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">2.</span> <span><code class="bg-white border border-border-ink px-2 py-0.5 font-mono text-sm">npx skillsets install @namespace/name</code></span></li>
+          <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">3.</span> <span>Files extract directly to your project. No .git folders, no bloat.</span></li>
+          <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">4.</span> <span>Checksums verified against the registry automatically.</span></li>
         </ul>
       </section>
 
       <section>
-        <h2 class="text-2xl font-bold text-text-ink mb-4">Built With Valence</h2>
+        <h2 class="text-2xl font-bold text-text-ink mb-4 font-serif">Built with Valence</h2>
         <p>
-          This registry was architected and built by <a href="https://github.com/supercollectible" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">@supercollectible</a> using
-          <a href="/skillset/@supercollectible/Valence" class="text-orange-500 hover:underline">Valence</a>—the first entry in the registry.
-        </p>
-      </section>
-
-      <section>
-        <h2 class="text-2xl font-bold text-text-ink mb-4">Open Source</h2>
-        <p>
-          The registry infrastructure is MIT-licensed. Individual skillsets are licensed by their authors.
-          We believe production-proven workflows should be shared, studied, and improved upon.
+          This site was built by <a href="https://github.com/supercollectible" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">@supercollectible</a> using
+          <a href="/skillset/@supercollectible/Valence" class="text-orange-500 hover:underline">Valence</a> — the first skillset in the registry.
+          The infrastructure is MIT-licensed. Individual skillsets are licensed by their authors.
         </p>
       </section>
 
       <section class="pt-4 border-t border-border-ink">
-        <p class="text-text-secondary text-sm">
+        <p class="text-text-secondary">
           Have a production-verified workflow? <a href="/contribute" class="text-orange-500 hover:underline">Contribute it</a>.
-          Got the chops to review submissions? <a href="https://github.com/skillsets-cc/main" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">Become a co-maintainer</a>.
+          Want to help review? <a href="https://github.com/skillsets-cc/main" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">Become a co-maintainer</a>.
         </p>
       </section>
     </div>

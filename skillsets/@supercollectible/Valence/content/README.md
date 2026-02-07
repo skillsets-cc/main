@@ -1,6 +1,8 @@
-The core problem: **preserving intent and agency** against the grain of automated gaslighting and cognitive offloading. My intention should flow through to implementation without being lost or distorted. Decisions and rationale are mine to own. The system should flag my bullshit requirements, not enable poor life choices. I dont want a magic button, I just want to know what happens when I can finally work at the speed of thought.
+The core problem: **preserving intent and agency** against the grain of automated gaslighting and cognitive offloading. Intent should flow through to implementation without being lost or distorted. Decisions and rationale are mine to own. The system should flag bullshit requirements, not enable poor life choices. 
 
 This flow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded multi-agent workflow with formalized quality gates, adversarial reviews and auditable handoffs. 
+
+I dont want a magic button, I just want to know what happens when I can finally work at the speed of thought.
 
 ---
 
@@ -20,10 +22,10 @@ This flow is what survived 2.5k hours of iteration: First Principles + spec-driv
 ## The 10 Slash Commandments
 
 1. **Code is a Liability; Judgement is an Asset**
-Never generate implementation from a raw prompt. Enforce First Principles design to crystallize the solution architecture before a single line of syntax is written. Stress test all assumptions and swap for custom fits. If your requirements are stupid, it never gets built.
+Never generate implementation from a raw prompt. Enforce First Principles design to crystallize the solution architecture before a single line of syntax is written. Stress test all assumptions and swap for custom fits. 
 
-2. **Dissensus > Consensus**
-Your idea is only as good as the number of bulletholes it can withstand. A single model is an echo chamber that validates its own biases. Deploy Adversarial Review panels to manufacture friction. By forcing distinct models with different training data to critique the same design, you expose blind spots that a single perspective would miss. Trust conflict more than agreement.
+2. **Consensus through Dissensus**
+Your idea is only as good as the number of bulletholes it can withstand. Deploy Adversarial Review panels to manufacture friction. By forcing distinct models with different training data to critique the same design, you expose blind spots that a single perspective would miss. Trust conflict more than agreement.
 
 3. **Cognitive Tiering**
 Intelligence is a finite resource that must be allocated economically. Do not use a supercomputer to write boilerplate, nor a fast model to design architecture. Route tasks based on cognitive load: high-reasoning models for strategy and design, and high-efficiency models for execution and QA. Optimize the curve between cost, speed, and quality per task.
