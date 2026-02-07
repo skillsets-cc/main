@@ -8,8 +8,8 @@ I dont want a magic button, I just want to know what happens when I can finally 
 
 ## Contents
 
-- [The 10 Slash Commandments](#the-10-slash-commandments) — Design philosophy
-- [The 10 Slash Commands](#the-10-slash-commands) — User-invoked entry points
+- [Ideas](#ideas) — Design philosophy
+- [Primitives](#primitives) — User-invoked entry points
 - [The Workflow](#the-workflow) — Phase diagram
 - [Quality Gates](#quality-gates) — Validation checkpoints
 - [Grounding & Navigation](#grounding--navigation) — Where agents look and what they trust
@@ -19,7 +19,7 @@ I dont want a magic button, I just want to know what happens when I can finally 
 
 ---
 
-## The 10 Slash Commandments
+## Ideas
 
 1. **Code is a Liability; Judgement is an Asset**
 Never generate implementation from a raw prompt. Enforce First Principles design to crystallize the solution architecture before a single line of syntax is written. Stress test all assumptions and swap for custom fits. 
@@ -53,7 +53,7 @@ This system is an exoskeleton, not a replacement. Automation without structure i
 
 ---
 
-## The 10 Slash Commands
+## Primitives
 
 User-invoked entry points into the workflow. Each command loads its protocol and executes the corresponding phase.
 
