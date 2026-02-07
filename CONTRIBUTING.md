@@ -22,7 +22,7 @@ npx skillsets submit
 
 ## Generated Structure
 
-`npx skillsets init` auto-detects existing `.claude/`, `CLAUDE.md`, and `README.md` in your project root and offers to copy them into `content/`.
+`npx skillsets init` auto-detects existing `CLAUDE.md`, `README.md`, `.claude/`, `.mcp.json`, and `docker/` in your project root and offers to copy them into `content/`.
 
 ```
 your-skillset/
@@ -32,10 +32,11 @@ your-skillset/
 ├── .claude/skills/        # Installed by init
 │   └── audit-skill/       # Qualitative review skill
 └── content/               # Files to install
+    ├── CLAUDE.md          # Project instructions
     ├── README.md          # User instructions (required)
     ├── .claude/           # Claude Code primitives
     ├── .mcp.json          # MCP servers (if any)
-    └── CLAUDE.md          # Project instructions
+    └── docker/            # Docker configs (if any)
 ```
 
 ## skillset.yaml Reference

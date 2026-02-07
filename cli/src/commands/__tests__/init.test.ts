@@ -130,6 +130,29 @@ describe('init command', () => {
     expect(content).toBe('# My Project README');
   });
 
+  it('detects and offers to copy existing .mcp.json', async () => {
+    writeFileSync(join(testDir, '.mcp.json'), '{"mcpServers":{}}');
+
+    vi.mocked(checkbox).mockResolvedValue(['.mcp.json']);
+
+    await init({});
+
+    expect(existsSync(join(testDir, 'content', '.mcp.json'))).toBe(true);
+    const content = readFileSync(join(testDir, 'content', '.mcp.json'), 'utf-8');
+    expect(content).toBe('{"mcpServers":{}}');
+  });
+
+  it('detects and offers to copy existing docker/', async () => {
+    mkdirSync(join(testDir, 'docker', 'litellm'), { recursive: true });
+    writeFileSync(join(testDir, 'docker', 'litellm', 'config.yaml'), 'model: gpt-4');
+
+    vi.mocked(checkbox).mockResolvedValue(['docker/']);
+
+    await init({});
+
+    expect(existsSync(join(testDir, 'content', 'docker', 'litellm', 'config.yaml'))).toBe(true);
+  });
+
   it('asks for confirmation if skillset.yaml exists', async () => {
     // Create existing skillset.yaml
     writeFileSync(join(testDir, 'skillset.yaml'), 'existing: true');

@@ -60,10 +60,11 @@
 │  │       ├── skillset.yaml          ◄── Manifest                    │
 │  │       ├── AUDIT_REPORT.md        ◄── Structural validation       │
 │  │       └── content/               ◄── Files to install            │
+│  │           ├── CLAUDE.md                                          │
 │  │           ├── README.md          ◄── User instructions           │
 │  │           ├── .claude/                                           │
 │  │           ├── Valence/                                           │
-│  │           └── CLAUDE.md                                          │
+│  │           └── docker/                                            │
 │                                                                     │
 │  schema/                                                            │
 │  └── skillset.schema.json           ◄── Validation schema           │

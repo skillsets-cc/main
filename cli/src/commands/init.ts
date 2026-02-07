@@ -192,14 +192,20 @@ export async function init(options: InitOptions): Promise<void> {
 
   // Auto-detect existing files
   const detectedFiles: string[] = [];
-  if (existsSync(join(cwd, '.claude'))) {
-    detectedFiles.push('.claude/');
-  }
   if (existsSync(join(cwd, 'CLAUDE.md'))) {
     detectedFiles.push('CLAUDE.md');
   }
   if (existsSync(join(cwd, 'README.md'))) {
     detectedFiles.push('README.md');
+  }
+  if (existsSync(join(cwd, '.claude'))) {
+    detectedFiles.push('.claude/');
+  }
+  if (existsSync(join(cwd, '.mcp.json'))) {
+    detectedFiles.push('.mcp.json');
+  }
+  if (existsSync(join(cwd, 'docker'))) {
+    detectedFiles.push('docker/');
   }
 
   let filesToCopy: string[] = [];
