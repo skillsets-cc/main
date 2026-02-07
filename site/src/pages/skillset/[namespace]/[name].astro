@@ -118,40 +118,60 @@ const statusColor = getStatusColor(skillset.status);
         contextImageUrl={skillset.context_image_url}
       />
 
-      <section class="p-6 rounded-none">
-        <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
-        <article class="prose max-w-none" set:html={readmeHtml} />
-      </section>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
+          <h2 class="text-sm font-bold font-mono mb-3 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Install</h2>
+          <CopyCommand client:load command={installCommand} />
+          <p class="mt-2 text-xs text-text-tertiary font-mono">
+            <a href="/cli" class="text-orange-500 hover:underline">More CLI commands</a> — search, list
+          </p>
+          <p class="mt-1 text-xs text-text-tertiary font-serif italic">
+            Reviewed on a best-effort basis with no security guarantees. You are the final quality gate, as with any OSS.
+          </p>
+        </section>
 
-      <CopyCommand client:load command={installCommand} heading="Install" disclaimer="Submissions are reviewed on a best-effort basis with no security guarantees. You are the final quality gate, as with any OSS." />
+        <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
+          <h2 class="text-sm font-bold font-mono mb-3 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Compatibility</h2>
+          <dl class="space-y-2">
+            <div>
+              <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary mb-0.5">Claude Code Version</dt>
+              <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.claude_code_version}</dd>
+            </div>
+            <div>
+              <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary mb-0.5">Languages</dt>
+              <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.languages.join(', ')}</dd>
+            </div>
+          </dl>
+        </section>
+      </div>
 
       {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
-        <section class="p-6 rounded-none">
-          <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">
+        <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
+          <h2 class="text-sm font-bold font-mono mb-3 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">
             MCP Servers
           </h2>
-          <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
             {skillset.mcp_servers.filter(s => s.type !== 'docker').length > 0 && (
               <div>
-                <h3 class="font-bold font-serif text-text-ink mb-2">Claude Code Managed</h3>
+                <h3 class="font-bold font-serif text-text-ink text-sm mb-1">Claude Code Managed</h3>
                 {skillset.mcp_servers.filter(s => s.type !== 'docker').map(server => (
-                  <div class="flex items-start gap-4 mb-3">
-                    <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
+                  <div class="flex items-start gap-3 mb-2">
+                    <div class="w-1 self-stretch bg-orange-500 flex-shrink-0"></div>
                     <div>
-                      <p class="font-bold font-serif text-text-ink mb-1">
+                      <p class="font-bold font-serif text-sm text-text-ink">
                         {server.name}
                         <span class="text-text-tertiary font-normal"> ({server.type})</span>
                       </p>
                       {server.command && (
-                        <p class="text-sm text-text-secondary font-mono leading-relaxed">
+                        <p class="text-xs text-text-secondary font-mono">
                           {server.command} {(server.args || []).join(' ')}
                         </p>
                       )}
                       {server.url && (
-                        <p class="text-sm text-text-secondary font-mono leading-relaxed">{server.url}</p>
+                        <p class="text-xs text-text-secondary font-mono">{server.url}</p>
                       )}
-                      <p class="text-lg text-text-secondary font-serif mt-1 leading-relaxed">
-                        {server.mcp_reputation} <span class="italic">(as of {server.researched_at})</span>
+                      <p class="text-xs text-text-secondary font-serif mt-0.5">
+                        {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
                       </p>
                     </div>
                   </div>
@@ -160,17 +180,17 @@ const statusColor = getStatusColor(skillset.status);
             )}
             {skillset.mcp_servers.filter(s => s.type === 'docker').length > 0 && (
               <div>
-                <h3 class="font-bold font-serif text-text-ink mb-2">Docker Hosted</h3>
+                <h3 class="font-bold font-serif text-text-ink text-sm mb-1">Docker Hosted</h3>
                 {skillset.mcp_servers.filter(s => s.type === 'docker').map(server => (
-                  <div class="flex items-start gap-4 mb-3">
-                    <div class="w-1 h-full min-h-[40px] bg-orange-500 flex-shrink-0"></div>
+                  <div class="flex items-start gap-3 mb-2">
+                    <div class="w-1 self-stretch bg-orange-500 flex-shrink-0"></div>
                     <div>
-                      <p class="font-bold font-mono text-text-ink mb-1">{server.image}</p>
-                      <p class="text-lg text-text-secondary font-serif leading-relaxed">
-                        {server.mcp_reputation} <span class="italic">(as of {server.researched_at})</span>
+                      <p class="font-bold font-mono text-sm text-text-ink">{server.image}</p>
+                      <p class="text-xs text-text-secondary font-serif">
+                        {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
                       </p>
                       {server.servers && server.servers.length > 0 && (
-                        <p class="text-lg text-text-secondary font-serif mt-1 leading-relaxed">
+                        <p class="text-xs text-text-secondary font-serif mt-0.5">
                           Runs: {server.servers.map(s => s.name).join(', ')}
                         </p>
                       )}
@@ -180,24 +200,15 @@ const statusColor = getStatusColor(skillset.status);
               </div>
             )}
           </div>
-          <p class="text-lg text-text-tertiary mt-4 font-serif italic">
+          <p class="text-xs text-text-tertiary mt-2 font-serif italic">
             MCP packages are fetched at runtime and may have changed since audit.
           </p>
         </section>
       )}
 
-      <section class="border border-border-ink bg-stone-50 p-6 rounded-none">
-        <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Compatibility</h2>
-        <dl class="space-y-3">
-          <div>
-            <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary mb-1">Claude Code Version</dt>
-            <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.claude_code_version}</dd>
-          </div>
-          <div>
-            <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary mb-1">Languages</dt>
-            <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.languages.join(', ')}</dd>
-          </div>
-        </dl>
+      <section class="p-6 rounded-none">
+        <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
+        <article class="prose max-w-none" set:html={readmeHtml} />
       </section>
     </div>
 
