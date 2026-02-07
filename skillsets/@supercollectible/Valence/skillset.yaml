@@ -36,6 +36,7 @@ status: "active"
 
 # Content
 entry_point: "./content/CLAUDE.md"
+context_image_url: "https://iili.io/fmReA3Q.png"
 
 # MCP Servers
 mcp_servers:

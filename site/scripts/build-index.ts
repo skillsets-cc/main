@@ -42,6 +42,7 @@ interface SkillsetYaml {
   };
   status?: 'active' | 'deprecated' | 'archived';
   entry_point?: string;
+  context_image_url?: string;
   mcp_servers?: Array<{
     name: string;
     type: 'stdio' | 'http' | 'docker';
@@ -83,6 +84,7 @@ interface SearchIndexEntry {
     languages: string[];
   };
   entry_point: string;
+  context_image_url?: string;
   checksum: string;
   files: Record<string, string>;
   mcp_servers?: SkillsetYaml['mcp_servers'];
@@ -252,6 +254,7 @@ function buildSkillsetEntry(
       languages: manifest.compatibility?.languages || ['any'],
     },
     entry_point: manifest.entry_point || './content/CLAUDE.md',
+    context_image_url: manifest.context_image_url,
     checksum,
     files,
     mcp_servers: manifest.mcp_servers,
