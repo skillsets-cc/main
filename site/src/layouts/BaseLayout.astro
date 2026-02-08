@@ -24,16 +24,41 @@ const { title, description = 'Verified registry of production-ready Claude Code 
   </head>
 
   <body class="min-h-screen bg-stone-50 text-text-ink selection:bg-accent-highlight selection:text-text-ink font-sans">
-    <div class="flex flex-col md:flex-row min-h-screen">
+    <!-- Sidebar Toggle (mobile) -->
+    <button
+      id="sidebar-toggle"
+      class="fixed top-4 left-4 z-[70] md:hidden p-2 bg-stone-50 border border-border-ink"
+      aria-label="Toggle navigation"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- Sidebar Overlay (mobile) -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-[55] hidden md:hidden"></div>
+
+    <div class="flex min-h-screen">
       <!-- Sidebar Navigation -->
-      <aside class="w-full md:w-64 flex-shrink-0 border-r border-border-ink bg-stone-50 md:h-screen md:sticky md:top-0 overflow-y-auto z-[60]">
+      <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 flex-shrink-0 border-r border-border-ink bg-stone-50 h-screen overflow-y-auto z-[60] -translate-x-full md:translate-x-0 md:sticky md:top-0 transition-transform duration-200">
         <div class="p-6 flex flex-col h-full">
-          <a href="/" class="block mb-8">
-            <h1 class="text-2xl font-serif font-medium text-text-ink tracking-tight">
-              Skillsets.cc
-            </h1>
-            <p class="text-xs font-mono text-text-tertiary mt-1">EST. 2026 • PUBLIC DOMAIN</p>
-          </a>
+          <div class="flex items-start justify-between">
+            <a href="/" class="block mb-8">
+              <h1 class="text-2xl font-serif font-medium text-text-ink tracking-tight">
+                Skillsets.cc
+              </h1>
+              <p class="text-xs font-mono text-text-tertiary mt-1">EST. 2026 • PUBLIC DOMAIN</p>
+            </a>
+            <button
+              id="sidebar-close"
+              class="md:hidden p-1 text-text-tertiary hover:text-text-ink -mr-2 mt-1"
+              aria-label="Close navigation"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
 
           <nav class="space-y-6">
             <div>
@@ -88,5 +113,25 @@ const { title, description = 'Verified registry of production-ready Claude Code 
         <slot />
       </main>
     </div>
+    <script>
+      const toggle = document.getElementById('sidebar-toggle');
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      const closeBtn = document.getElementById('sidebar-close');
+
+      function openSidebar() {
+        sidebar?.classList.remove('-translate-x-full');
+        overlay?.classList.remove('hidden');
+      }
+
+      function closeSidebar() {
+        sidebar?.classList.add('-translate-x-full');
+        overlay?.classList.add('hidden');
+      }
+
+      toggle?.addEventListener('click', openSidebar);
+      closeBtn?.addEventListener('click', closeSidebar);
+      overlay?.addEventListener('click', closeSidebar);
+    </script>
   </body>
 </html>

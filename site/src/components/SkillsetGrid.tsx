@@ -60,7 +60,7 @@ export default function SkillsetGrid({
     <div>
       <TagFilter skillsets={skillsets} onResultsChange={setTagResults} />
 
-      <div className="flex flex-col border-t border-orange-500">
+      <div className="flex flex-col">
         {finalResults.map(skillset => {
           const [namespace, name] = skillset.id.split('/');
           return (
