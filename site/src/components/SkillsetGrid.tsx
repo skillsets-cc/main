@@ -67,7 +67,7 @@ export default function SkillsetGrid({
             <article key={skillset.id} className="group border-b border-border-ink py-6 hover:bg-stone-50 transition-colors cursor-pointer">
               <a href={`/skillset/${namespace}/${name}`} className="block">
                 <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
-                  <h3 className="text-lg font-serif font-bold text-text-ink group-hover:text-orange-500 transition-colors">
+                  <h3 className="text-xl font-serif font-bold text-text-ink group-hover:text-orange-500 transition-colors">
                     {skillset.name}
                   </h3>
                   <span className="font-mono text-xs text-text-tertiary">
