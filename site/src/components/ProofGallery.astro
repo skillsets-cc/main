@@ -30,9 +30,9 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<section class="border border-orange-500 bg-stone-50 p-6 rounded-none">
+<section class="p-6 rounded-none">
   {contextImageUrl && (
-    <div class="mb-6 border-t border-orange-500 pt-6">
+    <div class="mb-6">
       <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Cold Start Spend</h2>
       <img
         src={sanitizeUrl(contextImageUrl)}
