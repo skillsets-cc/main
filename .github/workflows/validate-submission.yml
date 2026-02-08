@@ -113,6 +113,51 @@ jobs:
 
           exit $EXIT_CODE
 
+      - name: Verify batch ID reservation
+        if: steps.changed.outputs.dirs != ''
+        run: |
+          EXIT_CODE=0
+          for dir in ${{ steps.changed.outputs.dirs }}; do
+            echo "=========================================="
+            echo "Verifying reservation in $dir"
+            echo "=========================================="
+
+            if [ ! -f "$dir/skillset.yaml" ]; then
+              continue
+            fi
+
+            BATCH_ID=$(yq eval '.batch_id' "$dir/skillset.yaml")
+            PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+            PR_AUTHOR_ID="${{ github.event.pull_request.user.id }}"
+
+            if [ "$BATCH_ID" = "null" ] || [ -z "$BATCH_ID" ]; then
+              echo "::error::Missing batch_id in $dir/skillset.yaml"
+              EXIT_CODE=1
+              continue
+            fi
+
+            echo "Batch ID: $BATCH_ID"
+            echo "PR Author: $PR_AUTHOR (ID: $PR_AUTHOR_ID)"
+
+            # Pass both login and userId — handles GitHub username renames
+            # --max-time 10 --retry 2: prevent CI hang if skillsets.cc is down
+            RESPONSE=$(curl -sf --max-time 10 --retry 2 "https://skillsets.cc/api/reservations/verify?batchId=$BATCH_ID&login=$PR_AUTHOR&userId=$PR_AUTHOR_ID") || {
+              echo "::warning::Reservation verification unavailable (skillsets.cc unreachable). Skipping."
+              continue
+            }
+            VALID=$(echo "$RESPONSE" | jq -r '.valid')
+
+            if [ "$VALID" != "true" ]; then
+              REASON=$(echo "$RESPONSE" | jq -r '.reason')
+              echo "::error::Reservation verification failed: $REASON"
+              EXIT_CODE=1
+            else
+              echo "✅ Reservation verified for $BATCH_ID"
+            fi
+          done
+
+          exit $EXIT_CODE
+
       - name: Summary
         if: always()
         run: |

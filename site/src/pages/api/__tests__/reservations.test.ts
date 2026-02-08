@@ -57,7 +57,7 @@ function createMockStub(response: { status: number; body: unknown }) {
 describe('GET /api/reservations', () => {
   it('test_get_unauthenticated', async () => {
     mockGetSession.mockResolvedValue(null);
-    const stubResponse = { slots: {}, totalGhostSlots: 24, userSlot: null };
+    const stubResponse = { slots: {}, totalGhostSlots: 24, cohort: 1, userSlot: null };
     const stub = createMockStub({ status: 200, body: stubResponse });
     mockGetStub.mockReturnValue(stub);
 
@@ -72,7 +72,7 @@ describe('GET /api/reservations', () => {
 
   it('test_get_authenticated', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
-    const stubResponse = { slots: {}, totalGhostSlots: 24, userSlot: 'ghost-5' };
+    const stubResponse = { slots: {}, totalGhostSlots: 24, cohort: 1, userSlot: '5.10.001' };
     const stub = createMockStub({ status: 200, body: stubResponse });
     mockGetStub.mockReturnValue(stub);
 
@@ -91,7 +91,7 @@ describe('POST /api/reservations', () => {
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: 'ghost-1' }),
+        body: JSON.stringify({ slotId: '1.10.001' }),
       })
     );
     const response = await POST(ctx);
@@ -103,37 +103,59 @@ describe('POST /api/reservations', () => {
 
   it('test_post_valid_reserve', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
-    const stubResponse = { slotId: 'ghost-1', expiresAt: 1738900000 };
+    const stubResponse = { slotId: '1.10.001', expiresAt: 1738900000 };
     const stub = createMockStub({ status: 201, body: stubResponse });
     mockGetStub.mockReturnValue(stub);
 
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: 'ghost-1' }),
+        body: JSON.stringify({ slotId: '1.10.001' }),
       })
     );
     const response = await POST(ctx);
     const data = await response.json();
 
     expect(response.status).toBe(201);
-    expect(data.slotId).toBe('ghost-1');
+    expect(data.slotId).toBe('1.10.001');
+    // Verify DO stub receives githubLogin
+    expect(stub.fetch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        method: 'POST',
+      })
+    );
+    const callArg = (stub.fetch as any).mock.calls[0][0];
+    const bodyText = await callArg.text();
+    const bodyData = JSON.parse(bodyText);
+    expect(bodyData.githubLogin).toBe('test');
   });
 
   it('test_post_invalid_slot_id', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
 
-    const ctx = createAPIContext(
+    // Test old ghost-N format (should now be invalid)
+    const ctx1 = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations', {
+        method: 'POST',
+        body: JSON.stringify({ slotId: 'ghost-1' }),
+      })
+    );
+    const response1 = await POST(ctx1);
+    const data1 = await response1.json();
+    expect(response1.status).toBe(400);
+    expect(data1.error).toBe('Invalid slot ID');
+
+    // Test other invalid format
+    const ctx2 = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
         body: JSON.stringify({ slotId: 'invalid' }),
       })
     );
-    const response = await POST(ctx);
-    const data = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(data.error).toBe('Invalid slot ID');
+    const response2 = await POST(ctx2);
+    const data2 = await response2.json();
+    expect(response2.status).toBe(400);
+    expect(data2.error).toBe('Invalid slot ID');
   });
 
   it('test_post_missing_slot_id', async () => {
@@ -161,7 +183,7 @@ describe('POST /api/reservations', () => {
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: 'ghost-1' }),
+        body: JSON.stringify({ slotId: '1.10.001' }),
       }),
     );
     // Override env with pre-filled rate limit
@@ -179,7 +201,7 @@ describe('POST /api/reservations', () => {
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: 'ghost-1' }),
+        body: JSON.stringify({ slotId: '1.10.001' }),
       })
     );
     const response = await POST(ctx);
@@ -203,7 +225,7 @@ describe('DELETE /api/reservations', () => {
 
   it('test_delete_valid_release', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
-    const stub = createMockStub({ status: 200, body: { released: 'ghost-3' } });
+    const stub = createMockStub({ status: 200, body: { released: '3.10.001' } });
     mockGetStub.mockReturnValue(stub);
 
     const ctx = createAPIContext(
@@ -213,7 +235,7 @@ describe('DELETE /api/reservations', () => {
     const data = await response.json();
 
     expect(response.status).toBe(200);
-    expect(data.released).toBe('ghost-3');
+    expect(data.released).toBe('3.10.001');
   });
 
   it('test_delete_rate_limited', async () => {

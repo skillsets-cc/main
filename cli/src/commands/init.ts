@@ -4,12 +4,14 @@ import { input, confirm, checkbox } from '@inquirer/prompts';
 import { existsSync, mkdirSync, copyFileSync, readdirSync, statSync, writeFileSync } from 'fs';
 import { join, relative } from 'path';
 import degit from 'degit';
+import { execSync } from 'child_process';
 
 interface InitOptions {
   yes?: boolean;
 }
 
 const SKILLSET_YAML_TEMPLATE = `schema_version: "1.0"
+batch_id: "{{BATCH_ID}}"
 
 # Identity
 name: "{{NAME}}"
@@ -106,6 +108,52 @@ function copyDirRecursive(src: string, dest: string): void {
 export async function init(options: InitOptions): Promise<void> {
   console.log(chalk.blue('\n📦 Initialize a new skillset submission\n'));
 
+  // 1. Verify gh CLI is available and authenticated
+  try {
+    execSync('gh auth status', { stdio: 'pipe' });
+  } catch {
+    console.error(chalk.red('Error: gh CLI not authenticated.'));
+    console.error('Install: https://cli.github.com');
+    console.error('Then run: gh auth login');
+    process.exit(1);
+  }
+
+  // 2. Get GitHub user info (verified identity)
+  let login: string;
+  let id: number;
+  try {
+    const userJson = execSync('gh api user', { encoding: 'utf-8' });
+    const userData = JSON.parse(userJson);
+    login = userData.login;
+    id = userData.id;
+  } catch (error) {
+    console.error(chalk.red('Error: Failed to get GitHub user info.'));
+    console.error('Please ensure gh CLI is properly authenticated.');
+    process.exit(1);
+  }
+
+  // 3. Look up reservation
+  let batchId: string;
+  try {
+    const res = await fetch(
+      `https://skillsets.cc/api/reservations/lookup?githubId=${encodeURIComponent(String(id))}`
+    );
+    const lookupData = await res.json() as { batchId: string | null };
+
+    if (!lookupData.batchId) {
+      console.error(chalk.red('No active reservation found.'));
+      console.error('Visit https://skillsets.cc to claim a slot first.');
+      process.exit(1);
+    }
+
+    batchId = lookupData.batchId;
+    console.log(chalk.green(`\nReservation found: ${batchId}`));
+  } catch (error) {
+    console.error(chalk.red('Error: Failed to look up reservation.'));
+    console.error('Please check your network connection and try again.');
+    process.exit(1);
+  }
+
   const cwd = process.cwd();
 
   // Check if already initialized
@@ -147,6 +195,7 @@ export async function init(options: InitOptions): Promise<void> {
 
   const authorHandle = await input({
     message: 'GitHub handle (e.g., @username):',
+    default: `@${login}`,
     validate: (value) => {
       if (!/^@[A-Za-z0-9_-]+$/.test(value)) {
         return 'Handle must start with @ followed by alphanumeric characters';
@@ -243,6 +292,7 @@ export async function init(options: InitOptions): Promise<void> {
     // Generate skillset.yaml
     const tagsYaml = tags.map((t) => `  - "${t}"`).join('\n');
     const skillsetYaml = SKILLSET_YAML_TEMPLATE
+      .replace('{{BATCH_ID}}', batchId)
       .replace('{{NAME}}', name)
       .replace('{{DESCRIPTION}}', description)
       .replace('{{AUTHOR_HANDLE}}', authorHandle)

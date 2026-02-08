@@ -54,6 +54,16 @@ export default function SkillsetGrid({
     fetchReservations();
   }, []);
 
+  // Build submitted slot cross-reference: skillsetId → batchId
+  const submittedMap = new Map<string, string>();
+  if (reservations) {
+    for (const [slotId, slot] of Object.entries(reservations.slots)) {
+      if (slot.status === 'submitted' && slot.skillsetId) {
+        submittedMap.set(slot.skillsetId, slotId);
+      }
+    }
+  }
+
   const finalResults = tagResults;
 
   return (
@@ -63,6 +73,9 @@ export default function SkillsetGrid({
       <div className="flex flex-col">
         {finalResults.map(skillset => {
           const [namespace, name] = skillset.id.split('/');
+          // Check if this skillset has a batch ID (from static data or submitted map)
+          const batchId = skillset.batch_id ?? submittedMap.get(skillset.id);
+
           return (
             <article key={skillset.id} className="group border-b border-border-ink py-6 hover:bg-stone-50 transition-colors cursor-pointer">
               <a href={`/skillset/${namespace}/${name}`} className="block">
@@ -95,6 +108,10 @@ export default function SkillsetGrid({
                       #{tag}
                     </span>
                   ))}
+
+                  {batchId && (
+                    <span className="font-mono text-xs text-text-tertiary">{batchId}</span>
+                  )}
                 </div>
               </a>
             </article>
@@ -104,40 +121,48 @@ export default function SkillsetGrid({
 
       {reservations && Object.keys(reservations.slots).length > 0 && (
         <div className="flex flex-col border-t border-dashed border-border-ink mt-0">
-          {Object.entries(reservations.slots).map(([slotId, slot], idx) => (
-            <GhostCard
-              key={slotId}
-              slotId={slotId}
-              index={skillsets.length + idx + 1}
-              total={skillsets.length + Object.keys(reservations.slots).length}
-              status={slot.status}
-              expiresAt={slot.expiresAt}
-              isOwn={reservations.userSlot === slotId}
-              onReserved={(sid, exp) => {
-                setReservations(prev => prev ? {
-                  ...prev,
-                  userSlot: sid,
-                  slots: { ...prev.slots, [sid]: { status: 'reserved', expiresAt: exp } },
-                } : prev);
-              }}
-              onCancelled={() => {
-                setReservations(prev => prev ? {
-                  ...prev,
-                  userSlot: null,
-                  slots: {
-                    ...prev.slots,
-                    ...(prev.userSlot ? { [prev.userSlot]: { status: 'available' } } : {}),
-                  },
-                } : prev);
-              }}
-              onConflict={() => {
-                fetch('/api/reservations', { credentials: 'include' })
-                  .then(r => r.json())
-                  .then(data => setReservations(data as ReservationState))
-                  .catch(() => {});
-              }}
-            />
-          ))}
+          {Object.entries(reservations.slots)
+            .filter(([_, slot]) => {
+              // Only show as ghost card if no matching real skillset exists
+              if (slot.status === 'submitted' && slot.skillsetId) {
+                return !skillsets.some(s => s.id === slot.skillsetId);
+              }
+              return true; // available and reserved always show as ghost cards
+            })
+            .map(([slotId, slot]) => (
+              <GhostCard
+                key={slotId}
+                slotId={slotId}
+                batchId={slotId}
+                status={slot.status}
+                expiresAt={slot.expiresAt}
+                skillsetId={slot.skillsetId}
+                isOwn={reservations.userSlot === slotId}
+                onReserved={(sid, exp) => {
+                  setReservations(prev => prev ? {
+                    ...prev,
+                    userSlot: sid,
+                    slots: { ...prev.slots, [sid]: { status: 'reserved', expiresAt: exp } },
+                  } : prev);
+                }}
+                onCancelled={() => {
+                  setReservations(prev => prev ? {
+                    ...prev,
+                    userSlot: null,
+                    slots: {
+                      ...prev.slots,
+                      ...(prev.userSlot ? { [prev.userSlot]: { status: 'available' } } : {}),
+                    },
+                  } : prev);
+                }}
+                onConflict={() => {
+                  fetch('/api/reservations', { credentials: 'include' })
+                    .then(r => r.json())
+                    .then(data => setReservations(data as ReservationState))
+                    .catch(() => {});
+                }}
+              />
+            ))}
         </div>
       )}
 

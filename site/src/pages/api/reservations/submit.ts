@@ -1,7 +1,7 @@
 /**
- * Reservations config API endpoint.
+ * Reservation submit API endpoint.
  *
- * POST /api/reservations/config - Update ghost slot configuration (maintainer-only)
+ * POST /api/reservations/submit - Transition slot to submitted state (maintainer-only)
  */
 import type { APIRoute } from 'astro';
 import { getSessionFromRequest, type Env } from '@/lib/auth';
@@ -10,10 +10,16 @@ import { getReservationStub } from '@/lib/reservation-do';
 import { isMaintainer } from '@/lib/maintainer';
 
 /**
- * POST /api/reservations/config
+ * POST /api/reservations/submit
  *
- * Update reservation configuration (totalGhostSlots, ttlDays).
- * Requires authentication and maintainer authorization.
+ * Mark a reserved slot as submitted (terminal state).
+ * Called by maintainers after merging a PR.
+ *
+ * Request body:
+ *   - batchId: The batch ID to mark as submitted
+ *   - skillsetId: The skillset ID (e.g., @user/SkillName)
+ *
+ * Returns: { batchId, status: 'submitted', skillsetId }
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env as Env;
@@ -34,19 +40,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return errorResponse('Invalid JSON body', 400);
   }
 
-  // Validate field types
-  if (body.totalGhostSlots !== undefined && typeof body.totalGhostSlots !== 'number') {
-    return errorResponse('totalGhostSlots must be a number', 400);
-  }
-  if (body.ttlDays !== undefined && typeof body.ttlDays !== 'number') {
-    return errorResponse('ttlDays must be a number', 400);
-  }
-  if (body.cohort !== undefined && typeof body.cohort !== 'number') {
-    return errorResponse('cohort must be a number', 400);
-  }
-
   const stub = getReservationStub(env);
-  const doRequest = new Request('https://do/config', {
+  const doRequest = new Request('https://do/submit', {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -56,7 +51,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const data = await response.json();
     return jsonResponse(data, { status: response.status });
   } catch (error) {
-    console.error('[Reservations] DO config update failed:', error);
+    console.error('[Submit] DO submit failed:', error);
     return errorResponse('Internal server error', 500);
   }
 };

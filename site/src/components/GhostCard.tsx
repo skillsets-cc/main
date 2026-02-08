@@ -3,10 +3,10 @@ import { useCountdown } from './useCountdown.js';
 
 interface GhostCardProps {
   slotId: string;
-  index: number;
-  total: number;
-  status: 'available' | 'reserved';
+  batchId: string;
+  status: 'available' | 'reserved' | 'submitted';
   expiresAt?: number;
+  skillsetId?: string;
   isOwn: boolean;
   onReserved: (slotId: string, expiresAt: number) => void;
   onCancelled: () => void;
@@ -15,10 +15,10 @@ interface GhostCardProps {
 
 export default function GhostCard({
   slotId,
-  index,
-  total,
+  batchId,
   status,
   expiresAt,
+  skillsetId,
   isOwn,
   onReserved,
   onCancelled,
@@ -76,6 +76,30 @@ export default function GhostCard({
     }
   };
 
+  // Handle submitted state
+  if (status === 'submitted') {
+    // Derive link from skillsetId (e.g., "@user/SkillName" → "/skillset/user/SkillName")
+    const href = skillsetId
+      ? `/skillset/${skillsetId.replace('@', '').replace('/', '/')}`
+      : undefined;
+
+    const content = (
+      <article className="group border-b border-dashed py-6 border-green-500/30">
+        <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
+          <span className="text-text-secondary font-mono text-sm">
+            {skillsetId ?? 'Submitted — pending rebuild'}
+          </span>
+          <span className="font-mono text-xs text-text-tertiary">{batchId}</span>
+        </div>
+        <div className="mb-3">
+          <span className="text-xs font-mono text-green-600">Submitted</span>
+        </div>
+      </article>
+    );
+
+    return href ? <a href={href}>{content}</a> : content;
+  }
+
   const placeholderColor = status === 'available' ? 'bg-border-ink/20' : 'bg-border-ink/30';
 
   return (
@@ -94,7 +118,7 @@ export default function GhostCard({
         ) : (
           <div className={`${placeholderColor} rounded-none h-4 w-48`} />
         )}
-        <span className="font-mono text-xs text-text-tertiary">{index}/{total}</span>
+        <span className="font-mono text-xs text-text-tertiary">{batchId}</span>
       </div>
 
       <div className="mb-3 space-y-2">

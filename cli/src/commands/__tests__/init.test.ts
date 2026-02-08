@@ -15,9 +15,15 @@ vi.mock('degit', () => ({
   default: vi.fn(),
 }));
 
+// Mock child_process for gh CLI calls
+vi.mock('child_process', () => ({
+  execSync: vi.fn(),
+}));
+
 import { init } from '../init.js';
 import { input, confirm, checkbox } from '@inquirer/prompts';
 import degit from 'degit';
+import { execSync } from 'child_process';
 
 describe('init command', () => {
   let testDir: string;
@@ -26,17 +32,34 @@ describe('init command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // Create temp directory for tests
     testDir = join(tmpdir(), `skillsets-init-test-${Date.now()}`);
     mkdirSync(testDir, { recursive: true });
     process.chdir(testDir);
 
+    // Mock gh CLI calls (default: authenticated user)
+    vi.mocked(execSync).mockImplementation((command: string) => {
+      if (command === 'gh auth status') {
+        return Buffer.from('');
+      }
+      if (command === 'gh api user') {
+        return Buffer.from(JSON.stringify({ login: 'testuser', id: 12345 }));
+      }
+      return Buffer.from('');
+    });
+
+    // Mock global fetch (default: reservation found)
+    global.fetch = vi.fn().mockResolvedValue({
+      json: async () => ({ batchId: '5.11.001' }),
+    } as Response);
+
     // Default mock responses
     vi.mocked(input)
       .mockResolvedValueOnce('test-skillset') // name
       .mockResolvedValueOnce('A test skillset for testing') // description
-      .mockResolvedValueOnce('@testuser') // author handle
+      .mockResolvedValueOnce('@testuser') // author handle (now has default from gh)
       .mockResolvedValueOnce('https://github.com/testuser') // author url
       .mockResolvedValueOnce('https://example.com/project') // production url
       .mockResolvedValueOnce('test,example'); // tags
@@ -62,6 +85,7 @@ describe('init command', () => {
     const content = readFileSync(join(testDir, 'skillset.yaml'), 'utf-8');
     expect(content).toContain('name: "test-skillset"');
     expect(content).toContain('schema_version: "1.0"');
+    expect(content).toContain('batch_id: "5.11.001"');
     expect(content).toContain('@testuser');
   });
 
@@ -247,5 +271,91 @@ describe('init command', () => {
     const content = readFileSync(join(testDir, 'skillset.yaml'), 'utf-8');
     expect(content).toContain('"test"');
     expect(content).toContain('"example"');
+  });
+
+  it('exits with error if gh CLI not authenticated', async () => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null | undefined) => {
+      throw new Error(`process.exit called with ${code}`);
+    });
+
+    vi.mocked(execSync).mockImplementation((command: string) => {
+      if (command === 'gh auth status') {
+        throw new Error('not authenticated');
+      }
+      return Buffer.from('');
+    });
+
+    await expect(init({})).rejects.toThrow('process.exit called with 1');
+    expect(mockExit).toHaveBeenCalledWith(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('gh CLI not authenticated'));
+
+    mockExit.mockRestore();
+  });
+
+  it('exits with error if no active reservation found', async () => {
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null | undefined) => {
+      throw new Error(`process.exit called with ${code}`);
+    });
+
+    global.fetch = vi.fn().mockResolvedValue({
+      json: async () => ({ batchId: null }),
+    } as Response);
+
+    await expect(init({})).rejects.toThrow('process.exit called with 1');
+    expect(mockExit).toHaveBeenCalledWith(1);
+    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('No active reservation found'));
+
+    mockExit.mockRestore();
+  });
+
+  it('includes batch_id in generated skillset.yaml', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      json: async () => ({ batchId: '3.20.002' }),
+    } as Response);
+
+    await init({});
+
+    const content = readFileSync(join(testDir, 'skillset.yaml'), 'utf-8');
+    expect(content).toContain('batch_id: "3.20.002"');
+  });
+
+  it('auto-fills author handle from gh login', async () => {
+    vi.mocked(execSync).mockImplementation((command: string) => {
+      if (command === 'gh auth status') {
+        return Buffer.from('');
+      }
+      if (command === 'gh api user') {
+        return Buffer.from(JSON.stringify({ login: 'octocat', id: 99999 }));
+      }
+      return Buffer.from('');
+    });
+
+    await init({});
+
+    // Verify the author handle prompt had the correct default
+    const calls = vi.mocked(input).mock.calls;
+    const handleCall = calls.find(call =>
+      (call[0] as any).message?.includes('GitHub handle')
+    );
+    expect(handleCall).toBeDefined();
+    expect((handleCall?.[0] as any).default).toBe('@octocat');
+  });
+
+  it('calls reservation lookup with GitHub user ID', async () => {
+    vi.mocked(execSync).mockImplementation((command: string) => {
+      if (command === 'gh auth status') {
+        return Buffer.from('');
+      }
+      if (command === 'gh api user') {
+        return Buffer.from(JSON.stringify({ login: 'testuser', id: 54321 }));
+      }
+      return Buffer.from('');
+    });
+
+    await init({});
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://skillsets.cc/api/reservations/lookup?githubId=54321'
+    );
   });
 });

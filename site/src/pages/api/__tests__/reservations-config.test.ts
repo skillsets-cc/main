@@ -191,4 +191,41 @@ describe('POST /api/reservations/config', () => {
 
     expect(response.status).toBe(200);
   });
+
+  it('test_config_cohort_type_validation', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'admin', avatar: '' });
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations/config', {
+        method: 'POST',
+        body: JSON.stringify({ cohort: 'abc' }),
+      }),
+      { MAINTAINER_USER_IDS: '123' }
+    );
+    const response = await POST(ctx);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('cohort must be a number');
+  });
+
+  it('test_config_cohort_valid_passthrough', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'admin', avatar: '' });
+    const stub = createMockStub({ status: 200, body: { totalGhostSlots: 15, ttlDays: 7, cohort: 2 } });
+    mockGetStub.mockReturnValue(stub);
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations/config', {
+        method: 'POST',
+        body: JSON.stringify({ cohort: 2, totalGhostSlots: 15 }),
+      }),
+      { MAINTAINER_USER_IDS: '123' }
+    );
+    const response = await POST(ctx);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.cohort).toBe(2);
+    expect(data.totalGhostSlots).toBe(15);
+  });
 });

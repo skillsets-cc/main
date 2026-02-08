@@ -12,7 +12,7 @@ describe('SkillsetGrid', () => {
 
   function mockFetch(
     starOverrides: Record<string, number> = {},
-    reservationOverrides: { slots?: Record<string, { status: string; expiresAt?: number }>; totalGhostSlots?: number; userSlot?: string | null } = {}
+    reservationOverrides: { slots?: Record<string, { status: string; expiresAt?: number; skillsetId?: string }>; totalGhostSlots?: number; cohort?: number; userSlot?: string | null } = {}
   ) {
     const stars: Record<string, number> = {};
     for (const s of mockSkillsets) {
@@ -21,6 +21,7 @@ describe('SkillsetGrid', () => {
     const defaultReservations = {
       slots: {},
       totalGhostSlots: 0,
+      cohort: 1,
       userSlot: null,
       ...reservationOverrides,
     };
@@ -140,5 +141,61 @@ describe('SkillsetGrid', () => {
 
     expect(screen.getByText('#sdlc')).toBeDefined();
     expect(screen.getByText('#planning')).toBeDefined();
+  });
+
+  it('test_ghost_cards_show_batch_id', async () => {
+    mockFetch({}, {
+      slots: { '5.10.001': { status: 'available' } },
+      totalGhostSlots: 10,
+      cohort: 1,
+    });
+
+    await act(async () => {
+      render(<SkillsetGrid skillsets={mockSkillsets} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('5.10.001')).toBeDefined();
+    });
+  });
+
+  it('test_submitted_slot_with_matching_skillset', async () => {
+    mockFetch({}, {
+      slots: { '5.10.001': { status: 'submitted', skillsetId: 'supercollectible/Valence' } },
+      totalGhostSlots: 10,
+      cohort: 1,
+    });
+
+    await act(async () => {
+      render(<SkillsetGrid skillsets={mockSkillsets} />);
+    });
+
+    await waitFor(() => {
+      // Real skillset card should be rendered
+      expect(screen.getByText('Valence')).toBeDefined();
+      // Batch ID should appear on the real card
+      expect(screen.getByText('5.10.001')).toBeDefined();
+      // Should not render a separate ghost card with "Submitted" label
+      expect(screen.queryByText('Submitted')).toBeNull();
+    });
+  });
+
+  it('test_submitted_slot_without_matching_skillset', async () => {
+    mockFetch({}, {
+      slots: { '5.10.001': { status: 'submitted', skillsetId: '@user/NonExistent' } },
+      totalGhostSlots: 10,
+      cohort: 1,
+    });
+
+    await act(async () => {
+      render(<SkillsetGrid skillsets={mockSkillsets} />);
+    });
+
+    await waitFor(() => {
+      // Ghost card in submitted state should be rendered
+      expect(screen.getByText('Submitted')).toBeDefined();
+      expect(screen.getByText('@user/NonExistent')).toBeDefined();
+      expect(screen.getByText('5.10.001')).toBeDefined();
+    });
   });
 });

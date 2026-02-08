@@ -30,6 +30,7 @@ export interface SearchIndexEntry {
   checksum: string;
   files: Record<string, string>;
   mcp_servers?: McpServer[];
+  batch_id?: string;
 }
 
 export interface McpServerInner {
@@ -57,15 +58,26 @@ export interface McpServer {
  */
 export interface GhostSlot {
   slotId: string;
-  status: 'available' | 'reserved';
+  status: 'available' | 'reserved' | 'submitted';
   expiresAt?: number;
+  skillsetId?: string;
 }
 
 /**
  * Complete state of the reservation system, including all slots and user's reservation.
  */
 export interface ReservationState {
-  slots: Record<string, { status: 'available' | 'reserved'; expiresAt?: number }>;
+  slots: Record<string, {
+    status: 'available' | 'reserved' | 'submitted';
+    expiresAt?: number;
+    skillsetId?: string;
+  }>;
   totalGhostSlots: number;
+  cohort: number;
   userSlot: string | null;
 }
+
+/**
+ * Complete skillset type - alias for SearchIndexEntry with batch_id field.
+ */
+export type Skillset = SearchIndexEntry;

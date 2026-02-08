@@ -11,7 +11,7 @@ import { jsonResponse, errorResponse } from '@/lib/responses';
 import { getReservationStub } from '@/lib/reservation-do';
 
 const RESERVATION_RATE_LIMIT = 5;
-const SLOT_ID_REGEX = /^ghost-\d+$/;
+const SLOT_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 
 /**
  * Check if user has exceeded reservation rate limit.
@@ -101,7 +101,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const stub = getReservationStub(env);
   const doRequest = new Request('https://do/reserve', {
     method: 'POST',
-    body: JSON.stringify({ slotId, userId: session.userId }),
+    body: JSON.stringify({ slotId, userId: session.userId, githubLogin: session.login }),
   });
 
   try {

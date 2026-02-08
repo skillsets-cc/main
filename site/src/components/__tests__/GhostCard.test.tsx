@@ -17,9 +17,8 @@ describe('GhostCard', () => {
   });
 
   const defaultProps = {
-    slotId: 'ghost-1',
-    index: 1,
-    total: 24,
+    slotId: '1.10.001',
+    batchId: '1.10.001',
     status: 'available' as const,
     isOwn: false,
     onReserved: vi.fn(),
@@ -27,15 +26,15 @@ describe('GhostCard', () => {
     onConflict: vi.fn(),
   };
 
-  it('test_renders_available_state', () => {
+  it('test_renders_available_with_batch_id', () => {
     render(<GhostCard {...defaultProps} />);
     expect(screen.getByText('Claim')).toBeDefined();
-    expect(screen.getByText('1/24')).toBeDefined();
+    expect(screen.getByText('1.10.001')).toBeDefined();
     const article = screen.getByText('Claim').closest('article');
     expect(article?.className).toContain('border-border-ink');
   });
 
-  it('test_renders_reserved_state', () => {
+  it('test_renders_reserved_with_batch_id', () => {
     render(
       <GhostCard
         {...defaultProps}
@@ -45,6 +44,7 @@ describe('GhostCard', () => {
       />
     );
     expect(screen.getByText(/Claimed by/)).toBeDefined();
+    expect(screen.getByText('1.10.001')).toBeDefined();
     expect(screen.queryByText('Cancel')).toBeNull();
     const article = screen.getByText(/Claimed by/).closest('article');
     expect(article?.className).toContain('border-orange-500/30');
@@ -71,14 +71,14 @@ describe('GhostCard', () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       status: 201,
       ok: true,
-      json: async () => ({ slotId: 'ghost-1', expiresAt: now() + 604800 }),
+      json: async () => ({ slotId: '1.10.001', expiresAt: now() + 604800 }),
     }) as typeof fetch;
 
     render(<GhostCard {...defaultProps} onReserved={onReserved} />);
     fireEvent.click(screen.getByText('Claim'));
 
     await waitFor(() => {
-      expect(onReserved).toHaveBeenCalledWith('ghost-1', expect.any(Number));
+      expect(onReserved).toHaveBeenCalledWith('1.10.001', expect.any(Number));
     });
   });
 
@@ -128,7 +128,7 @@ describe('GhostCard', () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       status: 200,
       ok: true,
-      json: async () => ({ released: 'ghost-1' }),
+      json: async () => ({ released: '1.10.001' }),
     }) as typeof fetch;
 
     render(
@@ -162,10 +162,42 @@ describe('GhostCard', () => {
     expect(button).toHaveProperty('disabled', true);
 
     // Resolve the fetch
-    resolvePromise!({ status: 201, ok: true, json: async () => ({ slotId: 'ghost-1', expiresAt: now() + 604800 }) });
+    resolvePromise!({ status: 201, ok: true, json: async () => ({ slotId: '1.10.001', expiresAt: now() + 604800 }) });
 
     await waitFor(() => {
       expect(button).toHaveProperty('disabled', false);
     });
+  });
+
+  it('test_renders_submitted_with_link', () => {
+    render(
+      <GhostCard
+        {...defaultProps}
+        status="submitted"
+        skillsetId="@user/Skill"
+      />
+    );
+    expect(screen.getByText('Submitted')).toBeDefined();
+    expect(screen.getByText('@user/Skill')).toBeDefined();
+    expect(screen.getByText('1.10.001')).toBeDefined();
+    const link = screen.getByText('@user/Skill').closest('a');
+    expect(link?.getAttribute('href')).toBe('/skillset/user/Skill');
+    const article = screen.getByText('Submitted').closest('article');
+    expect(article?.className).toContain('border-green-500/30');
+  });
+
+  it('test_renders_submitted_no_skillset_id', () => {
+    render(
+      <GhostCard
+        {...defaultProps}
+        status="submitted"
+      />
+    );
+    expect(screen.getByText('Submitted')).toBeDefined();
+    expect(screen.getByText('Submitted — pending rebuild')).toBeDefined();
+    expect(screen.getByText('1.10.001')).toBeDefined();
+    // Should not have a link
+    const link = screen.getByText('Submitted — pending rebuild').closest('a');
+    expect(link).toBeNull();
   });
 });
