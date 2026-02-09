@@ -27,6 +27,10 @@ import BaseLayout from '@layouts/BaseLayout.astro';
             <span class="text-text-tertiary">Find by keyword</span>
           </div>
           <div class="flex items-start gap-4">
+            <code class="text-orange-500 whitespace-nowrap">npx skillsets view @user/name</code>
+            <span class="text-text-tertiary">Read the README first</span>
+          </div>
+          <div class="flex items-start gap-4">
             <code class="text-orange-500 whitespace-nowrap">npx skillsets install @user/name</code>
             <span class="text-text-tertiary">Install to current directory</span>
           </div>
@@ -54,6 +58,14 @@ import BaseLayout from '@layouts/BaseLayout.astro';
               <div><code>npx skillsets search "adversarial review"</code></div>
               <div><code>npx skillsets search "sdlc" --tags multi-agent</code></div>
               <div><code>npx skillsets search "planning" --limit 3</code></div>
+            </div>
+          </div>
+
+          <div class="border-b border-border-ink pb-4">
+            <h3 class="font-mono font-bold text-text-ink mb-2">view</h3>
+            <p class="text-lg text-text-secondary font-serif mb-3">View a skillset's README in the terminal before installing.</p>
+            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm">
+              <code>npx skillsets view @supercollectible/Valence</code>
             </div>
           </div>
         </div>
@@ -85,7 +97,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
         <div class="space-y-6">
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">init</h3>
-            <p class="text-lg text-text-secondary font-serif mb-3">Scaffold a new skillset submission with the required structure.</p>
+            <p class="text-lg text-text-secondary font-serif mb-3">Scaffold a new skillset submission. Requires a <a href="/contribute" class="text-orange-500 hover:underline">claimed submission slot</a>.</p>
             <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm">
               <code>npx skillsets init</code>
             </div>
