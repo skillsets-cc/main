@@ -67,26 +67,43 @@ const statusColor = getStatusColor(skillset.status);
 <BaseLayout title={`${skillset.name} - Skillsets.cc`}>
   <article class="max-w-4xl mx-auto px-4 py-12">
     <header class="mb-8">
-      <div class="flex items-start justify-between mb-6">
-        <div>
-          <h1 class="text-4xl font-bold font-serif mb-2 text-text-ink">{skillset.name}</h1>
-          <p class="text-lg text-text-secondary font-serif">
-            by <a href={authorUrl} class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
-              {skillset.author.handle}
-            </a>
-          </p>
-        </div>
+      <div id="header-sentinel"></div>
+      <div id="detail-header" class="sticky top-0 z-50 py-4 -mx-4 px-4" style="background: linear-gradient(to bottom, white 80%, transparent 100%);">
+        <div id="header-full" class="flex items-start justify-between mb-6">
+          <div>
+            <h1 class="text-4xl font-bold font-serif mb-2 text-text-ink">{skillset.name}</h1>
+            <p class="text-lg text-text-secondary font-serif">
+              by <a href={authorUrl} class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
+                {skillset.author.handle}
+              </a>
+            </p>
+          </div>
 
-        <div class="flex items-center gap-2">
-          <DownloadCount
-            client:load
-            skillsetId={skillsetId}
-          />
-          <StarButton
-            client:load
-            skillsetId={skillsetId}
-            initialStars={skillset.stars}
-          />
+          <div class="flex items-center gap-2">
+            <DownloadCount
+              client:load
+              skillsetId={skillsetId}
+            />
+            <StarButton
+              client:load
+              skillsetId={skillsetId}
+              initialStars={skillset.stars}
+            />
+          </div>
+        </div>
+        <div id="header-compact" class="hidden flex items-center justify-between">
+          <h1 class="text-lg font-bold font-serif text-text-ink">{skillset.name}</h1>
+          <div class="flex items-center gap-2">
+            <DownloadCount
+              client:load
+              skillsetId={skillsetId}
+            />
+            <StarButton
+              client:load
+              skillsetId={skillsetId}
+              initialStars={skillset.stars}
+            />
+          </div>
         </div>
       </div>
 
@@ -131,7 +148,6 @@ const statusColor = getStatusColor(skillset.status);
         productionLinks={skillset.verification.production_links}
         hasAuditReport={!!skillset.verification.audit_report}
         skillsetId={skillsetId}
-        skillsetName={skillset.name}
       />
 
       <section class="p-6 rounded-none">
