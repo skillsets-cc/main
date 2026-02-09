@@ -120,6 +120,11 @@ const statusColor = getStatusColor(skillset.status);
         contextImageUrl={skillset.context_image_url}
       />
 
+      <section class="p-6 rounded-none">
+        <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
+        <article class="prose max-w-none" set:html={readmeHtml} />
+      </section>
+
       <section class="bg-stone-50 p-4 rounded-none">
         <div class="flex gap-6">
           <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap pt-2">Install</h2>
@@ -200,11 +205,6 @@ const statusColor = getStatusColor(skillset.status);
             </div>
           </div>
         </div>
-      </section>
-
-      <section class="p-6 rounded-none">
-        <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
-        <article class="prose max-w-none" set:html={readmeHtml} />
       </section>
     </div>
 
