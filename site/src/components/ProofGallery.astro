@@ -8,11 +8,12 @@ interface Props {
   productionLinks: ProductionLink[];
   hasAuditReport: boolean;
   skillsetId: string;
+  skillsetName: string;
 }
 
 import { sanitizeUrl } from '@/lib/sanitize';
 
-const { productionLinks, hasAuditReport, skillsetId } = Astro.props;
+const { productionLinks, hasAuditReport, skillsetId, skillsetName } = Astro.props;
 
 // Extract base domain from URL
 function getBaseDomain(url: string): string {
@@ -29,8 +30,10 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<section class="sticky top-0 z-50 p-6 rounded-none" style="background: linear-gradient(to bottom, white 70%, transparent 100%);">
-  <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Verification</h2>
+<div id="proof-sentinel"></div>
+<section id="proof-sticky" class="sticky top-0 z-50 p-6 rounded-none" style="background: linear-gradient(to bottom, white 70%, transparent 100%);">
+  <h2 id="proof-heading" class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Verification</h2>
+  <h2 id="proof-name" class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block hidden">{skillsetName}</h2>
   <div class="flex flex-wrap gap-2">
     {productionLinks.map((link) => (
       <a
@@ -62,3 +65,21 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
     </span>
   </div>
 </section>
+
+<script>
+  const sentinel = document.getElementById('proof-sentinel');
+  const heading = document.getElementById('proof-heading');
+  const name = document.getElementById('proof-name');
+
+  if (sentinel && heading && name) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const stuck = !entry.isIntersecting;
+        heading.classList.toggle('hidden', stuck);
+        name.classList.toggle('hidden', !stuck);
+      },
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
+  }
+</script>
