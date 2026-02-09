@@ -155,18 +155,48 @@ import CopyCommand from '@components/CopyCommand';
     </div>
 
     <div class="border border-border-ink bg-stone-50 p-8 rounded-none mb-8">
-      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Quick Reference</h2>
-      <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code># Initialize (scaffolds structure + installs audit skill)
-npx skillsets init
-
-# Tier 1: Structural validation
-npx skillsets audit
-
-# Tier 2: Qualitative review (grant permission to access reference repo)
-/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]
-
-# Submit PR to registry (requires gh CLI)
-npx skillsets submit</code></pre>
+      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Hard Constraints</h2>
+      <p class="text-lg text-text-secondary mb-4 font-serif">
+        CI runs <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit --check</code> on every PR. These checks are gating — your submission will not merge until all pass.
+      </p>
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-border-ink">
+            <th class="py-2 pr-4 font-bold font-serif text-text-ink">Check</th>
+            <th class="py-2 font-bold font-serif text-text-ink">Rule</th>
+          </tr>
+        </thead>
+        <tbody class="text-text-secondary font-serif">
+          <tr class="border-b border-border-ink/30">
+            <td class="py-2 pr-4 font-bold text-text-ink">Manifest</td>
+            <td class="py-2">Valid schema, semver version, author handle, tags, production links</td>
+          </tr>
+          <tr class="border-b border-border-ink/30">
+            <td class="py-2 pr-4 font-bold text-text-ink">Required files</td>
+            <td class="py-2"><code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">skillset.yaml</code>, <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/</code>, <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/README.md</code></td>
+          </tr>
+          <tr class="border-b border-border-ink/30">
+            <td class="py-2 pr-4 font-bold text-text-ink">Content structure</td>
+            <td class="py-2">Both <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> and <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/CLAUDE.md</code> present</td>
+          </tr>
+          <tr class="border-b border-border-ink/30">
+            <td class="py-2 pr-4 font-bold text-text-ink">Secrets</td>
+            <td class="py-2">No hardcoded credentials (AWS <code class="font-mono text-sm">AKIA</code>, GitHub <code class="font-mono text-sm">ghp_</code>, OpenAI <code class="font-mono text-sm">sk-</code>, Anthropic <code class="font-mono text-sm">sk-ant-</code>)</td>
+          </tr>
+          <tr class="border-b border-border-ink/30">
+            <td class="py-2 pr-4 font-bold text-text-ink">README links</td>
+            <td class="py-2">Links to <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> must use full GitHub URLs</td>
+          </tr>
+          <tr class="border-b border-border-ink/30">
+            <td class="py-2 pr-4 font-bold text-text-ink">Version</td>
+            <td class="py-2">Updates must have version &gt; existing registry version</td>
+          </tr>
+          <tr>
+            <td class="py-2 pr-4 font-bold text-text-ink">MCP consistency</td>
+            <td class="py-2">Content&#x2194;manifest MCP declarations must match</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <div class="border border-transparent p-8 rounded-none mb-8">
