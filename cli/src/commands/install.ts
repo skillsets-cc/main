@@ -6,6 +6,10 @@ import { detectConflicts, backupFiles } from '../lib/filesystem.js';
 import { verifyChecksums } from '../lib/checksum.js';
 import { fetchSkillsetMetadata } from '../lib/api.js';
 import { REGISTRY_REPO, DOWNLOADS_URL } from '../lib/constants.js';
+import { mkdtemp, rm, cp, readdir } from 'fs/promises';
+import { existsSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 import type { McpServer } from '../types/index.js';
 
 interface InstallOptions {
@@ -51,6 +55,14 @@ function formatMcpWarning(mcpServers: McpServer[], skillsetId: string): string {
 export async function install(skillsetId: string, options: InstallOptions): Promise<void> {
   const spinner = ora(`Installing ${skillsetId}...`).start();
 
+  // Validate skillsetId format
+  if (!/^@[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+$/.test(skillsetId)) {
+    spinner.fail('Invalid skillset ID');
+    console.log(chalk.red('\nExpected format: @author/name'));
+    console.log(chalk.gray('Example: @supercollectible/Valence'));
+    return;
+  }
+
   // Check for conflicts
   const conflicts = await detectConflicts(process.cwd());
   if (conflicts.length > 0 && !options.force && !options.backup) {
@@ -70,6 +82,7 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
   }
 
   // Fetch metadata and check for MCP servers BEFORE degit
+  let metadataFetchFailed = false;
   spinner.text = 'Fetching skillset metadata...';
   try {
     const metadata = await fetchSkillsetMetadata(skillsetId);
@@ -100,33 +113,88 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
       spinner.start('Downloading skillset...');
     }
   } catch {
-    // If metadata fetch fails, continue without MCP check
-    // (registry might be down, don't block install)
+    // Metadata fetch failed — flag for post-install content check
+    metadataFetchFailed = true;
   }
 
-  // Install using degit (extract content/ subdirectory)
+  // Install to temp directory first (verify before writing to cwd)
   spinner.text = 'Downloading skillset...';
-  const emitter = degit(`${REGISTRY_REPO}/skillsets/${skillsetId}/content`, {
-    cache: false,
-    force: true,
-    verbose: false,
-  });
+  const tempDir = await mkdtemp(join(tmpdir(), 'skillsets-'));
 
-  await emitter.clone(process.cwd());
+  try {
+    const emitter = degit(`${REGISTRY_REPO}/skillsets/${skillsetId}/content`, {
+      cache: false,
+      force: true,
+      verbose: false,
+    });
 
-  // Verify checksums
-  spinner.text = 'Verifying checksums...';
-  const result = await verifyChecksums(skillsetId, process.cwd());
-  if (!result.valid) {
-    spinner.fail('Checksum verification failed - files may be corrupted');
-    console.log(chalk.red('\nInstallation aborted due to checksum mismatch.'));
-    console.log(chalk.yellow('This could indicate:'));
-    console.log('  - Network issues during download');
-    console.log('  - Corrupted files in the registry');
-    console.log('  - Tampering with the downloaded content');
-    console.log(chalk.cyan('\nTo retry:'));
-    console.log(`  npx skillsets install ${skillsetId} --force`);
-    process.exit(1);
+    await emitter.clone(tempDir);
+
+    // Post-install MCP check: if metadata fetch failed, inspect downloaded content
+    if (metadataFetchFailed) {
+      const hasMcpJson = existsSync(join(tempDir, '.mcp.json'));
+      const hasClaudeSettings = existsSync(join(tempDir, '.claude', 'settings.json'));
+
+      if (hasMcpJson || hasClaudeSettings) {
+        spinner.stop();
+
+        if (!process.stdin.isTTY && !options.acceptMcp) {
+          console.log(chalk.red('This skillset includes MCP servers. Use --accept-mcp to install in non-interactive environments.'));
+          await rm(tempDir, { recursive: true, force: true });
+          process.exit(1);
+          return;
+        }
+
+        if (!options.acceptMcp) {
+          console.log(chalk.yellow('\n⚠  This skillset may include MCP servers (metadata unavailable for pre-check).'));
+          console.log(chalk.cyan(`\n  Review before installing:\n    https://github.com/skillsets-cc/main/tree/main/skillsets/${skillsetId}/content\n`));
+
+          const accepted = await confirm({
+            message: 'Continue installation?',
+            default: false,
+          });
+
+          if (!accepted) {
+            console.log(chalk.gray('\nInstallation cancelled.'));
+            await rm(tempDir, { recursive: true, force: true });
+            return;
+          }
+        }
+
+        spinner.start('Verifying checksums...');
+      }
+    }
+
+    // Verify checksums against temp directory
+    spinner.text = 'Verifying checksums...';
+    const result = await verifyChecksums(skillsetId, tempDir);
+    if (!result.valid) {
+      spinner.fail('Checksum verification failed - files may be corrupted');
+      console.log(chalk.red('\nInstallation aborted due to checksum mismatch.'));
+      console.log(chalk.yellow('This could indicate:'));
+      console.log('  - Network issues during download');
+      console.log('  - Corrupted files in the registry');
+      console.log('  - Tampering with the downloaded content');
+      console.log(chalk.cyan('\nTo retry:'));
+      console.log(`  npx skillsets install ${skillsetId} --force`);
+      await rm(tempDir, { recursive: true, force: true });
+      process.exit(1);
+    }
+
+    // Checksums valid — move verified content to cwd
+    spinner.text = 'Installing verified content...';
+    const entries = await readdir(tempDir, { withFileTypes: true });
+    for (const entry of entries) {
+      await cp(join(tempDir, entry.name), join(process.cwd(), entry.name), {
+        recursive: true,
+        force: true,
+      });
+    }
+
+    await rm(tempDir, { recursive: true, force: true });
+  } catch (error) {
+    await rm(tempDir, { recursive: true, force: true }).catch(() => {});
+    throw error;
   }
 
   spinner.succeed(`Successfully installed ${skillsetId}`);

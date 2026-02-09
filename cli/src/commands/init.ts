@@ -207,6 +207,14 @@ export async function init(options: InitOptions): Promise<void> {
   const authorUrl = await input({
     message: 'Author URL (GitHub profile or website):',
     default: `https://github.com/${authorHandle.slice(1)}`,
+    validate: (value) => {
+      try {
+        new URL(value);
+        return true;
+      } catch {
+        return 'Must be a valid URL';
+      }
+    },
   });
 
   const productionUrl = await input({
@@ -240,22 +248,11 @@ export async function init(options: InitOptions): Promise<void> {
   const tags = tagsInput.split(',').map((t) => t.trim());
 
   // Auto-detect existing files
-  const detectedFiles: string[] = [];
-  if (existsSync(join(cwd, 'CLAUDE.md'))) {
-    detectedFiles.push('CLAUDE.md');
-  }
-  if (existsSync(join(cwd, 'README.md'))) {
-    detectedFiles.push('README.md');
-  }
-  if (existsSync(join(cwd, '.claude'))) {
-    detectedFiles.push('.claude/');
-  }
-  if (existsSync(join(cwd, '.mcp.json'))) {
-    detectedFiles.push('.mcp.json');
-  }
-  if (existsSync(join(cwd, 'docker'))) {
-    detectedFiles.push('docker/');
-  }
+  const candidateFiles = ['CLAUDE.md', 'README.md', '.claude/', '.mcp.json', 'docker/'];
+  const detectedFiles = candidateFiles.filter((f) => {
+    const checkPath = f.endsWith('/') ? f.slice(0, -1) : f;
+    return existsSync(join(cwd, checkPath));
+  });
 
   let filesToCopy: string[] = [];
   if (detectedFiles.length > 0) {

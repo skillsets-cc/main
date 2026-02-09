@@ -7,7 +7,7 @@ import { fetchSkillsetMetadata } from './api.js';
  * Computes SHA-256 checksum for a file.
  */
 export async function computeFileChecksum(filePath: string): Promise<string> {
-  const content = await fs.readFile(filePath, 'utf-8');
+  const content = await fs.readFile(filePath);
   return crypto.createHash('sha256').update(content).digest('hex');
 }
 

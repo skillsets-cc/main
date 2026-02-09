@@ -5,9 +5,12 @@ import { join, relative } from 'path';
 import yaml from 'js-yaml';
 import { fetchSkillsetMetadata } from '../lib/api.js';
 import { validateMcpServers } from '../lib/validate-mcp.js';
+import { compareVersions } from '../lib/versions.js';
+
+type AuditStatus = 'PASS' | 'FAIL' | 'WARNING';
 
 interface AuditResult {
-  status: 'PASS' | 'FAIL' | 'WARNING';
+  status: AuditStatus;
   details: string;
   findings?: string;
 }
@@ -33,8 +36,6 @@ interface AuditResults {
   secretsFound: { file: string; line: number; pattern: string }[];
   relativeLinks: { line: number; link: string }[];
 }
-
-import { compareVersions } from '../lib/versions.js';
 
 const MAX_FILE_SIZE = 1048576; // 1MB
 
@@ -127,8 +128,8 @@ function scanForSecrets(dir: string): { file: string; line: number; pattern: str
   const files = getAllFiles(dir);
 
   for (const { path: filePath } of files) {
-    const ext = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
-    if (!['.md', '.txt', '.json', '.yaml', '.yml', '.js', '.ts', '.py'].includes(ext)) continue;
+    const fullPath = join(dir, filePath);
+    if (isBinaryFile(fullPath)) continue;
     if (filePath.includes('AUDIT_REPORT')) continue;
 
     try {
@@ -208,9 +209,8 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function generateReport(results: AuditResults, cwd: string, enforceMcp: boolean = false): string {
-  const timestamp = new Date().toISOString();
-  const allPassed = results.manifest.status === 'PASS' &&
+function isAuditPassing(results: AuditResults, enforceMcp: boolean): boolean {
+  return results.manifest.status === 'PASS' &&
     results.requiredFiles.status === 'PASS' &&
     results.contentStructure.status === 'PASS' &&
     results.fileSize.status !== 'FAIL' &&
@@ -218,16 +218,21 @@ function generateReport(results: AuditResults, cwd: string, enforceMcp: boolean 
     results.readmeLinks.status === 'PASS' &&
     results.versionCheck.status === 'PASS' &&
     (enforceMcp ? results.mcpServers.status === 'PASS' : true);
+}
+
+function statusIcon(status: AuditStatus): string {
+  if (status === 'PASS') return '✓ PASS';
+  if (status === 'WARNING') return '⚠ WARNING';
+  return '✗ FAIL';
+}
+
+function generateReport(results: AuditResults, cwd: string, enforceMcp: boolean = false): string {
+  const timestamp = new Date().toISOString();
+  const allPassed = isAuditPassing(results, enforceMcp);
 
   const submissionType = results.isUpdate
     ? `Update (${results.existingVersion} → ${results.skillsetVersion})`
     : 'New submission';
-
-  const statusIcon = (status: string) => {
-    if (status === 'PASS') return '✓ PASS';
-    if (status === 'WARNING') return '⚠ WARNING';
-    return '✗ FAIL';
-  };
 
   let report = `# Audit Report
 
@@ -549,33 +554,31 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   spinner.succeed(options.check ? 'Validation complete' : 'Audit complete');
 
   // Summary
-  const allPassed = results.manifest.status === 'PASS' &&
-    results.requiredFiles.status === 'PASS' &&
-    results.contentStructure.status === 'PASS' &&
-    results.fileSize.status !== 'FAIL' &&
-    results.secrets.status === 'PASS' &&
-    results.readmeLinks.status === 'PASS' &&
-    results.versionCheck.status === 'PASS' &&
-    (options.check ? results.mcpServers.status === 'PASS' : true);
+  const allPassed = isAuditPassing(results, !!options.check);
 
-  console.log('\n' + chalk.bold('Audit Summary:'));
-  console.log('');
-
-  const icon = (status: string) => {
+  const colorIcon = (status: AuditStatus) => {
     if (status === 'PASS') return chalk.green('✓');
     if (status === 'WARNING') return chalk.yellow('⚠');
     return chalk.red('✗');
   };
 
-  console.log(`  ${icon(results.manifest.status)} Manifest: ${results.manifest.details}`);
-  console.log(`  ${icon(results.requiredFiles.status)} Required Files: ${results.requiredFiles.details}`);
-  console.log(`  ${icon(results.contentStructure.status)} Content Structure: ${results.contentStructure.details}`);
-  console.log(`  ${icon(results.fileSize.status)} File Sizes: ${results.fileSize.details}`);
-  console.log(`  ${icon(results.binary.status)} Binary Files: ${results.binary.details}`);
-  console.log(`  ${icon(results.secrets.status)} Secrets: ${results.secrets.details}`);
-  console.log(`  ${icon(results.readmeLinks.status)} README Links: ${results.readmeLinks.details}`);
-  console.log(`  ${icon(results.versionCheck.status)} Version: ${results.versionCheck.details}`);
-  console.log(`  ${icon(results.mcpServers.status)} MCP Servers: ${results.mcpServers.details}`);
+  const checks: [AuditResult, string][] = [
+    [results.manifest, 'Manifest'],
+    [results.requiredFiles, 'Required Files'],
+    [results.contentStructure, 'Content Structure'],
+    [results.fileSize, 'File Sizes'],
+    [results.binary, 'Binary Files'],
+    [results.secrets, 'Secrets'],
+    [results.readmeLinks, 'README Links'],
+    [results.versionCheck, 'Version'],
+    [results.mcpServers, 'MCP Servers'],
+  ];
+
+  console.log('\n' + chalk.bold('Audit Summary:'));
+  console.log('');
+  for (const [result, label] of checks) {
+    console.log(`  ${colorIcon(result.status)} ${label}: ${result.details}`);
+  }
 
   console.log('');
 
