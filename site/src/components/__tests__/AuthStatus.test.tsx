@@ -16,7 +16,7 @@ describe('AuthStatus', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('test_renders_login_when_unauthenticated', async () => {
+  it('test_renders_log_in_when_unauthenticated', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 401,
@@ -25,24 +25,22 @@ describe('AuthStatus', () => {
     render(<AuthStatus />);
 
     await waitFor(() => {
-      const link = screen.getByText('Login');
+      const link = screen.getByText('Log in');
       expect(link).toBeDefined();
       expect(link.getAttribute('href')).toContain('/login?returnTo=');
     });
   });
 
-  it('test_renders_username_and_logout_when_authenticated', async () => {
+  it('test_renders_log_out_when_authenticated', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ login: 'testuser' }),
     }) as typeof fetch;
 
     render(<AuthStatus />);
 
     await waitFor(() => {
-      expect(screen.getByText('@testuser')).toBeDefined();
-      const logoutLink = screen.getByText('Logout');
-      expect(logoutLink.getAttribute('href')).toBe('/logout');
+      const link = screen.getByText('Log out');
+      expect(link.getAttribute('href')).toBe('/logout');
     });
   });
 
@@ -55,7 +53,7 @@ describe('AuthStatus', () => {
     render(<AuthStatus />);
 
     await waitFor(() => {
-      const link = screen.getByText('Login');
+      const link = screen.getByText('Log in');
       expect(link.getAttribute('href')).toContain('returnTo=%2F');
     });
   });
@@ -66,7 +64,7 @@ describe('AuthStatus', () => {
     render(<AuthStatus />);
 
     await waitFor(() => {
-      expect(screen.getByText('Login')).toBeDefined();
+      expect(screen.getByText('Log in')).toBeDefined();
     });
   });
 });
