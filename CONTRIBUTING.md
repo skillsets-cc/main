@@ -32,12 +32,37 @@ your-skillset/
 ├── .claude/skills/        # Installed by init
 │   └── audit-skill/       # Qualitative review skill
 └── content/               # Files to install
-    ├── CLAUDE.md          # Project instructions
+    ├── CLAUDE.md          # Project instructions (required)
     ├── README.md          # User instructions (required)
-    ├── .claude/           # Claude Code primitives
+    ├── .claude/           # Claude Code primitives (required)
     ├── .mcp.json          # MCP servers (if any)
     └── docker/            # Docker configs (if any)
 ```
+
+## Audit Requirements
+
+`npx skillsets audit` runs structural validation. Your submission must pass all checks before the qualitative review.
+
+**Required structure** (all must be present):
+- `skillset.yaml` — valid manifest (see reference below)
+- `content/README.md` — user-facing documentation
+- `content/CLAUDE.md` — project instructions entry point
+- `content/.claude/` — Claude Code primitives (skills, agents, hooks, settings)
+
+**Gating checks**:
+| Check | Rule |
+|-------|------|
+| Manifest | Valid schema, semver version, author handle, tags, production links |
+| Required files | `skillset.yaml`, `content/`, `content/README.md` |
+| Content structure | Both `content/.claude/` and `content/CLAUDE.md` present |
+| Secrets | No hardcoded credentials (AWS `AKIA`, GitHub `ghp_`, OpenAI `sk-`, Anthropic `sk-ant-`) |
+| README links | Links to `content/.claude/` must use full GitHub URLs |
+| Version | Updates must have version > existing registry version |
+| MCP consistency | Content↔manifest MCP declarations must match (gating in CI `--check` mode only) |
+
+**Non-gating warnings**: files over 1MB, binary files detected.
+
+The `/audit-skill` handles qualitative review: primitive quality, MCP reputation research, workflow verification against a reference repo, and safety scanning.
 
 ## skillset.yaml Reference
 

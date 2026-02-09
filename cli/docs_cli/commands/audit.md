@@ -32,7 +32,7 @@
 |-------|--------|----------|
 | Manifest | PASS/FAIL | Schema compliance |
 | Required Files | PASS/FAIL | skillset.yaml, README.md, content/ |
-| Content Structure | PASS/FAIL | Has .claude/ or CLAUDE.md |
+| Content Structure | PASS/FAIL | Has both .claude/ and CLAUDE.md |
 | File Size | PASS/WARNING | Files under 1MB |
 | Binary Detection | PASS/WARNING | No binary files |
 | Secret Detection | PASS/FAIL | No API keys/tokens |
@@ -41,10 +41,11 @@
 | MCP Servers | PASS/WARNING/FAIL | Bidirectional content↔manifest match (WARNING in normal mode, FAIL in `--check` mode) |
 
 ### Secret Patterns
-- API Key, Password, Secret, Token
+High-confidence patterns only (generic `password`/`token`/`secret` matchers removed — the `/audit-skill` handles qualitative secret review):
 - AWS Key: `AKIA[0-9A-Z]{16}`
 - GitHub Token: `ghp_[a-zA-Z0-9]{36}`
 - OpenAI Key: `sk-[a-zA-Z0-9]{48}`
+- Anthropic Key: `sk-ant-[a-zA-Z0-9_-]{20,}`
 
 ## Data Flow
 ```

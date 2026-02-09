@@ -49,13 +49,10 @@ const TEXT_EXTENSIONS = new Set([
 ]);
 
 const SECRET_PATTERNS = [
-  { name: 'API Key', pattern: /api[_-]?key\s*[:=]\s*['"]?[a-zA-Z0-9]{20,}/gi },
-  { name: 'Password', pattern: /password\s*[:=]\s*['"]?[^'"\s]{8,}/gi },
-  { name: 'Secret', pattern: /secret\s*[:=]\s*['"]?[a-zA-Z0-9]{20,}/gi },
-  { name: 'Token', pattern: /token\s*[:=]\s*['"]?[a-zA-Z0-9]{20,}/gi },
   { name: 'AWS Key', pattern: /AKIA[0-9A-Z]{16}/g },
   { name: 'GitHub Token', pattern: /ghp_[a-zA-Z0-9]{36}/g },
   { name: 'OpenAI Key', pattern: /sk-[a-zA-Z0-9]{48}/g },
+  { name: 'Anthropic Key', pattern: /sk-ant-[a-zA-Z0-9_-]{20,}/g },
 ];
 
 function getAllFiles(dir: string, baseDir: string = dir): { path: string; size: number }[] {
@@ -412,17 +409,17 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   const hasClaudeDir = existsSync(join(cwd, 'content', '.claude'));
   const hasClaudeMd = existsSync(join(cwd, 'content', 'CLAUDE.md'));
 
-  if (hasClaudeDir || hasClaudeMd) {
-    const found = [hasClaudeDir && '.claude/', hasClaudeMd && 'CLAUDE.md'].filter(Boolean);
+  if (hasClaudeDir && hasClaudeMd) {
     results.contentStructure = {
       status: 'PASS',
-      details: `Found: ${found.join(', ')}`,
+      details: 'Found: .claude/, CLAUDE.md',
     };
   } else {
+    const missing = [!hasClaudeDir && '.claude/', !hasClaudeMd && 'CLAUDE.md'].filter(Boolean);
     results.contentStructure = {
       status: 'FAIL',
-      details: 'No .claude/ or CLAUDE.md',
-      findings: 'content/ must contain either .claude/ directory or CLAUDE.md file',
+      details: `Missing: ${missing.join(', ')}`,
+      findings: 'content/ must contain both .claude/ directory and CLAUDE.md file',
     };
   }
 
