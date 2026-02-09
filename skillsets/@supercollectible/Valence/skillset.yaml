@@ -3,7 +3,7 @@ schema_version: "1.0"
 # Identity
 name: "Valence"
 version: "3.0.0"
-description: "Built on Claude Code's native primitives, Valence is an opinionated path to quality output."
+description: "Built for agency > automation, Valence is an opinionated path to quality output."
 
 author:
   handle: "@supercollectible"

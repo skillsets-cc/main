@@ -1,6 +1,6 @@
 ![Banner](/assets/Valence08.png)
 
-Built on Claude Code's native primitives, Valence is an opinionated path to quality output. No wrappers, no frameworks, no external silver-bullet. Just paying attention to what Boris actually said.
+Built for agency > automation, Valence is an opinionated path to quality output. No wrappers, no frameworks, no external silver-bullet. Just paying attention to what Boris actually said.
 
 The core problem: **preserving intent and agency** against the grain of automated gaslighting and cognitive offloading. My intention should flow through to implementation without being lost or distorted. Decisions and rationale are mine to own. The system should flag my bullshit requirements, not enable poor life choices. I dont want a magic button, I just want to know what happens when I can finally work at the speed of thought.
 

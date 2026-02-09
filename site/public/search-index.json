@@ -5,7 +5,7 @@
     {
       "id": "@supercollectible/Valence",
       "name": "Valence",
-      "description": "Built on Claude Code's native primitives, Valence is an opinionated path to quality output.",
+      "description": "Built for agency > automation, Valence is an opinionated path to quality output.",
       "tags": [
         "sdlc",
         "multi-agent",
