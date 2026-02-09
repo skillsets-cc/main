@@ -10,6 +10,7 @@ cli/src/
 ├── commands/
 │   ├── list.ts           # Browse all skillsets
 │   ├── search.ts         # Fuzzy search with Fuse.js
+│   ├── view.ts           # View skillset README
 │   ├── install.ts        # degit + checksum verification
 │   ├── init.ts           # Scaffold new skillset
 │   ├── audit.ts          # Validate before submission
@@ -41,6 +42,7 @@ cli/src/
 |------|---------|---------------|
 | `commands/list.ts` | Browse all available skillsets | [Docs](./commands/list.md) |
 | `commands/search.ts` | Fuzzy search against CDN index | [Docs](./commands/search.md) |
+| `commands/view.ts` | View skillset README from GitHub raw content | [Docs](./commands/view.md) |
 | `commands/install.ts` | Install skillset via degit + MCP warning + verify checksums | [Docs](./commands/install.md) |
 | `commands/init.ts` | Scaffold skillset submission | [Docs](./commands/init.md) |
 | `commands/audit.ts` | Validate + MCP check + generate report | [Docs](./commands/audit.md) |
@@ -61,6 +63,7 @@ cli/src/
 | File | Purpose | Documentation |
 |------|---------|---------------|
 | `types/index.ts` | SearchIndex, Skillset interfaces | [Docs](./types/index.md) |
+| `types/degit.d.ts` | TypeScript declarations for degit package | [Docs](./types/degit.d.md) |
 
 ## Dependencies
 - **External**: commander, fuse.js, degit, chalk, ora, js-yaml, @inquirer/prompts
@@ -71,6 +74,7 @@ cli/src/
 ```
 Consumer Flow:
 list/search → api.ts → CDN index + Live stats → Merge → Fuse.js/Sort → Terminal output
+view → api.ts → fetchSkillsetMetadata → GitHub raw content → Print to terminal
 install → Fetch metadata → MCP warning (if any) → degit → Extract content/ → checksum.ts → Verify → Track download
 
 Contributor Flow:

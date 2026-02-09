@@ -11,6 +11,7 @@ cli/
 │   ├── commands/          # Command implementations
 │   │   ├── list.ts
 │   │   ├── search.ts
+│   │   ├── view.ts
 │   │   ├── install.ts
 │   │   ├── init.ts
 │   │   ├── audit.ts
@@ -42,6 +43,7 @@ cli/
 |------|---------|---------------|
 | `list.ts` | Browse all skillsets with live stats | [Docs](./docs_cli/commands/list.md) |
 | `search.ts` | Fuzzy search by name, description, tags | [Docs](./docs_cli/commands/search.md) |
+| `view.ts` | View a skillset README before installing | [Docs](./docs_cli/commands/view.md) |
 | `install.ts` | Install skillset via degit + MCP warning + verify checksums | [Docs](./docs_cli/commands/install.md) |
 | `init.ts` | Scaffold new skillset for contribution | [Docs](./docs_cli/commands/init.md) |
 | `audit.ts` | Validate skillset + MCP servers before submission | [Docs](./docs_cli/commands/audit.md) |
@@ -57,6 +59,12 @@ cli/
 | `filesystem.ts` | File utilities | [Docs](./docs_cli/lib/filesystem.md) |
 | `versions.ts` | Semver comparison | [Docs](./docs_cli/lib/versions.md) |
 | `validate-mcp.ts` | MCP server bidirectional validation | [Docs](./docs_cli/lib/validate-mcp.md) |
+
+### Types
+| File | Purpose | Documentation |
+|------|---------|---------------|
+| `index.ts` | SearchIndex, Skillset interfaces | [Docs](./docs_cli/types/index.md) |
+| `degit.d.ts` | TypeScript declarations for degit package | [Docs](./docs_cli/types/degit.d.md) |
 
 ## Related Documentation
 - [CLI Style Guide](../.claude/resources/cli_styleguide.md)

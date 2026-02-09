@@ -3,6 +3,7 @@
 import { program } from 'commander';
 import { search } from './commands/search.js';
 import { list } from './commands/list.js';
+import { view } from './commands/view.js';
 import { install } from './commands/install.js';
 import { init } from './commands/init.js';
 import { audit } from './commands/audit.js';
@@ -39,6 +40,18 @@ program
   .action(async (query, options) => {
     try {
       await search(query, options);
+    } catch (error) {
+      handleError(error);
+    }
+  });
+
+program
+  .command('view')
+  .description('View a skillset README before installing')
+  .argument('<skillsetId>', 'Skillset ID (e.g., @user/skillset-name)')
+  .action(async (skillsetId) => {
+    try {
+      await view(skillsetId);
     } catch (error) {
       handleError(error);
     }
