@@ -29,9 +29,7 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<div id="proof-sentinel"></div>
-<section id="proof-sticky" class="sticky z-40 px-6 pb-4 rounded-none" style="top: var(--proof-top, 0px); background: linear-gradient(to bottom, white 70%, transparent 100%);">
-  <h2 id="proof-heading" class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Verification</h2>
+<section class="sticky top-[4.5rem] z-40 -mx-4 px-10 pb-4" style="background: linear-gradient(to bottom, white 60%, transparent 100%);">
   <div class="flex flex-wrap gap-2">
     {productionLinks.map((link) => (
       <a
@@ -63,43 +61,3 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
     </span>
   </div>
 </section>
-
-<script>
-  const headerSentinel = document.getElementById('header-sentinel');
-  const headerFull = document.getElementById('header-full');
-  const headerCompact = document.getElementById('header-compact');
-  const detailHeader = document.getElementById('detail-header');
-
-  const proofSentinel = document.getElementById('proof-sentinel');
-  const proofSticky = document.getElementById('proof-sticky');
-  const proofHeading = document.getElementById('proof-heading');
-
-  // Header: swap full ↔ compact when stuck
-  if (headerSentinel && headerFull && headerCompact && detailHeader) {
-    const headerObserver = new IntersectionObserver(
-      ([entry]) => {
-        const stuck = !entry.isIntersecting;
-        headerFull.classList.toggle('hidden', stuck);
-        headerCompact.classList.toggle('hidden', !stuck);
-        // Update proof top offset to stack below header
-        if (proofSticky) {
-          proofSticky.style.setProperty('--proof-top', `${detailHeader.offsetHeight}px`);
-        }
-      },
-      { threshold: 0 }
-    );
-    headerObserver.observe(headerSentinel);
-  }
-
-  // Pills: hide heading when stuck
-  if (proofSentinel && proofHeading) {
-    const proofObserver = new IntersectionObserver(
-      ([entry]) => {
-        const stuck = !entry.isIntersecting;
-        proofHeading.classList.toggle('hidden', stuck);
-      },
-      { threshold: 0 }
-    );
-    proofObserver.observe(proofSentinel);
-  }
-</script>
