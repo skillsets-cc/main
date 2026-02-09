@@ -114,14 +114,13 @@ const statusColor = getStatusColor(skillset.status);
     </header>
 
     <div class="space-y-6">
-      <section class="bg-stone-50 p-4 rounded-none">
+      <section class="p-4 rounded-none">
         <div class="flex gap-6">
           <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap pt-2">Install</h2>
           <div class="flex-1 min-w-0">
             <CopyCommand client:load command={installCommand} />
             <p class="mt-1.5 text-sm text-text-tertiary font-serif italic">
               Reviewed best-effort with no security guarantees. You are the final quality gate, as with any OSS.
-              <a href="/cli" class="text-orange-500 hover:underline font-mono not-italic text-xs ml-2">More CLI commands</a>
             </p>
           </div>
         </div>
