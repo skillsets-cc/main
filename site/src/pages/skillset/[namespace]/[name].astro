@@ -92,17 +92,7 @@ const statusColor = getStatusColor(skillset.status);
     </div>
 
     <header class="mb-8 mt-4">
-      <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">{skillset.description}</p>
-
-      <div class="flex flex-wrap gap-2 mb-6">
-        {skillset.tags.map((tag) => (
-          <span class="px-3 py-1 text-sm font-mono border border-border-ink bg-stone-50 text-text-secondary">
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      <div class="flex items-center gap-4 text-sm text-text-tertiary font-mono">
+      <div class="flex items-center gap-4 text-sm text-text-tertiary font-mono mb-4">
         <span class="flex items-center gap-1">
           v{skillset.version}
         </span>
@@ -110,6 +100,16 @@ const statusColor = getStatusColor(skillset.status);
           <span class={`w-2 h-2 rounded-full ${statusColor}`}></span>
           {skillset.status}
         </span>
+      </div>
+
+      <p class="text-xl text-text-secondary mb-6 font-serif leading-relaxed">{skillset.description}</p>
+
+      <div class="flex flex-wrap gap-2 mb-6">
+        {skillset.tags.map((tag) => (
+          <span class="px-3 py-1 text-sm font-mono border border-border-ink bg-stone-50 text-text-secondary">
+            {tag}
+          </span>
+        ))}
       </div>
     </header>
 
