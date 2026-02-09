@@ -1,0 +1,37 @@
+---
+interface MediaItem {
+  url: string;
+  alt?: string;
+  label?: string;
+}
+
+interface Props {
+  items: MediaItem[];
+}
+
+import { sanitizeUrl } from '@/lib/sanitize';
+
+const { items } = Astro.props;
+---
+
+{items.length > 0 && (
+  <section class="p-6 rounded-none">
+    <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">Cold Start Spend</h2>
+    <div class="space-y-4">
+      {items.map((item) => (
+        <div>
+          {item.label && (
+            <p class="text-sm font-mono text-text-tertiary mb-2">{item.label}</p>
+          )}
+          <img
+            src={sanitizeUrl(item.url)}
+            alt={item.alt || "Context usage breakdown"}
+            class="w-full rounded-none border border-border-ink"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+)}

@@ -4,6 +4,7 @@ import StarButton from '@components/StarButton';
 import DownloadCount from '@components/DownloadCount';
 import CopyCommand from '@components/CopyCommand';
 import ProofGallery from '@components/ProofGallery.astro';
+import MediaGallery from '@components/MediaGallery.astro';
 import { getSkillsetById } from '@/lib/data';
 import { sanitizeHtml, sanitizeUrl } from '@/lib/sanitize';
 import { marked } from 'marked';
@@ -117,7 +118,6 @@ const statusColor = getStatusColor(skillset.status);
         productionLinks={skillset.verification.production_links}
         hasAuditReport={!!skillset.verification.audit_report}
         skillsetId={skillsetId}
-        contextImageUrl={skillset.context_image_url}
       />
 
       <section class="p-6 rounded-none">
@@ -206,6 +206,10 @@ const statusColor = getStatusColor(skillset.status);
           </div>
         </div>
       </section>
+
+      {skillset.context_image_url && (
+        <MediaGallery items={[{ url: skillset.context_image_url }]} />
+      )}
     </div>
 
     <div class="mt-8 text-center">
