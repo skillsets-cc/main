@@ -6,10 +6,9 @@ import { join, basename } from 'path';
 import yaml from 'js-yaml';
 import { tmpdir } from 'os';
 import { fetchSkillsetMetadata } from '../lib/api.js';
-
 import { compareVersions } from '../lib/versions.js';
+import { REGISTRY_REPO } from '../lib/constants.js';
 
-const REGISTRY_REPO = 'skillsets-cc/main';
 const REGISTRY_URL = `https://github.com/${REGISTRY_REPO}`;
 
 function checkGhCli(): boolean {

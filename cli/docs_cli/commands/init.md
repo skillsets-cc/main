@@ -1,11 +1,11 @@
 # init.ts
 
-## Overview
-**Purpose**: Interactive scaffold for new skillset submission with auto-detection of existing .claude/ and CLAUDE.md
+## Purpose
+Interactive scaffold for new skillset submission with ghost entry reservation lookup, auto-detection of existing skillset files, and degit-based audit skill installation. Validates GitHub authentication and active reservation before proceeding.
 
 ## Dependencies
-- External: `chalk`, `ora`, `@inquirer/prompts`, `fs`
-- Internal: None
+- **External**: `chalk`, `ora`, `@inquirer/prompts`, `fs`, `path`, `degit`, `child_process`
+- **Internal**: None
 
 ## Key Components
 
@@ -18,11 +18,9 @@
 ### Templates
 | Template | Generated File |
 |----------|----------------|
-| `SKILLSET_YAML_TEMPLATE` | `skillset.yaml` |
-| `README_TEMPLATE` | `README.md` |
+| `SKILLSET_YAML_TEMPLATE` | `skillset.yaml` (with auto-populated batch_id) |
+| `README_TEMPLATE` | `content/README.md` |
 | `PROOF_TEMPLATE` | `PROOF.md` |
-| `AUDIT_SKILL_MD` | `.claude/skills/audit-skill/SKILL.md` |
-| `AUDIT_CRITERIA_MD` | `.claude/skills/audit-skill/CRITERIA.md` |
 
 ### Prompts
 | Field | Validation |
@@ -36,27 +34,65 @@
 
 ## Data Flow
 ```
-init() → Detect existing files → Prompt user → Generate templates → Copy content
+init() → Verify gh CLI auth → Get GitHub user ID → Look up reservation → Detect existing files → Prompt user → Generate templates → Copy content → Install audit-skill via degit
 ```
 
+### Reservation Lookup Flow
+1. Runs `gh api user` to get authenticated GitHub user ID
+2. Calls `GET /api/reservations/lookup?githubId={id}`
+3. Exits if no active reservation found (user must claim slot first)
+4. Auto-populates `batch_id` field in `skillset.yaml` with returned batch ID
+
 ## Integration Points
-- Called by: `index.ts`
-- Calls: None (self-contained)
+- **Called by**: `index.ts` (CLI entry point)
+- **Calls**:
+  - `gh auth status` (verify GitHub CLI authentication)
+  - `gh api user` (get GitHub user ID and login)
+  - `GET /api/reservations/lookup` (reservation lookup by GitHub ID)
+  - `degit` (install audit-skill from skillsets-cc/main/tools/audit-skill)
 
 ## Generated Structure
 ```
 ./
-├── skillset.yaml
-├── README.md
-├── PROOF.md
+├── skillset.yaml           # Manifest with auto-populated batch_id
+├── PROOF.md                # Production evidence template
 ├── .claude/skills/
-│   └── audit-skill/     # Tier 2 qualitative review skill
-│       ├── SKILL.md        # Opus instructions
-│       └── CRITERIA.md     # Per-primitive evaluation rubric
-└── content/
-    └── (copied .claude/ or CLAUDE.md)
+│   └── audit-skill/        # Installed via degit from registry
+│       ├── SKILL.md        # Opus qualitative review instructions
+│       └── (other skill files)
+└── content/                # Installable files
+    ├── README.md           # Generated if not detected
+    └── (copied .claude/, CLAUDE.md, .mcp.json, docker/, etc.)
 ```
 
-## Testing
-- Test file: `__tests__/init.test.ts`
-- Key tests: File creation, validation, auto-detect copy
+## Key Logic
+
+### Auto-Detection
+Scans for existing skillset files:
+- `CLAUDE.md`
+- `README.md`
+- `.claude/` directory
+- `.mcp.json`
+- `docker/` directory
+
+User selects which files to copy to `content/` via checkbox prompt.
+
+### Audit Skill Installation
+Uses degit to install `tools/audit-skill` from the main registry repo:
+- Target: `skillsets-cc/main/tools/audit-skill`
+- Destination: `.claude/skills/audit-skill/`
+- Options: `cache: false, force: true` (always fresh)
+
+### Validation
+All prompts have inline validation:
+- Name: Alphanumeric + hyphens/underscores, 1-100 chars
+- Description: 10-200 chars
+- Author handle: Must start with `@`
+- URLs: Valid URL format
+- Tags: 1-10 tags, lowercase, alphanumeric + hyphens
+
+## Error Handling
+- Exits if gh CLI not authenticated (directs to `gh auth login`)
+- Exits if no active reservation found (directs to skillsets.cc)
+- Exits if network error during lookup
+- Prompts to overwrite if `skillset.yaml` already exists

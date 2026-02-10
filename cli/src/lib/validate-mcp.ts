@@ -93,6 +93,39 @@ export function validateMcpServers(skillsetDir: string): McpValidationResult {
 }
 
 /**
+ * Parse native MCP servers from a JSON file containing an `mcpServers` key.
+ * Deduplicates against existing servers by name.
+ */
+function parseNativeServersFromJson(
+  filePath: string,
+  servers: ContentMcpServer[],
+  errors: string[]
+): void {
+  if (!existsSync(filePath)) return;
+
+  try {
+    const content = readFileSync(filePath, 'utf-8');
+    const data = JSON.parse(content);
+    if (data.mcpServers && typeof data.mcpServers === 'object') {
+      for (const [name, config] of Object.entries(data.mcpServers as Record<string, any>)) {
+        if (!servers.some(s => s.name === name && s.source === 'native')) {
+          servers.push({
+            name,
+            source: 'native',
+            command: config.command,
+            args: config.args,
+            url: config.url,
+          });
+        }
+      }
+    }
+  } catch (error: any) {
+    const label = filePath.split('/').slice(-2).join('/');
+    errors.push(`Failed to parse ${label}: ${error.message}`);
+  }
+}
+
+/**
  * Collect MCP servers from content files (.mcp.json, .claude/settings.json, docker configs)
  */
 function collectContentServers(skillsetDir: string, errors: string[]): ContentMcpServer[] {
@@ -103,75 +136,14 @@ function collectContentServers(skillsetDir: string, errors: string[]): ContentMc
     return servers;
   }
 
-  // 1. Check .mcp.json
-  const mcpJsonPath = join(contentDir, '.mcp.json');
-  if (existsSync(mcpJsonPath)) {
-    try {
-      const content = readFileSync(mcpJsonPath, 'utf-8');
-      const data = JSON.parse(content);
-      if (data.mcpServers && typeof data.mcpServers === 'object') {
-        for (const [name, config] of Object.entries(data.mcpServers as Record<string, any>)) {
-          servers.push({
-            name,
-            source: 'native',
-            command: config.command,
-            args: config.args,
-            url: config.url,
-          });
-        }
-      }
-    } catch (error: any) {
-      errors.push(`Failed to parse .mcp.json: ${error.message}`);
-    }
-  }
-
-  // 2. Check .claude/settings.json
-  const settingsPath = join(contentDir, '.claude', 'settings.json');
-  if (existsSync(settingsPath)) {
-    try {
-      const content = readFileSync(settingsPath, 'utf-8');
-      const data = JSON.parse(content);
-      if (data.mcpServers && typeof data.mcpServers === 'object') {
-        for (const [name, config] of Object.entries(data.mcpServers as Record<string, any>)) {
-          // Avoid duplicates (same name might be in both files)
-          if (!servers.some(s => s.name === name && s.source === 'native')) {
-            servers.push({
-              name,
-              source: 'native',
-              command: config.command,
-              args: config.args,
-              url: config.url,
-            });
-          }
-        }
-      }
-    } catch (error: any) {
-      errors.push(`Failed to parse .claude/settings.json: ${error.message}`);
-    }
-  }
-
-  // 3. Check .claude/settings.local.json
-  const settingsLocalPath = join(contentDir, '.claude', 'settings.local.json');
-  if (existsSync(settingsLocalPath)) {
-    try {
-      const content = readFileSync(settingsLocalPath, 'utf-8');
-      const data = JSON.parse(content);
-      if (data.mcpServers && typeof data.mcpServers === 'object') {
-        for (const [name, config] of Object.entries(data.mcpServers as Record<string, any>)) {
-          if (!servers.some(s => s.name === name && s.source === 'native')) {
-            servers.push({
-              name,
-              source: 'native',
-              command: config.command,
-              args: config.args,
-              url: config.url,
-            });
-          }
-        }
-      }
-    } catch (error: any) {
-      errors.push(`Failed to parse .claude/settings.local.json: ${error.message}`);
-    }
+  // Native MCP server sources (order matters for dedup: first found wins)
+  const nativeJsonPaths = [
+    join(contentDir, '.mcp.json'),
+    join(contentDir, '.claude', 'settings.json'),
+    join(contentDir, '.claude', 'settings.local.json'),
+  ];
+  for (const jsonPath of nativeJsonPaths) {
+    parseNativeServersFromJson(jsonPath, servers, errors);
   }
 
   // 4. Check docker/**/*.yaml and docker/**/*.yml for mcp_servers key
