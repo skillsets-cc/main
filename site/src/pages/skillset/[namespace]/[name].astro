@@ -224,27 +224,28 @@ const statusColor = getStatusColor(skillset.status);
       const { default: mermaid } = await import('mermaid');
       mermaid.initialize({
         startOnLoad: false,
-        theme: 'base',
+        theme: 'neutral',
         themeVariables: {
-          primaryColor: '#FFFFFF',
+          primaryColor: '#FFF7ED',
           primaryTextColor: '#1A1A1A',
           primaryBorderColor: '#1A1A1A',
           lineColor: '#1A1A1A',
-          secondaryColor: '#FFF7ED',
+          secondaryColor: '#FFFFFF',
           tertiaryColor: '#F5F5F4',
-          noteBkgColor: '#FFF7ED',
-          noteBorderColor: '#F97316',
-          activeTaskBkgColor: '#F97316',
-          activeTaskBorderColor: '#1A1A1A',
-          doneTaskBkgColor: '#F97316',
-          critBkgColor: '#F97316',
-          todayLineColor: '#F97316',
+          background: '#FFFFFF',
+          mainBkg: '#FFFFFF',
+          nodeBorder: '#1A1A1A',
+          clusterBkg: '#FAFAFA',
+          clusterBorder: '#1A1A1A',
+          titleColor: '#1A1A1A',
+          edgeLabelBackground: '#FFFFFF',
+          nodeTextColor: '#1A1A1A',
         },
       });
 
       mermaidBlocks.forEach(code => {
         const pre = code.parentElement!;
-        pre.className = 'mermaid';
+        pre.className = 'mermaid not-prose';
         pre.textContent = code.textContent;
       });
 
