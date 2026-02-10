@@ -209,7 +209,7 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
   // Print next steps
   console.log(chalk.green('\n✓ Installation complete!'));
   console.log(chalk.gray('\nNext steps:'));
-  console.log('  1. Review CLAUDE.md for usage instructions');
-  console.log('  2. Customize .claude/skills/ for your project');
+  console.log('  1. Ask Opus to verify the skillset matches its claims');
+  console.log('  2. Read QUICKSTART.md to customize for your project');
   console.log('  3. Run: claude');
 }

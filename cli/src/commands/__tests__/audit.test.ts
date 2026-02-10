@@ -48,11 +48,12 @@ status: "active"
 entry_point: "./content/CLAUDE.md"
 `;
 
-  /** Create the minimum valid content structure: content/.claude/ and content/CLAUDE.md */
+  /** Create the minimum valid content structure: content/.claude/, content/CLAUDE.md, content/README.md, content/QUICKSTART.md */
   function createValidContent() {
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README.md'), '# Test\n\nDescription');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+    writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart\n\nGet started here.');
   }
 
   it('passes with valid structure', async () => {
@@ -87,6 +88,19 @@ entry_point: "./content/CLAUDE.md"
     const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
     expect(report).toContain('NOT READY');
     expect(report).toContain('README.md');
+  });
+
+  it('fails without QUICKSTART.md', async () => {
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await audit();
+
+    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    expect(report).toContain('NOT READY');
+    expect(report).toContain('QUICKSTART.md');
   });
 
   it('fails without content directory', async () => {
@@ -307,6 +321,7 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -325,6 +340,7 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -344,6 +360,7 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -363,6 +380,7 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
 
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
       await audit({ check: true });
@@ -378,6 +396,7 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', 'docker'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
       writeFileSync(join(testDir, 'content', 'docker', 'docker-compose.yaml'), 'services:\n  litellm:\n    image: ghcr.io/berriai/litellm:main-latest\n');
       writeFileSync(join(testDir, 'content', 'docker', 'config.yaml'), 'mcp_servers:\n  context7:\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n');
 
@@ -393,6 +412,7 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -478,6 +498,7 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test\n\n[External](https://example.com)\n[Other](./other.md)');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
 
       await audit();
 
@@ -513,6 +534,7 @@ version: "not-semver"
         '# Test\n\n[Skill](https://github.com/skillsets-cc/main/blob/main/skillsets/%40testuser/test-skillset/content/.claude/skills/my-skill/SKILL.md)'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
 
       await audit();
 

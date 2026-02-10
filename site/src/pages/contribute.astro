@@ -162,7 +162,8 @@ import CopyCommand from '@components/CopyCommand';
       <p class="text-lg text-text-secondary mb-4 font-serif">
         CI runs <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit --check</code> on every PR. These checks are gating — your submission will not merge until all pass.
       </p>
-      <table class="w-full text-left border-collapse">
+      <div class="overflow-x-auto">
+      <table class="min-w-full text-left border-collapse">
         <thead>
           <tr class="border-b border-border-ink">
             <th class="py-2 pr-4 font-bold font-serif text-text-ink">Check</th>
@@ -200,6 +201,7 @@ import CopyCommand from '@components/CopyCommand';
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <div class="border border-transparent p-8 rounded-none mb-8">

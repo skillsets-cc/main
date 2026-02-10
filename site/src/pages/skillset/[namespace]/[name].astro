@@ -66,8 +66,8 @@ const statusColor = getStatusColor(skillset.status);
 
 <BaseLayout title={`${skillset.name} - Skillsets.cc`}>
   <article class="max-w-4xl mx-auto px-4 py-12">
-    <div class="sticky top-0 z-50 -mx-4 px-4 pt-4 pb-10" style="background: white;">
-      <div class="flex items-start justify-between">
+    <div class="sticky top-0 z-50 -mx-4 px-4 pt-4 pb-4 md:pb-10" style="background: white;">
+      <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 class="text-4xl font-bold font-serif mb-2 text-text-ink">{skillset.name}</h1>
           <p class="text-lg text-text-secondary font-serif">
@@ -115,8 +115,8 @@ const statusColor = getStatusColor(skillset.status);
 
     <div class="space-y-6">
       <section class="p-4 rounded-none">
-        <div class="flex gap-6">
-          <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap pt-2">Install</h2>
+        <div class="flex flex-col gap-2 md:flex-row md:gap-6">
+          <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap md:pt-2">Install</h2>
           <div class="flex-1 min-w-0">
             <CopyCommand client:load command={installCommand} />
             <p class="mt-1.5 text-sm text-text-tertiary font-serif italic">
@@ -139,7 +139,7 @@ const statusColor = getStatusColor(skillset.status);
 
       {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
         <section class="p-4 rounded-none">
-          <div class="flex gap-6">
+          <div class="flex flex-col gap-2 md:flex-row md:gap-6">
             <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">MCP Servers</h2>
             <div class="flex-1 min-w-0">
               <div class="flex flex-wrap gap-x-8 gap-y-2">
@@ -191,7 +191,7 @@ const statusColor = getStatusColor(skillset.status);
       )}
 
       <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
-        <div class="flex gap-6">
+        <div class="flex flex-col gap-2 md:flex-row md:gap-6">
           <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">Compatibility</h2>
           <div class="flex-1 min-w-0 flex flex-wrap gap-x-8 gap-y-1">
             <div>

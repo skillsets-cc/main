@@ -68,6 +68,45 @@ npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}
 [Your license]
 `;
 
+const QUICKSTART_TEMPLATE = `# Quickstart
+
+After installing via \`npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}\`, customize the workflow for your project.
+
+---
+
+## What Was Installed
+
+\`\`\`
+your-project/
+├── .claude/          # Skills, agents, resources
+├── CLAUDE.md         # Project config ← START HERE
+└── README.md         # Documentation
+\`\`\`
+
+---
+
+## Getting Started
+
+1. **Edit CLAUDE.md** — Replace placeholder content with your project's specifics
+2. **Customize .claude/** — Adapt skills, agents, and resources for your stack
+3. **Run** — \`claude\` to start using the skillset
+
+---
+
+## Customization Checklist
+
+- [ ] Update Identity & Constraints in CLAUDE.md
+- [ ] Configure style guides in .claude/resources/
+- [ ] Adapt agent definitions in .claude/agents/
+- [ ] Set up any required infrastructure (Docker, API keys, etc.)
+
+---
+
+## Resources
+
+[Add links to documentation, examples, or support channels]
+`;
+
 const PROOF_TEMPLATE = `# Production Proof
 
 ## Overview
@@ -309,6 +348,15 @@ export async function init(options: InitOptions): Promise<void> {
       writeFileSync(join(cwd, 'content', 'README.md'), readme);
     }
 
+    // Generate content/QUICKSTART.md (if not copying existing)
+    if (!existsSync(join(cwd, 'content', 'QUICKSTART.md'))) {
+      const quickstart = QUICKSTART_TEMPLATE
+        .replace(/\{\{NAME\}\}/g, name)
+        .replace(/\{\{AUTHOR_HANDLE\}\}/g, authorHandle);
+
+      writeFileSync(join(cwd, 'content', 'QUICKSTART.md'), quickstart);
+    }
+
     // Generate PROOF.md
     const proof = PROOF_TEMPLATE.replace('{{PRODUCTION_URL}}', productionUrl);
     writeFileSync(join(cwd, 'PROOF.md'), proof);
@@ -330,7 +378,8 @@ export async function init(options: InitOptions): Promise<void> {
     console.log('  skillset.yaml     - Manifest (edit as needed)');
     console.log('  PROOF.md          - Production evidence (add details)');
     console.log('  content/          - Installable files');
-    console.log('    ├── README.md   - Documentation');
+    console.log('    ├── README.md       - Documentation');
+    console.log('    ├── QUICKSTART.md   - Post-install guide');
     if (filesToCopy.length > 0) {
       filesToCopy.forEach((f) => console.log(`    └── ${f}`));
     } else {

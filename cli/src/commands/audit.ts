@@ -387,12 +387,14 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   spinner.text = 'Checking required files...';
   const hasContent = existsSync(join(cwd, 'content'));
   const hasReadme = existsSync(join(cwd, 'content', 'README.md'));
+  const hasQuickstart = existsSync(join(cwd, 'content', 'QUICKSTART.md'));
   const hasSkillsetYaml = existsSync(join(cwd, 'skillset.yaml'));
 
   const missingFiles: string[] = [];
   if (!hasSkillsetYaml) missingFiles.push('skillset.yaml');
   if (!hasContent) missingFiles.push('content/');
   if (!hasReadme) missingFiles.push('content/README.md');
+  if (!hasQuickstart) missingFiles.push('content/QUICKSTART.md');
 
   if (missingFiles.length === 0) {
     results.requiredFiles = { status: 'PASS', details: 'All present' };
