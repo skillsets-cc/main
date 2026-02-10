@@ -357,6 +357,40 @@ Separated by scope: `code-simplifier` handles universal cleanup (any codebase, a
 
 Run `/denoise` first, then `/qf` or `/qb`, then `/qd`, then `/security-review`.
 
+### Orchestration
+
+Multi-agent skills (`/ar`, `/build`, `/pmatch`) use Claude Code's agent teams to coordinate parallel work. The lead agent creates a team, spawns teammates, assigns tasks via a shared task list, and monitors progress — it doesn't do the work itself.
+
+**Requirements**:
+- `tmux` installed — each teammate runs in its own tmux pane with its own permission prompt
+- `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in environment or `.claude/settings.local.json`
+
+**How it works**:
+
+```
+Lead (Opus)
+├── TeamCreate          → creates shared team + task list
+├── TaskCreate (×N)     → one task per teammate
+├── Task (×N)           → spawns teammates in parallel (each gets own terminal)
+├── Monitor             → watches task list, handles messages from teammates
+├── SendMessage         → coordinates, unblocks stuck teammates
+└── Cleanup             → shutdown teammates, delete team
+```
+
+Each teammate receives a prompt pointing at the work artifact (design doc, execution doc, source/target paths), reads it directly, does its work, marks its task completed, and messages the lead. Teammates can also discover each other via the team config and coordinate peer-to-peer when needed.
+
+**Lead enters delegate mode** (Shift+Tab) after spawning — this restricts the lead to coordination-only tools (spawn, message, task management) so it doesn't accidentally write code that conflicts with teammates.
+
+**Which skills use teams**:
+
+| Skill | Teammates | Pattern |
+|-------|-----------|---------|
+| `/ar` | ar-o, ar-k, ar-d | All parallel → aggregate findings |
+| `/build` | build (×N) | Parallel or sequenced by dependency → validate |
+| `/pmatch` | pm-s, pm-k | All parallel → merge consensus |
+
+Simpler skills (`/denoise`, `/qf`, `/qb`, `/qd`) dispatch a single agent directly via the Task tool — no team overhead needed.
+
 ### Multi-Model Infrastructure
 
 Adversarial review and pattern matching require access to models outside Claude. A LiteLLM proxy routes requests and provides MCP tool access to external agents.

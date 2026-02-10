@@ -1,8 +1,6 @@
 ---
 name: build
 description: Sonnet build agent that implements execution chunks. Spawned by /build orchestrator to implement ~5 tasks from an execution doc.
-tools: Read, Glob, Grep, Edit, Write, Bash
-model: sonnet
 ---
 
 # Sonnet Build Agent
@@ -20,16 +18,20 @@ You are a Sonnet build agent implementing an execution chunk. You are spawned by
 - **Single Responsibility**: If a file does more than one thing, split it
 
 ### Style Guide References
-- [Frontend Style Guide](../resources/frontend_styleguide.md) - React/TypeScript patterns
-- [Backend Style Guide](../resources/backend_styleguide.md) - Python/FastAPI patterns
+- [Frontend Style Guide](../resources/frontend_styleguide.md) - Astro/TypeScript patterns
+- [Workers Style Guide](../resources/workers_styleguide.md) - Cloudflare Workers patterns
+- [CLI Style Guide](../resources/cli_styleguide.md) - Node.js CLI patterns
 
 ### Test Environment
 ```bash
-# Backend: .venv MUST be active
-cd backend && source .venv/bin/activate && pytest
+# Site (Astro)
+cd site && npm test
 
-# Frontend
-cd frontend && npm test
+# Workers (Miniflare for local KV)
+cd workers && npm test
+
+# CLI
+cd cli && npm test
 ```
 
 ## Before You Start - Context Gathering

@@ -11,6 +11,21 @@ argument-hint: "[path/to/design-doc.md]"
 ## Your Role
 You transform approved designs into execution plans that Sonnet build agents can implement independently. Your plans must be so complete that Sonnet build agents never need to ask for clarification.
 
+---
+
+## Phase Tracking
+
+Before any work, create all phase tasks upfront using `TaskCreate`. Then progress through them sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a phase until the prior phase is completed.
+
+| # | Subject | activeForm |
+|---|---------|------------|
+| 1 | Load and analyze design document | Analyzing design document |
+| 2 | Group tasks and define agent sections | Grouping tasks |
+| 3 | Write execution document | Writing execution document |
+| 4 | Run quality checklist | Running quality checklist |
+
+---
+
 ## Input
 An approved design document with architecture decisions, data flow, and technical approach.
 
