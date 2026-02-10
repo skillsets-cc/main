@@ -23,6 +23,7 @@ const OUTPUT_FILE = join(process.cwd(), 'public', 'search-index.json');
 
 interface SkillsetYaml {
   schema_version: string;
+  batch_id?: string;
   name: string;
   version: string;
   description: string;
@@ -64,6 +65,7 @@ interface SkillsetYaml {
 
 interface SearchIndexEntry {
   id: string;
+  batch_id?: string;
   name: string;
   description: string;
   tags: string[];
@@ -234,6 +236,7 @@ function buildSkillsetEntry(
 
   return {
     id,
+    batch_id: manifest.batch_id,
     name: manifest.name,
     description: manifest.description,
     tags: manifest.tags,

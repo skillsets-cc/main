@@ -122,12 +122,16 @@ export default function SkillsetGrid({
       {reservations && Object.keys(reservations.slots).length > 0 && (
         <div className="flex flex-col border-t border-dashed border-border-ink mt-0">
           {Object.entries(reservations.slots)
-            .filter(([_, slot]) => {
-              // Only show as ghost card if no matching real skillset exists
+            .filter(([slotId, slot]) => {
+              // Hide ghost card if a real skillset with this batch_id exists
+              if (skillsets.some(s => s.batch_id === slotId)) {
+                return false;
+              }
+              // Hide submitted slots if matching by skillsetId
               if (slot.status === 'submitted' && slot.skillsetId) {
                 return !skillsets.some(s => s.id === slot.skillsetId);
               }
-              return true; // available and reserved always show as ghost cards
+              return true;
             })
             .map(([slotId, slot]) => (
               <GhostCard
