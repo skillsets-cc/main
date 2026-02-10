@@ -6,12 +6,12 @@ import CopyCommand from '@components/CopyCommand';
 ---
 
 <BaseLayout title="Contribute - Skillsets.cc">
-  <main class="max-w-4xl mx-auto px-4 py-12">
+  <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 overflow-x-hidden">
     <header class="mb-8 border-b border-border-ink pb-6">
       <h1 class="text-4xl font-medium font-serif text-text-ink">We'd all love to learn from you!</h1>
     </header>
 
-    <div class="border border-border-ink bg-stone-50 p-8 rounded-none mb-8">
+    <div class="border border-border-ink bg-stone-50 p-4 md:p-8 rounded-none mb-8">
       <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">
         You built a skillset that works — skills, agents, hooks, plugins, MCP, all wired together
         and battle-tested on real projects. You're committed to maintain and improve it going forward.
@@ -27,7 +27,7 @@ import CopyCommand from '@components/CopyCommand';
       </ul>
     </div>
 
-    <div class="border border-transparent p-8 rounded-none mb-8">
+    <div class="border border-transparent p-4 md:p-8 rounded-none mb-8">
       <h2 class="text-2xl font-bold font-serif mb-6 text-text-ink">Submission Process</h2>
 
       <div class="space-y-6">
@@ -157,7 +157,7 @@ import CopyCommand from '@components/CopyCommand';
       </div>
     </div>
 
-    <div class="border border-border-ink bg-stone-50 p-8 rounded-none mb-8">
+    <div class="border border-border-ink bg-stone-50 p-4 md:p-8 rounded-none mb-8">
       <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Hard Constraints</h2>
       <p class="text-lg text-text-secondary mb-4 font-serif">
         CI runs <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit --check</code> on every PR. These checks are gating — your submission will not merge until all pass.
@@ -204,7 +204,7 @@ import CopyCommand from '@components/CopyCommand';
       </div>
     </div>
 
-    <div class="border border-transparent p-8 rounded-none mb-8">
+    <div class="border border-transparent p-4 md:p-8 rounded-none mb-8">
       <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink">Updating an Existing Skillset</h2>
       <p class="text-lg text-text-secondary mb-4 font-serif leading-relaxed">
         Already have a skillset in the registry? The same commands work for updates.
