@@ -217,4 +217,31 @@ const statusColor = getStatusColor(skillset.status);
       </a>
     </div>
   </article>
+
+  <script>
+    const mermaidBlocks = document.querySelectorAll('pre > code.language-mermaid');
+    if (mermaidBlocks.length > 0) {
+      const { default: mermaid } = await import('mermaid');
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        themeVariables: {
+          primaryColor: '#FFF3C4',
+          primaryTextColor: '#1A1A1A',
+          primaryBorderColor: '#E5E7EB',
+          lineColor: '#555555',
+          secondaryColor: '#FAFAFA',
+          tertiaryColor: '#F5F5F4',
+        },
+      });
+
+      mermaidBlocks.forEach(code => {
+        const pre = code.parentElement!;
+        pre.className = 'mermaid';
+        pre.textContent = code.textContent;
+      });
+
+      await mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
+    }
+  </script>
 </BaseLayout>
