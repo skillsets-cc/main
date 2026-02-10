@@ -38,6 +38,16 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @layer components {
   .btn-primary {
     @apply px-4 py-2 rounded-none bg-orange-500 text-white hover:bg-orange-600 transition-colors font-mono text-sm font-bold;
