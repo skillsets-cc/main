@@ -246,11 +246,14 @@ const statusColor = getStatusColor(skillset.status);
       mermaidBlocks.forEach(code => {
         const pre = code.parentElement!;
         pre.className = 'mermaid not-prose';
-        pre.style.textAlign = 'center';
         pre.textContent = code.textContent;
       });
 
       await mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
+
+      document.querySelectorAll('.mermaid svg').forEach(svg => {
+        (svg as HTMLElement).style.margin = '0 auto';
+      });
     }
   </script>
 </BaseLayout>
