@@ -76,7 +76,7 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
-flowchart LR
+flowchart TB
     A["💭 Thoughts"] -->|"/arm"| B["📋 Brief"]
     B -->|"/design"| C["📐 Design"]
     C -->|"/ar"| D{"🔍 Review"}
@@ -93,16 +93,16 @@ Eight phases, each gated. Feedback loops at design review and build validation. 
 
 ### `/arm` — Crystallize
 
-Opus extracts requirements, constraints, style, and key concepts from fuzzy initial thoughts. Proactive QA forces decisions before design begins.
+Opus extracts requirements, constraints, non-goals, style, and key concepts from fuzzy initial thoughts. Conversational QA probes for gaps, then a single structured checkpoint forces remaining decisions. Output is a synthesized brief for user confirmation.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TB
     input(["💭 Initial thoughts"])
-    input --> qa["Proactive QA\n(Conversational)"]
-    qa -->|iterate| qa
-    qa --> decide["Force Decisions\n(AskUserQuestion)"]
-    decide --> brief(["📋 brief"])
+    input --> qa["Proactive QA<br/>(Conversational)"]
+    qa --> decide["Force Decisions<br/>(AskUserQuestion)"]
+    decide --> synth["Synthesize Brief"]
+    synth --> brief(["📋 brief"])
 ```
 
 Protocol: [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md)
@@ -111,18 +111,20 @@ Protocol: [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillset
 
 ### `/design` — First Principles Design
 
-Opus deconstructs the brief via first principles while grounding against docs, Context7, and web sources. Iterative discussion loop with the human until approval.
+Opus deconstructs the brief into fundamentals, classifies each constraint as hard, soft, or assumption, then reconstructs the optimal approach from only validated truths. Project docs and style guides ground the analysis; Context7 and web search validate technical choices. Iterative discussion loop with the human until alignment, then formalized into a design document.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TB
     brief(["📋 brief"])
-    brief --> fp["Deconstruct\n(First Principles)"]
-    brief --> ground["Grounding\n(Docs · Context7 · Web)"]
-    fp & ground --> loop["Discussion Loop\n1. Present Draft\n2. User Feedback\n3. Refine"]
+    brief --> fp["First Principles<br/>Deconstruct · Challenge · Reconstruct"]
+    fp --> ctx["Project Context<br/>(Docs · ARCs · Style Guides)"]
+    ctx --> val["Validate Approach<br/>(Context7 · Web · Patterns)"]
+    val --> loop["Discussion Loop<br/>Present → Feedback → Refine"]
     loop -->|iterate| loop
     loop --> approve{{"✋ User Approval"}}
-    approve --> design(["📐 design.md"])
+    approve --> doc["Write Design Document"]
+    doc --> design(["📐 design.md"])
 ```
 
 Protocol: [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md)
@@ -131,22 +133,24 @@ Protocol: [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skill
 
 ### `/ar` — Adversarial Review
 
-Three models, same protocol, different blind spots. The value is where they *disagree*. Human decides which critiques warrant design changes.
+Three models, same review protocol, different blind spots. The value is where they *disagree*. Opus orchestrates — spawns reviewers in parallel, deduplicates by category (multi-agent overlap = higher confidence), then loads project docs on-demand to fact-check each finding against the actual codebase. Validated findings get cost/benefit scored (severity, probability, remediation cost, reversibility) and classified as Critical, Recommended, or Noted. Output is a structured report with a REVISE/PROCEED recommendation.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TB
     design(["📐 design.md"])
-    design --> ar_o["ar-o\n🟣 Opus"]
-    design --> ar_k["ar-k\n🔵 Kimi"]
-    design --> ar_d["ar-d\n🟢 Deepseek"]
-    ar_o & ar_k & ar_d --> agg["Aggregate &\nCost/Benefit"]
-    agg --> human{{"✋ Human Review"}}
-    human -->|Approve| out(["📐 design.md ✅"])
-    human -.->|Mitigate| design
+    design --> ar_o["ar-o<br/>🟣 Opus"]
+    design --> ar_k["ar-k<br/>🔵 Kimi"]
+    design --> ar_d["ar-d<br/>🟢 Deepseek"]
+    ar_o & ar_k & ar_d --> agg["Aggregate<br/>Deduplicate · Pattern-match"]
+    agg --> val["Validate & Score<br/>(Lazy context · Cost/Benefit)"]
+    val --> report["Report<br/>Critical · Recommended · Noted"]
+    report --> human{{"✋ REVISE or PROCEED"}}
+    human -->|Proceed| out(["📐 design.md ✅"])
+    human -.->|Revise| design
 ```
 
-Each agent independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
+Each reviewer independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
 
 Protocol: [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md)
 
@@ -154,13 +158,17 @@ Protocol: [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets
 
 ### `/plan` — Execution Planning
 
-Opus transforms approved design into an execution doc with atomic tasks, agent assignments, acceptance criteria, and exact file paths.
+Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the pattern, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
-flowchart LR
-    design(["📐 design.md ✅"]) --> plan["Opus\nPlan Generation"]
-    plan --> exec(["📝 execution.md"])
+flowchart TB
+    design(["📐 design.md ✅"])
+    design --> analyze["Analyze Design"]
+    analyze --> group["Group Tasks by Agent<br/>(~5 per agent · no file conflicts)"]
+    group --> write["Write Execution Doc<br/>(Paths · Examples · Test Cases)"]
+    write --> check["Quality Checklist<br/>(Completeness · Clarity · Accuracy)"]
+    check --> exec(["📝 execution.md"])
 ```
 
 Protocol: [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md)
@@ -169,19 +177,18 @@ Protocol: [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillse
 
 ### `/pmatch` — Pattern Matching Validation
 
-Spec drift is real. Two agents independently extract claims from the source, check if the target satisfies each one, then merge. Consensus on violations is high confidence.
+Spec drift is real. Two agents independently extract claims from the source of truth, check if the target satisfies each one, then merge. Target can be a document, directory, or the full codebase. Consensus scoring: both agents agree = high confidence, disagreement = flagged for review. Output is a structured report classifying each claim as Matched, Gap, Partial, or Ambiguous, with an ALIGNED/GAPS/PARTIAL verdict.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TB
-    source(["📐 design.md"]) & target(["📝 execution.md"])
-    source & target --> pms["pm-s\n🟠 Sonnet"]
-    source & target --> pmk["pm-k\n🔵 Kimi"]
-    pms & pmk --> merge["Merge Findings\n(Consensus · Extras)"]
-    merge --> out(["📝 execution.md ✅"])
+    source(["📄 Source of Truth"]) & target(["📄 Target"])
+    source & target --> pms["pm-s<br/>🟠 Sonnet"]
+    source & target --> pmk["pm-k<br/>🔵 Kimi"]
+    pms & pmk --> merge["Merge & Score<br/>(Deduplicate · Consensus)"]
+    merge --> report["Report<br/>Matched · Gaps · Partial · Ambiguous"]
+    report --> verdict{{"ALIGNED · GAPS · PARTIAL"}}
 ```
-
-Output: list of claims with VALIDATED / VIOLATED / MISSING status, citations to both documents.
 
 Protocol: [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md)
 
@@ -189,17 +196,19 @@ Protocol: [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skill
 
 ### `/build` — Parallel Implementation
 
-Opus orchestrates parallel Sonnet build agents, each implementing delegated sections of the execution doc. Post-build `/pmatch` validates implementation against spec.
+Opus leads in delegate mode — coordinates but never writes code. Validates dependency order between execution sections, spawns one Sonnet per section (parallel when independent, sequential via `blockedBy` when dependent), and monitors for blockers. Each Sonnet implements one task at a time: code, test, verify acceptance criteria, cleanup gate (no console.*, no magic numbers, no hardcoded values), then docs for new modules. Post-build the lead shuts down the team and runs `/pmatch` to validate implementation against the plan.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart TB
     exec(["📝 execution.md ✅"])
-    exec --> b1["Build 🟠 Sonnet"]
-    exec --> b2["Build 🟠 Sonnet"]
-    exec --> b3["Build 🟠 Sonnet"]
-    b1 & b2 & b3 --> val["/pmatch validation\n(execution ↔ modules)"]
-    val --> code(["🔨 Implementation"])
+    exec --> load["Opus Lead<br/>Validate deps · Create tasks"]
+    load --> spawn["Spawn Teammates<br/>(1 Sonnet per section)"]
+    spawn --> b1["Build 🟠"]
+    spawn --> b2["Build 🟠"]
+    spawn --> b3["Build 🟠"]
+    b1 & b2 & b3 --> val["/pmatch validation<br/>(execution ↔ implementation)"]
+    val --> out(["🔨 Implementation ✅"])
 ```
 
 Protocols: [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/build.md)
@@ -208,25 +217,26 @@ Protocols: [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skill
 
 ### Post-Build Quality Pipeline
 
-Sequential. Order matters — simplify first so pattern auditors don't waste cycles flagging noise that's about to be deleted.
+Each step is a standalone skill that spawns its agent as a teammate via `TeamCreate`. Modular — run any combination against any path. Recommended order: simplify first so pattern auditors don't waste cycles flagging noise that's about to be deleted; audit patterns before docs so structural changes are settled; docs last so they reflect final state.
 
 ```mermaid
 %%{init: {'theme': 'dark'}}%%
 flowchart LR
     code(["🔨 Code"])
-    code --> dn["/denoise\nDead code\nRedundancy"]
-    dn --> qa["/qf · /qb\nPatterns\nA11y · DI"]
-    qa --> docs["/qd\nDocs\nFreshness"]
-    docs --> sec["/security\nOWASP\nXSS · Auth"]
+    code --> dn["/denoise<br/>Simplify · Preserve"]
+    dn --> qa["/qf · /qb<br/>Audit · Report"]
+    qa --> docs["/qd<br/>Create · Update"]
+    docs --> sec["/security<br/>Scan · Flag"]
     sec --> valid{{"✅ Validated"}}
 ```
 
-| Step | Agent | Scope |
-|------|-------|-------|
-| `/denoise` | Opus | Dead code, redundancy, type safety, comment cleanup |
-| `/qf` `/qb` | Sonnet | Design system, accessibility, DI, logging, error handling |
-| `/qd` | Sonnet | ARC files, READMEs match implementation |
-| `/security-review` | Native | Injection, XSS, auth flaws, OWASP |
+| Step | Agent | Mode | Scope |
+|------|-------|------|-------|
+| `/denoise` | Opus | **Writes** | Clarity, consistency, maintainability — dead code, redundancy, comments |
+| `/qf` | Sonnet | **Read-only** | Design system (colors, z-index), resource cleanup (listeners, timers, RAF), accessibility (aria, alt), constants, module structure |
+| `/qb` | Sonnet | **Read-only** | DI violations (global singletons), logging (print→logger), error handling (bare except), type hints (mypy), backwards compat (flagged for removal), circular imports, env var documentation |
+| `/qd` | Sonnet | **Writes** | Iterative file→doc pair processing — creates missing docs, updates stale ones, synthesizes module ARC and README, flags system architecture updates |
+| `/security-review` | Native | **Read-only** | Injection, XSS, auth flaws, OWASP |
 
 ---
 
