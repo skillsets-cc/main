@@ -227,7 +227,7 @@ export async function submit(): Promise<void> {
 
     // Check if PR already exists for this branch (force push already updated it)
     spinner.text = 'Checking for existing pull request...';
-    const existingPr = spawnSync('gh', ['pr', 'list', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--json', 'url', '--jq', '.[0].url', '--state', 'open', '--limit', '1'], {
+    const existingPr = spawnSync('gh', ['pr', 'list', '--repo', REGISTRY_REPO, '--head', branchName, '--json', 'url', '--jq', '.[0].url', '--state', 'open', '--limit', '1'], {
       cwd: tempDir,
       encoding: 'utf-8',
     });
