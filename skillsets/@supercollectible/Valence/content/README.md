@@ -1,6 +1,6 @@
-The core problem: **preserving intent and agency** against the grain of automated gaslighting and cognitive offloading. Intent should flow through to implementation without being lost or distorted. Decisions and rationale are mine to own. The system should flag bullshit requirements, not enable poor life choices. 
+Valence is a system that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. Intent should flow through to implementation without being lost or distorted. Decisions and rationale are mine to own. The system should flag bullshit requirements, not enable poor life choices. 
 
-This flow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded multi-agent workflow with formalized quality gates, adversarial reviews and auditable handoffs. 
+This workflow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded multi-agent workflow with formalized quality gates, adversarial reviews and auditable handoffs. 
 
 I dont want a magic button, I just want to know what happens when I can finally work at the speed of thought.
 
@@ -72,178 +72,161 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ---
 
-## The Workflow
+## The Valence Workflow
 
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart LR
+    A["💭 Thoughts"] -->|"/arm"| B["📋 Brief"]
+    B -->|"/design"| C["📐 Design"]
+    C -->|"/ar"| D{"🔍 Review"}
+    D -->|approve| E["/plan"]
+    D -.->|mitigate| C
+    E -->|"/pmatch"| F["/build"]
+    F --> G["/denoise → /qf /qb → /qd → /security"]
+    G --> H{{"✅ Validated"}}
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /arm [initial thoughts]                                                 │
-│ Opus crystallization workflow — proactive QA to extract requirements,   │
-│ constraints, style, key concepts from fuzzy initial thoughts.           │
-│ Protocol: SKILL_arm.md                                                  │
-│                                                                         │
-│              ┌────────────────────────────────────────────┐             │
-│              │           [initial thoughts]               │             │
-│              │ Define the solution space — frame problems,│             │
-│              │   outcomes, constraints, curate context.   │             │
-│              └────────────────────┬───────────────────────┘             │
-│                                   ↓                                     │
-│                         ┌────────────────────┐                          │
-│                         │   Proactive QA     │◄─┐                       │
-│                         │  (Conversational)  │──┘                       │
-│                         └─────────┬──────────┘                          │
-│                                   ↓                                     │
-│                         ┌────────────────────┐                          │
-│                         │  Force Decisions   │                          │
-│                         │ (AskUserQuestion)  │                          │
-│                         └─────────┬──────────┘                          │
-│                                   ↓                                     │
-│                                [brief]                                  │
-│                                   ↓                                     │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /design [brief]                                                         │
-│ Opus/Haiku/Human design loop — clarifying questions, research,          │
-│ iterations, first principles, active grounding. Generate design document│
-│ with architecture decisions and implementation details                  │
-│ Protocol: SKILL_design.md                                               │
-│                                                                         │
-│                                [brief]                                  │
-│                                   ↓                                     │
-│                      ┌────────────┴─────────────┐                       │
-│                      ↓                          ↓                       │
-│             ┌────────────────┐         ┌─────────────────┐              │
-│             │  Deconstruct   │         │    Grounding    │              │
-│             │ (First Princ.) │         │ (Docs/Ctx7/Web) │              │
-│             └───────┬────────┘         └────────┬────────┘              │
-│                     └─────────────┬─────────────┘                       │
-│                                   ↓                                     │
-│                        ┌──────────────────────┐                         │
-│                        │    Discussion Loop   │◄─┐                      │
-│                        │  1. Present Draft    │  │                      │
-│                        │  2. User Feedback    │  │                      │
-│                        │  3. Refine / Iterate │──┘                      │
-│                        └──────────┬───────────┘                         │
-│                                   ↓                                     │
-│                             User Approval                               │
-│                                   ↓                                     │
-│                              [design.md]                                │
-│                                   ↓                                     │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /ar [design.md]                                                         │
-│ Opus orchestrates multi-model adversarial review with grounding.        │
-│ Protocol: SKILL_ar.md                                                   │
-│                                                                         │
-│                              [design.md] ◄─────────────────────────┐    │
-│                                   ↓                                │    │
-│            ┌──────────────────────┼──────────────────────┐         │    │
-│            ↓                      ↓                      ↓         │    │
-│       ┌─────────┐            ┌─────────┐            ┌─────────┐    │    │
-│       │  ar-o   │            │  ar-k   │            │  ar-d   │    │    │
-│       │  Opus   │            │  Kimi   │            │Deepseek │    │    │
-│       └────┬────┘            └────┬────┘            └────┬────┘    │    │
-│            │                      │                      │         │    │
-│            │   Each agent: First Principles Challenge    │         │    │
-│            │                Internal Consistency         │         │    │
-│            │         Best Practices (Web + Context7)     │         │    │
-│            │              Architecture Stress Test       │         │    │
-│            │            Specification Completeness       │         │    │
-│            │                      │                      │         │    │
-│            └──────────────────────┼──────────────────────┘         │    │
-│                                   ↓                                │    │
-│                  ┌────────────────────────────────┐                │    │
-│                  │   Aggregate & Cost/Benefit     │                │    │
-│                  │        Recommendation          │                │    │
-│                  └───────────────┬────────────────┘                │    │
-│                                  ↓                                 │    │
-│                  ┌────────────────────────────────┐                │    │
-│                  │         Human Review           │                │    │
-│                  └───────────────┬────────────────┘                │    │
-│                        ┌─────────┴─────────┐                       │    │
-│                        ↓                   ↓                       │    │
-│                   [Approve]           [Mitigate]                   │    │
-│                        │                   │                       │    │
-│                        │                   └───────────────────────┘    │
-│                        └──► [design.md]                                 │
-│                                   ↓                                     │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /plan [design.md]                                                       │
-│ Opus planning workflow — transforms approved design into execution doc  │
-│ with atomic tasks, agent assignments, acceptance criteria, exact file   │
-│ paths.                                                                  │
-│ Protocol: SKILL_plan.md                                                 │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /pmatch [design.md] [execution.md]                                      │
-│ Validates execution plan against approved design document               │
-│ Protocol: SKILL_pmatch.md                                               │
-│                                                                         │
-│                  ┌──────────┐           ┌──────────┐                    │
-│                  │   pm-s   │           │   pm-k   │                    │
-│                  │  Sonnet  │           │   Kimi   │                    │
-│                  └────┬─────┘           └────┬─────┘                    │
-│                       └───────────┬──────────┘                          │
-│                                   ↓                                     │
-│                            Merge Findings                               │
-│                   (Deduplicate, Consensus, Extras)                      │
-│                                   ↓                                     │
-│                             [execution.md]                              │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /build [execution.md]                                                   │
-│ Opus orchestration workflow — spawns parallel build agents to implement │
-│ delegated sections of execution doc. Monitors progress, validates.      │
-│ Protocols: SKILL_build.md, AGENT_build.md                               │
-│                                                                         │
-│           ┌──────────┐       ┌──────────┐       ┌──────────┐            │
-│           │  Build   │       │  Build   │       │  Build   │            │
-│           │  Sonnet  │       │  Sonnet  │       │  Sonnet  │            │
-│           └────┬─────┘       └────┬─────┘       └────┬─────┘            │
-│                │                  │                  │                  │
-│                ↓                  ↓                  ↓                  │
-│           ┌────────────────────────────────────────────────┐            │
-│           │   /pmatch [execution.md] [relevant modules]    │            │
-│           │                   Validation                   │            │
-│           └───────────────────────┬────────────────────────┘            │
-│                                   ↓                                     │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /denoise [path]                                                         │
-│ Opus-powered simplification agent—reduces complexity, preserves         │
-│ functionality. Handles: dead code, comments, TODO/FIXME, redundancy,    │
-│ type safety. Protocol: AGENT_code-simplifier.md                         │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /qf [path] / /qb [path]                                                 │
-│ QA agents audit project-specific patterns after simplification.         │
-│ Handles: design system, resource cleanup, DI, logging, accessibility.   │
-│ Protocols: AGENT_qa-f.md, AGENT_qa-b.md                                 │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /qd [path]                                                              │
-│ Documentation agent updates ARC, README, per-file docs.                 │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ /security-review                                                        │
-│ Native Claude Code command. Scans for injection, XSS, auth flaws.       │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    ↓
-┌─────────────────────────────────────────────────────────────────────────┐
-│ BUILD VALIDATION                                                        │
-│ Validates build against original design document, triggers revision     │
-│ if needed. Rerun test suite, write golden path tests if needed.         │
-└─────────────────────────────────────────────────────────────────────────┘
+
+Eight phases, each gated. Feedback loops at design review and build validation. Detail per phase below.
+
+---
+
+### `/arm` — Crystallize
+
+Opus extracts requirements, constraints, style, and key concepts from fuzzy initial thoughts. Proactive QA forces decisions before design begins.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    input(["💭 Initial thoughts"])
+    input --> qa["Proactive QA\n(Conversational)"]
+    qa -->|iterate| qa
+    qa --> decide["Force Decisions\n(AskUserQuestion)"]
+    decide --> brief(["📋 brief"])
 ```
+
+Protocol: [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md)
+
+---
+
+### `/design` — First Principles Design
+
+Opus deconstructs the brief via first principles while grounding against docs, Context7, and web sources. Iterative discussion loop with the human until approval.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    brief(["📋 brief"])
+    brief --> fp["Deconstruct\n(First Principles)"]
+    brief --> ground["Grounding\n(Docs · Context7 · Web)"]
+    fp & ground --> loop["Discussion Loop\n1. Present Draft\n2. User Feedback\n3. Refine"]
+    loop -->|iterate| loop
+    loop --> approve{{"✋ User Approval"}}
+    approve --> design(["📐 design.md"])
+```
+
+Protocol: [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md)
+
+---
+
+### `/ar` — Adversarial Review
+
+Three models, same protocol, different blind spots. The value is where they *disagree*. Human decides which critiques warrant design changes.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    design(["📐 design.md"])
+    design --> ar_o["ar-o\n🟣 Opus"]
+    design --> ar_k["ar-k\n🔵 Kimi"]
+    design --> ar_d["ar-d\n🟢 Deepseek"]
+    ar_o & ar_k & ar_d --> agg["Aggregate &\nCost/Benefit"]
+    agg --> human{{"✋ Human Review"}}
+    human -->|Approve| out(["📐 design.md ✅"])
+    human -.->|Mitigate| design
+```
+
+Each agent independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
+
+Protocol: [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md)
+
+---
+
+### `/plan` — Execution Planning
+
+Opus transforms approved design into an execution doc with atomic tasks, agent assignments, acceptance criteria, and exact file paths.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart LR
+    design(["📐 design.md ✅"]) --> plan["Opus\nPlan Generation"]
+    plan --> exec(["📝 execution.md"])
+```
+
+Protocol: [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md)
+
+---
+
+### `/pmatch` — Pattern Matching Validation
+
+Spec drift is real. Two agents independently extract claims from the source, check if the target satisfies each one, then merge. Consensus on violations is high confidence.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    source(["📐 design.md"]) & target(["📝 execution.md"])
+    source & target --> pms["pm-s\n🟠 Sonnet"]
+    source & target --> pmk["pm-k\n🔵 Kimi"]
+    pms & pmk --> merge["Merge Findings\n(Consensus · Extras)"]
+    merge --> out(["📝 execution.md ✅"])
+```
+
+Output: list of claims with VALIDATED / VIOLATED / MISSING status, citations to both documents.
+
+Protocol: [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md)
+
+---
+
+### `/build` — Parallel Implementation
+
+Opus orchestrates parallel Sonnet build agents, each implementing delegated sections of the execution doc. Post-build `/pmatch` validates implementation against spec.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart TB
+    exec(["📝 execution.md ✅"])
+    exec --> b1["Build 🟠 Sonnet"]
+    exec --> b2["Build 🟠 Sonnet"]
+    exec --> b3["Build 🟠 Sonnet"]
+    b1 & b2 & b3 --> val["/pmatch validation\n(execution ↔ modules)"]
+    val --> code(["🔨 Implementation"])
+```
+
+Protocols: [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/build.md)
+
+---
+
+### Post-Build Quality Pipeline
+
+Sequential. Order matters — simplify first so pattern auditors don't waste cycles flagging noise that's about to be deleted.
+
+```mermaid
+%%{init: {'theme': 'dark'}}%%
+flowchart LR
+    code(["🔨 Code"])
+    code --> dn["/denoise\nDead code\nRedundancy"]
+    dn --> qa["/qf · /qb\nPatterns\nA11y · DI"]
+    qa --> docs["/qd\nDocs\nFreshness"]
+    docs --> sec["/security\nOWASP\nXSS · Auth"]
+    sec --> valid{{"✅ Validated"}}
+```
+
+| Step | Agent | Scope |
+|------|-------|-------|
+| `/denoise` | Opus | Dead code, redundancy, type safety, comment cleanup |
+| `/qf` `/qb` | Sonnet | Design system, accessibility, DI, logging, error handling |
+| `/qd` | Sonnet | ARC files, READMEs match implementation |
+| `/security-review` | Native | Injection, XSS, auth flaws, OWASP |
 
 ---
 
