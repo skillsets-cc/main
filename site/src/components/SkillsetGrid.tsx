@@ -87,7 +87,7 @@ export default function SkillsetGrid({
                     v{skillset.version} • {skillset.author.handle}
                   </span>
                 </div>
-                <p className="hidden md:block text-text-secondary font-serif leading-relaxed max-w-3xl mb-3">
+                <p className="text-sm md:text-base text-text-secondary font-serif leading-relaxed max-w-3xl mb-2 md:mb-3 line-clamp-1 md:line-clamp-none">
                   {skillset.description}
                 </p>
 
@@ -104,7 +104,7 @@ export default function SkillsetGrid({
                   )}
 
                   {skillset.tags.map(tag => (
-                    <span key={tag} className="text-xs font-mono text-text-tertiary border border-border-ink px-1 rounded-none">
+                    <span key={tag} className="hidden md:inline text-xs font-mono text-text-tertiary border border-border-ink px-1 rounded-none">
                       #{tag}
                     </span>
                   ))}
