@@ -42,7 +42,7 @@ skillsets-cc/
 ├── site/                         # Astro 5 SSR on Cloudflare Workers
 │   ├── src/
 │   │   ├── components/           # React islands + Astro components
-│   │   ├── lib/                  # Auth, stars, downloads, data, sanitization, validation
+│   │   ├── lib/                  # Auth, stars, downloads, reservations, data, sanitization
 │   │   ├── pages/                # Routes + API endpoints
 │   │   ├── types/                # TypeScript interfaces
 │   │   └── layouts/              # Base layout
@@ -81,7 +81,7 @@ Each module has a `README.md` (file index) and `docs_[name]/ARC_[name].md` (arch
 
 The site is an Astro 5 application running on Cloudflare Workers. Static pages (homepage, browse, about) are prerendered at build time; skillset detail pages are server-rendered on demand. Interactive elements — search, filtering, star buttons — are React islands hydrated on the client.
 
-Auth uses GitHub OAuth with PKCE, managed entirely within Astro's server routes. Stars and download counts are persisted in Cloudflare KV via API routes in the same worker, with KV-based rate limiting. There is no traditional backend — the entire site, auth flow, and API run as a single Cloudflare Worker.
+Auth uses GitHub OAuth with PKCE, managed entirely within Astro's server routes. Stars and download counts are persisted in Cloudflare KV via API routes in the same worker, with KV-based rate limiting. Slot reservations use a Cloudflare Durable Object for coordination, with batch IDs (`{position}.{batch_size}.{cohort}`) tracking each slot through reservation, CI verification, and submission. There is no traditional backend — the entire site, auth flow, and API run as a single Cloudflare Worker.
 
 The CLI (`npx skillsets`) searches a build-time JSON index hosted on the CDN and installs skillsets via degit, which extracts repository subfolders without cloning. Checksums are verified against the index after extraction.
 
@@ -92,7 +92,8 @@ Submissions are GitHub PRs validated by JSON Schema in CI. Registry entries are 
 | Site | Astro 5 SSR on Cloudflare Workers |
 | Auth | GitHub OAuth with PKCE + JWT sessions (in Astro lib/) |
 | Stars / Downloads | KV-backed API routes (in Astro pages/api/) |
-| CLI | Node.js + degit + Fuse.js |
+| Reservations | Durable Object + batch IDs (verify, lookup, submit routes) |
+| CLI | Node.js + degit + Fuse.js + `gh` auth for reservations |
 | Validation | JSON Schema + GitHub Actions |
 
 ## Links

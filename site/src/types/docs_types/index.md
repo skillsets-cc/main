@@ -7,7 +7,12 @@ Defines TypeScript interfaces for skillsets, search index, and related data stru
 | Export | Type | Description |
 |--------|------|-------------|
 | `SearchIndex` | interface | Root search index structure (version, generated_at, skillsets array) |
-| `SearchIndexEntry` | interface | Skillset entry in search index (id, name, description, verification, checksum, files) |
+| `SearchIndexEntry` | interface | Skillset entry in search index (id, name, description, verification, checksum, files, batch_id) |
+| `McpServer` | interface | MCP server configuration (stdio/http/docker type, command/args/url/image) |
+| `McpServerInner` | interface | Nested MCP server config (for aggregator types like docker-compose) |
+| `GhostSlot` | interface | Single ghost entry slot (slotId, status, expiresAt, skillsetId) |
+| `ReservationState` | interface | Complete reservation system state (slots, totalGhostSlots, cohort, userSlot) |
+| `Skillset` | type alias | Alias for SearchIndexEntry with batch_id field |
 
 ## Dependencies
 - **Internal**: None (pure types)
@@ -17,7 +22,8 @@ Defines TypeScript interfaces for skillsets, search index, and related data stru
 - **Used by**:
   - `lib/data.ts` (type imports for search index access)
   - `pages/index.astro`, `pages/browse.astro`, `pages/skillset/[namespace]/[name].astro` (type-safe props)
-  - `components/SkillsetGrid.tsx` (component props)
+  - `components/SkillsetGrid.tsx`, `components/GhostCard.tsx` (component props)
+  - `pages/api/reservations.ts`, `pages/api/reservations/*.ts` (reservation API types)
 - **Consumes**: No external services
 - **Emits**: No events
 
@@ -36,6 +42,9 @@ Contains all skillset metadata for search and display:
 - **Compatibility**: `compatibility` object with claude_code_version, languages
 - **Install**: `entry_point` path, `checksum` hash, `files` record (path → checksum)
 - **Metrics**: `stars` count (hydrated from KV at build time)
+- **MCP**: Optional `mcp_servers` array for skillsets using Model Context Protocol
+- **Ghost Entry**: Optional `batch_id` field (format: `{position}.{batchSize}.{cohort}`) for ghost entry identification
+- **Context**: Optional `context_image_url` for visual context (e.g., screenshot)
 
 ### Verification Structure
 - `production_links`: Array of {url, label?} for deployed examples
@@ -45,3 +54,16 @@ Contains all skillset metadata for search and display:
 ### Compatibility Structure
 - `claude_code_version`: Semver range (e.g., ">=1.0.0")
 - `languages`: Array of language identifiers (["any"] for language-agnostic)
+
+### MCP Server Structures
+- **McpServer**: Top-level MCP server config with discriminated `type` field:
+  - `stdio`: Command + args (e.g., `npx -y @upstash/context7-mcp`)
+  - `http`: URL endpoint
+  - `docker`: Image + optional nested servers array
+- **McpServerInner**: For aggregator images (docker-compose) with multiple servers
+- **Fields**: `name`, `mcp_reputation`, `researched_at` (timestamp of manual review)
+
+### Reservation Types
+- **GhostSlot**: Single slot state for UI (slotId, status enum, optional expiresAt/skillsetId)
+- **ReservationState**: Complete system snapshot returned by `/api/reservations` (slots map, config, user's current slot)
+- **Skillset**: Type alias for SearchIndexEntry (includes optional batch_id for ghost entries)

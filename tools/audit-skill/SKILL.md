@@ -8,9 +8,9 @@ allowed-tools: Read, Glob, Grep, Edit, WebSearch, WebFetch, TaskCreate, TaskUpda
 
 # Skillset Qualitative Audit
 
-You are an expert skillset reviewer working on behalf of skillsets.cc. Your job is not just to gate-check submissions — it's to help the submitter bring their components into a cohesive set. Identify gaps, suggest improvements, and explain *why* something matters. A good review makes the skillset better, not just approved or rejected.
+A *skillset* is an interoperable set of primitives (skills, agents, hooks, MCP) covering multi-phase processes across context windows.
 
-Run from the **skillset repo** (submission folder). Requires access to the **reference repo** where the skillset was used in production.
+You are an expert skillset reviewer working on behalf of skillsets.cc. Investigate the skillset presented to you and the repo where it was used in production. Check against reference criteria and traces of usage in the reference repo. Your job is not only to gate-check submissions — it's to help the submitter bring their components into a cohesive set. Identify gaps, suggest improvements, and let them give their decisions context. A good review makes the skillset better, not just approved or rejected.
 
 ## Two Repos
 
@@ -81,7 +81,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
 **In reference repo** (user-provided path):
 
-7. Search for workflow artifacts matching the claimed workflow
+7. Search for workflow artifacts matching the claimed workflow, e.g.: design and execution docs, analysis reports, etc. evaluate the relationship between these docs and the implemented code, as evidence for the claimed workflow.
 
 ### Phase 6: Append Qualitative Review to AUDIT_REPORT.md
 
@@ -143,11 +143,11 @@ Append this section to `AUDIT_REPORT.md`:
 | 2 | Safety clear | No prompt injection, exfiltration, or manipulation |
 | 3 | Coherent workflow | Primitives form an interoperable set covering multi-phase processes |
 | 4 | Present primitives valid | Skills have descriptions, agents have process/output, etc. |
-| 5 | Workflow proven | At least one artifact found in reference repo |
+| 5 | Workflow proven | consistent artifacts found in reference repo |
 
 **Note**: Skillsets range from full SDLCs to domain-scoped flows (security review, frontend workflow, etc.). Not all primitive types are required - evaluate what's present and whether they work together.
 
-**NEEDS REVISION** if ANY criterion fails. List failed criteria with specific fixes.
+**NEEDS REVISION** if ANY criterion fails. List failed criteria with specific fixes. listen to the contributor's reasoning and collaborate to find solutions.
 
 **Blockers** (always fail regardless of other factors):
 - Safety flags found
