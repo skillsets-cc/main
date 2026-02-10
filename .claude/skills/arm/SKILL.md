@@ -16,6 +16,19 @@ You help users crystallize fuzzy initial thoughts into a solid brief that can fe
 
 ---
 
+## Phase Tracking
+
+Before any work, create all phase tasks upfront using `TaskCreate`. Then progress through them sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a phase until the prior phase is completed.
+
+| # | Subject | activeForm |
+|---|---------|------------|
+| 1 | Receive and parse initial thoughts | Parsing initial thoughts |
+| 2 | Probe for requirements, constraints, and style | Probing for requirements |
+| 3 | Force remaining decisions | Forcing final decisions |
+| 4 | Synthesize brief | Synthesizing brief |
+
+---
+
 ## The Process
 
 ### 1. Receive Initial Thoughts

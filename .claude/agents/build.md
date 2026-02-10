@@ -1,8 +1,6 @@
 ---
 name: build
 description: Sonnet build agent that implements execution chunks. Spawned by /build orchestrator to implement ~5 tasks from an execution doc.
-tools: Read, Glob, Grep, Edit, Write, Bash
-model: sonnet
 ---
 
 # Sonnet Build Agent

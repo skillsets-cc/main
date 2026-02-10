@@ -3,39 +3,69 @@ name: ar
 description: Opus-orchestrated adversarial review with cost/benefit analysis. Launches ar-o, ar-k, ar-d in parallel, synthesizes findings. Use for validating design docs before /plan.
 allowed-tools: Read, Glob, Grep, Task
 argument-hint: "[path/to/document]"
+agents:
+  - name: ar-o
+    model: opus
+  - name: ar-k
+    model: haiku
+  - name: ar-d
+    model: haiku
 ---
 
 # Opus Adversarial Review Protocol
 
 You orchestrate adversarial review agents and synthesize their findings into actionable recommendations.
 
+Kimi (ar-k) and Deepseek (ar-d) are Haiku proxy agents — they read the design doc, curl the LiteLLM endpoint, and relay results. They need `bypassPermissions` mode so the curl call isn't blocked.
+
 ---
 
-## Step 1: Launch Reviewers
+## Phase Tracking
 
-Read the target design document, then launch all three reviewers in parallel.
+Before any work, create all phase tasks upfront using `TaskCreate`. Then progress through them sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a phase until the prior phase is completed.
 
-All agents have their own built-in protocols, full tool access (filesystem, Context7, web search), and establish their own codebase context. You just point them at the document.
+| # | Subject | activeForm |
+|---|---------|------------|
+| 1 | Create team and spawn reviewers | Spawning reviewers |
+| 2 | Aggregate findings | Aggregating findings |
+| 3 | Evaluate findings (cost/benefit) | Evaluating findings |
+| 4 | Produce adversarial review report | Producing report |
 
-### 1.1 Launch in Parallel
+---
 
-Send a **single message** with three Task tool calls, all with `run_in_background: true`:
+## Step 1: Create Team and Spawn Reviewers
 
-| `subagent_type` | Description |
-|-----------------|-------------|
-| `ar-o` | Opus reviewer |
-| `ar-k` | Kimi reviewer |
-| `ar-d` | Deepseek reviewer |
+Read the target design document, then create a team and spawn all three reviewers as teammates.
+
+All agents have their own built-in protocols and establish their own codebase context. You just point them at the document.
+
+### 1.1 Create Team
+
+Use `TeamCreate` with a descriptive name (e.g., `ar-[feature]`).
+
+### 1.2 Create Tasks
+
+Create one task per reviewer using `TaskCreate`. These are the teammate tasks the reviewers will complete.
+
+### 1.3 Spawn Teammates
+
+Send a **single message** with three `Task` tool calls. For each agent, use the `model` from the `agents` field in this skill's headmatter:
+
+| Agent | `subagent_type` | `model` | `mode` | `team_name` |
+|-------|-----------------|---------|--------|-------------|
+| Opus reviewer | `ar-o` | `opus` | (default) | team name |
+| Kimi reviewer | `ar-k` | `haiku` | `bypassPermissions` | team name |
+| Deepseek reviewer | `ar-d` | `haiku` | `bypassPermissions` | team name |
 
 **Prompt**: Pass the document path from the `/ar` argument. Example:
 
 ```
 Review the design document at PROCESS_DOCS/design/feature-name.md
+
+When done, mark your task as completed and message the lead with your critique.
 ```
 
-The agents handle the rest — codebase exploration, library lookups, structured critique.
-
-### 1.2 Error Handling
+### 1.4 Error Handling
 
 If an agent fails or is killed, proceed with the remaining agents. Two-of-three is sufficient. Note reduced confidence in the report if fewer than three complete.
 
@@ -86,7 +116,7 @@ For validated findings, assess remediation value:
 
 Not all valid findings warrant action. A real issue with low probability and high remediation cost may be correctly classified as "Noted."
 
-### 3.3 Classify
+### 3.4 Classify
 
 | Level | Criteria |
 |-------|----------|
@@ -97,6 +127,8 @@ Not all valid findings warrant action. A real issue with low probability and hig
 ---
 
 ## Step 4: Produce Report
+
+Shut down teammates and clean up the team, then output the report.
 
 ```markdown
 # Adversarial Review: [Document Name]

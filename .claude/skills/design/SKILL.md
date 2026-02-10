@@ -14,6 +14,20 @@ You create detailed solution designs that define *what* to build and *why*.
 
 ---
 
+## Phase Tracking
+
+Before any work, create all phase tasks upfront using `TaskCreate`. Then progress through them sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a phase until the prior phase is completed.
+
+| # | Subject | activeForm |
+|---|---------|------------|
+| 1 | Analyze the problem (first principles) | Analyzing problem |
+| 2 | Review project context | Reviewing project context |
+| 3 | Validate technical approach | Validating technical approach |
+| 4 | Design discussion loop | Iterating on design |
+| 5 | Write design document | Writing design document |
+
+---
+
 ## Step 1: Analyze the Problem (First Principles)
 
 Parse the user's request through first-principles reasoning—reduce to fundamentals rather than reasoning by analogy.
@@ -58,7 +72,7 @@ Navigate docs based on task scope:
 
 | Scope | Check |
 |-------|-------|
-| System-level | `DOCS/design/skillsets-cc-design.md` for complete architecture |
+| System-level | `PROCESS_DOCS/` for existing designs and complete architecture |
 | Module-level | Module READMEs or `docs_*/ARC_*.md` within modules |
 | Component-level | Per-file docs in `docs_*/` directories |
 | Patterns | `frontend_styleguide.md` (Astro), `workers_styleguide.md` (Cloudflare), or `cli_styleguide.md` (Node.js) |
@@ -112,7 +126,7 @@ Only proceed after user approval.
 
 ---
 
-## Output: Design Document (save to `DOCS/design/`)
+## Output: Design Document (save to `PROCESS_DOCS/`)
 
 ### Required Sections
 
