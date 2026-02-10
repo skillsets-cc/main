@@ -77,21 +77,21 @@ export default function SkillsetGrid({
           const batchId = skillset.batch_id ?? submittedMap.get(skillset.id);
 
           return (
-            <article key={skillset.id} className="group border-b border-border-ink py-6 hover:bg-stone-50 transition-colors cursor-pointer">
+            <article key={skillset.id} className="group border-b border-border-ink py-3 md:py-6 hover:bg-stone-50 transition-colors cursor-pointer">
               <a href={`/skillset/${namespace}/${name}`} className="block">
-                <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
-                  <h3 className="text-xl font-serif font-bold text-text-ink group-hover:text-orange-500 transition-colors">
+                <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-1 md:gap-2 mb-1 md:mb-2">
+                  <h3 className="text-lg md:text-xl font-serif font-bold text-text-ink group-hover:text-orange-500 transition-colors">
                     {skillset.name}
                   </h3>
                   <span className="font-mono text-xs text-text-tertiary">
                     v{skillset.version} • {skillset.author.handle}
                   </span>
                 </div>
-                <p className="text-text-secondary font-serif leading-relaxed max-w-3xl mb-3">
+                <p className="hidden md:block text-text-secondary font-serif leading-relaxed max-w-3xl mb-3">
                   {skillset.description}
                 </p>
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4 overflow-x-auto">
                   <span className="flex items-center gap-1 text-xs font-mono text-text-tertiary">
                     <StarIcon />
                     {liveStars[skillset.id] ?? skillset.stars}

@@ -84,7 +84,7 @@ export default function GhostCard({
       : undefined;
 
     const content = (
-      <article className="group border-b border-dashed py-6 border-green-500/30">
+      <article className="group border-b border-dashed py-3 md:py-6 border-green-500/30">
         <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
           <span className="text-text-secondary font-mono text-sm">
             {skillsetId ?? 'Submitted — pending rebuild'}
@@ -104,7 +104,7 @@ export default function GhostCard({
 
   return (
     <article
-      className={`group border-b border-dashed py-6 transition-colors ${
+      className={`group border-b border-dashed py-3 md:py-6 transition-colors ${
         status === 'available'
           ? 'border-border-ink'
           : 'border-orange-500/30'
