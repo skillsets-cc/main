@@ -57,10 +57,50 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
 4. **Discover and populate MCP servers**:
    - Scan `content/.mcp.json` (`mcpServers` key), `content/.claude/settings.json`, `content/.claude/settings.local.json`, `content/docker/**/config.yaml` (`mcp_servers` key)
-   - If MCP servers found and `skillset.yaml` lacks `mcp_servers`: use **WebSearch** + **WebFetch** to research each package/image, then write `mcp_servers` array to `skillset.yaml` with `name`, `type`, `command`/`args`/`url`/`image`, `mcp_reputation` (min 20 chars), `researched_at` (today's date)
+   - If MCP servers found and `skillset.yaml` lacks `mcp_servers`: use **WebSearch** + **WebFetch** to research each package/image, then write `mcp_servers` array to `skillset.yaml`
    - If `mcp_servers` already exists in manifest: verify entries match content, update reputation data if stale
    - See [CRITERIA.md](CRITERIA.md) MCP section for reputation research requirements
    - If no MCP servers found anywhere, mark this phase completed and move on
+
+   **CRITICAL — Schema for `mcp_servers` entries by type:**
+
+   CI validates bidirectional consistency between content and manifest. Use the exact structures below — extra fields (e.g. `transport`) cause `unevaluatedProperties` failures.
+
+   **Native servers** (from `.mcp.json` or `.claude/settings.json`):
+   ```yaml
+   # stdio type — requires command
+   - name: "<server-name>"        # must match key in content config
+     type: "stdio"
+     command: "<command>"          # must match content
+     args: ["<arg1>", "<arg2>"]   # must match content (omit if none)
+     mcp_reputation: "<min 20 chars>"
+     researched_at: "YYYY-MM-DD"
+
+   # http type — requires url
+   - name: "<server-name>"
+     type: "http"
+     url: "https://..."           # must match content
+     mcp_reputation: "<min 20 chars>"
+     researched_at: "YYYY-MM-DD"
+   ```
+
+   **Docker servers** (from `content/docker/**/config.yaml`):
+   ```yaml
+   # docker type — requires image + nested servers array
+   - name: "<descriptive-name>"   # e.g. "litellm-proxy"
+     type: "docker"
+     image: "<image>"             # must match a service image in docker-compose.yaml
+     mcp_reputation: "<container image reputation, min 20 chars>"
+     researched_at: "YYYY-MM-DD"
+     servers:                     # inner MCP servers running inside the container
+       - name: "<server-name>"    # must match key in config.yaml mcp_servers
+         command: "<command>"     # must match config.yaml
+         args: ["<arg1>"]        # must match config.yaml (omit if none)
+         mcp_reputation: "<per-server reputation, min 20 chars>"
+         researched_at: "YYYY-MM-DD"
+   ```
+
+   **Do NOT** write docker-hosted servers as flat `stdio` entries — the validator matches content `docker` sources against manifest `docker` type with nested `servers`. Flat entries produce 2N errors (N content→manifest + N manifest→content mismatches).
 
 ### Phase 3: Evaluate Primitives Against Criteria
 

@@ -214,11 +214,12 @@ export async function submit(): Promise<void> {
       : `Add ${skillsetId}`;
     spawnSync('git', ['commit', '-m', commitMsg], { cwd: tempDir, stdio: 'ignore' });
 
-    // Push to fork
+    // Push to user's fork (contributors don't have push access to upstream)
     spinner.text = 'Pushing to fork...';
+    execSync('gh auth setup-git', { cwd: tempDir, stdio: 'ignore' });
     const repoName = REGISTRY_REPO.split('/')[1];
-    const forkUrl = `https://github.com/${username}/${repoName}.git`;
-    spawnSync('git', ['remote', 'add', 'fork', forkUrl], { cwd: tempDir, stdio: 'ignore' });
+    const forkRemote = `https://github.com/${username}/${repoName}.git`;
+    spawnSync('git', ['remote', 'add', 'fork', forkRemote], { cwd: tempDir, stdio: 'ignore' });
     const pushResult = spawnSync('git', ['push', '-u', 'fork', branchName, '--force'], { cwd: tempDir, encoding: 'utf-8' });
     if (pushResult.status !== 0) {
       throw new Error(pushResult.stderr || 'Failed to push to fork');
@@ -274,10 +275,27 @@ _Add any additional context for reviewers here._
 Submitted via \`npx skillsets submit\`
 `;
 
-    const prResult = spawnSync('gh', ['pr', 'create', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--title', prTitle, '--body', prBody], {
+    // Check if PR already exists for this branch
+    const existingPr = spawnSync('gh', ['pr', 'list', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--json', 'url', '--jq', '.[0].url', '--state', 'open', '--limit', '1'], {
       cwd: tempDir,
       encoding: 'utf-8',
     });
+
+    let prResult;
+    if (existingPr.status === 0 && existingPr.stdout.trim()) {
+      // PR exists — force push already updated it, just edit title/body
+      prResult = spawnSync('gh', ['pr', 'edit', '--repo', REGISTRY_REPO, existingPr.stdout.trim(), '--title', prTitle, '--body', prBody], {
+        cwd: tempDir,
+        encoding: 'utf-8',
+      });
+      prResult.stdout = existingPr.stdout;
+    } else {
+      // Create new PR
+      prResult = spawnSync('gh', ['pr', 'create', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--title', prTitle, '--body', prBody], {
+        cwd: tempDir,
+        encoding: 'utf-8',
+      });
+    }
     if (prResult.status !== 0) {
       throw new Error(prResult.stderr || 'Failed to create PR');
     }
