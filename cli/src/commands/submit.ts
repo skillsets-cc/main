@@ -185,7 +185,7 @@ export async function submit(): Promise<void> {
       // Already forked, that's fine
     }
 
-    // Clone the fork
+    // Clone the registry
     spinner.text = 'Cloning registry...';
     execSync(`gh repo clone ${REGISTRY_REPO} "${tempDir}" -- --depth=1`, { stdio: 'ignore' });
 
@@ -216,7 +216,13 @@ export async function submit(): Promise<void> {
 
     // Push to fork
     spinner.text = 'Pushing to fork...';
-    spawnSync('git', ['push', '-u', 'origin', branchName, '--force'], { cwd: tempDir, stdio: 'ignore' });
+    const repoName = REGISTRY_REPO.split('/')[1];
+    const forkUrl = `https://github.com/${username}/${repoName}.git`;
+    spawnSync('git', ['remote', 'add', 'fork', forkUrl], { cwd: tempDir, stdio: 'ignore' });
+    const pushResult = spawnSync('git', ['push', '-u', 'fork', branchName, '--force'], { cwd: tempDir, encoding: 'utf-8' });
+    if (pushResult.status !== 0) {
+      throw new Error(pushResult.stderr || 'Failed to push to fork');
+    }
 
     // Create PR
     spinner.text = 'Creating pull request...';
@@ -268,7 +274,7 @@ _Add any additional context for reviewers here._
 Submitted via \`npx skillsets submit\`
 `;
 
-    const prResult = spawnSync('gh', ['pr', 'create', '--repo', REGISTRY_REPO, '--title', prTitle, '--body', prBody], {
+    const prResult = spawnSync('gh', ['pr', 'create', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--title', prTitle, '--body', prBody], {
       cwd: tempDir,
       encoding: 'utf-8',
     });
