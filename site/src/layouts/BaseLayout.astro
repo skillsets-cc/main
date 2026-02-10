@@ -40,7 +40,7 @@ const { title, description = 'Verified registry of production-ready Claude Code 
     <!-- Sidebar Overlay (mobile) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-[55] hidden md:hidden"></div>
 
-    <div class="md:flex min-h-screen">
+    <div class="flex min-h-screen">
       <!-- Sidebar Navigation -->
       <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 flex-shrink-0 border-r border-border-ink bg-stone-50 h-screen overflow-y-auto z-[60] -translate-x-full md:translate-x-0 md:sticky md:top-0 transition-transform duration-200">
         <div class="p-6 flex flex-col h-full">
@@ -114,7 +114,7 @@ const { title, description = 'Verified registry of production-ready Claude Code 
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 min-w-0 bg-white min-h-screen md:min-h-0">
+      <main class="flex-1 min-w-0 bg-white">
         <slot />
       </main>
     </div>
