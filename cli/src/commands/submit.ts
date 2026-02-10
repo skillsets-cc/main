@@ -225,15 +225,27 @@ export async function submit(): Promise<void> {
       throw new Error(pushResult.stderr || 'Failed to push to fork');
     }
 
-    // Create PR
-    spinner.text = 'Creating pull request...';
+    // Check if PR already exists for this branch (force push already updated it)
+    spinner.text = 'Checking for existing pull request...';
+    const existingPr = spawnSync('gh', ['pr', 'list', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--json', 'url', '--jq', '.[0].url', '--state', 'open', '--limit', '1'], {
+      cwd: tempDir,
+      encoding: 'utf-8',
+    });
 
-    const prTitle = isUpdate
-      ? `Update ${skillsetId} to v${skillset.version}`
-      : `Add ${skillsetId}`;
+    let prUrl: string;
+    if (existingPr.status === 0 && existingPr.stdout.trim()) {
+      // PR exists — force push already updated the branch, nothing else to do
+      prUrl = existingPr.stdout.trim();
+    } else {
+      // Create new PR
+      spinner.text = 'Creating pull request...';
 
-    const prBody = isUpdate
-      ? `## Skillset Update
+      const prTitle = isUpdate
+        ? `Update ${skillsetId} to v${skillset.version}`
+        : `Add ${skillsetId}`;
+
+      const prBody = isUpdate
+        ? `## Skillset Update
 
 **Skillset:** ${skillsetId}
 **Version:** ${existingVersion} → ${skillset.version}
@@ -253,7 +265,7 @@ _Describe what changed in this version._
 ---
 Submitted via \`npx skillsets submit\`
 `
-      : `## New Skillset Submission
+        : `## New Skillset Submission
 
 **Skillset:** ${skillsetId}
 **Version:** ${skillset.version}
@@ -275,39 +287,22 @@ _Add any additional context for reviewers here._
 Submitted via \`npx skillsets submit\`
 `;
 
-    // Check if PR already exists for this branch
-    const existingPr = spawnSync('gh', ['pr', 'list', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--json', 'url', '--jq', '.[0].url', '--state', 'open', '--limit', '1'], {
-      cwd: tempDir,
-      encoding: 'utf-8',
-    });
-
-    let prResult;
-    if (existingPr.status === 0 && existingPr.stdout.trim()) {
-      // PR exists — force push already updated it, just edit title/body
-      prResult = spawnSync('gh', ['pr', 'edit', '--repo', REGISTRY_REPO, existingPr.stdout.trim(), '--title', prTitle, '--body', prBody], {
+      const prResult = spawnSync('gh', ['pr', 'create', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--title', prTitle, '--body', prBody], {
         cwd: tempDir,
         encoding: 'utf-8',
       });
-      prResult.stdout = existingPr.stdout;
-    } else {
-      // Create new PR
-      prResult = spawnSync('gh', ['pr', 'create', '--repo', REGISTRY_REPO, '--head', `${username}:${branchName}`, '--title', prTitle, '--body', prBody], {
-        cwd: tempDir,
-        encoding: 'utf-8',
-      });
-    }
-    if (prResult.status !== 0) {
-      throw new Error(prResult.stderr || 'Failed to create PR');
+      if (prResult.status !== 0) {
+        throw new Error(prResult.stderr || 'Failed to create PR');
+      }
+      prUrl = (prResult.stdout || '').trim();
     }
 
     // Cleanup
     spinner.text = 'Cleaning up...';
     rmSync(tempDir, { recursive: true, force: true });
 
-    spinner.succeed('Pull request created');
-
-    // Extract PR URL from result
-    const prUrl = (prResult.stdout || '').trim();
+    const prExisted = existingPr.status === 0 && existingPr.stdout.trim();
+    spinner.succeed(prExisted ? 'Pull request updated' : 'Pull request created');
 
     console.log(chalk.green(`\n✓ ${isUpdate ? 'Update' : 'Submission'} complete!\n`));
     console.log(`  Skillset: ${chalk.bold(skillsetId)}`);
