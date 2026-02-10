@@ -193,8 +193,11 @@ export async function submit(): Promise<void> {
     spinner.text = 'Creating branch...';
     spawnSync('git', ['checkout', '-b', branchName], { cwd: tempDir, stdio: 'ignore' });
 
-    // Create skillset directory
+    // Create skillset directory (remove existing for clean update)
     const skillsetDir = join(tempDir, 'skillsets', `@${skillset.author}`, skillset.name);
+    if (existsSync(skillsetDir)) {
+      rmSync(skillsetDir, { recursive: true, force: true });
+    }
     mkdirSync(skillsetDir, { recursive: true });
 
     // Copy files
@@ -212,7 +215,10 @@ export async function submit(): Promise<void> {
     const commitMsg = isUpdate
       ? `Update ${skillsetId} to v${skillset.version}`
       : `Add ${skillsetId}`;
-    spawnSync('git', ['commit', '-m', commitMsg], { cwd: tempDir, stdio: 'ignore' });
+    const commitResult = spawnSync('git', ['commit', '-m', commitMsg], { cwd: tempDir, encoding: 'utf-8' });
+    if (commitResult.status !== 0) {
+      throw new Error('No changes detected between local files and registry. Verify your files differ from the published version.');
+    }
 
     // Push to user's fork (contributors don't have push access to upstream)
     spinner.text = 'Pushing to fork...';
@@ -220,6 +226,10 @@ export async function submit(): Promise<void> {
     const repoName = REGISTRY_REPO.split('/')[1];
     const forkRemote = `https://github.com/${username}/${repoName}.git`;
     spawnSync('git', ['remote', 'add', 'fork', forkRemote], { cwd: tempDir, stdio: 'ignore' });
+
+    // Delete stale branch on fork (e.g. from a previously merged PR)
+    spawnSync('gh', ['api', `repos/${username}/${repoName}/git/refs/heads/${branchName}`, '-X', 'DELETE'], { stdio: 'ignore' });
+
     const pushResult = spawnSync('git', ['push', '-u', 'fork', branchName, '--force'], { cwd: tempDir, encoding: 'utf-8' });
     if (pushResult.status !== 0) {
       throw new Error(pushResult.stderr || 'Failed to push to fork');
