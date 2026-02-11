@@ -7,8 +7,8 @@ This workflow is what survived 2.5k hours of iteration: First Principles + spec-
 ## Contents
 
 - [Ideas](#ideas) — Design philosophy
-- [Primitives](#primitives) — User-invoked entry points
-- [The Workflow](#the-valence-workflow) — [/arm](#arm) · [/design](#design) · [/ar](#ar) · [/plan](#plan) · [/pmatch](#pmatch) · [/build](#build)
+- [Valence](#the-valence-workflow) — The workflow
+- [Primitives](#primitives) — Command reference
 - [Quality Gates](#quality-gates) — Validation checkpoints
 - [Grounding & Navigation](#grounding--navigation) — Where agents look and what they trust
 - [Meet The Team](#meet-the-team) — Agents, models, infrastructure
