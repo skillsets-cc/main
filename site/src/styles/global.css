@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  /* Crimson Pro has a smaller x-height than Inter, so bump the
+     base font-size from 16px → 18px to compensate globally. */
+  html {
+    font-size: 18px;
+  }
+
   body {
     font-family: 'Crimson Pro', serif;
     scrollbar-gutter: stable;
