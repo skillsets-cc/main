@@ -29,16 +29,16 @@ Your idea is only as good as the number of bulletholes it can withstand. Have di
 Intelligence is a finite resource. Route tasks based on cognitive load: high-reasoning models for strategy and design, and high-efficiency models for execution and QA. Optimize the curve between cost, speed, and quality per task.
 
 4. **The Spec is the Source of Truth**
-Conversation is ephemeral; artifacts are eternal. Iterate on the Design Document. Validation is performed against the spec, not the chat. If a requirement isn't in the spec, it doesn't exist.
+Conversation is ephemeral; artifacts are solid. Iterate on the Design Document. Validation is performed against the spec, not the chat. If a requirement isn't in the spec, it doesn't exist.
 
 5. **Context is Noise**
-Bigger token windows are a trap. Practice Radical Context Hygiene—prune context to give agents only the narrow, curated signal they need for their specific phase. Read the docs, not the implementation. Less context means higher IQ.
+Bigger token windows are a trap. Practice Radical Context Hygiene—give agents only the narrow, curated signal they need for their specific phase. Read the docs, not the implementation. Less context means higher IQ.
 
 6. **Grounding, not Guessing**
 Models prioritize plausibility over truth. Force active grounding to invert this. Before recommending a library or pattern, the system must verify it against library documentation, known pitfalls, and project docs. Treat documented reality as a hard constraint that overrides training data.
 
 7. **Deterministic Execution**
-Ambiguity is the enemy of automation. A plan is only valid if a worker can execute it without asking clarifying questions. Test cases are defined with the design, not after the build. Break work into atomic tasks with unabiguous acceptance criteria. If the builder has to guess, the planner failed.
+Ambiguity is the enemy of automation. A plan is only valid if a worker can execute it without asking clarifying questions. Test cases are defined with the design, not after the build. Break work into atomic tasks with unambiguous acceptance criteria. If the builder has to guess, the planner failed.
 
 8. **Audit the Auditor**
 The agent that builds the code cannot be trusted to validate it. Separate context for execution and validation. Independent agents pattern-match against the design, ensuring that the implementation actually matches the intent. QA agents relitigate the build gates and retest the code in a separate context.
@@ -55,14 +55,13 @@ This system is an exoskeleton, not a replacement. Automation without structure i
 
 ![The Valence Workflow](https://iili.io/fyX1C0B.png)
 
-Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is a standalone primitive, standardized for interoperabillity and coordination through Claude Code's native teammates and task systems.
+Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is a modular, and standardized for interoperability and coordination through Claude Code's native agent team and task systems.
 
 <a id="arm"></a>
 
 ![/arm workflow](https://iili.io/fyX0tV4.png)
 
-`/arm` — Opus extracts requirements, constraints, non-goals, style, and key concepts from fuzzy initial thoughts. Conversational QA probes for gaps, then a single structured checkpoint forces remaining decisions. Output is a synthesized brief for user confirmation.
-[SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md)
+`/arm [initial thoughts]` — Opus extracts requirements, constraints, non-goals, style, and key concepts from fuzzy initial thoughts. Conversational QA probes for gaps, then a single structured checkpoint forces remaining decisions. Output is a synthesized brief for user confirmation.
 
 ---
 
@@ -70,8 +69,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 ![/design workflow](https://iili.io/fyX0yU7.png)
 
-`/design` — Opus deconstructs the brief into fundamentals, classifies each constraint as hard, soft, or assumption, then reconstructs the optimal approach from only validated truths. Project docs and style guides ground the analysis; Context7 and web search validate technical choices. Iterative discussion loop with the human until alignment, then formalized into a design document.
-[SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md)
+`/design [brief]` — Opus deconstructs the brief into fundamentals, classifies each constraint as hard, soft, or assumption, then reconstructs the optimal approach from only validated truths. Project docs and style guides ground the analysis; library docs and web search validate technical choices. Iterative discussion loop with the human until alignment, then formalized into a design document.
 
 ---
 
@@ -79,8 +77,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 ![/ar workflow](https://iili.io/fyX0plS.png)
 
-`/ar` — Three models, same review protocol, different blind spots. The value is where they *disagree*. Opus orchestrates — spawns reviewers in parallel, deduplicates by category (multi-agent overlap = higher confidence), then loads project docs on-demand to fact-check each finding against the actual codebase. Validated findings get cost/benefit scored and classified as Critical, Recommended, or Noted. Output is a structured report with a REVISE/PROCEED recommendation. Each reviewer independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
-[SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md)
+`/ar [design document]` — Three models attack your design in parallel, each with different training data and blind spots. The signal is where they *disagree*. Opus orchestrates — deduplicates findings, fact-checks each against the codebase, and scores by severity, probability, and remediation cost. Output is a structured report with a REVISE/PROCEED recommendation.
 
 ---
 
@@ -88,8 +85,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 ![/plan workflow](https://iili.io/fyX1dOu.png)
 
-`/plan` — Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the patterns, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
-[SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md)
+`/plan [design document]` — Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the patterns, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
 
 ---
 
@@ -97,8 +93,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 ![/pmatch workflow](https://iili.io/fyX12Db.png)
 
-`/pmatch` — Spec drift is real. Two agents independently extract claims from the source of truth, check if the target satisfies each one, then merge. Target can be a document, directory, or the full codebase. Consensus scoring: both agents agree = high confidence, disagreement = flagged for review. Output is a structured report classifying each claim as Matched, Gap, Partial, or Ambiguous, with an ALIGNED/GAPS/PARTIAL verdict.
-[SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md)
+`/pmatch [source of truth] [target]` — The design says one thing; does the implementation match? Two agents independently extract claims from a source document and verify each against a target — a file, directory, or the full codebase. Where both agents agree on a violation, that's high confidence. Output is a claim-by-claim verdict: Matched, Gap, Partial, or Ambiguous.
 
 ---
 
@@ -106,8 +101,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 ![/build workflow](https://iili.io/fyX0mf2.png)
 
-`/build` — Opus leads in delegate mode — coordinates but never writes code. Validates dependency order between execution sections, spawns one Sonnet per section (parallel when independent, sequential via `blockedBy` when dependent), and monitors for blockers. Each Sonnet implements one task at a time: code, test, verify acceptance criteria, cleanup gate, then docs for new modules. Post-build the lead shuts down the team and runs `/pmatch` to validate implementation against the plan.
-[SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/build.md)
+`/build [plan]` — Opus coordinates, Sonnets build. The lead never writes code — it spawns one agent per execution section, parallel when independent, sequenced when dependent, and monitors for blockers. Each agent works through its tasks: code, test, verify acceptance criteria, cleanup. When the team finishes, `/pmatch` validates the output against the plan.
 
 ---
 
@@ -115,7 +109,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 ![Post-build quality pipeline](https://iili.io/fyX1JRe.png)
 
-`/denoise, /qf, /qb, /qd, /security-review` Code that passes tests can still be noisy, inconsistent, and poorly documented. The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities. Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
+`/denoise [path]`, `/qf [path]`, `/qb [path]`, `/qd [path]`, `/security-review [path]` The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities. Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
 
 ![Team spawn pattern](https://iili.io/fyX1xJ1.png)
 
@@ -127,7 +121,7 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 | Command | Purpose | Protocol |
 |---------|---------|----------|
-| `/arm [thoughts]` | Crystallize Fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md) |
+| `/arm [thoughts]` | Crystallize fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md) |
 | `/design [brief]` | Design a Solution — research, design doc, architecture decisions | [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md) |
 | `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md) |
 | `/plan [design.md]` | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md) |
@@ -282,7 +276,7 @@ Each teammate receives a prompt pointing at the work artifact (design doc, execu
 | `/build` | build (×N) | Parallel or sequenced by dependency → validate |
 | `/pmatch` | pm-s, pm-k | All parallel → merge consensus |
 
-Simpler skills (`/denoise`, `/qf`, `/qb`, `/qd`) dispatch a single agent directly via the Task tool — no team overhead needed.
+Single-agent skills (`/denoise`, `/qf`, `/qb`, `/qd`) also spawn as teammates via `TeamCreate`.
 
 ### Multi-Model Infrastructure
 
@@ -359,41 +353,8 @@ your-project/
 
 ---
 
-## Usage
-
-A complete feature lifecycle. In practice, you skip or repeat phases based on complexity and review feedback.
-
-```bash
-# Crystallize initial thoughts into a brief
-/arm I want to add some kind of rate limiting to prevent abuse
-
-# Design from the refined brief
-/design Add rate limiting to WebSocket connections with per-session tracking...
-
-# Review the design (orchestrated adversarial review)
-/ar designs/rate-limiting-design.md
-
-# Create execution plan from approved design
-/plan designs/rate-limiting-design.md
-
-# Implement the approved plan
-/build execution/rate-limiting-execution.md
-
-# Simplify the code (general quality)
-/denoise frontend/src/core/protocol
-/denoise backend/app/core/websocket
-
-# Audit project patterns (after simplification)
-/qf frontend/src/core/protocol
-/qb backend/app/core/websocket
-
-# Update documentation
-/qd frontend/src/core/protocol
-/qd backend/app/core/websocket
-```
-
----
-
 ## License
 
-[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 
+
+---
