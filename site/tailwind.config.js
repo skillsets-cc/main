@@ -29,7 +29,7 @@ export default {
       },
       fontFamily: {
         serif: ['"Crimson Pro"', 'serif'],
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Crimson Pro"', 'serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       spacing: {
@@ -56,7 +56,7 @@ export default {
             '--tw-prose-bullets': '#777777',
             '--tw-prose-counters': '#777777',
             'color': '#555555',
-            'fontFamily': 'Inter, system-ui, sans-serif',
+            'fontFamily': '"Crimson Pro", serif',
             'code': {
               backgroundColor: '#fafaf9',
               border: '1px solid #E5E7EB',
