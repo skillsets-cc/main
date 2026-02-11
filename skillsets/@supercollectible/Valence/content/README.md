@@ -1,7 +1,6 @@
-Valence describes the outer limits of your combining-power. It is an exoskeleton that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. 
-I dont want a magic button, I just want to know what happens when I can finally work at the speed of thought.
+Valence exists at the outer limits of your combining-power. It is an exoskeleton that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. It's what happens when you can finally work at the speed of thought.
 
-This workflow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded multi-agent workflow with formalized quality gates, adversarial reviews and auditable handoffs. It takes you from idea to reviewed, tested, documented code — every phase gated, every decision yours.
+This workflow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded team-based skillset with formalized quality gates, adversarial reviews and auditable handoffs. The Valence team takes you from idea to reviewed, tested, documented code, while you own all key decisions. 
 
 ---
 
