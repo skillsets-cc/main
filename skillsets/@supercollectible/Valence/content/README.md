@@ -1,8 +1,7 @@
-Valence is a system that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. Intent should flow through to implementation without being lost or distorted. Decisions and rationale are mine to own. The system should flag bullshit requirements, not enable poor life choices. 
-
-This workflow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded multi-agent workflow with formalized quality gates, adversarial reviews and auditable handoffs. 
-
+Valence describes the outer limits of your combining-power. It is an exoskeleton that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. 
 I dont want a magic button, I just want to know what happens when I can finally work at the speed of thought.
+
+This workflow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded multi-agent workflow with formalized quality gates, adversarial reviews and auditable handoffs. It takes you from idea to reviewed, tested, documented code — every phase gated, every decision yours.
 
 ---
 
@@ -22,31 +21,31 @@ I dont want a magic button, I just want to know what happens when I can finally 
 ## Ideas
 
 1. **Code is a Liability; Judgement is an Asset**
-Never generate implementation from a raw prompt. Enforce First Principles design to crystallize the solution architecture before a single line of syntax is written. Stress test all assumptions and swap for custom fits. 
+Crystallize the solution architecture before a single line of syntax is written. Stress test all assumptions and swap for custom fits. Never generate implementation from a raw prompt. 
 
 2. **Consensus through Dissensus**
-Your idea is only as good as the number of bulletholes it can withstand. Deploy Adversarial Review panels to manufacture friction. By forcing distinct models with different training data to critique the same design, you expose blind spots that a single perspective would miss. Trust conflict more than agreement.
+Your idea is only as good as the number of bulletholes it can withstand. Have distinct models with different training data critique the same design, exposing blind spots that a single perspective would miss. Trust conflict more than agreement.
 
 3. **Cognitive Tiering**
-Intelligence is a finite resource that must be allocated economically. Do not use a supercomputer to write boilerplate, nor a fast model to design architecture. Route tasks based on cognitive load: high-reasoning models for strategy and design, and high-efficiency models for execution and QA. Optimize the curve between cost, speed, and quality per task.
+Intelligence is a finite resource. Route tasks based on cognitive load: high-reasoning models for strategy and design, and high-efficiency models for execution and QA. Optimize the curve between cost, speed, and quality per task.
 
 4. **The Spec is the Source of Truth**
-Conversation is ephemeral; artifacts are eternal. Never iterate inside the chat window, iterate on the Design Document. Validation is performed against the spec, not the chat. If a requirement isn't in the spec, it doesn't exist.
+Conversation is ephemeral; artifacts are eternal. Iterate on the Design Document. Validation is performed against the spec, not the chat. If a requirement isn't in the spec, it doesn't exist.
 
 5. **Context is Noise**
-Bigger token windows are a trap. Info-dumping into context dilutes reasoning and increases hallucination. Practice Radical Context Hygiene—prune context to give agents only the narrow, curated signal they need for their specific phase. Read the docs, not the implementation. Less context means higher IQ.
+Bigger token windows are a trap. Practice Radical Context Hygiene—prune context to give agents only the narrow, curated signal they need for their specific phase. Read the docs, not the implementation. Less context means higher IQ.
 
 6. **Grounding, not Guessing**
-Document everything. Models prioritize plausibility over truth. Force active grounding to invert this. Before recommending a library or pattern, the system must verify it against library documentation, known pitfalls, and project docs. Treat documented reality as a hard constraint that overrides training data.
+Models prioritize plausibility over truth. Force active grounding to invert this. Before recommending a library or pattern, the system must verify it against library documentation, known pitfalls, and project docs. Treat documented reality as a hard constraint that overrides training data.
 
 7. **Deterministic Execution**
 Ambiguity is the enemy of automation. A plan is only valid if a worker can execute it without asking clarifying questions. Test cases are defined with the design, not after the build. Break work into atomic tasks with unabiguous acceptance criteria. If the builder has to guess, the planner failed.
 
 8. **Audit the Auditor**
-The agent that builds the code cannot be trusted to validate it. Separate the roles of Execution and Validation. Independent agents pattern-match against the design, ensuring that the implementation actually matches the intent. QA agents relitigate the build gates and retest the code in a separate context.
+The agent that builds the code cannot be trusted to validate it. Separate context for execution and validation. Independent agents pattern-match against the design, ensuring that the implementation actually matches the intent. QA agents relitigate the build gates and retest the code in a separate context.
 
 9. **Entropy Control**
-AI-generated code defaults to verbosity and repetition. The natural state of a codebase is entropy. Treat Simplification and QA as a distinct post-hoc production phases, running dedicated passes to strip out dead code, redundancy, and noise before they calcify into technical debt.
+AI-generated code defaults to verbosity and repetition. The natural state of a codebase is entropy. Treat Simplification and QA as distinct post-hoc production phases, running dedicated passes to strip out dead code, redundancy, and noise before they calcify into technical debt.
 
 10. **Agency > Automation**
 This system is an exoskeleton, not a replacement. Automation without structure is just faster tech debt. You own the vision, the Quality Gates, and the final say. Execution scales. Judgment doesn't.
@@ -76,6 +75,10 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ![The Valence Workflow](https://iili.io/fyX1C0B.png)
 
+Valence leverages the best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable — the bottleneck shifts from "can I trust this" to "what do I build next."
+
+Each skill is a standalone primitive that can be run independently, and standardized so they are easily chained and coordinated through Claude Code's native teammates and task systems.
+
 <a id="arm"></a>
 
 ![/arm workflow](https://iili.io/fyX0tV4.png)
@@ -98,7 +101,7 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ![/ar workflow](https://iili.io/fyX0plS.png)
 
-`/ar` — Three models, same review protocol, different blind spots. The value is where they *disagree*. Opus orchestrates — spawns reviewers in parallel, deduplicates by category (multi-agent overlap = higher confidence), then loads project docs on-demand to fact-check each finding against the actual codebase. Validated findings get cost/benefit scored (severity, probability, remediation cost, reversibility) and classified as Critical, Recommended, or Noted. Output is a structured report with a REVISE/PROCEED recommendation. Each reviewer independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
+`/ar` — Three models, same review protocol, different blind spots. The value is where they *disagree*. Opus orchestrates — spawns reviewers in parallel, deduplicates by category (multi-agent overlap = higher confidence), then loads project docs on-demand to fact-check each finding against the actual codebase. Validated findings get cost/benefit scored and classified as Critical, Recommended, or Noted. Output is a structured report with a REVISE/PROCEED recommendation. Each reviewer independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
 [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md)
 
 ---
@@ -107,7 +110,7 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ![/plan workflow](https://iili.io/fyX1dOu.png)
 
-`/plan` — Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the pattern, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
+`/plan` — Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the patterns, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
 [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md)
 
 ---
@@ -125,18 +128,20 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ![/build workflow](https://iili.io/fyX0mf2.png)
 
-`/build` — Opus leads in delegate mode — coordinates but never writes code. Validates dependency order between execution sections, spawns one Sonnet per section (parallel when independent, sequential via `blockedBy` when dependent), and monitors for blockers. Each Sonnet implements one task at a time: code, test, verify acceptance criteria, cleanup gate (no console.*, no magic numbers, no hardcoded values), then docs for new modules. Post-build the lead shuts down the team and runs `/pmatch` to validate implementation against the plan.
+`/build` — Opus leads in delegate mode — coordinates but never writes code. Validates dependency order between execution sections, spawns one Sonnet per section (parallel when independent, sequential via `blockedBy` when dependent), and monitors for blockers. Each Sonnet implements one task at a time: code, test, verify acceptance criteria, cleanup gate, then docs for new modules. Post-build the lead shuts down the team and runs `/pmatch` to validate implementation against the plan.
 [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/build.md)
 
 ---
 
-### Post-Build Quality Pipeline
-
-Each step is a standalone skill that spawns its agent as a teammate via `TeamCreate`. Modular — run any combination against any path. Recommended order: simplify first so pattern auditors don't waste cycles flagging noise that's about to be deleted; audit patterns before docs so structural changes are settled; docs last so they reflect final state.
+<a id="post-build"></a>
 
 ![Post-build quality pipeline](https://iili.io/fyX1JRe.png)
 
+Code that passes tests can still be noisy, inconsistent, and poorly documented. The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities.
+
 ![Team spawn pattern](https://iili.io/fyX1xJ1.png)
+
+Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
 
 | Step | Agent | Mode | Scope |
 |------|-------|------|-------|
