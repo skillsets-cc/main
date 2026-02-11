@@ -52,32 +52,11 @@ This system is an exoskeleton, not a replacement. Automation without structure i
 
 ---
 
-## Primitives
-
-User-invoked entry points into the workflow. Each command loads its protocol and executes the corresponding phase.
-
-| Command | Purpose | Protocol |
-|---------|---------|----------|
-| `/arm [thoughts]` | Crystallize Fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md) |
-| `/design [brief]` | Design a Solution — research, design doc, architecture decisions | [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md) |
-| `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md) |
-| `/plan [design.md]` | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md) |
-| `/build [exec.md]` | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md) |
-| `/pmatch [source] [target]` | Validate target against source claims | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md) |
-| `/denoise [path]` | Post-build cleanup — invokes code-simplifier plugin | [Anthropic plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) |
-| `/qf` `/qb [path]` | QA audit — frontend (design system, a11y) or backend (DI, logging) | [qa-f.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-f.md), [qa-b.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-b.md) |
-| `/qd [path]` | Docs QA — validates and updates documentation | [qa-docs.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-docs.md) |
-| `/security-review` | Security audit — injection, XSS, auth flaws | [Claude Code native](https://www.anthropic.com/news/automate-security-reviews-with-claude-code) |
-
----
-
 <a id="the-valence-workflow"></a>
 
 ![The Valence Workflow](https://iili.io/fyX1C0B.png)
 
-Valence leverages the best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable — the bottleneck shifts from "can I trust this" to "what do I build next."
-
-Each skill is a standalone primitive that can be run independently, and standardized so they are easily chained and coordinated through Claude Code's native teammates and task systems.
+Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is a standalone primitive, standardized for interoperabillity and coordination through Claude Code's native teammates and task systems.
 
 <a id="arm"></a>
 
@@ -137,19 +116,28 @@ Each skill is a standalone primitive that can be run independently, and standard
 
 ![Post-build quality pipeline](https://iili.io/fyX1JRe.png)
 
-Code that passes tests can still be noisy, inconsistent, and poorly documented. The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities.
+`/denoise, /qf, /qb, /qd, /security-review` Code that passes tests can still be noisy, inconsistent, and poorly documented. The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities. Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
 
 ![Team spawn pattern](https://iili.io/fyX1xJ1.png)
 
-Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
+---
 
-| Step | Agent | Mode | Scope |
-|------|-------|------|-------|
-| `/denoise` | Opus | **Writes** | Clarity, consistency, maintainability — dead code, redundancy, comments |
-| `/qf` | Sonnet | **Read-only** | Design system (colors, z-index), resource cleanup (listeners, timers, RAF), accessibility (aria, alt), constants, module structure |
-| `/qb` | Sonnet | **Read-only** | DI violations (global singletons), logging (print→logger), error handling (bare except), type hints (mypy), backwards compat (flagged for removal), circular imports, env var documentation |
-| `/qd` | Sonnet | **Writes** | Iterative file→doc pair processing — creates missing docs, updates stale ones, synthesizes module ARC and README, flags system architecture updates |
-| `/security-review` | Native | **Read-only** | Injection, XSS, auth flaws, OWASP |
+## Primitives
+
+User-invoked entry points into the workflow. Each command loads its protocol and executes the corresponding phase.
+
+| Command | Purpose | Protocol |
+|---------|---------|----------|
+| `/arm [thoughts]` | Crystallize Fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md) |
+| `/design [brief]` | Design a Solution — research, design doc, architecture decisions | [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md) |
+| `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md) |
+| `/plan [design.md]` | Plan execution — transform design into tasks, acceptance criteria | [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md) |
+| `/build [exec.md]` | Implement a plan — todos, code, tests, cleanup | [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md) |
+| `/pmatch [source] [target]` | Validate target against source claims | [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md) |
+| `/denoise [path]` | Post-build cleanup — invokes code-simplifier plugin | [Anthropic plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) |
+| `/qf` `/qb [path]` | QA audit — frontend (design system, a11y) or backend (DI, logging) | [qa-f.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-f.md), [qa-b.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-b.md) |
+| `/qd [path]` | Docs QA — validates and updates documentation | [qa-docs.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-docs.md) |
+| `/security-review` | Security audit — injection, XSS, auth flaws | [Claude Code native](https://www.anthropic.com/news/automate-security-reviews-with-claude-code) |
 
 ---
 
