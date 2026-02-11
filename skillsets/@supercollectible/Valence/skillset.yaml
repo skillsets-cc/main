@@ -3,7 +3,7 @@ batch_id: "1.10.001"
 
 # Identity
 name: "Valence"
-version: "3.0.4"
+version: "3.0.5"
 description: "Built for agency > automation, Valence is an opinionated path to quality output."
 
 author:
