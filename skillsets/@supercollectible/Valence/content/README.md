@@ -10,7 +10,7 @@ I dont want a magic button, I just want to know what happens when I can finally 
 
 - [Ideas](#ideas) — Design philosophy
 - [Primitives](#primitives) — User-invoked entry points
-- [The Workflow](#the-workflow) — Phase diagram
+- [The Workflow](#the-valence-workflow) — [/arm](#arm) · [/design](#design) · [/ar](#ar) · [/plan](#plan) · [/pmatch](#pmatch) · [/build](#build)
 - [Quality Gates](#quality-gates) — Validation checkpoints
 - [Grounding & Navigation](#grounding--navigation) — Where agents look and what they trust
 - [Meet The Team](#meet-the-team) — Agents, models, infrastructure
@@ -72,73 +72,61 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ---
 
-## The Valence Workflow
+<a id="the-valence-workflow"></a>
 
 ![The Valence Workflow](https://iili.io/fyX1C0B.png)
 
-Eight phases, each gated. Feedback loops at design review and build validation. Detail per phase below.
-
----
-
-### `/arm` — Crystallize
-
-Opus extracts requirements, constraints, non-goals, style, and key concepts from fuzzy initial thoughts. Conversational QA probes for gaps, then a single structured checkpoint forces remaining decisions. Output is a synthesized brief for user confirmation.
+<a id="arm"></a>
 
 ![/arm workflow](https://iili.io/fyX0tV4.png)
 
-Protocol: [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md)
+`/arm` — Opus extracts requirements, constraints, non-goals, style, and key concepts from fuzzy initial thoughts. Conversational QA probes for gaps, then a single structured checkpoint forces remaining decisions. Output is a synthesized brief for user confirmation.
+[SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md)
 
 ---
 
-### `/design` — First Principles Design
-
-Opus deconstructs the brief into fundamentals, classifies each constraint as hard, soft, or assumption, then reconstructs the optimal approach from only validated truths. Project docs and style guides ground the analysis; Context7 and web search validate technical choices. Iterative discussion loop with the human until alignment, then formalized into a design document.
+<a id="design"></a>
 
 ![/design workflow](https://iili.io/fyX0yU7.png)
 
-Protocol: [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md)
+`/design` — Opus deconstructs the brief into fundamentals, classifies each constraint as hard, soft, or assumption, then reconstructs the optimal approach from only validated truths. Project docs and style guides ground the analysis; Context7 and web search validate technical choices. Iterative discussion loop with the human until alignment, then formalized into a design document.
+[SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md)
 
 ---
 
-### `/ar` — Adversarial Review
-
-Three models, same review protocol, different blind spots. The value is where they *disagree*. Opus orchestrates — spawns reviewers in parallel, deduplicates by category (multi-agent overlap = higher confidence), then loads project docs on-demand to fact-check each finding against the actual codebase. Validated findings get cost/benefit scored (severity, probability, remediation cost, reversibility) and classified as Critical, Recommended, or Noted. Output is a structured report with a REVISE/PROCEED recommendation.
+<a id="ar"></a>
 
 ![/ar workflow](https://iili.io/fyX0plS.png)
 
-Each reviewer independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
-
-Protocol: [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md)
+`/ar` — Three models, same review protocol, different blind spots. The value is where they *disagree*. Opus orchestrates — spawns reviewers in parallel, deduplicates by category (multi-agent overlap = higher confidence), then loads project docs on-demand to fact-check each finding against the actual codebase. Validated findings get cost/benefit scored (severity, probability, remediation cost, reversibility) and classified as Critical, Recommended, or Noted. Output is a structured report with a REVISE/PROCEED recommendation. Each reviewer independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
+[SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md)
 
 ---
 
-### `/plan` — Execution Planning
-
-Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the pattern, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
+<a id="plan"></a>
 
 ![/plan workflow](https://iili.io/fyX1dOu.png)
 
-Protocol: [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md)
+`/plan` — Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the pattern, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
+[SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md)
 
 ---
 
-### `/pmatch` — Pattern Matching Validation
-
-Spec drift is real. Two agents independently extract claims from the source of truth, check if the target satisfies each one, then merge. Target can be a document, directory, or the full codebase. Consensus scoring: both agents agree = high confidence, disagreement = flagged for review. Output is a structured report classifying each claim as Matched, Gap, Partial, or Ambiguous, with an ALIGNED/GAPS/PARTIAL verdict.
+<a id="pmatch"></a>
 
 ![/pmatch workflow](https://iili.io/fyX12Db.png)
 
-Protocol: [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md)
+`/pmatch` — Spec drift is real. Two agents independently extract claims from the source of truth, check if the target satisfies each one, then merge. Target can be a document, directory, or the full codebase. Consensus scoring: both agents agree = high confidence, disagreement = flagged for review. Output is a structured report classifying each claim as Matched, Gap, Partial, or Ambiguous, with an ALIGNED/GAPS/PARTIAL verdict.
+[SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md)
 
 ---
 
-### `/build` — Parallel Implementation
-
-Opus leads in delegate mode — coordinates but never writes code. Validates dependency order between execution sections, spawns one Sonnet per section (parallel when independent, sequential via `blockedBy` when dependent), and monitors for blockers. Each Sonnet implements one task at a time: code, test, verify acceptance criteria, cleanup gate (no console.*, no magic numbers, no hardcoded values), then docs for new modules. Post-build the lead shuts down the team and runs `/pmatch` to validate implementation against the plan.
+<a id="build"></a>
 
 ![/build workflow](https://iili.io/fyX0mf2.png)
 
-Protocols: [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/build.md)
+`/build` — Opus leads in delegate mode — coordinates but never writes code. Validates dependency order between execution sections, spawns one Sonnet per section (parallel when independent, sequential via `blockedBy` when dependent), and monitors for blockers. Each Sonnet implements one task at a time: code, test, verify acceptance criteria, cleanup gate (no console.*, no magic numbers, no hardcoded values), then docs for new modules. Post-build the lead shuts down the team and runs `/pmatch` to validate implementation against the plan.
+[SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/build.md)
 
 ---
 
