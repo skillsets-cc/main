@@ -74,18 +74,7 @@ User-invoked entry points into the workflow. Each command loads its protocol and
 
 ## The Valence Workflow
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart TB
-    A["💭 Thoughts"] -->|"/arm"| B["📋 Brief"]
-    B -->|"/design"| C["📐 Design"]
-    C -->|"/ar"| D{"🔍 Review"}
-    D -->|approve| E["/plan"]
-    D -.->|mitigate| C
-    E -->|"/pmatch"| F["/build"]
-    F --> G["/denoise → /qf /qb → /qd → /security"]
-    G --> H{{"✅ Validated"}}
-```
+![The Valence Workflow](https://iili.io/fyX1C0B.png)
 
 Eight phases, each gated. Feedback loops at design review and build validation. Detail per phase below.
 
@@ -95,15 +84,7 @@ Eight phases, each gated. Feedback loops at design review and build validation. 
 
 Opus extracts requirements, constraints, non-goals, style, and key concepts from fuzzy initial thoughts. Conversational QA probes for gaps, then a single structured checkpoint forces remaining decisions. Output is a synthesized brief for user confirmation.
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart TB
-    input(["💭 Initial thoughts"])
-    input --> qa["Proactive QA<br/>(Conversational)"]
-    qa --> decide["Force Decisions<br/>(AskUserQuestion)"]
-    decide --> synth["Synthesize Brief"]
-    synth --> brief(["📋 brief"])
-```
+![/arm workflow](https://iili.io/fyX0tV4.png)
 
 Protocol: [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md)
 
@@ -113,19 +94,7 @@ Protocol: [SKILL_arm.md](https://github.com/skillsets-cc/main/blob/main/skillset
 
 Opus deconstructs the brief into fundamentals, classifies each constraint as hard, soft, or assumption, then reconstructs the optimal approach from only validated truths. Project docs and style guides ground the analysis; Context7 and web search validate technical choices. Iterative discussion loop with the human until alignment, then formalized into a design document.
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart TB
-    brief(["📋 brief"])
-    brief --> fp["First Principles<br/>Deconstruct · Challenge · Reconstruct"]
-    fp --> ctx["Project Context<br/>(Docs · ARCs · Style Guides)"]
-    ctx --> val["Validate Approach<br/>(Context7 · Web · Patterns)"]
-    val --> loop["Discussion Loop<br/>Present → Feedback → Refine"]
-    loop -->|iterate| loop
-    loop --> approve{{"✋ User Approval"}}
-    approve --> doc["Write Design Document"]
-    doc --> design(["📐 design.md"])
-```
+![/design workflow](https://iili.io/fyX0yU7.png)
 
 Protocol: [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/design/SKILL.md)
 
@@ -135,20 +104,7 @@ Protocol: [SKILL_design.md](https://github.com/skillsets-cc/main/blob/main/skill
 
 Three models, same review protocol, different blind spots. The value is where they *disagree*. Opus orchestrates — spawns reviewers in parallel, deduplicates by category (multi-agent overlap = higher confidence), then loads project docs on-demand to fact-check each finding against the actual codebase. Validated findings get cost/benefit scored (severity, probability, remediation cost, reversibility) and classified as Critical, Recommended, or Noted. Output is a structured report with a REVISE/PROCEED recommendation.
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart TB
-    design(["📐 design.md"])
-    design --> ar_o["ar-o<br/>🟣 Opus"]
-    design --> ar_k["ar-k<br/>🔵 Kimi"]
-    design --> ar_d["ar-d<br/>🟢 Deepseek"]
-    ar_o & ar_k & ar_d --> agg["Aggregate<br/>Deduplicate · Pattern-match"]
-    agg --> val["Validate & Score<br/>(Lazy context · Cost/Benefit)"]
-    val --> report["Report<br/>Critical · Recommended · Noted"]
-    report --> human{{"✋ REVISE or PROCEED"}}
-    human -->|Proceed| out(["📐 design.md ✅"])
-    human -.->|Revise| design
-```
+![/ar workflow](https://iili.io/fyX0plS.png)
 
 Each reviewer independently runs: First Principles Challenge · Internal Consistency · Best Practices (Web + Context7) · Architecture Stress Test · Specification Completeness.
 
@@ -160,16 +116,7 @@ Protocol: [SKILL_ar.md](https://github.com/skillsets-cc/main/blob/main/skillsets
 
 Opus transforms an approved design into an execution doc that Sonnet build agents can implement without asking for clarification. Tasks are grouped by build agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the pattern, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart TB
-    design(["📐 design.md ✅"])
-    design --> analyze["Analyze Design"]
-    analyze --> group["Group Tasks by Agent<br/>(~5 per agent · no file conflicts)"]
-    group --> write["Write Execution Doc<br/>(Paths · Examples · Test Cases)"]
-    write --> check["Quality Checklist<br/>(Completeness · Clarity · Accuracy)"]
-    check --> exec(["📝 execution.md"])
-```
+![/plan workflow](https://iili.io/fyX1dOu.png)
 
 Protocol: [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/plan/SKILL.md)
 
@@ -179,16 +126,7 @@ Protocol: [SKILL_plan.md](https://github.com/skillsets-cc/main/blob/main/skillse
 
 Spec drift is real. Two agents independently extract claims from the source of truth, check if the target satisfies each one, then merge. Target can be a document, directory, or the full codebase. Consensus scoring: both agents agree = high confidence, disagreement = flagged for review. Output is a structured report classifying each claim as Matched, Gap, Partial, or Ambiguous, with an ALIGNED/GAPS/PARTIAL verdict.
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart TB
-    source(["📄 Source of Truth"]) & target(["📄 Target"])
-    source & target --> pms["pm-s<br/>🟠 Sonnet"]
-    source & target --> pmk["pm-k<br/>🔵 Kimi"]
-    pms & pmk --> merge["Merge & Score<br/>(Deduplicate · Consensus)"]
-    merge --> report["Report<br/>Matched · Gaps · Partial · Ambiguous"]
-    report --> verdict{{"ALIGNED · GAPS · PARTIAL"}}
-```
+![/pmatch workflow](https://iili.io/fyX12Db.png)
 
 Protocol: [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md)
 
@@ -198,18 +136,7 @@ Protocol: [SKILL_pmatch.md](https://github.com/skillsets-cc/main/blob/main/skill
 
 Opus leads in delegate mode — coordinates but never writes code. Validates dependency order between execution sections, spawns one Sonnet per section (parallel when independent, sequential via `blockedBy` when dependent), and monitors for blockers. Each Sonnet implements one task at a time: code, test, verify acceptance criteria, cleanup gate (no console.*, no magic numbers, no hardcoded values), then docs for new modules. Post-build the lead shuts down the team and runs `/pmatch` to validate implementation against the plan.
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart TB
-    exec(["📝 execution.md ✅"])
-    exec --> load["Opus Lead<br/>Validate deps · Create tasks"]
-    load --> spawn["Spawn Teammates<br/>(1 Sonnet per section)"]
-    spawn --> b1["Build 🟠"]
-    spawn --> b2["Build 🟠"]
-    spawn --> b3["Build 🟠"]
-    b1 & b2 & b3 --> val["/pmatch validation<br/>(execution ↔ implementation)"]
-    val --> out(["🔨 Implementation ✅"])
-```
+![/build workflow](https://iili.io/fyX0mf2.png)
 
 Protocols: [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md), [AGENT_build.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/build.md)
 
@@ -219,16 +146,9 @@ Protocols: [SKILL_build.md](https://github.com/skillsets-cc/main/blob/main/skill
 
 Each step is a standalone skill that spawns its agent as a teammate via `TeamCreate`. Modular — run any combination against any path. Recommended order: simplify first so pattern auditors don't waste cycles flagging noise that's about to be deleted; audit patterns before docs so structural changes are settled; docs last so they reflect final state.
 
-```mermaid
-%%{init: {'theme': 'dark'}}%%
-flowchart LR
-    code(["🔨 Code"])
-    code --> dn["/denoise<br/>Simplify · Preserve"]
-    dn --> qa["/qf · /qb<br/>Audit · Report"]
-    qa --> docs["/qd<br/>Create · Update"]
-    docs --> sec["/security<br/>Scan · Flag"]
-    sec --> valid{{"✅ Validated"}}
-```
+![Post-build quality pipeline](https://iili.io/fyX1JRe.png)
+
+![Team spawn pattern](https://iili.io/fyX1xJ1.png)
 
 | Step | Agent | Mode | Scope |
 |------|-------|------|-------|
