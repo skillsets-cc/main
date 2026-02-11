@@ -18,20 +18,20 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       <section class="border border-border-ink p-6 bg-stone-50">
         <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider">Quick Start</h2>
         <div class="space-y-3 font-mono text-sm">
-          <div class="flex items-start gap-4">
-            <code class="text-orange-500 whitespace-nowrap">npx skillsets list</code>
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
+            <code class="text-orange-500">npx skillsets list</code>
             <span class="text-text-tertiary">Browse all skillsets</span>
           </div>
-          <div class="flex items-start gap-4">
-            <code class="text-orange-500 whitespace-nowrap">npx skillsets search "sdlc"</code>
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
+            <code class="text-orange-500">npx skillsets search "sdlc"</code>
             <span class="text-text-tertiary">Find by keyword</span>
           </div>
-          <div class="flex items-start gap-4">
-            <code class="text-orange-500 whitespace-nowrap">npx skillsets view @user/name</code>
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
+            <code class="text-orange-500">npx skillsets view @user/name</code>
             <span class="text-text-tertiary">Read the README first</span>
           </div>
-          <div class="flex items-start gap-4">
-            <code class="text-orange-500 whitespace-nowrap">npx skillsets install @user/name</code>
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:gap-4">
+            <code class="text-orange-500">npx skillsets install @user/name</code>
             <span class="text-text-tertiary">Install to current directory</span>
           </div>
         </div>
@@ -44,7 +44,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">list</h3>
             <p class="text-lg text-text-secondary font-serif mb-3">Browse all available skillsets in the registry.</p>
-            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
+            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2 overflow-x-auto">
               <div><code>npx skillsets list</code></div>
               <div><code>npx skillsets list --sort stars</code></div>
               <div><code>npx skillsets list --limit 5 --json</code></div>
@@ -54,7 +54,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">search</h3>
             <p class="text-lg text-text-secondary font-serif mb-3">Fuzzy search by name, description, or tags.</p>
-            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
+            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2 overflow-x-auto">
               <div><code>npx skillsets search "adversarial review"</code></div>
               <div><code>npx skillsets search "sdlc" --tags multi-agent</code></div>
               <div><code>npx skillsets search "planning" --limit 3</code></div>
@@ -64,7 +64,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">view</h3>
             <p class="text-lg text-text-secondary font-serif mb-3">View a skillset's README in the terminal before installing.</p>
-            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm">
+            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm overflow-x-auto">
               <code>npx skillsets view @supercollectible/Valence</code>
             </div>
           </div>
@@ -78,7 +78,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
           <div class="border-b border-border-ink pb-4">
             <h3 class="font-mono font-bold text-text-ink mb-2">install</h3>
             <p class="text-lg text-text-secondary font-serif mb-3">Install a skillset to the current directory. Verifies checksums automatically. No .git folders, no bloat.</p>
-            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2">
+            <div class="bg-stone-50 border border-border-ink p-4 font-mono text-sm space-y-2 overflow-x-auto">
               <div><code>npx skillsets install @supercollectible/Valence</code></div>
               <div><code>npx skillsets install @user/name --force</code> <span class="text-text-tertiary"># overwrite existing</span></div>
               <div><code>npx skillsets install @user/name --backup</code> <span class="text-text-tertiary"># backup first</span></div>
