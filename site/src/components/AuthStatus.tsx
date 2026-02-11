@@ -15,7 +15,7 @@ export default function AuthStatus() {
     return (
       <a
         href="/logout"
-        className="block text-sm text-text-secondary hover:text-orange-500 hover:underline transition-colors"
+        className="block text-base text-text-secondary hover:text-orange-500 hover:underline transition-colors"
       >
         Log out
       </a>
@@ -25,7 +25,7 @@ export default function AuthStatus() {
   return (
     <a
       href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
-      className="block text-sm text-text-secondary hover:text-orange-500 hover:underline transition-colors"
+      className="block text-base text-text-secondary hover:text-orange-500 hover:underline transition-colors"
     >
       Log in
     </a>

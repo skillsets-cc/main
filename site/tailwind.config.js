@@ -56,6 +56,7 @@ export default {
             '--tw-prose-bullets': '#777777',
             '--tw-prose-counters': '#777777',
             'color': '#555555',
+            'fontSize': '1.125rem',
             'fontFamily': '"Crimson Pro", serif',
             'code': {
               backgroundColor: '#fafaf9',
