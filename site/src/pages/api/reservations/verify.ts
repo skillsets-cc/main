@@ -7,25 +7,9 @@ import type { APIRoute } from 'astro';
 import type { Env } from '@/lib/auth';
 import { jsonResponse, errorResponse } from '@/lib/responses';
 import { getReservationStub } from '@/lib/reservation-do';
+import { isHourlyRateLimited } from '@/lib/rate-limit';
 
 const BATCH_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
-const VERIFY_RATE_LIMIT = 30;
-
-/**
- * Check if IP has exceeded verification rate limit.
- * Hour-bucketed keys prevent TTL-reset bug.
- *
- * Key format: ratelimit:verify:{ip}:{hour}
- * Limit: 30 requests per hour
- */
-async function isVerifyRateLimited(kv: KVNamespace, ip: string): Promise<boolean> {
-  const hour = Math.floor(Date.now() / 3_600_000);
-  const key = `ratelimit:verify:${ip}:${hour}`;
-  const current = parseInt((await kv.get(key)) ?? '0', 10);
-  if (current >= VERIFY_RATE_LIMIT) return true;
-  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
-  return false;
-}
 
 /**
  * GET /api/reservations/verify
@@ -41,9 +25,9 @@ async function isVerifyRateLimited(kv: KVNamespace, ip: string): Promise<boolean
  * Returns: { valid: boolean, reason?: string, batchId?: string }
  */
 export const GET: APIRoute = async ({ request, locals, clientAddress }) => {
-  const env = locals.runtime.env as Env;
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  if (await isVerifyRateLimited(env.DATA, clientAddress)) {
+  if (await isHourlyRateLimited(env.DATA, 'verify', clientAddress, 30)) {
     return errorResponse('Too many requests', 429, { message: 'Too many requests' });
   }
 

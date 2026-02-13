@@ -47,7 +47,7 @@ React component for rendering individual ghost entry slot cards. Displays slot s
 - No actions available (terminal state)
 
 **Reserved slots**:
-- Orange dashed border (`border-orange-500/30`)
+- Accent dashed border (`border-accent/30`)
 - Shows countdown timer via `useCountdown` hook
 - If `isOwn === true`: Shows "Cancel" button
 - If `isOwn === false`: No actions (other user's reservation)

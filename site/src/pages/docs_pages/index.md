@@ -1,39 +1,49 @@
 # index.astro
 
 ## Purpose
-Static homepage displaying a dictionary-style definition of "skillset" with centered typography and a link to the browse page. Minimal, typography-focused design with no dynamic content.
+Static homepage displaying an introduction to skillsets with integrated browse functionality. Features explanatory paragraphs, CLI installation instructions, and an embedded skillset grid for immediate browsing.
 
 ## Public API
 | Export | Type | Description |
 |--------|------|-------------|
-| Page component | Astro page | Static homepage (prerendered) |
+| Page component | Astro page | Homepage (prerendered) |
 
 ## Dependencies
 - **Internal**:
   - `@layouts/BaseLayout.astro` (base HTML structure, navigation)
+  - `@components/SkillsetGrid` (interactive skillset browsing)
+  - `@/lib/data` (`getSkillsets`)
 - **External**: None
 
 ## Integration Points
 - **Used by**: Site visitors navigating to `/`
-- **Consumes**: None (static content)
+- **Consumes**: Skillset data via `getSkillsets()`
 - **Emits**: No events
 
 ## Key Logic
 
 ### Content Structure
-- **Word**: "Skillset" in large serif font (7xl/9xl)
-- **Pronunciation**: `/ˈskɪlˌsɛt/` in monospace with "noun" label
-- **Definition**: Single-sentence explanation of skillsets in the Claude Code ecosystem
-- **Action**: Link to `/browse` page
+- **Intro Section**: 5 paragraphs explaining:
+  - What a skillset is (integrated Claude Code workflow)
+  - What skillsets.cc is (community registry)
+  - Submission requirements (production-verified, author-maintained)
+  - CLI installation command
+  - Call-to-action for contributors (Cohort 001)
+- **Registry Header**: Sticky section with "Registry" label and disclaimer
+- **Skillset Grid**: Interactive component with search, filtering, and sorting
+
+### Data Loading
+- Calls `getSkillsets()` at build time to load all skillsets
+- Passes skillsets to `SkillsetGrid` component
 
 ### Visual Design
-- Full-screen centered layout with vertical centering
-- Orange accent bar on definition block (4px left border)
-- Large typography with serif headings and responsive font sizes
-- Stone-50 background (consistent with site theme)
+- Max-width container (7xl) with responsive padding
+- Large serif typography (lg/xl) for intro text
+- Orange accent links for /about and /contribute
+- Sticky registry header with orange bottom border
+- Embedded SkillsetGrid with `client:load` for interactivity
 
 ### Static Rendering
-- `export const prerender = true` - generated at build time
-- No client-side JavaScript
-- No API calls or dynamic data
-- Fast page load and CDN-friendly
+- `export const prerender = true` - generated at build time with data
+- SkillsetGrid hydrates on client for interactive features
+- Fast initial page load with static HTML

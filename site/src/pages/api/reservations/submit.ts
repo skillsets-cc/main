@@ -8,6 +8,9 @@ import { getSessionFromRequest, type Env } from '@/lib/auth';
 import { jsonResponse, errorResponse } from '@/lib/responses';
 import { getReservationStub } from '@/lib/reservation-do';
 import { isMaintainer } from '@/lib/maintainer';
+import { isValidSkillsetId } from '@/lib/validation';
+
+const BATCH_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 
 /**
  * POST /api/reservations/submit
@@ -22,7 +25,7 @@ import { isMaintainer } from '@/lib/maintainer';
  * Returns: { batchId, status: 'submitted', skillsetId }
  */
 export const POST: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env as Env;
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
 
   const session = await getSessionFromRequest(env, request);
   if (!session) {
@@ -38,6 +41,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     body = (await request.json()) as Record<string, unknown>;
   } catch {
     return errorResponse('Invalid JSON body', 400);
+  }
+
+  // Validate input before forwarding to DO
+  const { batchId, skillsetId } = body;
+  if (!batchId || typeof batchId !== 'string' || !BATCH_ID_REGEX.test(batchId)) {
+    return errorResponse('Invalid batch ID', 400);
+  }
+  if (!skillsetId || typeof skillsetId !== 'string' || !isValidSkillsetId(skillsetId)) {
+    return errorResponse('Invalid skillset ID', 400);
   }
 
   const stub = getReservationStub(env);

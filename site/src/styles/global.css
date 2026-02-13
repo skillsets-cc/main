@@ -29,14 +29,14 @@
   }
 
   ::-webkit-scrollbar-track {
-    background: theme('colors.bg.paper');
+    background: theme('colors.surface.paper');
     border-left: 1px solid theme('colors.border.ink');
   }
 
   ::-webkit-scrollbar-thumb {
     background-color: theme('colors.border.strong');
-    border: 3px solid theme('colors.bg.paper');
-    border-radius: 0px;
+    border: 3px solid theme('colors.surface.paper');
+    border-radius: 0;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -51,11 +51,5 @@
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-  }
-}
-
-@layer components {
-  .btn-primary {
-    @apply px-4 py-2 rounded-none bg-orange-500 text-white hover:bg-orange-600 transition-colors font-mono text-sm font-bold;
   }
 }

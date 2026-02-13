@@ -74,6 +74,7 @@ Each module has a `README.md` (file index) and `docs_[name]/ARC_[name].md` (arch
 
 | Module | README | ARC |
 |--------|--------|-----|
+| **Root** | — | [ARC_skillsets_cc.md](./ARC_skillsets_cc.md) |
 | **Site** | [site/README.md](./site/README.md) | [ARC_site.md](./site/docs_site/ARC_site.md) |
 | **CLI** | [cli/README.md](./cli/README.md) | [ARC_cli.md](./cli/docs_cli/ARC_cli.md) |
 

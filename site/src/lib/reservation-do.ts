@@ -383,10 +383,13 @@ export class ReservationCoordinator extends DurableObject<Env> {
       }
     }
 
-    // Merge config
+    // Merge only known config fields (prevent mass assignment)
+    const { totalGhostSlots, ttlDays, cohort } = body;
     const newConfig: Config = {
       ...currentConfig,
-      ...body,
+      ...(totalGhostSlots !== undefined && { totalGhostSlots }),
+      ...(ttlDays !== undefined && { ttlDays }),
+      ...(cohort !== undefined && { cohort }),
     };
 
     // Save new config
@@ -515,7 +518,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
 
     // Note: expiry is NOT checked. Maintainer submit is authoritative.
 
-    // Transition to submitted — replace slot data
+    // Transition to submitted — replace slot data (atomic write coalescing)
     const submitted: SubmittedSlotData = {
       status: 'submitted',
       userId: slotData.userId,
@@ -523,10 +526,8 @@ export class ReservationCoordinator extends DurableObject<Env> {
       skillsetId,
       submittedAt: Math.floor(Date.now() / 1000),
     };
-    await this.ctx.storage.put(`slot:${batchId}`, submitted);
-
-    // Delete user index key — reservation is fulfilled
-    await this.ctx.storage.delete(`user:${slotData.userId}`);
+    this.ctx.storage.put(`slot:${batchId}`, submitted);
+    this.ctx.storage.delete(`user:${slotData.userId}`);
 
     return new Response(
       JSON.stringify({ batchId, status: 'submitted', skillsetId }),
@@ -562,8 +563,9 @@ export class ReservationCoordinator extends DurableObject<Env> {
     // Only return batch ID for actively reserved slots.
     // Submitted slots return null — the reservation is fulfilled.
     const slotData = await this.ctx.storage.get<SlotData>(`slot:${slotId}`);
+    const now = Math.floor(Date.now() / 1000);
     if (!slotData || slotData.status === 'submitted' ||
-        (slotData.status === 'reserved' && slotData.expiresAt <= Math.floor(Date.now() / 1000))) {
+        (slotData.status === 'reserved' && slotData.expiresAt <= now)) {
       return new Response(
         JSON.stringify({ batchId: null }),
         { headers: { 'Content-Type': 'application/json' } }

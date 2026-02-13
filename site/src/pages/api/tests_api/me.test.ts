@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createMockEnv } from '../../../lib/__tests__/test-utils';
+import { createAPIContext } from '../../../lib/tests_lib/test-utils';
 
 vi.mock('@/lib/auth', () => ({
   getSessionFromRequest: vi.fn(),
@@ -9,32 +9,6 @@ import { GET } from '../me';
 import { getSessionFromRequest } from '@/lib/auth';
 
 const mockGetSession = getSessionFromRequest as ReturnType<typeof vi.fn>;
-
-function createAPIContext(request: Request, envOverrides = {}) {
-  const env = createMockEnv(envOverrides);
-  return {
-    request,
-    locals: { runtime: { env } },
-    params: {},
-    redirect: (url: string) => new Response(null, { status: 302, headers: { Location: url } }),
-    url: new URL(request.url),
-    site: new URL('https://skillsets.cc'),
-    generator: 'test',
-    props: {},
-    cookies: {} as any,
-    preferredLocale: undefined,
-    preferredLocaleList: undefined,
-    currentLocale: undefined,
-    rewrite: vi.fn() as any,
-    originPathname: '/',
-    isPrerendered: false,
-    getActionResult: vi.fn() as any,
-    callAction: vi.fn() as any,
-    routePattern: '',
-    clientAddress: '127.0.0.1',
-    ResponseWithEncoding: Response as any,
-  } as any;
-}
 
 describe('GET /api/me', () => {
   beforeEach(() => {

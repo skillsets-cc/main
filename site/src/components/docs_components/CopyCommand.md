@@ -1,27 +1,29 @@
 # CopyCommand.tsx
 
 ## Purpose
-Displays an install command in a code block with a copy-to-clipboard button. Shows temporary success feedback ("Copied!") when clicked. Includes disclaimer about OSS security responsibility and link to CLI documentation.
+Displays a command in a code block with a copy-to-clipboard button. Supports two layouts: standalone inline code block or full section with heading and optional disclaimer. Shows temporary success feedback ("Copied!") when clicked.
 
 ## Public API
 | Export | Type | Description |
 |--------|------|-------------|
-| `CopyCommand` (default) | component | React component with code block and copy button |
-| `CopyCommandProps` | interface | Props: command string to display and copy |
+| `CopyCommand` (default) | component | React component with code block and copy button. Props: `command` (string), `heading?` (string), `disclaimer?` (string) |
 
 ## Dependencies
 - **Internal**: None
 - **External**:
-  - `react` (useState)
-  - Navigator Clipboard API (navigator.clipboard.writeText)
+  - `react` (`useState`)
+  - Navigator Clipboard API (`navigator.clipboard.writeText`)
 
 ## Integration Points
-- **Used by**:
-  - `pages/skillset/[namespace]/[name].astro` (display install command on skillset detail page)
+- **Used by**: Skillset detail pages and CLI documentation
 - **Consumes**: No external services
 - **Emits**: No events
 
 ## Key Logic
+
+### Conditional Rendering
+- **Inline mode** (no `heading`): Renders only the code block with copy button
+- **Section mode** (with `heading`): Wraps code block in a bordered section with header, footer link to `/cli`, and optional disclaimer
 
 ### Clipboard API
 - Uses `navigator.clipboard.writeText()` (modern browsers)
@@ -34,11 +36,5 @@ Displays an install command in a code block with a copy-to-clipboard button. Sho
 - No animation (instant text change)
 
 ### UI Layout
-- **Section**: Border, light background, padding
-- **Header**: "INSTALL" in uppercase, monospace, bordered bottom
-- **Code Block**: White background, border, pre/code elements
-- **Copy Button**: Orange text, right-aligned, hover underline
-- **Footer Links**: Link to /cli page, security disclaimer in italic serif
-
-### Security Disclaimer
-"Submissions are reviewed on a best-effort basis with no security guarantees. You are the final quality gate, as with any OSS."
+- **Section mode**: Stone-50 background, border, padding; uppercase mono heading with border-bottom; white code block; footer with CLI link and optional disclaimer
+- **Inline mode**: White code block with border only

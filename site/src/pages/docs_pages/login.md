@@ -33,7 +33,7 @@ OAuth login initiation endpoint. Generates CSRF state and PKCE challenge, stores
 
 ### Flow
 ```
-User → /login?returnTo=/browse
+User → /login?returnTo=/contribute
   ↓
 Generate state + PKCE → Store in KV
   ↓

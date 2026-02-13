@@ -29,49 +29,34 @@ const authorUrl = sanitizeUrl(skillset.author.url || `https://github.com/${skill
 const installCommand = `npx skillsets install ${skillsetId}`;
 
 // Fetch README from GitHub at runtime
-let readmeHtml = '';
 const encodedPath = encodeURIComponent(namespace) + '/' + encodeURIComponent(name);
 const readmeUrl = `https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/${encodedPath}/content/README.md`;
 
+let readmeContent: string | null = null;
 try {
   const response = await fetch(readmeUrl);
   if (response.ok) {
-    let readmeContent = await response.text();
-    // Strip the first h1 since we already show the title in the page header
+    readmeContent = await response.text();
     readmeContent = readmeContent.replace(/^#\s+.+\n+/, '');
-    readmeHtml = sanitizeHtml(await marked.parse(readmeContent));
-  } else {
-    // Fallback to description
-    readmeHtml = sanitizeHtml(await marked.parse(skillset.description));
   }
-} catch {
-  // Fallback to description on network error
-  readmeHtml = sanitizeHtml(await marked.parse(skillset.description));
-}
+} catch { /* fall through to description */ }
+const readmeHtml = sanitizeHtml(await marked.parse(readmeContent ?? skillset.description));
 
-// Status indicator color mapping
-function getStatusColor(status: string): string {
-  switch (status) {
-    case 'active':
-      return 'bg-green-500';
-    case 'deprecated':
-      return 'bg-yellow-500';
-    default:
-      return 'bg-gray-500';
-  }
-}
-
-const statusColor = getStatusColor(skillset.status);
+const STATUS_COLORS: Record<string, string> = {
+  active: 'bg-status-success',
+  deprecated: 'bg-status-warning',
+};
+const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
 ---
 
 <BaseLayout title={`${skillset.name} - Skillsets.cc`}>
   <article class="max-w-4xl mx-auto px-4 py-12">
-    <div class="sticky top-0 z-50 -mx-4 px-4 pt-6 pb-4 md:pb-10" style="background: white;">
+    <div class="sticky top-0 z-50 -mx-4 px-4 pt-6 pb-4 md:pb-10 bg-surface-white">
       <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 class="text-4xl font-bold font-serif mb-2 text-text-ink">{skillset.name}</h1>
           <p class="text-lg text-text-secondary font-serif">
-            by <a href={authorUrl} class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">
+            by <a href={authorUrl} class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
               {skillset.author.handle}
             </a>
           </p>
@@ -97,7 +82,7 @@ const statusColor = getStatusColor(skillset.status);
           v{skillset.version}
         </span>
         <span class="flex items-center gap-1">
-          <span class={`w-2 h-2 rounded-full ${statusColor}`}></span>
+          <span class={`w-2 h-2 rounded-sm ${statusColor}`}></span>
           {skillset.status}
         </span>
       </div>
@@ -106,7 +91,7 @@ const statusColor = getStatusColor(skillset.status);
 
       <div class="flex flex-wrap gap-2 mb-6">
         {skillset.tags.map((tag) => (
-          <span class="px-3 py-1 text-sm font-mono border border-border-ink bg-stone-50 text-text-secondary">
+          <span class="px-3 py-1 text-sm font-mono border border-border-ink bg-surface-paper text-text-secondary">
             {tag}
           </span>
         ))}
@@ -145,7 +130,7 @@ const statusColor = getStatusColor(skillset.status);
               <div class="flex flex-wrap gap-x-8 gap-y-2">
                 {skillset.mcp_servers.filter(s => s.type !== 'docker').map(server => (
                   <div class="flex items-start gap-2">
-                    <div class="w-1 self-stretch bg-orange-500 flex-shrink-0"></div>
+                    <div class="w-1 self-stretch bg-accent flex-shrink-0"></div>
                     <div>
                       <p class="font-bold font-serif text-sm text-text-ink">
                         {server.name}
@@ -167,7 +152,7 @@ const statusColor = getStatusColor(skillset.status);
                 ))}
                 {skillset.mcp_servers.filter(s => s.type === 'docker').map(server => (
                   <div class="flex items-start gap-2">
-                    <div class="w-1 self-stretch bg-orange-500 flex-shrink-0"></div>
+                    <div class="w-1 self-stretch bg-accent flex-shrink-0"></div>
                     <div>
                       <p class="font-bold font-mono text-sm text-text-ink">{server.image}</p>
                       <p class="text-xs text-text-secondary font-serif">
@@ -190,7 +175,7 @@ const statusColor = getStatusColor(skillset.status);
         </section>
       )}
 
-      <section class="border border-border-ink bg-stone-50 p-4 rounded-none">
+      <section class="border border-border-ink bg-surface-paper p-4 rounded-none">
         <div class="flex flex-col gap-2 md:flex-row md:gap-6">
           <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">Compatibility</h2>
           <div class="flex-1 min-w-0 flex flex-wrap gap-x-8 gap-y-1">
@@ -212,7 +197,7 @@ const statusColor = getStatusColor(skillset.status);
     </div>
 
     <div class="mt-8 text-center">
-      <a href="/" class="text-orange-500 hover:underline font-serif italic">
+      <a href="/" class="text-accent hover:underline font-serif italic">
         ← Back to all skillsets
       </a>
     </div>

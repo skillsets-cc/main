@@ -1,12 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createMockEnv } from '../../../lib/__tests__/test-utils';
+import { createAPIContext, createMockStub } from '../../../lib/tests_lib/test-utils';
 
-// Mock auth module
 vi.mock('@/lib/auth', () => ({
   getSessionFromRequest: vi.fn(),
 }));
 
-// Mock reservation-do module
 vi.mock('@/lib/reservation-do', () => ({
   getReservationStub: vi.fn(),
 }));
@@ -17,41 +15,6 @@ import { getReservationStub } from '@/lib/reservation-do';
 
 const mockGetSession = getSessionFromRequest as ReturnType<typeof vi.fn>;
 const mockGetStub = getReservationStub as ReturnType<typeof vi.fn>;
-
-function createAPIContext(request: Request, envOverrides = {}) {
-  const env = createMockEnv(envOverrides);
-  return {
-    request,
-    locals: { runtime: { env } },
-    params: {},
-    redirect: (url: string) => new Response(null, { status: 302, headers: { Location: url } }),
-    url: new URL(request.url),
-    site: new URL('https://skillsets.cc'),
-    generator: 'test',
-    props: {},
-    cookies: {} as any,
-    preferredLocale: undefined,
-    preferredLocaleList: undefined,
-    currentLocale: undefined,
-    rewrite: vi.fn() as any,
-    originPathname: '/',
-    isPrerendered: false,
-    getActionResult: vi.fn() as any,
-    callAction: vi.fn() as any,
-    routePattern: '',
-    clientAddress: '127.0.0.1',
-    ResponseWithEncoding: Response as any,
-  } as any;
-}
-
-function createMockStub(response: { status: number; body: unknown }) {
-  return {
-    fetch: vi.fn().mockResolvedValue({
-      status: response.status,
-      json: async () => response.body,
-    }),
-  };
-}
 
 describe('POST /api/reservations/config', () => {
   it('test_config_unauthenticated', async () => {

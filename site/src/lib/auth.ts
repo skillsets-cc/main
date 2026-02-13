@@ -220,13 +220,10 @@ export async function verifySessionToken(
     );
 
     const signatureBytes = base64UrlDecode(signatureB64);
-    // Convert Uint8Array to ArrayBuffer for crypto.subtle.verify
-    const signatureBuffer = new ArrayBuffer(signatureBytes.length);
-    new Uint8Array(signatureBuffer).set(signatureBytes);
     const valid = await crypto.subtle.verify(
       'HMAC',
       key,
-      signatureBuffer,
+      signatureBytes as BufferSource,
       encoder.encode(unsignedToken)
     );
 

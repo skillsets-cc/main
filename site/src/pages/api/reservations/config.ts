@@ -16,7 +16,7 @@ import { isMaintainer } from '@/lib/maintainer';
  * Requires authentication and maintainer authorization.
  */
 export const POST: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env as Env;
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
 
   const session = await getSessionFromRequest(env, request);
   if (!session) {

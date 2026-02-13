@@ -1,30 +1,41 @@
 # Lib Architecture
 
 ## Overview
-Server-side utility libraries for authentication, star management, download tracking, data access, API responses, and HTML sanitization. All libraries are stateless functions operating on Cloudflare KV and environment bindings.
+Server-side utility libraries for authentication, star management, download tracking, data access, API responses, HTML sanitization, input validation, maintainer authorization, and ghost entry reservations. All libraries are stateless functions operating on Cloudflare KV and environment bindings (except reservation-do.ts which is a Durable Object).
 
 ## Directory Structure
 ```
 lib/
 ├── docs_lib/                  # Library documentation
+│   ├── ARC_lib.md
 │   ├── auth.md
-│   ├── stars.md
 │   ├── data.md
 │   ├── downloads.md
+│   ├── maintainer.md
+│   ├── rate-limit.md
+│   ├── reservation-do.md
 │   ├── responses.md
-│   └── sanitize.md
+│   ├── sanitize.md
+│   ├── stars.md
+│   └── validation.md
 ├── __tests__/                 # Library tests
 │   ├── test-utils.ts
 │   ├── auth.test.ts
-│   ├── stars.test.ts
 │   ├── downloads.test.ts
-│   └── sanitize.test.ts
+│   ├── maintainer.test.ts
+│   ├── reservation-do.test.ts
+│   ├── sanitize.test.ts
+│   └── validation.test.ts
 ├── auth.ts                    # GitHub OAuth + JWT session management
-├── stars.ts                   # Star/unstar with rate limiting
 ├── data.ts                    # Search index access (build-time)
 ├── downloads.ts               # Download counting
+├── maintainer.ts              # Maintainer authorization logic
+├── rate-limit.ts              # Hour-bucketed KV rate limiter
+├── reservation-do.ts          # Ghost entry reservation Durable Object
 ├── responses.ts               # JSON response helpers
-└── sanitize.ts                # XSS protection for README content
+├── sanitize.ts                # XSS protection for README content
+├── stars.ts                   # Star/unstar with rate limiting
+└── validation.ts              # Input validation (skillset ID format)
 ```
 
 ## Components
@@ -32,11 +43,15 @@ lib/
 | Library | Purpose | Key Exports |
 |---------|---------|-------------|
 | **auth.ts** | GitHub OAuth with PKCE, JWT sessions | initiateOAuth, handleOAuthCallback, createSessionToken, verifySessionToken |
-| **stars.ts** | Star/unstar with rate limiting | toggleStar, isStarred, getStarCount, isRateLimited |
 | **data.ts** | Read-only search index access | getSkillsets, getSkillsetById, getAllTags |
-| **downloads.ts** | Download count tracking | incrementDownloads, getDownloadCount |
+| **downloads.ts** | Download count tracking | incrementDownloads, getDownloadCount, isDownloadRateLimited |
+| **maintainer.ts** | Maintainer authorization | isMaintainer |
+| **rate-limit.ts** | Hour-bucketed KV rate limiter | isHourlyRateLimited |
+| **reservation-do.ts** | Ghost entry reservation coordination (Durable Object) | ReservationCoordinator, getReservationStub |
 | **responses.ts** | Standardized JSON responses | jsonResponse, errorResponse |
 | **sanitize.ts** | XSS protection for HTML and URL validation | sanitizeHtml, sanitizeUrl |
+| **stars.ts** | Star/unstar with rate limiting | toggleStar, isStarred, getStarCount, isRateLimited |
+| **validation.ts** | Input validation for API requests | isValidSkillsetId |
 
 ## Data Flow
 
@@ -74,9 +89,30 @@ Return { starred, count }
 ```
 POST /api/downloads
   ↓
+isDownloadRateLimited() → Check 30 downloads/hr per IP
+  ↓
 incrementDownloads() → Read count → Increment → Write
   ↓
 Return new count
+```
+
+### Reservation Flow
+```
+GET /api/reservations (status)
+  ↓
+DO stub → /status → Return all slot states + config
+  ↓
+POST /api/reservations (reserve)
+  ↓
+DO stub → /reserve → Atomic write (slot + user index)
+  ↓
+Return { slotId, expiresAt }
+  ↓
+DELETE /api/reservations (release)
+  ↓
+DO stub → /release → Atomic delete (slot + user index)
+  ↓
+Return { released: slotId }
 ```
 
 ### Data Access Flow
@@ -98,6 +134,7 @@ Pages use build-time data (no runtime GitHub API calls)
 
 ### External Dependencies
 - Cloudflare KV API (AUTH, DATA namespaces)
+- Cloudflare Durable Objects (RESERVATIONS namespace)
 - Web Crypto API (HMAC-SHA256, random UUID/bytes)
 - GitHub OAuth API (authorization, token exchange, user profile)
 - `xss` (js-xss library for HTML sanitization)
@@ -107,6 +144,7 @@ Pages use build-time data (no runtime GitHub API calls)
 - `pages/api/star.ts` (star operations)
 - `pages/api/downloads.ts` (download tracking)
 - `pages/api/stats/counts.ts` (bulk stats)
+- `pages/api/reservations.ts`, `pages/api/reservations/config.ts`, `pages/api/reservations/verify.ts`, `pages/api/reservations/submit.ts`, `pages/api/reservations/lookup.ts` (reservation operations)
 - `pages/index.astro`, `pages/browse.astro`, `pages/skillset/[namespace]/[name].astro` (data access)
 
 ## Design Patterns
@@ -129,9 +167,11 @@ Pages use build-time data (no runtime GitHub API calls)
 ### Security
 - CSRF protection (cryptographically random state)
 - PKCE for OAuth (prevents code interception)
-- Rate limiting (10 ops/min per user)
+- Rate limiting (10 ops/min for stars per user, 30 downloads/hr per IP)
 - JWT with HMAC-SHA256 (7-day expiry)
 - XSS protection (whitelist-based HTML filtering)
+- Input validation (skillset ID format checks prevent KV key injection)
+- Maintainer authorization (allowlist-based access control)
 
 ### Retry Logic
 - Exponential backoff on KV 429 errors (stars.ts)
@@ -150,7 +190,16 @@ oauth:{state} → { codeVerifier, returnTo } (5-min TTL)
 stars:{skillsetId}       → "42" (star count)
 user:{userId}:stars      → ["id1", "id2"] (starred skillset IDs)
 downloads:{skillsetId}   → "123" (download count)
-ratelimit:{userId}       → "7" (request count, 60s TTL)
+dl-rate:{ip}             → "7" (download request count, 3600s TTL)
+ratelimit:{userId}       → "7" (star request count, 60s TTL)
+ratelimit:{prefix}:{id}:{hour} → "3" (hour-bucketed rate limit counter, 7200s TTL)
+```
+
+### RESERVATIONS Durable Object Storage
+```
+slot:{batchId} → SlotData (discriminated union: reserved or submitted)
+user:{userId}  → string (batch ID user has reserved)
+config         → { totalGhostSlots, ttlDays, cohort }
 ```
 
 ## Performance Considerations

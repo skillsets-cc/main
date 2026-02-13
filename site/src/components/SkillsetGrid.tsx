@@ -9,7 +9,7 @@ interface SkillsetGridProps {
 
 function StarIcon(): ReactElement {
   return (
-    <svg className="w-3 h-3 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+    <svg className="w-3 h-3 text-accent" fill="currentColor" viewBox="0 0 24 24">
       <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
     </svg>
   );
@@ -64,23 +64,21 @@ export default function SkillsetGrid({
     }
   }
 
-  const finalResults = tagResults;
-
   return (
     <div>
       <TagFilter skillsets={skillsets} onResultsChange={setTagResults} />
 
       <div className="flex flex-col">
-        {finalResults.map(skillset => {
+        {tagResults.map(skillset => {
           const [namespace, name] = skillset.id.split('/');
           // Check if this skillset has a batch ID (from static data or submitted map)
           const batchId = skillset.batch_id ?? submittedMap.get(skillset.id);
 
           return (
-            <article key={skillset.id} className="group border-b border-border-ink py-3 md:py-6 hover:bg-stone-50 transition-colors cursor-pointer">
+            <article key={skillset.id} className="group border-b border-border-ink py-3 md:py-6 hover:bg-surface-paper transition-colors cursor-pointer">
               <a href={`/skillset/${namespace}/${name}`} className="block">
                 <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-1 md:gap-2 mb-1 md:mb-2">
-                  <h3 className="text-lg md:text-xl font-serif font-bold text-text-ink group-hover:text-orange-500 transition-colors">
+                  <h3 className="text-lg md:text-xl font-serif font-bold text-text-ink group-hover:text-accent transition-colors">
                     {skillset.name}
                   </h3>
                   <span className="font-mono text-xs text-text-tertiary">
@@ -98,7 +96,7 @@ export default function SkillsetGrid({
                   </span>
 
                   {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
-                    <span className="text-xs font-mono text-orange-500 border border-orange-300 px-1 rounded-none" title={`${skillset.mcp_servers.length} MCP server(s)`}>
+                    <span className="text-xs font-mono text-accent border border-accent-light px-1 rounded-none" title={`${skillset.mcp_servers.length} MCP server(s)`}>
                       MCP
                     </span>
                   )}
@@ -170,7 +168,7 @@ export default function SkillsetGrid({
         </div>
       )}
 
-      {finalResults.length === 0 && (
+      {tagResults.length === 0 && (
         <div className="text-center py-12 text-text-secondary">
           <p>No skillsets found matching your criteria.</p>
         </div>

@@ -1,7 +1,7 @@
 # TagFilter.tsx
 
 ## Purpose
-Provides interactive tag-based filtering for skillsets. Displays clickable tag buttons extracted from all skillsets, highlights the active tag, and filters results when a tag is selected.
+Provides interactive tag-based filtering for skillsets in a fixed bottom bar. Displays clickable tag buttons extracted from all skillsets, highlights the active tag, and filters results when a tag is selected. Renders via React portal for fixed positioning.
 
 ## Public API
 | Export | Type | Description |
@@ -13,15 +13,12 @@ Provides interactive tag-based filtering for skillsets. Displays clickable tag b
 - **Internal**:
   - `@/types` (SearchIndexEntry interface)
 - **External**:
-  - `react` (useState, useMemo, useEffect)
+  - `react` (`useState`, `useMemo`, `useEffect`, `createPortal`)
 
 ## Integration Points
-- **Used by**:
-  - `pages/browse.astro` (client:load island for interactive filtering)
-- **Consumes**:
-  - Skillsets array passed as prop from parent
-- **Emits**:
-  - Calls `onResultsChange(results)` whenever filtered results change
+- **Used by**: `components/SkillsetGrid.tsx` (embedded in grid component)
+- **Consumes**: Skillsets array passed as prop from parent
+- **Emits**: Calls `onResultsChange(results)` whenever filtered results change
 
 ## Key Logic
 
@@ -36,11 +33,18 @@ Provides interactive tag-based filtering for skillsets. Displays clickable tag b
 - `selectedTag = <tag>`: shows only skillsets containing that tag
 - Filtering uses `Array.filter()` with `includes()` check
 
+### Portal Rendering
+- Uses `createPortal(bar, document.body)` to render at document root
+- Fixed positioning at bottom with `z-50` (above content)
+- Waits for client mount (`mounted` state) before rendering
+- Returns `null` during SSR/before hydration
+
 ### UI State
-- **Active tag**: orange background (bg-orange-500), white text
-- **Inactive tags**: light background (bg-stone-50), border, hover effect
+- **Fixed bar**: Bottom-0, left-64 on desktop (sidebar offset), frosted glass (`bg-surface-white/90 backdrop-blur-sm`)
+- **Active tag**: White background, accent border and text (`border-accent text-accent`)
+- **Inactive tags**: Surface-paper background, gray border, hover effect
 - **All button**: active when no tag selected
-- Rounded-full pill style for all buttons
+- Horizontal scroll with `scrollbar-hide` for overflow tags
 
 ### Performance
 - `useMemo` for tag list (depends on skillsets array)

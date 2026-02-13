@@ -29,16 +29,16 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<section class="sticky top-[6.5rem] z-50 -mx-4 px-4 pb-0 bg-white">
+<section class="sticky top-[6.5rem] z-50 -mx-4 px-4 pb-0 bg-surface-white">
   <div class="flex flex-wrap gap-2">
     {productionLinks.map((link) => (
       <a
         href={sanitizeUrl(link.url)}
-        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-white border border-orange-500 text-orange-500 rounded-none"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-surface-white border border-accent text-accent rounded-none"
         target="_blank"
         rel="noopener noreferrer"
       >
-        <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+        <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
         shipped {link.label || getBaseDomain(link.url)}
       </a>
     ))}
@@ -46,19 +46,19 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
     {hasAuditReport && (
       <a
         href={auditReportUrl}
-        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-white border border-orange-500 text-orange-500 rounded-none"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-surface-white border border-accent text-accent rounded-none"
         target="_blank"
         rel="noopener noreferrer"
       >
-        <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+        <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
         audit complete
       </a>
     )}
 
-    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-white border border-orange-500 text-orange-500 rounded-none">
-      <span class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-surface-white border border-accent text-accent rounded-none">
+      <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
       schema valid
     </span>
   </div>
-  <div class="border-b-2 border-orange-500 mt-4"></div>
+  <div class="border-b-2 border-accent mt-4"></div>
 </section>

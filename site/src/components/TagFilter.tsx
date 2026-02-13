@@ -39,16 +39,16 @@ export default function TagFilter({
 
   const baseButtonStyles =
     'px-3 py-1 text-sm rounded-none transition-colors';
-  const activeStyles = 'bg-white border border-orange-500 text-orange-500';
+  const activeStyles = 'bg-surface-white border border-accent text-accent';
   const inactiveStyles =
-    'bg-stone-50 border border-border-ink text-text-secondary hover:border-orange-500';
+    'bg-surface-paper border border-border-ink text-text-secondary hover:border-accent';
 
   function getButtonStyles(isActive: boolean): string {
     return `${baseButtonStyles} ${isActive ? activeStyles : inactiveStyles}`;
   }
 
   const bar = (
-    <div className="fixed bottom-0 left-0 right-0 md:left-64 z-50 border-t border-border-ink bg-white/90 backdrop-blur-sm pl-14 pr-4 md:px-4 py-3">
+    <div className="fixed bottom-0 left-0 right-0 md:left-64 z-50 border-t border-border-ink bg-surface-white/90 backdrop-blur-sm pl-14 pr-4 md:px-4 py-3">
       <div className="flex overflow-x-auto scrollbar-hide">
         <div className="flex gap-2 flex-nowrap">
           <button

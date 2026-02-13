@@ -15,7 +15,7 @@ interface CountsResponse {
 function buildCountsMap(
   keys: string[],
   values: (string | null)[],
-  prefix: string
+  prefix: string,
 ): Record<string, number> {
   const counts: Record<string, number> = {};
   keys.forEach((key, i) => {

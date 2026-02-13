@@ -4,9 +4,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: {
+        surface: {
           paper: '#FAFAFA', // Academic paper off-white
-          main: '#FFFFFF',
+          white: '#FFFFFF',
         },
         text: {
           ink: '#1A1A1A', // Stark black
@@ -14,17 +14,18 @@ export default {
           tertiary: '#777777',
         },
         accent: {
-          primary: '#F97316', // Orange-500, single accent color
-          highlight: '#FFF3C4', // Highlighter yellow, subtle
+          DEFAULT: '#F97316', // Single accent color (orange-500)
+          light: '#FDBA74',   // Lighter accent (orange-300)
+          highlight: '#FFF3C4', // Highlighter yellow for selection
         },
         border: {
           ink: '#E5E7EB', // Structural gray
           strong: '#1A1A1A', // Strong border
         },
         status: {
-          success: '#2e7d32',
-          error: '#d32f2f',
-          warning: '#ed6c02',
+          success: '#22c55e', // green-500
+          error: '#ef4444',   // red-500
+          warning: '#f59e0b', // amber-500
         },
       },
       fontFamily: {
@@ -51,7 +52,7 @@ export default {
             '--tw-prose-headings': '#1A1A1A',
             '--tw-prose-links': '#F97316',
             '--tw-prose-code': '#1A1A1A',
-            '--tw-prose-pre-bg': '#fafaf9',
+            '--tw-prose-pre-bg': '#FAFAFA',
             '--tw-prose-pre-code': '#1A1A1A',
             '--tw-prose-bullets': '#777777',
             '--tw-prose-counters': '#777777',
@@ -59,7 +60,7 @@ export default {
             'fontSize': '1.125rem',
             'fontFamily': '"Crimson Pro", serif',
             'code': {
-              backgroundColor: '#fafaf9',
+              backgroundColor: '#FAFAFA',
               border: '1px solid #E5E7EB',
               padding: '0.125rem 0.5rem',
               borderRadius: '0',
@@ -75,7 +76,7 @@ export default {
               content: '""',
             },
             'pre': {
-              backgroundColor: '#fafaf9',
+              backgroundColor: '#FAFAFA',
               border: '1px solid #E5E7EB',
               color: '#1A1A1A',
               padding: '1rem',

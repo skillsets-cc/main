@@ -15,7 +15,7 @@ const searchIndex = searchIndexData as SearchIndex;
  */
 export function getSkillsets(): SearchIndexEntry[] {
   const skillsets = searchIndex.skillsets || [];
-  return skillsets.sort((a, b) => b.stars - a.stars);
+  return [...skillsets].sort((a, b) => b.stars - a.stars);
 }
 
 /**
@@ -30,9 +30,8 @@ export function getSkillsetById(id: string): SearchIndexEntry | undefined {
  * Get unique tags from all skillsets.
  */
 export function getAllTags(): string[] {
-  const skillsets = getSkillsets();
   const tagSet = new Set<string>();
-  for (const s of skillsets) {
+  for (const s of searchIndex.skillsets || []) {
     for (const tag of s.tags) {
       tagSet.add(tag);
     }

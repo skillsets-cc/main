@@ -1,129 +1,107 @@
 # skillsets.cc Site
 
 ## Purpose
-Astro 5 SSR application on Cloudflare Workers. Public-facing registry with static-first pages, React islands for interactivity, and API routes backed by Cloudflare KV.
+Astro 5 SSR application on Cloudflare Workers. Public-facing registry with static-first pages, React islands for interactivity, and API routes backed by Cloudflare KV and Durable Objects.
 
 ## Architecture
 ```
 site/
-├── src/
-│   ├── components/          # React islands + Astro components
-│   │   ├── SearchBar.tsx
-│   │   ├── TagFilter.tsx
-│   │   ├── SkillsetGrid.tsx
-│   │   ├── StarButton.tsx
-│   │   ├── DownloadCount.tsx
-│   │   ├── CopyCommand.tsx
-│   │   ├── ProofGallery.astro
-│   │   └── __tests__/  
-│   ├── lib/                 # Server-side utilities
-│   │   ├── auth.ts
-│   │   ├── stars.ts
-│   │   ├── downloads.ts
-│   │   ├── data.ts
-│   │   ├── responses.ts
-│   │   ├── sanitize.ts
-│   │   ├── validation.ts
-│   │   └── __tests__/
-│   ├── pages/               # File-based routing
-│   │   ├── index.astro
-│   │   ├── browse.astro
-│   │   ├── about.astro
-│   │   ├── contribute.astro
-│   │   ├── cli.astro
-│   │   ├── 404.astro
-│   │   ├── login.ts
-│   │   ├── callback.ts
-│   │   ├── logout.ts
-│   │   ├── skillset/[namespace]/[name].astro
-│   │   └── api/
-│   │       ├── star.ts
-│   │       ├── downloads.ts
-│   │       └── stats/counts.ts
-│   ├── types/
-│   │   └── index.ts
-│   ├── layouts/
-│   │   └── BaseLayout.astro
-│   └── styles/
-│       └── global.css
-├── docs_site/               # Documentation
-│   └── ARC_site.md
-└── public/
-    └── search-index.json
+├── astro.config.mjs               # Astro SSR + Cloudflare adapter + React/Tailwind
+├── tailwind.config.js             # Design tokens: colors, fonts, spacing, prose
+├── tsconfig.json                  # Strict mode + path aliases
+├── vitest.config.ts               # jsdom + Cloudflare Workers mocking
+├── wrangler.toml                  # Worker bindings: KV, DO, secrets
+├── package.json                   # Scripts: dev, build, build:index, test, typecheck
+│
+├── scripts/
+│   └── build-index.ts             # Generates search-index.json from skillsets/ registry
+│
+├── public/
+│   ├── search-index.json          # CDN-hosted search index
+│   ├── favicon.svg                # SVG favicon
+│   ├── favicon.ico                # ICO fallback
+│   └── .assetsignore              # Excludes worker files from static assets
+│
+├── vitest-mocks/
+│   └── cloudflare-workers.ts      # Stub DurableObject class for unit tests
+│
+├── docs_site/                     # Site-level documentation
+│   ├── ARC_site.md                # Architecture overview
+│   ├── astro.config.md
+│   ├── tailwind.config.md
+│   ├── tsconfig.md
+│   ├── vitest.config.md
+│   ├── wrangler.md
+│   ├── build-index.md
+│   └── worker.md
+│
+└── src/
+    ├── worker.ts                  # Custom worker entry (Astro handler + DO exports)
+    ├── components/                # React islands + Astro components (10 files)
+    ├── lib/                       # Server-side utilities (10 files)
+    ├── pages/                     # Routes + API endpoints (18 files)
+    ├── types/                     # TypeScript interfaces
+    ├── layouts/                   # Base HTML layout + mobile drawer
+    └── styles/                    # Tailwind + typography + scrollbar
 ```
 
 ## Files
 
 | File | Purpose | Documentation |
 |------|---------|---------------|
-| — | Architecture, data flow, key patterns | [ARC_site.md](./docs_site/ARC_site.md) |
+| — | Architecture, data flow, routes, security | [ARC_site.md](./docs_site/ARC_site.md) |
 
-### Components
+### Configuration
 | File | Purpose | Documentation |
 |------|---------|---------------|
-| `SearchBar.tsx` | Fuzzy search with Fuse.js | [Docs](./src/components/docs_components/SearchBar.md) |
-| `TagFilter.tsx` | Tag-based filtering with pill buttons | [Docs](./src/components/docs_components/TagFilter.md) |
-| `SkillsetGrid.tsx` | Orchestrates search + filter + grid display | [Docs](./src/components/docs_components/SkillsetGrid.md) |
-| `StarButton.tsx` | Star/unstar with auth and optimistic UI | [Docs](./src/components/docs_components/StarButton.md) |
-| `DownloadCount.tsx` | Live download count from API | [Docs](./src/components/docs_components/DownloadCount.md) |
-| `CopyCommand.tsx` | Install command with clipboard copy | [Docs](./src/components/docs_components/CopyCommand.md) |
-| `ProofGallery.astro` | Verification proofs display | [Docs](./src/components/docs_components/ProofGallery.md) |
+| `astro.config.mjs` | SSR output, Cloudflare adapter, React + Tailwind, DO exports | [Docs](./docs_site/astro.config.md) |
+| `tailwind.config.js` | Design tokens: colors, fonts, spacing, prose styling | [Docs](./docs_site/tailwind.config.md) |
+| `tsconfig.json` | Strict mode, React JSX, path aliases (`@/*`, `@components/*`) | [Docs](./docs_site/tsconfig.md) |
+| `vitest.config.ts` | jsdom environment, Cloudflare Workers mocking | [Docs](./docs_site/vitest.config.md) |
+| `wrangler.toml` | KV bindings, DO bindings, env vars, migrations | [Docs](./docs_site/wrangler.md) |
 
-### Lib
+### Build Pipeline
 | File | Purpose | Documentation |
 |------|---------|---------------|
-| `auth.ts` | GitHub OAuth + PKCE + JWT sessions | [Docs](./src/lib/docs_lib/auth.md) |
-| `stars.ts` | Star/unstar with KV rate limiting | [Docs](./src/lib/docs_lib/stars.md) |
-| `downloads.ts` | Download count tracking | [Docs](./src/lib/docs_lib/downloads.md) |
-| `data.ts` | Build-time search index access | [Docs](./src/lib/docs_lib/data.md) |
-| `responses.ts` | JSON response helpers | [Docs](./src/lib/docs_lib/responses.md) |
-| `sanitize.ts` | XSS protection for README content | [Docs](./src/lib/docs_lib/sanitize.md) |
-| `validation.ts` | Input validation for API routes | — |
+| `scripts/build-index.ts` | Generates `search-index.json` from skillsets/ registry | [Docs](./docs_site/build-index.md) |
+| `src/worker.ts` | Custom worker entry (Astro handler + Durable Object exports) | [Docs](./docs_site/worker.md) |
 
-### Pages
-| File | Purpose | Documentation |
-|------|---------|---------------|
-| `index.astro` | Homepage (prerendered) | [Docs](./src/pages/docs_pages/index.md) |
-| `browse.astro` | Browse with search/filter (prerendered) | [Docs](./src/pages/docs_pages/browse.md) |
-| `about.astro` | About page (prerendered) | [Docs](./src/pages/docs_pages/about.md) |
-| `contribute.astro` | Submission guide (prerendered) | [Docs](./src/pages/docs_pages/contribute.md) |
-| `cli.astro` | CLI reference (prerendered) | [Docs](./src/pages/docs_pages/cli.md) |
-| `404.astro` | Error page (prerendered) | [Docs](./src/pages/docs_pages/404.md) |
-| `login.ts` | OAuth initiation | [Docs](./src/pages/docs_pages/login.md) |
-| `callback.ts` | OAuth callback + session creation | [Docs](./src/pages/docs_pages/callback.md) |
-| `logout.ts` | Session clearance | [Docs](./src/pages/docs_pages/logout.md) |
-| `[namespace]/[name].astro` | Skillset detail (SSR) | [Docs](./src/pages/docs_pages/skillset-[namespace]-[name].md) |
-| `api/star.ts` | GET/POST star operations | [Docs](./src/pages/api/docs_api/star.md) |
-| `api/downloads.ts` | POST download increment | [Docs](./src/pages/api/docs_api/downloads.md) |
-| `api/stats/counts.ts` | GET aggregate stats | [Docs](./src/pages/api/stats/docs_stats/counts.md) |
-
-### Types
-| File | Purpose | Documentation |
-|------|---------|---------------|
-| `index.ts` | Skillset, SearchIndex, SearchIndexEntry | [Docs](./src/types/docs_types/index.md) |
-
-### Layouts
-| File | Purpose | Documentation |
-|------|---------|---------------|
-| `BaseLayout.astro` | Global layout with sidebar nav | [Docs](./src/layouts/docs_layouts/BaseLayout.md) |
+### Source Modules
+| Module | Purpose | README | ARC |
+|--------|---------|--------|-----|
+| **components** | React islands + Astro components (filtering, stars, ghost entries, galleries) | [README](./src/components/README.md) | [ARC](./src/components/docs_components/ARC_components.md) |
+| **lib** | Auth, stars, downloads, rate limiting, reservations, data, sanitization, validation | [README](./src/lib/README.md) | [ARC](./src/lib/docs_lib/ARC_lib.md) |
+| **pages** | Static pages, auth endpoints, star/download APIs, reservation APIs | [README](./src/pages/README.md) | [ARC](./src/pages/docs_pages/ARC_pages.md) |
+| **types** | SearchIndexEntry, McpServer, SlotStatus, GhostSlot, ReservationState | [README](./src/types/README.md) | [ARC](./src/types/docs_types/ARC_types.md) |
+| **layouts** | Base layout with sidebar nav and mobile slide-out drawer | [README](./src/layouts/README.md) | [ARC](./src/layouts/docs_layouts/ARC_layouts.md) |
+| **styles** | Tailwind layers, typography system (Crimson Pro + JetBrains Mono), scrollbar | [README](./src/styles/README.md) | [ARC](./src/styles/docs_styles/ARC_styles.md) |
 
 ## Development
 
 ```bash
 npm install
 npm run dev          # Local dev server at localhost:4321
+npm run dev:cf       # Build + Wrangler dev (tests KV/DO locally)
 ```
 
 ## Build & Deploy
 
 ```bash
-npm run build        # Build to ./dist/
+npm run build:index  # Regenerate search-index.json
+npm run build        # Build Astro site to ./dist/
 npx wrangler deploy  # Deploy to Cloudflare Workers
+```
+
+## Testing
+
+```bash
+npm test             # Vitest + React Testing Library
+npm run typecheck    # TypeScript strict mode
 ```
 
 ## Configuration
 
-See `wrangler.toml` for Workers config and [DEPLOYMENT.md](../DEPLOYMENT.md) for full documentation.
+See `wrangler.toml` ([docs](./docs_site/wrangler.md)) for Workers config and [DEPLOYMENT.md](../DEPLOYMENT.md) for full deployment documentation.
 
 ## Related Documentation
 - [Frontend Style Guide](../.claude/resources/frontend_styleguide.md)

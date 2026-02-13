@@ -53,12 +53,14 @@ export interface McpServer {
   researched_at: string;
 }
 
+export type SlotStatus = 'available' | 'reserved' | 'submitted';
+
 /**
  * Represents a single ghost entry slot in the reservation system.
  */
 export interface GhostSlot {
   slotId: string;
-  status: 'available' | 'reserved' | 'submitted';
+  status: SlotStatus;
   expiresAt?: number;
   skillsetId?: string;
 }
@@ -68,7 +70,7 @@ export interface GhostSlot {
  */
 export interface ReservationState {
   slots: Record<string, {
-    status: 'available' | 'reserved' | 'submitted';
+    status: SlotStatus;
     expiresAt?: number;
     skillsetId?: string;
   }>;
@@ -76,8 +78,3 @@ export interface ReservationState {
   cohort: number;
   userSlot: string | null;
 }
-
-/**
- * Complete skillset type - alias for SearchIndexEntry with batch_id field.
- */
-export type Skillset = SearchIndexEntry;

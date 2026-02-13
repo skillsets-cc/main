@@ -47,7 +47,7 @@ describe('GhostCard', () => {
     expect(screen.getByText('1.10.001')).toBeDefined();
     expect(screen.queryByText('Cancel')).toBeNull();
     const article = screen.getByText(/Claimed by/).closest('article');
-    expect(article?.className).toContain('border-orange-500/30');
+    expect(article?.className).toContain('border-accent/30');
   });
 
   it('test_renders_own_reservation', () => {
@@ -62,8 +62,8 @@ describe('GhostCard', () => {
     expect(screen.getByText('Cancel')).toBeDefined();
     // Countdown should have orange text
     const countdown = screen.getByText(/delivers within/);
-    expect(countdown.className).toContain('text-orange-500');
-    expect(countdown.className).not.toContain('text-orange-500/50');
+    expect(countdown.className).toContain('text-accent');
+    expect(countdown.className).not.toContain('text-accent/50');
   });
 
   it('test_reserve_click_success', async () => {
@@ -183,7 +183,7 @@ describe('GhostCard', () => {
     const link = screen.getByText('@user/Skill').closest('a');
     expect(link?.getAttribute('href')).toBe('/skillset/user/Skill');
     const article = screen.getByText('Submitted').closest('article');
-    expect(article?.className).toContain('border-green-500/30');
+    expect(article?.className).toContain('border-status-success/30');
   });
 
   it('test_renders_submitted_no_skillset_id', () => {

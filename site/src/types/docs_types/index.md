@@ -10,9 +10,9 @@ Defines TypeScript interfaces for skillsets, search index, and related data stru
 | `SearchIndexEntry` | interface | Skillset entry in search index (id, name, description, verification, checksum, files, batch_id) |
 | `McpServer` | interface | MCP server configuration (stdio/http/docker type, command/args/url/image) |
 | `McpServerInner` | interface | Nested MCP server config (for aggregator types like docker-compose) |
+| `SlotStatus` | type | Reservation slot status union type ('available' \| 'reserved' \| 'submitted') |
 | `GhostSlot` | interface | Single ghost entry slot (slotId, status, expiresAt, skillsetId) |
 | `ReservationState` | interface | Complete reservation system state (slots, totalGhostSlots, cohort, userSlot) |
-| `Skillset` | type alias | Alias for SearchIndexEntry with batch_id field |
 
 ## Dependencies
 - **Internal**: None (pure types)
@@ -64,6 +64,6 @@ Contains all skillset metadata for search and display:
 - **Fields**: `name`, `mcp_reputation`, `researched_at` (timestamp of manual review)
 
 ### Reservation Types
+- **SlotStatus**: Union type defining valid slot states: 'available' (unclaimed), 'reserved' (held with TTL), 'submitted' (PR opened)
 - **GhostSlot**: Single slot state for UI (slotId, status enum, optional expiresAt/skillsetId)
 - **ReservationState**: Complete system snapshot returned by `/api/reservations` (slots map, config, user's current slot)
-- **Skillset**: Type alias for SearchIndexEntry (includes optional batch_id for ghost entries)

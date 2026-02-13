@@ -78,13 +78,12 @@ export default function GhostCard({
 
   // Handle submitted state
   if (status === 'submitted') {
-    // Derive link from skillsetId (e.g., "@user/SkillName" → "/skillset/user/SkillName")
     const href = skillsetId
-      ? `/skillset/${skillsetId.replace('@', '').replace('/', '/')}`
+      ? `/skillset/${skillsetId.replace('@', '')}`
       : undefined;
 
     const content = (
-      <article className="group border-b border-dashed py-3 md:py-6 border-green-500/30">
+      <article className="group border-b border-dashed py-3 md:py-6 border-status-success/30">
         <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
           <span className="text-text-secondary font-mono text-sm">
             {skillsetId ?? 'Submitted — pending rebuild'}
@@ -92,7 +91,7 @@ export default function GhostCard({
           <span className="font-mono text-xs text-text-tertiary">{batchId}</span>
         </div>
         <div className="mb-3">
-          <span className="text-xs font-mono text-green-600">Submitted</span>
+          <span className="text-xs font-mono text-status-success">Submitted</span>
         </div>
       </article>
     );
@@ -107,7 +106,7 @@ export default function GhostCard({
       className={`group border-b border-dashed py-3 md:py-6 transition-colors ${
         status === 'available'
           ? 'border-border-ink'
-          : 'border-orange-500/30'
+          : 'border-accent/30'
       }`}
     >
       <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
@@ -131,7 +130,7 @@ export default function GhostCard({
           <button
             onClick={handleReserve}
             disabled={loading}
-            className="border border-border-ink text-text-secondary hover:border-orange-500 hover:text-orange-500 px-3 py-1 text-sm font-mono transition-colors disabled:opacity-50"
+            className="border border-border-ink text-text-secondary hover:border-accent hover:text-accent px-3 py-1 text-sm font-mono transition-colors disabled:opacity-50"
           >
             Claim
           </button>
@@ -139,7 +138,7 @@ export default function GhostCard({
           <>
             <span
               className={`font-mono text-xs ${
-                isOwn ? 'text-orange-500' : 'text-orange-500/50'
+                isOwn ? 'text-accent' : 'text-accent/50'
               }`}
             >
               {countdown}

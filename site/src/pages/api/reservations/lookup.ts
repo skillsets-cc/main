@@ -7,24 +7,7 @@ import type { APIRoute } from 'astro';
 import type { Env } from '@/lib/auth';
 import { jsonResponse, errorResponse } from '@/lib/responses';
 import { getReservationStub } from '@/lib/reservation-do';
-
-const LOOKUP_RATE_LIMIT = 30;
-
-/**
- * Check if IP has exceeded lookup rate limit.
- * Hour-bucketed keys prevent TTL-reset bug.
- *
- * Key format: ratelimit:lookup:{ip}:{hour}
- * Limit: 30 requests per hour
- */
-async function isLookupRateLimited(kv: KVNamespace, ip: string): Promise<boolean> {
-  const hour = Math.floor(Date.now() / 3_600_000);
-  const key = `ratelimit:lookup:${ip}:${hour}`;
-  const current = parseInt((await kv.get(key)) ?? '0', 10);
-  if (current >= LOOKUP_RATE_LIMIT) return true;
-  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
-  return false;
-}
+import { isHourlyRateLimited } from '@/lib/rate-limit';
 
 /**
  * GET /api/reservations/lookup
@@ -38,9 +21,9 @@ async function isLookupRateLimited(kv: KVNamespace, ip: string): Promise<boolean
  * Returns: { batchId: string | null }
  */
 export const GET: APIRoute = async ({ request, locals, clientAddress }) => {
-  const env = locals.runtime.env as Env;
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  if (await isLookupRateLimited(env.DATA, clientAddress)) {
+  if (await isHourlyRateLimited(env.DATA, 'lookup', clientAddress, 30)) {
     return errorResponse('Too many requests', 429, { message: 'Too many requests' });
   }
 

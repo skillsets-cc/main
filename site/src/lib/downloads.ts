@@ -2,36 +2,29 @@
  * Download tracking with KV storage.
  *
  * Storage schema:
- * - downloads:{skillsetId}   → download count (number as string)
- * - dl-rate:{ip}             → request count (with 3600s TTL)
+ * - downloads:{skillsetId}           → download count (number as string)
+ * - ratelimit:dl:{ip}:{hour}         → request count (hour-bucketed, 7200s TTL)
  */
 
 const DL_RATE_LIMIT_MAX = 30; // Max downloads per hour per IP
-const DL_RATE_LIMIT_WINDOW = 3600; // 1 hour in seconds
 
 /**
  * Check if an IP has exceeded the download rate limit.
+ * Uses hour-bucketed pattern to prevent TTL-reset bug.
  */
 export async function isDownloadRateLimited(
   kv: KVNamespace,
   ip: string
 ): Promise<boolean> {
-  const key = `dl-rate:${ip}`;
-  const currentCount = await kv.get(key);
+  const hour = Math.floor(Date.now() / 3_600_000);
+  const key = `ratelimit:dl:${ip}:${hour}`;
+  const current = parseInt((await kv.get(key)) ?? '0', 10);
 
-  if (!currentCount) {
-    await kv.put(key, '1', { expirationTtl: DL_RATE_LIMIT_WINDOW });
-    return false;
-  }
-
-  const count = parseInt(currentCount, 10);
-  if (count >= DL_RATE_LIMIT_MAX) {
+  if (current >= DL_RATE_LIMIT_MAX) {
     return true;
   }
 
-  await kv.put(key, (count + 1).toString(), {
-    expirationTtl: DL_RATE_LIMIT_WINDOW,
-  });
+  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
   return false;
 }
 

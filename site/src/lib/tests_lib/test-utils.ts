@@ -1,5 +1,5 @@
 /**
- * Shared test utilities for lib module tests.
+ * Shared test utilities for lib and API route tests.
  */
 import { vi } from 'vitest';
 import type { Env } from '../auth';
@@ -39,5 +39,42 @@ export function createMockEnv(overrides: Partial<Env> = {}): Env {
     CALLBACK_URL: 'https://skillsets.cc/callback',
     SITE_URL: 'https://skillsets.cc',
     ...overrides,
+  };
+}
+
+/** Minimal Astro APIContext for testing API routes. */
+export function createAPIContext(request: Request, envOverrides: Partial<Env> = {}) {
+  const env = createMockEnv(envOverrides);
+  return {
+    request,
+    locals: { runtime: { env } },
+    params: {},
+    redirect: (url: string) => new Response(null, { status: 302, headers: { Location: url } }),
+    url: new URL(request.url),
+    site: new URL('https://skillsets.cc'),
+    generator: 'test',
+    props: {},
+    cookies: {} as any,
+    preferredLocale: undefined,
+    preferredLocaleList: undefined,
+    currentLocale: undefined,
+    rewrite: vi.fn() as any,
+    originPathname: '/',
+    isPrerendered: false,
+    getActionResult: vi.fn() as any,
+    callAction: vi.fn() as any,
+    routePattern: '',
+    clientAddress: '127.0.0.1',
+    ResponseWithEncoding: Response as any,
+  } as any;
+}
+
+/** Mock Durable Object stub that returns a canned response. */
+export function createMockStub(response: { status: number; body: unknown }) {
+  return {
+    fetch: vi.fn().mockResolvedValue({
+      status: response.status,
+      json: async () => response.body,
+    }),
   };
 }

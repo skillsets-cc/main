@@ -11,7 +11,7 @@ import CopyCommand from '@components/CopyCommand';
       <h1 class="text-4xl font-medium font-serif text-text-ink">We'd all love to learn from you!</h1>
     </header>
 
-    <div class="border border-border-ink bg-stone-50 p-4 md:p-8 rounded-none mb-8">
+    <div class="border border-border-ink bg-surface-paper p-4 md:p-8 rounded-none mb-8">
       <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">
         You built a skillset that works — skills, agents, hooks, plugins, MCP, all wired together
         and battle-tested on real projects. You're committed to maintain and improve it going forward.
@@ -20,10 +20,10 @@ import CopyCommand from '@components/CopyCommand';
         <strong class="text-text-ink">Skillsets.cc</strong> is the high-signal path between you and the community.
       </p>
       <ul class="space-y-3 text-lg text-text-secondary font-serif">
-        <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">1.</span> <span><strong class="text-text-ink">Prove it shipped.</strong> Link to at least one live product.</span></li>
-        <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">2.</span> <span><strong class="text-text-ink">Document it clearly.</strong> Someone else should be able to adapt and run your workflow cold.</span></li>
-        <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">3.</span> <span><strong class="text-text-ink">Pass the structural audit.</strong> <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit</code> checks schema, files, secrets, content structure.</span></li>
-        <li class="flex gap-3"><span class="text-orange-500 font-bold flex-shrink-0">4.</span> <span><strong class="text-text-ink">Survive the Opus review.</strong> <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">/audit-skill</code> evaluates your primitives, verifies collaboration artifacts in reference repo, and discovers any MCP servers to declare.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">1.</span> <span><strong class="text-text-ink">Prove it shipped.</strong> Link to at least one live product.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">2.</span> <span><strong class="text-text-ink">Document it clearly.</strong> Someone else should be able to adapt and run your workflow cold.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">3.</span> <span><strong class="text-text-ink">Pass the structural audit.</strong> <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit</code> checks schema, files, secrets, content structure.</span></li>
+        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">4.</span> <span><strong class="text-text-ink">Survive the Opus review.</strong> <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">/audit-skill</code> evaluates your primitives, verifies collaboration artifacts in reference repo, and discovers any MCP servers to declare.</span></li>
       </ul>
     </div>
 
@@ -32,7 +32,7 @@ import CopyCommand from '@components/CopyCommand';
 
       <div class="space-y-6">
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
             1
           </div>
           <div class="min-w-0">
@@ -46,23 +46,23 @@ import CopyCommand from '@components/CopyCommand';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
             2
           </div>
           <div class="min-w-0">
             <h3 class="text-lg font-bold font-serif text-text-ink mb-2">Initialize Your Skillset</h3>
             <p class="text-lg text-text-secondary mb-3 font-serif">
               Run the init command in your skillset repo. It will auto-detect existing
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">CLAUDE.md</code>,
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">README.md</code>,
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.claude/</code>,
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.mcp.json</code>, and
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">docker/</code>
-              and offer to copy them into <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">content/</code>.
+              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">CLAUDE.md</code>,
+              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">README.md</code>,
+              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.claude/</code>,
+              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.mcp.json</code>, and
+              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">docker/</code>
+              and offer to copy them into <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">content/</code>.
             </p>
             <CopyCommand client:load command="npx skillsets init" />
             <p class="text-lg text-text-tertiary mt-3 mb-2 font-serif">This scaffolds the following structure:</p>
-            <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>your-skillset/
+            <pre class="bg-surface-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>your-skillset/
 ├── .claude/skills/        # Local dev tooling (not distributed)
 │   └── audit-skill/       # Qualitative review skill
 ├── skillset.yaml          # Manifest (required)
@@ -78,22 +78,22 @@ import CopyCommand from '@components/CopyCommand';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
             3
           </div>
           <div class="min-w-0">
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Develop & Document</h3>
             <p class="text-lg text-text-secondary mb-3 font-serif">
               Develop your skillset in
-              <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">content/</code>.
-              Edit <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">PROOF.md</code>
+              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">content/</code>.
+              Edit <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">PROOF.md</code>
               with evidence of production use: project links, metrics, or links to videos/writeups.
             </p>
           </div>
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
             4
           </div>
           <div class="min-w-0">
@@ -109,7 +109,7 @@ import CopyCommand from '@components/CopyCommand';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
             5
           </div>
           <div class="min-w-0">
@@ -126,14 +126,14 @@ import CopyCommand from '@components/CopyCommand';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
             6
           </div>
           <div class="min-w-0">
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Submit via CLI</h3>
             <p class="text-lg text-text-secondary mb-3 font-serif">
               Once your audit passes, submit directly from the command line.
-              Requires <a href="https://cli.github.com/" class="text-orange-500 hover:underline" target="_blank" rel="noopener noreferrer">GitHub CLI</a> installed and authenticated.
+              Requires <a href="https://cli.github.com/" class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">GitHub CLI</a> installed and authenticated.
             </p>
             <CopyCommand client:load command="npx skillsets submit" />
             <p class="text-text-tertiary mt-3 font-serif text-lg">
@@ -143,7 +143,7 @@ import CopyCommand from '@components/CopyCommand';
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500 text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
             7
           </div>
           <div class="min-w-0">
@@ -157,10 +157,10 @@ import CopyCommand from '@components/CopyCommand';
       </div>
     </div>
 
-    <div class="border border-border-ink bg-stone-50 p-4 md:p-8 rounded-none mb-8">
+    <div class="border border-border-ink bg-surface-paper p-4 md:p-8 rounded-none mb-8">
       <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Hard Constraints</h2>
       <p class="text-lg text-text-secondary mb-4 font-serif">
-        CI runs <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit --check</code> on every PR. These checks are gating — your submission will not merge until all pass.
+        CI runs <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit --check</code> on every PR. These checks are gating — your submission will not merge until all pass.
       </p>
       <div class="overflow-x-auto">
       <table class="min-w-full text-left border-collapse">
@@ -177,11 +177,11 @@ import CopyCommand from '@components/CopyCommand';
           </tr>
           <tr class="border-b border-border-ink/30">
             <td class="py-2 pr-4 font-bold text-text-ink">Required files</td>
-            <td class="py-2"><code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">skillset.yaml</code>, <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/</code>, <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/README.md</code></td>
+            <td class="py-2"><code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">skillset.yaml</code>, <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/</code>, <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/README.md</code></td>
           </tr>
           <tr class="border-b border-border-ink/30">
             <td class="py-2 pr-4 font-bold text-text-ink">Content structure</td>
-            <td class="py-2">Both <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> and <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/CLAUDE.md</code> present</td>
+            <td class="py-2">Both <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> and <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/CLAUDE.md</code> present</td>
           </tr>
           <tr class="border-b border-border-ink/30">
             <td class="py-2 pr-4 font-bold text-text-ink">Secrets</td>
@@ -189,7 +189,7 @@ import CopyCommand from '@components/CopyCommand';
           </tr>
           <tr class="border-b border-border-ink/30">
             <td class="py-2 pr-4 font-bold text-text-ink">README links</td>
-            <td class="py-2">Links to <code class="bg-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> must use full GitHub URLs</td>
+            <td class="py-2">Links to <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> must use full GitHub URLs</td>
           </tr>
           <tr class="border-b border-border-ink/30">
             <td class="py-2 pr-4 font-bold text-text-ink">Version</td>
@@ -210,20 +210,19 @@ import CopyCommand from '@components/CopyCommand';
         Already have a skillset in the registry? The same commands work for updates.
       </p>
       <ol class="list-decimal list-inside space-y-3 text-lg text-text-secondary font-serif">
-        <li><strong class="text-text-ink">Bump the version</strong> in <code class="bg-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">skillset.yaml</code> (must be higher than published)</li>
+        <li><strong class="text-text-ink">Bump the version</strong> in <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">skillset.yaml</code> (must be higher than published)</li>
         <li><strong class="text-text-ink">Run the audit</strong> — it will detect the update and validate the version bump</li>
         <li><strong class="text-text-ink">Submit</strong> — the PR will be titled "Update @author/name to vX.Y.Z"</li>
       </ol>
-      <pre class="bg-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto mt-4"><code># Edit skillset.yaml: version: "1.0.0" → "1.1.0"
+      <pre class="bg-surface-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto mt-4"><code># Edit skillset.yaml: version: "1.0.0" → "1.1.0"
 npx skillsets audit   # Shows: Update: 1.0.0 → 1.1.0
 npx skillsets submit  # Creates update PR</code></pre>
     </div>
 
-
     <div class="mt-8 text-center">
       <a
         href="https://github.com/skillsets-cc/main/blob/main/CONTRIBUTING.md"
-        class="text-orange-500 font-mono font-bold hover:underline"
+        class="text-accent font-mono font-bold hover:underline"
         target="_blank"
         rel="noopener noreferrer"
       >

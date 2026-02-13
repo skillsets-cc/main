@@ -9,32 +9,16 @@ import type { APIRoute } from 'astro';
 import { getSessionFromRequest, type Env } from '@/lib/auth';
 import { jsonResponse, errorResponse } from '@/lib/responses';
 import { getReservationStub } from '@/lib/reservation-do';
+import { isHourlyRateLimited } from '@/lib/rate-limit';
 
-const RESERVATION_RATE_LIMIT = 5;
 const SLOT_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 
-/**
- * Check if user has exceeded reservation rate limit.
- * Hour-bucketed keys prevent TTL-reset bug.
- *
- * Key format: ratelimit:reserve:{userId}:{hour}
- * Limit: 5 operations per hour
- */
+/** Check if user has exceeded reservation rate limit (5 ops/hour). */
 export async function isReservationRateLimited(
   kv: KVNamespace,
-  userId: string
+  userId: string,
 ): Promise<boolean> {
-  const hour = Math.floor(Date.now() / 3_600_000);
-  const key = `ratelimit:reserve:${userId}:${hour}`;
-  const current = parseInt((await kv.get(key)) ?? '0', 10);
-
-  if (current >= RESERVATION_RATE_LIMIT) {
-    return true;
-  }
-
-  // Increment counter with 2-hour TTL (ensures key survives past hour boundary)
-  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
-  return false;
+  return isHourlyRateLimited(kv, 'reserve', userId, 5);
 }
 
 /**
@@ -44,7 +28,7 @@ export async function isReservationRateLimited(
  * Cache-Control varies by session presence (private vs public).
  */
 export const GET: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env as Env;
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
   const session = await getSessionFromRequest(env, request);
   const stub = getReservationStub(env);
 
@@ -73,7 +57,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * Request body: { slotId: string }
  */
 export const POST: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env as Env;
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
 
   const session = await getSessionFromRequest(env, request);
   if (!session) {
@@ -121,7 +105,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
  * No request body required (userId from session).
  */
 export const DELETE: APIRoute = async ({ request, locals }) => {
-  const env = locals.runtime.env as Env;
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
 
   const session = await getSessionFromRequest(env, request);
   if (!session) {

@@ -1,12 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createMockEnv } from '../../../lib/__tests__/test-utils';
+import { createAPIContext, createMockStub } from '../../../lib/tests_lib/test-utils';
 
-// Mock auth module
 vi.mock('@/lib/auth', () => ({
   getSessionFromRequest: vi.fn(),
 }));
 
-// Mock reservation-do module
 vi.mock('@/lib/reservation-do', () => ({
   getReservationStub: vi.fn(),
 }));
@@ -17,41 +15,6 @@ import { getReservationStub } from '@/lib/reservation-do';
 
 const mockGetSession = getSessionFromRequest as ReturnType<typeof vi.fn>;
 const mockGetStub = getReservationStub as ReturnType<typeof vi.fn>;
-
-function createAPIContext(request: Request, envOverrides = {}) {
-  const env = createMockEnv(envOverrides);
-  return {
-    request,
-    locals: { runtime: { env } },
-    params: {},
-    redirect: (url: string) => new Response(null, { status: 302, headers: { Location: url } }),
-    url: new URL(request.url),
-    site: new URL('https://skillsets.cc'),
-    generator: 'test',
-    props: {},
-    cookies: {} as any,
-    preferredLocale: undefined,
-    preferredLocaleList: undefined,
-    currentLocale: undefined,
-    rewrite: vi.fn() as any,
-    originPathname: '/',
-    isPrerendered: false,
-    getActionResult: vi.fn() as any,
-    callAction: vi.fn() as any,
-    routePattern: '',
-    clientAddress: '127.0.0.1',
-    ResponseWithEncoding: Response as any,
-  } as any;
-}
-
-function createMockStub(response: { status: number; body: unknown }) {
-  return {
-    fetch: vi.fn().mockResolvedValue({
-      status: response.status,
-      json: async () => response.body,
-    }),
-  };
-}
 
 describe('POST /api/reservations/submit', () => {
   it('test_submit_unauthenticated', async () => {
@@ -162,5 +125,73 @@ describe('POST /api/reservations/submit', () => {
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid JSON body');
+  });
+
+  it('test_submit_invalid_batch_id_format', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'admin', avatar: '' });
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations/submit', {
+        method: 'POST',
+        body: JSON.stringify({ batchId: 'invalid', skillsetId: '@user/Skill' }),
+      }),
+      { MAINTAINER_USER_IDS: '123' }
+    );
+    const response = await POST(ctx);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('Invalid batch ID');
+  });
+
+  it('test_submit_missing_batch_id', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'admin', avatar: '' });
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations/submit', {
+        method: 'POST',
+        body: JSON.stringify({ skillsetId: '@user/Skill' }),
+      }),
+      { MAINTAINER_USER_IDS: '123' }
+    );
+    const response = await POST(ctx);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('Invalid batch ID');
+  });
+
+  it('test_submit_invalid_skillset_id_format', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'admin', avatar: '' });
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations/submit', {
+        method: 'POST',
+        body: JSON.stringify({ batchId: '5.10.001', skillsetId: 'invalid/../../etc' }),
+      }),
+      { MAINTAINER_USER_IDS: '123' }
+    );
+    const response = await POST(ctx);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('Invalid skillset ID');
+  });
+
+  it('test_submit_missing_skillset_id', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'admin', avatar: '' });
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations/submit', {
+        method: 'POST',
+        body: JSON.stringify({ batchId: '5.10.001' }),
+      }),
+      { MAINTAINER_USER_IDS: '123' }
+    );
+    const response = await POST(ctx);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data.error).toBe('Invalid skillset ID');
   });
 });

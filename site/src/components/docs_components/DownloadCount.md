@@ -6,8 +6,7 @@ Displays download count for a skillset with an icon. Fetches live count from the
 ## Public API
 | Export | Type | Description |
 |--------|------|-------------|
-| `DownloadCount` (default) | component | React component displaying download count with icon |
-| `DownloadCountProps` | interface | Props: skillsetId (required), initialCount (optional, default 0) |
+| `DownloadCount` (default) | component | React component displaying download count with icon. Props: `skillsetId` (string), `initialCount?` (number, default 0) |
 
 ## Dependencies
 - **Internal**: None

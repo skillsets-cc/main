@@ -7,8 +7,10 @@ Base HTML layout component providing consistent page structure, navigation, font
 ```
 layouts/
 ├── docs_layouts/
-│   └── BaseLayout.md          # BaseLayout documentation
-└── BaseLayout.astro           # Base HTML layout
+│   ├── ARC_layouts.md          # Module architecture
+│   └── BaseLayout.md           # BaseLayout documentation
+├── BaseLayout.astro            # Base HTML layout
+└── README.md                   # Module index
 ```
 
 ## Component
@@ -26,7 +28,7 @@ Wrapper layout used by all pages to maintain uniform design and navigation acros
 - Meta tags: UTF-8 charset, viewport, description
 - Dynamic title from props
 - Preconnects to Google Fonts (performance optimization)
-- Font imports: Crimson Pro (serif), Inter (sans), JetBrains Mono (monospace)
+- Font imports: Crimson Pro (serif body), JetBrains Mono (monospace)
 
 ### Layout Grid
 ```
@@ -45,7 +47,7 @@ Wrapper layout used by all pages to maintain uniform design and navigation acros
 
 ### Sidebar Navigation
 - **Logo Section**: "Skillsets.cc" + "EST. 2026 • PUBLIC DOMAIN" tagline
-- **Index Menu**: Links to Browse, CLI, Contribute, About
+- **Index Menu**: Links to Skillsets, CLI, Contribute, About
 - **Social Links**: GitHub, Reddit, X, Email (sticky footer)
 
 #### Desktop Behavior
@@ -55,14 +57,17 @@ Wrapper layout used by all pages to maintain uniform design and navigation acros
 - Scrollable if content overflows (overflow-y-auto)
 
 #### Mobile Behavior
-- Full-width (w-full)
-- Flows above main content (flex-col)
-- Not sticky (normal scroll)
+- Slide-out drawer from left (fixed positioning with transform)
+- Hidden by default with `-translate-x-full`
+- Hamburger toggle button (fixed bottom-left)
+- Semi-transparent overlay backdrop
+- Close button (X icon) in sidebar header
+- Z-index layering: toggle (70) > sidebar (60) > overlay (55)
 
 ### Main Content Area
 - Receives page content via `<slot />`
 - Flexible width (flex-grow)
-- Stone-50 background (consistent with site theme)
+- White background (bg-white)
 
 ## Design Patterns
 
@@ -72,25 +77,24 @@ Wrapper layout used by all pages to maintain uniform design and navigation acros
 - Layout provides frame, pages provide content
 
 ### Responsive Design
-- Mobile-first: full-width sidebar, stacked layout
+- Mobile: sidebar hidden as slide-out drawer
 - Desktop: fixed sidebar, side-by-side layout
 - Breakpoint: `md:` (768px)
 
 ### Typography
-- **Serif**: Crimson Pro (headings, descriptions)
-- **Sans**: Inter (unused currently, reserved for UI)
+- **Body**: Crimson Pro (applied via `font-sans` class, remapped to Crimson Pro in Tailwind config)
 - **Mono**: JetBrains Mono (code, metadata, labels)
 
 ### Color Palette
-- **Background**: stone-50 (light warm gray)
+- **Background**: surface-paper (light warm gray), surface-white (content areas)
 - **Text**: text-ink (near-black)
-- **Accent**: orange-500 (links, highlights)
+- **Accent**: accent (links, highlights), accent-light (subtle emphasis)
 - **Borders**: border-ink (black)
 
 ### Navigation Styling
 - Uppercase section headers (e.g., "INDEX")
 - Hover effect: orange color + underline
-- Small serif links (text-sm)
+- Base-size serif links (text-base)
 - Monospace headers (font-mono, uppercase, tracking-wider)
 
 ## Integration Points
@@ -98,7 +102,6 @@ Wrapper layout used by all pages to maintain uniform design and navigation acros
 ### Used By
 All pages:
 - `pages/index.astro`
-- `pages/browse.astro`
 - `pages/about.astro`
 - `pages/contribute.astro`
 - `pages/cli.astro`
@@ -106,8 +109,9 @@ All pages:
 - `pages/skillset/[namespace]/[name].astro`
 
 ### Consumes
+- `@/components/AuthStatus.tsx` (GitHub OAuth login status widget)
 - `@/styles/global.css` (Tailwind CSS, custom global styles)
-- Google Fonts API (Crimson Pro, Inter, JetBrains Mono)
+- Google Fonts API (Crimson Pro, JetBrains Mono)
 
 ### Emits
 No events (static layout)
@@ -122,8 +126,8 @@ selection:bg-accent-highlight selection:text-text-ink
 
 ### Font Stack
 ```
-font-sans → Inter (default body text)
-font-serif → Crimson Pro (headings, descriptions)
+font-sans → Crimson Pro (body class uses font-sans, remapped in Tailwind config)
+font-serif → Crimson Pro (same font, explicit serif variant)
 font-mono → JetBrains Mono (code, metadata)
 ```
 
@@ -131,7 +135,7 @@ font-mono → JetBrains Mono (code, metadata)
 - Font preconnect for faster loading
 - `display=swap` in Google Fonts URL (prevents FOIT)
 - Minimal CSS (Tailwind utilities only)
-- No custom JavaScript (static layout)
+- Inline JavaScript for sidebar (~20 lines, no external dependencies)
 
 ## Accessibility
 - Semantic HTML5 structure (aside, main, nav)

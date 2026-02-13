@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 
+const linkStyles = 'block text-base text-text-secondary hover:text-accent hover:underline transition-colors';
+
 export default function AuthStatus() {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
 
@@ -13,10 +15,7 @@ export default function AuthStatus() {
 
   if (loggedIn) {
     return (
-      <a
-        href="/logout"
-        className="block text-base text-text-secondary hover:text-orange-500 hover:underline transition-colors"
-      >
+      <a href="/logout" className={linkStyles}>
         Log out
       </a>
     );
@@ -25,7 +24,7 @@ export default function AuthStatus() {
   return (
     <a
       href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
-      className="block text-base text-text-secondary hover:text-orange-500 hover:underline transition-colors"
+      className={linkStyles}
     >
       Log in
     </a>

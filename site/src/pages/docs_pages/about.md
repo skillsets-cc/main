@@ -18,7 +18,10 @@ Static informational page explaining the purpose and philosophy of skillsets.cc.
 - **Emits**: No events
 
 ## Key Logic
-- Static markdown-style content with sections
-- Explains problem: atomic skills conflict in production
-- Explains solution: verified, integrated skillset workflows
+- Static prose content explaining the platform's purpose:
+  - Problem: No high-signal channel for production-verified Claude Code workflows
+  - Solution: Curated registry of complete, integrated skillsets
+  - Submission model: Batched review by small team (quality over scale)
+  - Open source: MIT-licensed infrastructure, author-licensed skillsets
+  - Co-maintainer invitation for community growth
 - Prerendered at build time for fast loading
