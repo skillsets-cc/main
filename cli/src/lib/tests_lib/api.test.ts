@@ -144,6 +144,25 @@ describe('api utilities', () => {
 
       expect(result).toEqual({ stars: {}, downloads: {} });
     });
+
+    it('uses cached stats within TTL', async () => {
+      const mockStats = {
+        stars: { '@user/test': 10 },
+        downloads: { '@user/test': 100 },
+      };
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockStats),
+      });
+
+      const { fetchStats: freshFetch } = await import('../api.js');
+      const result1 = await freshFetch();
+      const result2 = await freshFetch();
+
+      expect(result1).toEqual(mockStats);
+      expect(result2).toEqual(mockStats);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('mergeStats', () => {

@@ -32,9 +32,7 @@ describe('DownloadCount', () => {
   it('fetches and displays live count', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({
-        downloads: { 'test/skillset': 100 },
-      }),
+      json: async () => ({ count: 100 }),
     }) as typeof fetch;
 
     render(<DownloadCount skillsetId="test/skillset" initialCount={0} />);
@@ -47,13 +45,15 @@ describe('DownloadCount', () => {
   it('calls correct API endpoint', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ downloads: {} }),
+      json: async () => ({ count: 0 }),
     }) as typeof fetch;
 
     render(<DownloadCount skillsetId="test/skillset" />);
 
     await waitFor(() => {
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/stats/counts');
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        '/api/downloads?skillsetId=test%2Fskillset'
+      );
     });
   });
 
@@ -70,18 +70,16 @@ describe('DownloadCount', () => {
     expect(screen.getByText('50')).toBeDefined();
   });
 
-  it('keeps initial count when skillset not in response', async () => {
+  it('updates count from API response', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({
-        downloads: { 'other/skillset': 200 },
-      }),
+      json: async () => ({ count: 200 }),
     }) as typeof fetch;
 
     render(<DownloadCount skillsetId="test/skillset" initialCount={25} />);
 
     await waitFor(() => {
-      expect(screen.getByText('25')).toBeDefined();
+      expect(screen.getByText('200')).toBeDefined();
     });
   });
 

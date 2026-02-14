@@ -36,7 +36,7 @@ fetchSearchIndex() → Check cache → If stale: fetch CDN → Update cache → 
 
 ## Configuration
 - `SEARCH_INDEX_URL`: `https://skillsets.cc/search-index.json`
-- `STATS_URL`: `https://skillsets.cc/api/stats`
+- `STATS_URL`: `https://skillsets.cc/api/stats/counts`
 - `CACHE_TTL_MS`: 1 hour (3600000ms) for index
 - `STATS_CACHE_TTL_MS`: 1 minute (60000ms) for stats
 
@@ -46,5 +46,5 @@ fetchSearchIndex() → Check cache → If stale: fetch CDN → Update cache → 
 - Network error: Index propagates to caller; stats returns empty
 
 ## Testing
-- Test file: `__tests__/api.test.ts`
+- Test file: `tests_lib/api.test.ts`
 - Key tests: Caching behavior, merge logic, error handling

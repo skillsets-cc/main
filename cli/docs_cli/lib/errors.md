@@ -28,4 +28,5 @@ handleError(error) → Format message → console.error() → process.exit(1)
 - Other types: Prints raw value with "Unexpected error:"
 
 ## Testing
-- Test file: N/A (simple utility)
+- Test file: `tests_lib/errors.test.ts`
+- Key tests: Error instance handling, unknown error handling, process exit

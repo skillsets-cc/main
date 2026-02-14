@@ -19,4 +19,4 @@ types/
 | File | Purpose | Documentation |
 |------|---------|---------------|
 | — | Architecture overview | [ARC_types.md](./docs_types/ARC_types.md) |
-| `index.ts` | All type definitions (SearchIndex, SearchIndexEntry, McpServer, McpServerInner, SlotStatus, GhostSlot, ReservationState) | [Docs](./docs_types/index.md) |
+| `index.ts` | All type definitions (SearchIndex, SearchIndexEntry, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState) | [Docs](./docs_types/index.md) |

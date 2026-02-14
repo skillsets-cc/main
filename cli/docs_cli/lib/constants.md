@@ -17,7 +17,9 @@
 | `STATS_URL` | `${CDN_BASE_URL}/api/stats/counts` | Live stats endpoint |
 | `DOWNLOADS_URL` | `${CDN_BASE_URL}/api/downloads` | Download tracking endpoint |
 | `REGISTRY_REPO` | `skillsets-cc/main` | GitHub repository |
+| `GITHUB_RAW_BASE` | `https://raw.githubusercontent.com/${REGISTRY_REPO}/main` | GitHub raw content base URL |
 | `CACHE_TTL_MS` | `3600000` (1 hour) | Index cache duration |
+| `STATS_CACHE_TTL_MS` | `60000` (1 minute) | Stats cache duration |
 | `DEFAULT_SEARCH_LIMIT` | `10` | Default search results |
 | `BACKUP_DIR_NAME` | `.claude.backup` | Backup directory name |
 

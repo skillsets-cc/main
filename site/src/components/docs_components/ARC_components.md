@@ -93,7 +93,7 @@ Update liveStars record
   ↓
 Individual DownloadCount components mount
   ↓
-GET /api/stats/counts (fetch download count for skillsetId)
+GET /api/downloads?skillsetId=X (fetch download count)
   ↓
 Display count (fallback to initialCount on error)
 ```
@@ -134,7 +134,8 @@ DELETE /api/reservations → onCancelled → update state
 - `GET /api/me` (fetch auth state in AuthStatus)
 - `GET /api/star?skillsetId={id}` (fetch star state)
 - `POST /api/star` (toggle star)
-- `GET /api/stats/counts` (fetch download/star counts)
+- `GET /api/stats/counts` (fetch all star counts for grid)
+- `GET /api/downloads?skillsetId=X` (fetch individual download count)
 - `GET /api/reservations` (fetch reservation state)
 - `POST /api/reservations` (claim slot)
 - `DELETE /api/reservations` (cancel reservation)

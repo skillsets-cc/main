@@ -120,5 +120,36 @@ describe('checksum utilities', () => {
       expect(result.valid).toBe(true);
       expect(result.mismatches).toHaveLength(0);
     });
+
+    it('handles checksums with algorithm prefix', async () => {
+      const mockMetadata = {
+        id: '@user/test',
+        name: 'Test',
+        description: 'Test',
+        tags: [],
+        author: { handle: '@user' },
+        stars: 0,
+        version: '1.0.0',
+        checksum: 'abc',
+        files: {
+          'content/file.txt': 'sha256:6ae8a75555209fd6c44157c0aed8016e763ff435a19cf186f76863140143ff72',
+        },
+      };
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(mockMetadata);
+      vi.mocked(fs.readFile).mockResolvedValue('test content');
+
+      const result = await verifyChecksums('@user/test', '/test/dir');
+
+      expect(result.valid).toBe(true);
+      expect(result.mismatches).toHaveLength(0);
+    });
+
+    it('throws when skillset not found in registry', async () => {
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(undefined);
+
+      await expect(verifyChecksums('@user/unknown', '/test/dir'))
+        .rejects.toThrow('not found in registry');
+    });
   });
 });

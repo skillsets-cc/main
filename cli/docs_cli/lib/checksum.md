@@ -13,8 +13,12 @@
 | Function | Purpose | Inputs → Output |
 |----------|---------|-----------------|
 | `computeFileChecksum` | SHA-256 hash of file | `filePath` → `Promise<string>` |
-| `stripChecksumPrefix` | Remove `sha256:` prefix | `checksum` → `string` |
 | `verifyChecksums` | Compare local vs registry | `skillsetId, dir` → `Promise<{valid, mismatches}>` |
+
+### Internal Functions
+| Function | Purpose | Inputs → Output |
+|----------|---------|-----------------|
+| `stripChecksumPrefix` | Remove `sha256:` prefix | `checksum` → `string` |
 
 ### Return Types
 ```typescript
@@ -47,5 +51,5 @@ verifyChecksums() → fetchSkillsetMetadata() → For each file: computeFileChec
 - Skillset not found: Throws error
 
 ## Testing
-- Test file: `__tests__/checksum.test.ts`
+- Test file: `tests_lib/checksum.test.ts`
 - Key tests: Compute checksum, prefix stripping, mismatch detection

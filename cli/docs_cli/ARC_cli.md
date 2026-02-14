@@ -15,7 +15,7 @@ cli/src/
 │   ├── init.ts           # Scaffold new skillset
 │   ├── audit.ts          # Validate before submission
 │   ├── submit.ts         # PR submission via gh CLI
-│   └── __tests__/        # Command tests
+│   └── tests_commands/   # Command tests
 ├── lib/
 │   ├── api.ts            # CDN index fetching + live stats
 │   ├── checksum.ts       # SHA-256 utilities
@@ -24,7 +24,7 @@ cli/src/
 │   ├── constants.ts      # Configuration
 │   ├── validate-mcp.ts   # MCP server validation
 │   ├── versions.ts       # Semver comparison
-│   └── __tests__/        # Library tests
+│   └── tests_lib/        # Library tests
 └── types/
     ├── index.ts          # TypeScript interfaces
     └── degit.d.ts        # degit type declarations
@@ -107,9 +107,10 @@ submit → Check registry (update detection) → Validate version bump → gh CL
 
 ## Testing
 ```bash
-npm test                              # All tests
-npm test -- --coverage               # With coverage
-npm test -- src/commands/__tests__/  # Command tests only
+npm test                                  # All tests
+npm test -- --coverage                   # With coverage
+npm test -- src/commands/tests_commands/ # Command tests only
+npm test -- src/lib/tests_lib/           # Library tests only
 ```
 
 ## Related Documentation

@@ -1,10 +1,11 @@
 import chalk from 'chalk';
 import ora from 'ora';
 import { input, confirm, checkbox } from '@inquirer/prompts';
-import { existsSync, mkdirSync, copyFileSync, readdirSync, statSync, writeFileSync } from 'fs';
-import { join, relative } from 'path';
+import { existsSync, mkdirSync, copyFileSync, readdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import degit from 'degit';
 import { execSync } from 'child_process';
+import { CDN_BASE_URL } from '../lib/constants.js';
 
 interface InitOptions {
   yes?: boolean;
@@ -144,17 +145,14 @@ function copyDirRecursive(src: string, dest: string): void {
   }
 }
 
-export async function init(options: InitOptions): Promise<void> {
+export async function init(_options: InitOptions): Promise<void> {
   console.log(chalk.blue('\n📦 Initialize a new skillset submission\n'));
 
   // 1. Verify gh CLI is available and authenticated
   try {
     execSync('gh auth status', { stdio: 'pipe' });
   } catch {
-    console.error(chalk.red('Error: gh CLI not authenticated.'));
-    console.error('Install: https://cli.github.com');
-    console.error('Then run: gh auth login');
-    process.exit(1);
+    throw new Error('gh CLI not authenticated.\n  Install: https://cli.github.com\n  Then run: gh auth login');
   }
 
   // 2. Get GitHub user info (verified identity)
@@ -165,32 +163,27 @@ export async function init(options: InitOptions): Promise<void> {
     const userData = JSON.parse(userJson);
     login = userData.login;
     id = userData.id;
-  } catch (error) {
-    console.error(chalk.red('Error: Failed to get GitHub user info.'));
-    console.error('Please ensure gh CLI is properly authenticated.');
-    process.exit(1);
+  } catch {
+    throw new Error('Failed to get GitHub user info. Please ensure gh CLI is properly authenticated.');
   }
 
   // 3. Look up reservation
   let batchId: string;
   try {
     const res = await fetch(
-      `https://skillsets.cc/api/reservations/lookup?githubId=${encodeURIComponent(String(id))}`
+      `${CDN_BASE_URL}/api/reservations/lookup?githubId=${encodeURIComponent(String(id))}`
     );
     const lookupData = await res.json() as { batchId: string | null };
 
     if (!lookupData.batchId) {
-      console.error(chalk.red('No active reservation found.'));
-      console.error('Visit https://skillsets.cc to claim a slot first.');
-      process.exit(1);
+      throw new Error(`No active reservation found. Visit ${CDN_BASE_URL} to claim a slot first.`);
     }
 
     batchId = lookupData.batchId;
     console.log(chalk.green(`\nReservation found: ${batchId}`));
   } catch (error) {
-    console.error(chalk.red('Error: Failed to look up reservation.'));
-    console.error('Please check your network connection and try again.');
-    process.exit(1);
+    if (error instanceof Error && error.message.startsWith('No active reservation')) throw error;
+    throw new Error('Failed to look up reservation. Please check your network connection and try again.');
   }
 
   const cwd = process.cwd();

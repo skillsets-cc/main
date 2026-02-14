@@ -52,6 +52,39 @@ function formatMcpWarning(mcpServers: McpServer[], skillsetId: string): string {
   return output;
 }
 
+/**
+ * Prompts for MCP server consent. Returns true to proceed, false to abort.
+ * Exits the process in non-interactive environments without --accept-mcp.
+ */
+async function confirmMcpConsent(
+  options: InstallOptions,
+  warningMessage: string,
+  promptMessage: string,
+  cleanup?: () => Promise<void>,
+): Promise<boolean> {
+  if (!process.stdin.isTTY && !options.acceptMcp) {
+    await cleanup?.();
+    throw new Error('This skillset includes MCP servers. Use --accept-mcp to install in non-interactive environments.');
+  }
+
+  if (!options.acceptMcp) {
+    console.log(warningMessage);
+
+    const accepted = await confirm({
+      message: promptMessage,
+      default: false,
+    });
+
+    if (!accepted) {
+      console.log(chalk.gray('\nInstallation cancelled.'));
+      await cleanup?.();
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export async function install(skillsetId: string, options: InstallOptions): Promise<void> {
   const spinner = ora(`Installing ${skillsetId}...`).start();
 
@@ -84,37 +117,22 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
   // Fetch metadata and check for MCP servers BEFORE degit
   let metadataFetchFailed = false;
   spinner.text = 'Fetching skillset metadata...';
-  try {
-    const metadata = await fetchSkillsetMetadata(skillsetId);
-    if (metadata?.mcp_servers && metadata.mcp_servers.length > 0) {
-      spinner.stop();
-
-      // Non-interactive check
-      if (!process.stdin.isTTY && !options.acceptMcp) {
-        console.log(chalk.red('This skillset includes MCP servers. Use --accept-mcp to install in non-interactive environments.'));
-        process.exit(1);
-        return;
-      }
-
-      if (!options.acceptMcp) {
-        console.log(formatMcpWarning(metadata.mcp_servers, skillsetId));
-
-        const accepted = await confirm({
-          message: 'Install MCP servers?',
-          default: false,
-        });
-
-        if (!accepted) {
-          console.log(chalk.gray('\nInstallation cancelled.'));
-          return;
-        }
-      }
-
-      spinner.start('Downloading skillset...');
-    }
-  } catch {
-    // Metadata fetch failed — flag for post-install content check
+  const metadata = await fetchSkillsetMetadata(skillsetId).catch(() => {
     metadataFetchFailed = true;
+    return undefined;
+  });
+
+  if (metadata?.mcp_servers && metadata.mcp_servers.length > 0) {
+    spinner.stop();
+
+    const proceed = await confirmMcpConsent(
+      options,
+      formatMcpWarning(metadata.mcp_servers, skillsetId),
+      'Install MCP servers?',
+    );
+    if (!proceed) return;
+
+    spinner.start('Downloading skillset...');
   }
 
   // Install to temp directory first (verify before writing to cwd)
@@ -138,28 +156,12 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
       if (hasMcpJson || hasClaudeSettings) {
         spinner.stop();
 
-        if (!process.stdin.isTTY && !options.acceptMcp) {
-          console.log(chalk.red('This skillset includes MCP servers. Use --accept-mcp to install in non-interactive environments.'));
-          await rm(tempDir, { recursive: true, force: true });
-          process.exit(1);
-          return;
-        }
+        const cleanupTemp = () => rm(tempDir, { recursive: true, force: true });
+        const warning = chalk.yellow('\n⚠  This skillset may include MCP servers (metadata unavailable for pre-check).')
+          + chalk.cyan(`\n\n  Review before installing:\n    https://github.com/skillsets-cc/main/tree/main/skillsets/${skillsetId}/content\n`);
 
-        if (!options.acceptMcp) {
-          console.log(chalk.yellow('\n⚠  This skillset may include MCP servers (metadata unavailable for pre-check).'));
-          console.log(chalk.cyan(`\n  Review before installing:\n    https://github.com/skillsets-cc/main/tree/main/skillsets/${skillsetId}/content\n`));
-
-          const accepted = await confirm({
-            message: 'Continue installation?',
-            default: false,
-          });
-
-          if (!accepted) {
-            console.log(chalk.gray('\nInstallation cancelled.'));
-            await rm(tempDir, { recursive: true, force: true });
-            return;
-          }
-        }
+        const proceed = await confirmMcpConsent(options, warning, 'Continue installation?', cleanupTemp);
+        if (!proceed) return;
 
         spinner.start('Verifying checksums...');
       }
@@ -178,7 +180,7 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
       console.log(chalk.cyan('\nTo retry:'));
       console.log(`  npx skillsets install ${skillsetId} --force`);
       await rm(tempDir, { recursive: true, force: true });
-      process.exit(1);
+      throw new Error('Checksum verification failed - files may be corrupted');
     }
 
     // Checksums valid — move verified content to cwd

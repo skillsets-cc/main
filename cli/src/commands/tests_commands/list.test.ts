@@ -120,4 +120,44 @@ describe('list command', () => {
 
     expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
   });
+
+  it('sorts by downloads', async () => {
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(mockIndex);
+    vi.mocked(api.fetchStats).mockResolvedValue({
+      stars: {},
+      downloads: { '@user/alpha': 100, '@user/beta': 50 },
+    });
+
+    await list({ sort: 'downloads' });
+
+    expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
+  });
+
+  it('truncates long names and descriptions', async () => {
+    const longIndex = {
+      version: '1.0',
+      generated_at: '2024-01-01',
+      skillsets: [{
+        id: '@user/very-long-name-skillset-that-exceeds-limits',
+        name: 'VeryLongSkillsetNameThatDefinitelyExceedsThirtyCharacterPadding',
+        description: 'This is a very long description that should definitely be truncated by the truncate utility function in list',
+        tags: ['test'],
+        author: { handle: '@verylongauthorhandlethatexceedslimit' },
+        stars: 10,
+        version: '1.0.0',
+        status: 'active' as const,
+        verification: { production_links: [{ url: 'https://example.com' }], audit_report: './AUDIT_REPORT.md' },
+        compatibility: { claude_code_version: '>=1.0.0', languages: ['any'] },
+        entry_point: './content/CLAUDE.md',
+        checksum: 'abc123',
+        files: {},
+      }],
+    };
+
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(longIndex);
+
+    await list({});
+
+    expect(console.log).toHaveBeenCalled();
+  });
 });

@@ -17,17 +17,15 @@ Displays download count for a skillset with an icon. Fetches live count from the
 - **Used by**:
   - `pages/skillset/[namespace]/[name].astro` (display on skillset detail page)
 - **Consumes**:
-  - `GET /api/stats/counts` (fetch all download counts)
+  - `GET /api/downloads?skillsetId=X` (fetch download count for specific skillset)
 - **Emits**: No events
 
 ## Key Logic
 
 ### Data Fetching
-- On mount, fetches `/api/stats/counts` (returns all download counts)
-- Extracts count for specific skillsetId from response
+- On mount, fetches `/api/downloads?skillsetId=X` (returns `{ skillsetId, count }`)
 - Falls back to `initialCount` if:
   - API request fails
-  - Response doesn't include skillsetId
   - Network error occurs
 
 ### Error Handling

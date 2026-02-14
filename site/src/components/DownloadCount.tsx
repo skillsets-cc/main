@@ -15,13 +15,10 @@ export default function DownloadCount({
   useEffect(() => {
     async function fetchCount(): Promise<void> {
       try {
-        const response = await fetch('/api/stats/counts');
+        const response = await fetch(`/api/downloads?skillsetId=${encodeURIComponent(skillsetId)}`);
         if (response.ok) {
-          const data = (await response.json()) as {
-            downloads: Record<string, number>;
-          };
-          const downloads = data.downloads[skillsetId] ?? initialCount;
-          setCount(downloads);
+          const data = (await response.json()) as { count: number };
+          setCount(data.count);
         }
       } catch (error) {
         console.error('[DownloadCount] Failed to fetch:', error);

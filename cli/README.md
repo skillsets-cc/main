@@ -15,7 +15,8 @@ cli/
 │   │   ├── install.ts
 │   │   ├── init.ts
 │   │   ├── audit.ts
-│   │   └── submit.ts
+│   │   ├── submit.ts
+│   │   └── tests_commands/  # Command tests
 │   ├── lib/               # Shared utilities
 │   │   ├── api.ts
 │   │   ├── checksum.ts
@@ -23,13 +24,15 @@ cli/
 │   │   ├── errors.ts
 │   │   ├── filesystem.ts
 │   │   ├── validate-mcp.ts
-│   │   └── versions.ts
+│   │   ├── versions.ts
+│   │   └── tests_lib/     # Library tests
 │   └── types/
 │       └── index.ts
 └── docs_cli/              # Documentation
     ├── ARC_cli.md
     ├── commands/
-    └── lib/
+    ├── lib/
+    └── types/
 ```
 
 ## Files

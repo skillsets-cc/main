@@ -13,10 +13,9 @@
 | Function | Purpose | Inputs → Output |
 |----------|---------|-----------------|
 | `submit` | Execute PR submission flow | - → `void` |
-| `checkGhCli` | Verify gh installed | - → `boolean` |
-| `checkGhAuth` | Verify gh authenticated | - → `boolean` |
+| `ghCommandSucceeds` | Check if gh command succeeds | `command` → `boolean` |
 | `getGhUsername` | Get authenticated user | - → `string \| null` |
-| `parseSkillsetYaml` | Extract skillset metadata | `cwd` → `{name, author, version}` |
+| `parseSkillsetYaml` | Extract skillset metadata | `cwd` → `{name, author, version} \| null` |
 | `checkAuditReport` | Verify passing audit | `cwd` → `{exists, passing}` |
 
 ### Pre-flight Checks
@@ -53,7 +52,10 @@ submit() → Pre-flight checks → Check registry → Fork repo → Clone → Cr
 6. Create branch `submit/{author}/{name}`
 7. Copy skillset files
 8. Commit with appropriate message ("Add" vs "Update")
-9. Push and create PR with checklist
+9. Delete stale branch on fork (if exists from previous PR)
+10. Push to fork (force push to update existing branch)
+11. Check for existing open PR with this branch
+12. Update existing PR (via force push) or create new PR with checklist
 
 **Fallback**: Manual instructions on failure
 
@@ -67,5 +69,5 @@ submit() → Pre-flight checks → Check registry → Fork repo → Clone → Cr
 | `REGISTRY_REPO` | `skillsets-cc/main` |
 
 ## Testing
-- Test file: `__tests__/submit.test.ts`
-- Key tests: Pre-flight checks, PR creation, version validation for updates
+- Test file: `tests_commands/submit.test.ts`
+- Key tests: Pre-flight checks, PR creation, PR update (force push), version validation for updates, stale branch cleanup

@@ -84,6 +84,7 @@ pages/
 |-------|--------|---------|
 | `/api/star` | GET | Get star count and user's starred status |
 | `/api/star` | POST | Toggle star for skillset |
+| `/api/downloads` | GET | Get download count for a skillset |
 | `/api/downloads` | POST | Increment download count |
 | `/api/stats/counts` | GET | Get all star and download counts |
 | `/api/me` | GET | Get authenticated user's login |
@@ -197,12 +198,11 @@ Return { batchId, status: "reserved" }
 - Cloudflare KV (auth state, stars, downloads, rate limits)
 - Cloudflare Durable Objects (reservation state)
 - `marked` (markdown parsing in skillset detail)
-- `mermaid` (diagram rendering in skillset detail)
 
 ### Used By
 - Site visitors (all pages)
 - CLI tool (`/api/downloads` on install, `/api/stats/counts` for list, `/api/reservations/lookup` for init)
-- React components (`/api/star`, `/api/stats/counts` for live data)
+- React components (`/api/star`, `/api/stats/counts`, `/api/downloads` for live data)
 - GitHub Actions CI (`/api/reservations/verify` for PR validation)
 
 ## Design Patterns

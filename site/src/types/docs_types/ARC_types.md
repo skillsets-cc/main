@@ -18,7 +18,7 @@ types/
 
 | Component | Purpose | Key Exports |
 |-----------|---------|-------------|
-| `index.ts` | All type definitions | SearchIndex, SearchIndexEntry, McpServer, McpServerInner, SlotStatus, GhostSlot, ReservationState |
+| `index.ts` | All type definitions | SearchIndex, SearchIndexEntry, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState |
 
 ## Data Flow
 
@@ -44,7 +44,7 @@ Runtime: KV stores reservation state as ReservationState
 
 ### 2. MCP Server Types
 - **McpServer**: Top-level MCP server config (discriminated by type: stdio/http/docker)
-- **McpServerInner**: Nested server config for aggregator images (docker-compose)
+- **McpNestedServer**: Nested server config for aggregator images (docker-compose)
 
 ### 3. Reservation System Types
 - **SlotStatus**: Union type for slot states ('available' | 'reserved' | 'submitted')
@@ -125,7 +125,7 @@ verification: {
 { type: 'http', url: 'https://...', ... }
 
 // docker type (with optional nested servers)
-{ type: 'docker', image: 'user/image', servers?: McpServerInner[], ... }
+{ type: 'docker', image: 'user/image', servers?: McpNestedServer[], ... }
 ```
 
 ### Reservation State Structure

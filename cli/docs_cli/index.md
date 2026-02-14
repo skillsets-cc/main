@@ -14,9 +14,10 @@
 |---------|---------|-----------|---------|
 | `list` | `list()` | - | `--limit`, `--sort`, `--json` |
 | `search` | `search()` | `<query>` | `--tags`, `--limit` |
-| `install` | `install()` | `<skillsetId>` | `--force`, `--backup` |
+| `view` | `view()` | `<skillsetId>` | - |
+| `install` | `install()` | `<skillsetId>` | `--force`, `--backup`, `--accept-mcp` |
 | `init` | `init()` | - | `--yes` |
-| `audit` | `audit()` | - | - |
+| `audit` | `audit()` | - | `--check` |
 | `submit` | `submit()` | - | - |
 
 ## Data Flow

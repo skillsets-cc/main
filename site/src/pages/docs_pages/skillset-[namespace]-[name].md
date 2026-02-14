@@ -1,7 +1,7 @@
 # skillset/[namespace]/[name].astro
 
 ## Purpose
-Dynamic skillset detail page displaying full information about a specific skillset including README content, verification proofs, metadata, MCP servers, compatibility info, and interactive star/download counts. Fetches README from GitHub at request time and renders Mermaid diagrams.
+Dynamic skillset detail page displaying full information about a specific skillset including README content, verification proofs, metadata, MCP servers, compatibility info, and interactive star/download counts. Fetches README from GitHub at request time.
 
 ## Public API
 | Export | Type | Description |
@@ -18,7 +18,6 @@ Dynamic skillset detail page displaying full information about a specific skills
 - **External**:
   - `marked` (markdown to HTML conversion)
   - `marked-gfm-heading-id` (GitHub-flavored heading IDs)
-  - `mermaid` (client-side diagram rendering)
 
 ## Integration Points
 - **Used by**: Site visitors navigating to `/skillset/{namespace}/{name}`
@@ -73,7 +72,6 @@ Dynamic skillset detail page displaying full information about a specific skills
 - Whitelist-based HTML filtering (see `lib/sanitize.ts`)
 
 ### Client-Side Rendering
-- **Mermaid Diagrams**: Detects `language-mermaid` code blocks, initializes Mermaid with theme, replaces `<pre><code>` with rendered SVG
 - **Interactive Components**: `StarButton`, `DownloadCount`, `CopyCommand` with `client:load`
 
 ### SSR vs Static

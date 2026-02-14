@@ -574,4 +574,30 @@ version: "not-semver"
       expect(report).toContain('Line 5:');
     });
   });
+
+  it('warns about binary files in content', async () => {
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    createValidContent();
+    const binaryContent = Buffer.from([0x89, 0x50, 0x4E, 0x47, 0x00, 0x00]);
+    writeFileSync(join(testDir, 'content', 'image.bin'), binaryContent);
+
+    await audit();
+
+    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    expect(report).toContain('Binary Detection | ⚠ WARNING');
+    expect(report).toContain('image.bin');
+  });
+
+  it('skips version check when registry unavailable', async () => {
+    vi.mocked(fetchSkillsetMetadata).mockRejectedValue(new Error('Network error'));
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    createValidContent();
+
+    await audit();
+
+    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    expect(report).toContain('READY FOR SUBMISSION');
+    expect(report).toContain('Registry unavailable');
+  });
 });

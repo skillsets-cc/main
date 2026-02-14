@@ -14,14 +14,18 @@
 |----------|---------|-----------------|
 | `detectConflicts` | Find existing files | `dir` → `Promise<string[]>` |
 | `backupFiles` | Copy files to backup | `files, dir` → `Promise<void>` |
-| `copyDirectory` | Recursive dir copy | `src, dest` → `Promise<void>` |
 | `detectSkillset` | Parse skillset.yaml ID | `dir` → `Promise<string \| null>` |
+
+### Internal Functions
+| Function | Purpose | Inputs → Output |
+|----------|---------|-----------------|
+| `copyDirectory` | Recursive dir copy | `src, dest` → `Promise<void>` |
 
 ### Constants
 | Constant | Value | Purpose |
 |----------|-------|---------|
 | `CONFLICT_CHECK_PATHS` | `['.claude/', 'CLAUDE.md', 'skillset.yaml']` | Files to check |
-| `BACKUP_DIR_NAME` | `.claude.backup` | Backup directory |
+| `BACKUP_DIR_NAME` | `.claude.backup` (imported from `constants.ts`) | Backup directory |
 
 ## Data Flow
 ```
@@ -39,5 +43,5 @@ detectSkillset() → Read skillset.yaml → Parse author/name
 - Missing skillset.yaml: Returns null
 
 ## Testing
-- Test file: `__tests__/filesystem.test.ts`
+- Test file: `tests_lib/filesystem.test.ts`
 - Key tests: Conflict detection, backup creation, skillset detection

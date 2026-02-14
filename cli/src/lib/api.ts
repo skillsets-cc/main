@@ -1,10 +1,12 @@
 import type { SearchIndex, SearchIndexEntry, StatsResponse } from '../types/index.js';
-import { SEARCH_INDEX_URL, STATS_URL, CACHE_TTL_MS } from './constants.js';
+import { SEARCH_INDEX_URL, STATS_URL, CACHE_TTL_MS, STATS_CACHE_TTL_MS } from './constants.js';
 
 let cachedIndex: SearchIndex | null = null;
 let cacheTime: number = 0;
 let cachedStats: StatsResponse | null = null;
 let statsCacheTime: number = 0;
+
+const EMPTY_STATS: StatsResponse = { stars: {}, downloads: {} };
 
 /**
  * Fetches the search index from the CDN.
@@ -13,7 +15,6 @@ let statsCacheTime: number = 0;
 export async function fetchSearchIndex(): Promise<SearchIndex> {
   const now = Date.now();
 
-  // Return cached if still valid
   if (cachedIndex && now - cacheTime < CACHE_TTL_MS) {
     return cachedIndex;
   }
@@ -44,9 +45,7 @@ export async function fetchSkillsetMetadata(skillsetId: string): Promise<SearchI
  */
 export async function fetchStats(): Promise<StatsResponse> {
   const now = Date.now();
-  const STATS_CACHE_TTL_MS = 60 * 1000; // 1 minute for stats
 
-  // Return cached if still valid
   if (cachedStats && now - statsCacheTime < STATS_CACHE_TTL_MS) {
     return cachedStats;
   }
@@ -54,8 +53,7 @@ export async function fetchStats(): Promise<StatsResponse> {
   try {
     const response = await fetch(STATS_URL);
     if (!response.ok) {
-      // Return empty stats on error, don't break the command
-      return { stars: {}, downloads: {} };
+      return EMPTY_STATS;
     }
 
     const data = (await response.json()) as StatsResponse;
@@ -64,8 +62,7 @@ export async function fetchStats(): Promise<StatsResponse> {
 
     return data;
   } catch {
-    // Return empty stats on network error
-    return { stars: {}, downloads: {} };
+    return EMPTY_STATS;
   }
 }
 

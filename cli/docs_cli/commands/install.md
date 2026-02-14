@@ -14,6 +14,7 @@
 |----------|---------|-----------------|
 | `install` | Download and verify skillset | `skillsetId, InstallOptions` → `void` |
 | `formatMcpWarning` | Format MCP server warning display | `McpServer[], skillsetId` → `string` |
+| `confirmMcpConsent` | Prompt for MCP server consent | `options, warning, prompt, cleanup?` → `Promise<boolean>` |
 
 ### Options
 | Option | Type | Default | Purpose |
@@ -24,7 +25,7 @@
 
 ## Data Flow
 ```
-install(id) → detectConflicts() → backupFiles() → fetchMetadata() → MCP warning → degit.clone() → verifyChecksums()
+install(id) → detectConflicts() → backupFiles() → fetchMetadata() → MCP warning (pre-check) → degit.clone(tempDir) → MCP warning (post-check if metadata failed) → verifyChecksums(tempDir) → copy to cwd
 ```
 
 ## Integration Points
@@ -35,12 +36,15 @@ install(id) → detectConflicts() → backupFiles() → fetchMetadata() → MCP 
 **Primary Flow**: Conflict check → Optional backup → Fetch metadata → MCP warning → degit download → Checksum verify
 
 **MCP Warning Flow**:
-- Fetches metadata to check for `mcp_servers`
-- If MCP servers present: displays warning with server details (grouped by native/docker), prompts user
-- `--accept-mcp` bypasses prompt (required for non-interactive/CI environments)
-- `--force` and `--backup` do NOT bypass MCP prompt (they handle file conflicts only)
-- Non-TTY without `--accept-mcp`: exits with error
-- Metadata fetch failure: continues silently (don't block install if registry is down)
+- **Pre-check**: Fetches metadata to check for `mcp_servers`
+  - If MCP servers present: displays warning with server details (grouped by native/docker), prompts user
+  - `--accept-mcp` bypasses prompt (required for non-interactive/CI environments)
+  - `--force` and `--backup` do NOT bypass MCP prompt (they handle file conflicts only)
+  - Non-TTY without `--accept-mcp`: exits with error
+- **Post-check fallback**: If metadata fetch fails, downloads to temp directory first, then checks for `.mcp.json` or `.claude/settings.json`
+  - If MCP indicators found: displays generic warning (metadata unavailable), prompts user
+  - Cleanup temp directory if user rejects
+  - Continues to checksum verification if accepted
 
 **Fallbacks**:
 - Conflict: Prompt for --force or --backup
@@ -53,5 +57,5 @@ install(id) → detectConflicts() → backupFiles() → fetchMetadata() → MCP 
 - Non-TTY + MCP: Exit 1 with --accept-mcp suggestion
 
 ## Testing
-- Test file: `__tests__/install.test.ts`
-- Key tests: Conflict detection, backup behavior, checksum verification, download tracking, MCP warning/prompt, --accept-mcp bypass, --force/--backup don't bypass MCP
+- Test file: `tests_commands/install.test.ts`
+- Key tests: Conflict detection, backup behavior, checksum verification, download tracking, MCP warning/prompt (pre-check), MCP fallback (post-check), --accept-mcp bypass, --force/--backup don't bypass MCP

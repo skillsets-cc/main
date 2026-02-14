@@ -4,7 +4,7 @@ import { fetchSearchIndex, fetchStats, mergeStats } from '../lib/api.js';
 
 interface ListOptions {
   limit?: string;
-  sort?: 'name' | 'stars' | 'downloads' | 'recent';
+  sort?: 'name' | 'stars' | 'downloads';
   json?: boolean;
 }
 
@@ -35,7 +35,7 @@ export async function list(options: ListOptions): Promise<void> {
     }
 
     // Limit
-    const limit = parseInt(options.limit || '0', 10);
+    const limit = Number(options.limit) || 0;
     if (limit > 0) {
       skillsets = skillsets.slice(0, limit);
     }

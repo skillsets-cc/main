@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { detectConflicts, detectSkillset } from '../filesystem.js';
+import { detectConflicts, detectSkillset, backupFiles } from '../filesystem.js';
 import * as fs from 'fs/promises';
 
 vi.mock('fs/promises');
@@ -76,6 +76,39 @@ entry_point: "./content/CLAUDE.md"
       const skillsetId = await detectSkillset('/test/dir');
 
       expect(skillsetId).toBeNull();
+    });
+  });
+
+  describe('backupFiles', () => {
+    it('backs up a regular file', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.stat).mockResolvedValue({ isDirectory: () => false } as any);
+      vi.mocked(fs.copyFile).mockResolvedValue(undefined);
+
+      await backupFiles(['CLAUDE.md'], '/test/dir');
+
+      expect(fs.mkdir).toHaveBeenCalled();
+      expect(fs.copyFile).toHaveBeenCalledWith(
+        '/test/dir/CLAUDE.md',
+        expect.stringContaining('CLAUDE.md')
+      );
+    });
+
+    it('recursively copies directories', async () => {
+      vi.mocked(fs.mkdir).mockResolvedValue(undefined);
+      vi.mocked(fs.stat).mockResolvedValue({ isDirectory: () => true } as any);
+      vi.mocked(fs.readdir)
+        .mockResolvedValueOnce([
+          { name: 'settings.json', isDirectory: () => false } as any,
+          { name: 'skills', isDirectory: () => true } as any,
+        ])
+        .mockResolvedValue([]);
+      vi.mocked(fs.copyFile).mockResolvedValue(undefined);
+
+      await backupFiles(['.claude/'], '/test/dir');
+
+      expect(fs.readdir).toHaveBeenCalled();
+      expect(fs.copyFile).toHaveBeenCalled();
     });
   });
 });

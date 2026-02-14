@@ -273,11 +273,7 @@ describe('init command', () => {
     expect(content).toContain('"example"');
   });
 
-  it('exits with error if gh CLI not authenticated', async () => {
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null | undefined) => {
-      throw new Error(`process.exit called with ${code}`);
-    });
-
+  it('throws if gh CLI not authenticated', async () => {
     vi.mocked(execSync).mockImplementation((command: string) => {
       if (command === 'gh auth status') {
         throw new Error('not authenticated');
@@ -285,27 +281,15 @@ describe('init command', () => {
       return Buffer.from('');
     });
 
-    await expect(init({})).rejects.toThrow('process.exit called with 1');
-    expect(mockExit).toHaveBeenCalledWith(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('gh CLI not authenticated'));
-
-    mockExit.mockRestore();
+    await expect(init({})).rejects.toThrow('gh CLI not authenticated');
   });
 
-  it('exits with error if no active reservation found', async () => {
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null | undefined) => {
-      throw new Error(`process.exit called with ${code}`);
-    });
-
+  it('throws if no active reservation found', async () => {
     global.fetch = vi.fn().mockResolvedValue({
       json: async () => ({ batchId: null }),
     } as Response);
 
-    await expect(init({})).rejects.toThrow('process.exit called with 1');
-    expect(mockExit).toHaveBeenCalledWith(1);
-    expect(console.error).toHaveBeenCalledWith(expect.stringContaining('No active reservation found'));
-
-    mockExit.mockRestore();
+    await expect(init({})).rejects.toThrow('No active reservation found');
   });
 
   it('includes batch_id in generated skillset.yaml', async () => {
@@ -357,5 +341,75 @@ describe('init command', () => {
     expect(global.fetch).toHaveBeenCalledWith(
       'https://skillsets.cc/api/reservations/lookup?githubId=54321'
     );
+  });
+
+  it('throws if gh user info fails', async () => {
+    vi.mocked(execSync).mockImplementation((command: string) => {
+      if (command === 'gh auth status') return Buffer.from('');
+      if (command === 'gh api user') throw new Error('API error');
+      return Buffer.from('');
+    });
+
+    await expect(init({})).rejects.toThrow('Failed to get GitHub user info');
+  });
+
+  it('throws if reservation lookup fails', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
+
+    await expect(init({})).rejects.toThrow('Failed to look up reservation');
+  });
+
+  it('throws when structure creation fails', async () => {
+    const mockClone = vi.fn().mockRejectedValue(new Error('degit clone failed'));
+    vi.mocked(degit).mockReturnValue({ clone: mockClone } as any);
+
+    await expect(init({})).rejects.toThrow('degit clone failed');
+  });
+
+  it('validates input callbacks correctly', async () => {
+    await init({});
+
+    const calls = vi.mocked(input).mock.calls;
+
+    // Name validator (1st call)
+    const nameValidate = (calls[0][0] as any).validate as (v: string) => true | string;
+    expect(nameValidate('valid-name')).toBe(true);
+    expect(nameValidate('invalid name!')).toContain('alphanumeric');
+    expect(nameValidate('')).toContain('alphanumeric');
+
+    // Description validator (2nd call)
+    const descValidate = (calls[1][0] as any).validate as (v: string) => true | string;
+    expect(descValidate('A valid description here')).toBe(true);
+    expect(descValidate('short')).toContain('10-200');
+
+    // Author handle validator (3rd call)
+    const handleValidate = (calls[2][0] as any).validate as (v: string) => true | string;
+    expect(handleValidate('@validuser')).toBe(true);
+    expect(handleValidate('noatsign')).toContain('@');
+
+    // Author URL validator (4th call)
+    const urlValidate = (calls[3][0] as any).validate as (v: string) => true | string;
+    expect(urlValidate('https://example.com')).toBe(true);
+    expect(urlValidate('not-a-url')).toContain('URL');
+
+    // Production URL validator (5th call)
+    const prodUrlValidate = (calls[4][0] as any).validate as (v: string) => true | string;
+    expect(prodUrlValidate('https://example.com')).toBe(true);
+    expect(prodUrlValidate('invalid')).toContain('URL');
+
+    // Tags validator (6th call)
+    const tagsValidate = (calls[5][0] as any).validate as (v: string) => true | string;
+    expect(tagsValidate('tag1,tag2')).toBe(true);
+    expect(tagsValidate('INVALID')).toContain('lowercase');
+  });
+
+  it('does not overwrite existing content/QUICKSTART.md', async () => {
+    mkdirSync(join(testDir, 'content'), { recursive: true });
+    writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# My Custom Quickstart');
+
+    await init({});
+
+    const content = readFileSync(join(testDir, 'content', 'QUICKSTART.md'), 'utf-8');
+    expect(content).toBe('# My Custom Quickstart');
   });
 });

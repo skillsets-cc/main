@@ -13,7 +13,6 @@ interface ContentMcpServer {
   command?: string;
   args?: string[];
   url?: string;
-  parentImage?: string;
 }
 
 interface ManifestMcpServer {
@@ -34,41 +33,38 @@ interface ManifestMcpServer {
   researched_at: string;
 }
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 /**
  * Validates MCP server declarations between content files and skillset.yaml.
- * Bidirectional: content→manifest and manifest→content.
+ * Bidirectional: content->manifest and manifest->content.
  */
 export function validateMcpServers(skillsetDir: string): McpValidationResult {
   const errors: string[] = [];
 
-  // 1. Collect from content
   const contentServers = collectContentServers(skillsetDir, errors);
-
-  // 2. Collect from manifest
   const manifestServers = collectManifestServers(skillsetDir, errors);
 
-  // If we hit parse errors, return early
   if (errors.length > 0) {
     return { valid: false, errors };
   }
 
-  // 3. No MCPs anywhere = pass
   if (contentServers.length === 0 && manifestServers.length === 0) {
     return { valid: true, errors: [] };
   }
 
-  // 4. Content→manifest check
+  // Content -> manifest check
   for (const cs of contentServers) {
-    const match = findManifestMatch(cs, manifestServers);
-    if (!match) {
+    if (!findManifestMatch(cs, manifestServers)) {
       errors.push(`MCP server '${cs.name}' found in content but not declared in skillset.yaml mcp_servers`);
     }
   }
 
-  // 5. Manifest→content check
+  // Manifest -> content check
   for (const ms of manifestServers) {
     if (ms.type === 'docker') {
-      // Check Docker inner servers
       for (const inner of ms.servers || []) {
         const match = contentServers.find(cs =>
           cs.source === 'docker' && cs.name === inner.name
@@ -77,7 +73,6 @@ export function validateMcpServers(skillsetDir: string): McpValidationResult {
           errors.push(`Docker inner server '${inner.name}' declared in manifest but not found in content docker config`);
         }
       }
-      // Check Docker image exists in compose
       validateDockerImage(skillsetDir, ms.image!, errors);
     } else {
       const match = contentServers.find(cs =>
@@ -107,21 +102,21 @@ function parseNativeServersFromJson(
     const content = readFileSync(filePath, 'utf-8');
     const data = JSON.parse(content);
     if (data.mcpServers && typeof data.mcpServers === 'object') {
-      for (const [name, config] of Object.entries(data.mcpServers as Record<string, any>)) {
+      for (const [name, config] of Object.entries(data.mcpServers as Record<string, Record<string, unknown>>)) {
         if (!servers.some(s => s.name === name && s.source === 'native')) {
           servers.push({
             name,
             source: 'native',
-            command: config.command,
-            args: config.args,
-            url: config.url,
+            command: config.command as string | undefined,
+            args: config.args as string[] | undefined,
+            url: config.url as string | undefined,
           });
         }
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     const label = filePath.split('/').slice(-2).join('/');
-    errors.push(`Failed to parse ${label}: ${error.message}`);
+    errors.push(`Failed to parse ${label}: ${getErrorMessage(error)}`);
   }
 }
 
@@ -146,29 +141,27 @@ function collectContentServers(skillsetDir: string, errors: string[]): ContentMc
     parseNativeServersFromJson(jsonPath, servers, errors);
   }
 
-  // 4. Check docker/**/*.yaml and docker/**/*.yml for mcp_servers key
+  // Docker MCP servers from docker/**/*.yaml and docker/**/*.yml
   const dockerDir = join(contentDir, 'docker');
   if (existsSync(dockerDir)) {
-    const yamlFiles = findYamlFiles(dockerDir);
-    for (const yamlPath of yamlFiles) {
+    for (const yamlPath of findYamlFiles(dockerDir)) {
       try {
         const content = readFileSync(yamlPath, 'utf-8');
-        const data = yaml.load(content) as Record<string, any>;
+        const data = yaml.load(content) as Record<string, unknown>;
         if (data.mcp_servers && typeof data.mcp_servers === 'object') {
-          for (const [name, config] of Object.entries(data.mcp_servers as Record<string, any>)) {
-            // Avoid duplicates across multiple yaml files
+          for (const [name, config] of Object.entries(data.mcp_servers as Record<string, Record<string, unknown>>)) {
             if (!servers.some(s => s.name === name && s.source === 'docker')) {
               servers.push({
                 name,
                 source: 'docker',
-                command: config.command,
-                args: config.args,
+                command: config.command as string | undefined,
+                args: config.args as string[] | undefined,
               });
             }
           }
         }
-      } catch (error: any) {
-        errors.push(`Failed to parse ${yamlPath}: ${error.message}`);
+      } catch (error: unknown) {
+        errors.push(`Failed to parse ${yamlPath}: ${getErrorMessage(error)}`);
       }
     }
   }
@@ -188,105 +181,77 @@ function collectManifestServers(skillsetDir: string, errors: string[]): Manifest
 
   try {
     const content = readFileSync(manifestPath, 'utf-8');
-    const data = yaml.load(content) as Record<string, any>;
+    const data = yaml.load(content) as Record<string, unknown>;
 
     if (!data.mcp_servers || !Array.isArray(data.mcp_servers)) {
       return [];
     }
 
     return data.mcp_servers as ManifestMcpServer[];
-  } catch (error: any) {
-    errors.push(`Failed to parse skillset.yaml: ${error.message}`);
+  } catch (error: unknown) {
+    errors.push(`Failed to parse skillset.yaml: ${getErrorMessage(error)}`);
     return [];
   }
 }
 
 /**
- * Find a matching manifest entry for a content server
+ * Find a matching manifest entry for a content server.
  */
 function findManifestMatch(
   contentServer: ContentMcpServer,
   manifestServers: ManifestMcpServer[]
 ): ManifestMcpServer | undefined {
-  for (const ms of manifestServers) {
+  return manifestServers.find(ms => {
     if (contentServer.source === 'native') {
-      // Native server: match by name and verify command/url
-      if (ms.name !== contentServer.name || ms.type === 'docker') {
-        continue;
-      }
+      if (ms.name !== contentServer.name || ms.type === 'docker') return false;
 
-      // For stdio type, check command and args
       if (ms.type === 'stdio') {
-        if (ms.command === contentServer.command) {
-          // Check args match (both undefined or same array)
-          const msArgs = ms.args || [];
-          const csArgs = contentServer.args || [];
-          if (arraysEqual(msArgs, csArgs)) {
-            return ms;
-          }
-        }
+        return ms.command === contentServer.command
+          && arraysEqual(ms.args || [], contentServer.args || []);
       }
 
-      // For http type, check url
-      if (ms.type === 'http' && ms.url === contentServer.url) {
-        return ms;
+      if (ms.type === 'http') {
+        return ms.url === contentServer.url;
       }
-    } else if (contentServer.source === 'docker') {
-      // Docker server: match within servers array
-      if (ms.type === 'docker' && ms.servers) {
-        for (const inner of ms.servers) {
-          if (inner.name === contentServer.name) {
-            // Check command and args match
-            if (inner.command === contentServer.command) {
-              const innerArgs = inner.args || [];
-              const csArgs = contentServer.args || [];
-              if (arraysEqual(innerArgs, csArgs)) {
-                return ms;
-              }
-            }
-          }
-        }
-      }
+
+      return false;
     }
-  }
 
-  return undefined;
+    // Docker source: match within servers array
+    if (ms.type !== 'docker' || !ms.servers) return false;
+
+    return ms.servers.some(inner =>
+      inner.name === contentServer.name
+      && inner.command === contentServer.command
+      && arraysEqual(inner.args || [], contentServer.args || [])
+    );
+  });
 }
 
 /**
- * Validate that a Docker image exists in any YAML file under docker/ (compose or otherwise)
+ * Validate that a Docker image exists in any YAML file under docker/
  */
 function validateDockerImage(skillsetDir: string, image: string, errors: string[]): void {
-  const contentDir = join(skillsetDir, 'content');
-  const dockerDir = join(contentDir, 'docker');
+  const dockerDir = join(skillsetDir, 'content', 'docker');
 
   if (!existsSync(dockerDir)) {
     errors.push(`Docker image '${image}' declared but no docker directory found`);
     return;
   }
 
-  const yamlFiles = findYamlFiles(dockerDir);
-  let found = false;
-
-  for (const yamlPath of yamlFiles) {
+  const found = findYamlFiles(dockerDir).some(yamlPath => {
     try {
       const content = readFileSync(yamlPath, 'utf-8');
-      const data = yaml.load(content) as Record<string, any>;
+      const data = yaml.load(content) as Record<string, unknown>;
 
-      // Check if any service uses the specified image
-      if (data.services && typeof data.services === 'object') {
-        for (const service of Object.values(data.services as Record<string, any>)) {
-          if (service.image === image) {
-            found = true;
-            break;
-          }
-        }
-      }
+      if (!data.services || typeof data.services !== 'object') return false;
+
+      return Object.values(data.services as Record<string, Record<string, unknown>>)
+        .some(service => service.image === image);
     } catch {
-      // Parse errors for compose files are non-fatal here — already caught in content scanning
+      return false;
     }
-    if (found) break;
-  }
+  });
 
   if (!found) {
     errors.push(`Docker image '${image}' not found in any YAML file under docker/`);
@@ -297,33 +262,24 @@ function validateDockerImage(skillsetDir: string, image: string, errors: string[
  * Recursively find all YAML files (.yaml, .yml) in a directory
  */
 function findYamlFiles(dir: string): string[] {
+  if (!existsSync(dir)) return [];
+
   const results: string[] = [];
-
-  if (!existsSync(dir)) {
-    return results;
-  }
-
-  const entries = readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const fullPath = join(dir, entry.name);
-
     if (entry.isDirectory()) {
       results.push(...findYamlFiles(fullPath));
     } else if (entry.name.endsWith('.yaml') || entry.name.endsWith('.yml')) {
       results.push(fullPath);
     }
   }
-
   return results;
 }
 
 /**
- * Compare two arrays for equality
+ * Compare two string arrays for equality
  */
 function arraysEqual(a: string[], b: string[]): boolean {
   if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
+  return a.every((val, i) => val === b[i]);
 }

@@ -29,4 +29,4 @@ compareVersions("1.0.0", "2.0.0") → split(".") → compare parts → -1
 - Returns -1 (a < b), 0 (equal), 1 (a > b)
 
 ## Testing
-- Test file: `__tests__/versions.test.ts`
+- Test file: `tests_lib/versions.test.ts`

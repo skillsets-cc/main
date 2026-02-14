@@ -37,5 +37,5 @@ search(query) → fetchSearchIndex() + fetchStats() → mergeStats() → Filter 
 - Search keys: `name`, `description`, `tags`, `author.handle`
 
 ## Testing
-- Test file: `__tests__/search.test.ts`
+- Test file: `tests_commands/search.test.ts`
 - Key tests: Basic search, tag filtering, limit

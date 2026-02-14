@@ -68,5 +68,5 @@ validateMcpServers(dir)
 | `Failed to parse [file]` | Malformed JSON or YAML |
 
 ## Testing
-- Test file: `__tests__/validate-mcp.test.ts`
+- Test file: `tests_lib/validate-mcp.test.ts`
 - Key tests: Truth table (4 cases), native servers (7), docker servers (3), mixed native+docker (2), docker edge cases (2), error handling (3), edge cases (4)

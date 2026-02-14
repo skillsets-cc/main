@@ -4,9 +4,33 @@
  */
 import type { APIRoute } from 'astro';
 import type { Env } from '../../lib/auth';
-import { incrementDownloads, isDownloadRateLimited } from '../../lib/downloads';
+import { incrementDownloads, isDownloadRateLimited, getDownloadCount } from '../../lib/downloads';
 import { jsonResponse, errorResponse } from '../../lib/responses';
 import { isValidSkillsetId } from '../../lib/validation';
+
+export const GET: APIRoute = async ({ request, locals }) => {
+  const env = (locals as { runtime: { env: Env } }).runtime.env;
+  const url = new URL(request.url);
+  const skillsetId = url.searchParams.get('skillsetId');
+
+  if (!skillsetId) {
+    return errorResponse('Missing skillsetId parameter', 400);
+  }
+
+  if (!isValidSkillsetId(skillsetId)) {
+    return errorResponse('Invalid skillsetId format', 400);
+  }
+
+  try {
+    const count = await getDownloadCount(env.DATA, skillsetId);
+    return jsonResponse({ skillsetId, count }, {
+      headers: { 'Cache-Control': 'public, max-age=60' },
+    });
+  } catch (error) {
+    console.error('[Downloads] Get count failed:', error);
+    return errorResponse('Internal server error', 500);
+  }
+};
 
 interface DownloadRequest {
   skillset: string;

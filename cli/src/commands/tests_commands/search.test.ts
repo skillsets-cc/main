@@ -98,4 +98,28 @@ describe('search command', () => {
 
     expect(api.fetchSearchIndex).toHaveBeenCalledOnce();
   });
+
+  it('shows count of additional results beyond limit', async () => {
+    const mockIndex = {
+      version: '1.0',
+      generated_at: '2024-01-01',
+      skillsets: Array.from({ length: 15 }, (_, i) => ({
+        id: `@user/test-${i}`,
+        name: `test-${i}`,
+        description: `A test skillset number ${i}`,
+        tags: ['test'],
+        author: { handle: '@user' },
+        stars: i,
+        version: '1.0.0',
+        checksum: `abc${i}`,
+        files: {},
+      })),
+    };
+
+    vi.mocked(api.fetchSearchIndex).mockResolvedValue(mockIndex);
+
+    await search('test', { limit: '2' });
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('more'));
+  });
 });

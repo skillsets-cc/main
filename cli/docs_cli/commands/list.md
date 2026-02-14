@@ -20,7 +20,7 @@
 | Option | Type | Default | Purpose |
 |--------|------|---------|---------|
 | `limit` | `string` | `0` (all) | Max results |
-| `sort` | `'name' \| 'stars' \| 'downloads' \| 'recent'` | `'name'` | Sort order |
+| `sort` | `'name' \| 'stars' \| 'downloads'` | `'name'` | Sort order |
 | `json` | `boolean` | `false` | JSON output |
 
 ## Data Flow
@@ -37,5 +37,5 @@ list() → fetchSearchIndex() + fetchStats() → mergeStats() → Sort/Limit →
 - Re-throws for handleError()
 
 ## Testing
-- Test file: `__tests__/list.test.ts`
+- Test file: `tests_commands/list.test.ts`
 - Key tests: Sort, limit, JSON output, empty registry

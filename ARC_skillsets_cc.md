@@ -8,9 +8,9 @@ Curated registry of production-verified Claude Code workflows. Two independent m
 skillsets.cc/
 ├── site/                         # Astro 5 SSR on Cloudflare Workers
 │   └── src/
-│       ├── components/           # React islands + Astro components (10 files)
+│       ├── components/           # React islands + Astro components (9 files)
 │       ├── lib/                  # Server-side utilities (10 files)
-│       ├── pages/                # Routes + API endpoints (23 files)
+│       ├── pages/                # Routes + API endpoints (17 files)
 │       ├── types/                # TypeScript interfaces
 │       ├── layouts/              # Base HTML layout + mobile drawer
 │       └── styles/               # Tailwind + typography + scrollbar
@@ -18,7 +18,7 @@ skillsets.cc/
 ├── cli/                          # Node.js CLI (npx skillsets)
 │   └── src/
 │       ├── commands/             # search, list, view, install, init, audit, submit
-│       ├── lib/                  # API, checksum, filesystem, MCP validation
+│       ├── lib/                  # API, checksum, constants, errors, filesystem, MCP validation, versions
 │       └── types/                # CLI-specific interfaces
 │
 ├── schema/                       # JSON Schema for validation
@@ -49,7 +49,7 @@ skillsets.cc/
 | **components** | React islands + Astro components (filtering, stars, ghost entries, galleries) | [ARC_components.md](site/src/components/docs_components/ARC_components.md) |
 | **lib** | Auth, stars, downloads, reservations, data, sanitization, validation | [ARC_lib.md](site/src/lib/docs_lib/ARC_lib.md) |
 | **pages** | Static pages, auth endpoints, star/download APIs, reservation APIs | [ARC_pages.md](site/src/pages/docs_pages/ARC_pages.md) |
-| **types** | SearchIndexEntry, SearchIndex, McpServer, McpServerInner, SlotStatus, GhostSlot, ReservationState | [ARC_types.md](site/src/types/docs_types/ARC_types.md) |
+| **types** | SearchIndexEntry, SearchIndex, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState | [ARC_types.md](site/src/types/docs_types/ARC_types.md) |
 | **layouts** | Base layout with sidebar nav and mobile slide-out drawer | [ARC_layouts.md](site/src/layouts/docs_layouts/ARC_layouts.md) |
 | **styles** | Tailwind layers, typography system (Crimson Pro + JetBrains Mono), scrollbar | [ARC_styles.md](site/src/styles/docs_styles/ARC_styles.md) |
 

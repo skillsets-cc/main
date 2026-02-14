@@ -3,13 +3,17 @@ import ora from 'ora';
 import { fetchSkillsetMetadata } from '../lib/api.js';
 import { GITHUB_RAW_BASE } from '../lib/constants.js';
 
+function fail(spinner: ReturnType<typeof ora>, message: string): never {
+  spinner.fail(message);
+  throw new Error(message);
+}
+
 export async function view(skillsetId: string): Promise<void> {
   const spinner = ora('Fetching README...').start();
 
   const metadata = await fetchSkillsetMetadata(skillsetId);
   if (!metadata) {
-    spinner.fail(`Skillset '${skillsetId}' not found`);
-    throw new Error(`Skillset '${skillsetId}' not found`);
+    fail(spinner, `Skillset '${skillsetId}' not found`);
   }
 
   const [namespace, name] = skillsetId.split('/');
@@ -18,8 +22,7 @@ export async function view(skillsetId: string): Promise<void> {
   const response = await fetch(url);
 
   if (!response.ok) {
-    spinner.fail(`Could not fetch README for '${skillsetId}'`);
-    throw new Error(`Could not fetch README for '${skillsetId}'`);
+    fail(spinner, `Could not fetch README for '${skillsetId}'`);
   }
 
   spinner.stop();

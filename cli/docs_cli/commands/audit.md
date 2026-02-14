@@ -72,5 +72,5 @@ The report indicates submission type:
 - **Update**: Shows version change (e.g., "Update: 0.9.0 → 1.0.0")
 
 ## Testing
-- Test file: `__tests__/audit.test.ts`
+- Test file: `tests_commands/audit.test.ts`
 - Key tests: Valid structure, missing files, schema errors, secrets, version validation, MCP validation (no MCP, matching, content-only, manifest-only, Docker end-to-end)

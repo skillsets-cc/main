@@ -3,6 +3,25 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import SkillsetGrid from '../SkillsetGrid';
 import { mockSkillsets } from './fixtures';
 
+// Mock GhostCard to capture and trigger callbacks for testing
+vi.mock('../GhostCard', () => ({
+  default: ({ onReserved, onCancelled, onConflict, slotId, batchId, status, isOwn, skillsetId }: any) => {
+    return (
+      <div data-testid={`ghost-card-${slotId}`}>
+        <span>{batchId}</span>
+        <span data-testid={`status-${slotId}`}>
+          {status === 'submitted' ? 'Submitted' : status === 'reserved' ? 'Reserved' : 'Available'}
+        </span>
+        {skillsetId && <span>{skillsetId}</span>}
+        <button onClick={() => onReserved?.(slotId, Date.now() + 3600000)}>Reserve</button>
+        <button onClick={() => onCancelled?.()}>Cancel</button>
+        <button onClick={() => onConflict?.()}>Conflict</button>
+        {isOwn && <span>Own</span>}
+      </div>
+    );
+  }
+}));
+
 describe('SkillsetGrid', () => {
   const originalFetch = globalThis.fetch;
 
@@ -196,6 +215,133 @@ describe('SkillsetGrid', () => {
       expect(screen.getByText('Submitted')).toBeDefined();
       expect(screen.getByText('@user/NonExistent')).toBeDefined();
       expect(screen.getByText('5.10.001')).toBeDefined();
+    });
+  });
+
+  it('test_ghost_card_hidden_when_skillset_has_matching_batch_id', async () => {
+    // Test L126: return false when skillset.batch_id matches ghost slot ID
+    const skillsetsWithBatch = [
+      { ...mockSkillsets[0], batch_id: '5.10.001' },
+      ...mockSkillsets.slice(1),
+    ];
+
+    mockFetch({}, {
+      slots: { '5.10.001': { status: 'available' } },
+      totalGhostSlots: 10,
+      cohort: 1,
+    });
+
+    await act(async () => {
+      render(<SkillsetGrid skillsets={skillsetsWithBatch} />);
+    });
+
+    await waitFor(() => {
+      // The real skillset card should show the batch ID
+      expect(screen.getByText('5.10.001')).toBeDefined();
+    });
+
+    // Ghost card should not be rendered (filtered out by L126)
+    expect(screen.queryByTestId('ghost-card-5.10.001')).toBeNull();
+  });
+
+  it('test_onReserved_callback_updates_reservation_state', async () => {
+    // Test L144-149: onReserved callback
+    mockFetch({}, {
+      slots: { '5.10.001': { status: 'available' } },
+      totalGhostSlots: 10,
+      cohort: 1,
+    });
+
+    await act(async () => {
+      render(<SkillsetGrid skillsets={mockSkillsets} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ghost-card-5.10.001')).toBeDefined();
+    });
+
+    // Trigger onReserved callback
+    const reserveButton = screen.getByText('Reserve');
+    await act(async () => {
+      fireEvent.click(reserveButton);
+    });
+
+    // State should update: status becomes 'reserved' and userSlot is set
+    await waitFor(() => {
+      const statusEl = screen.getByTestId('status-5.10.001');
+      expect(statusEl.textContent).toBe('Reserved');
+      expect(screen.getByText('Own')).toBeDefined(); // isOwn should be true
+    });
+  });
+
+  it('test_onCancelled_callback_clears_user_slot', async () => {
+    // Test L150-159: onCancelled callback
+    mockFetch({}, {
+      slots: { '5.10.001': { status: 'reserved', expiresAt: Date.now() + 3600000 } },
+      totalGhostSlots: 10,
+      cohort: 1,
+      userSlot: '5.10.001',
+    });
+
+    await act(async () => {
+      render(<SkillsetGrid skillsets={mockSkillsets} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ghost-card-5.10.001')).toBeDefined();
+      expect(screen.getByText('Own')).toBeDefined(); // Initially owned
+    });
+
+    // Trigger onCancelled callback
+    const cancelButton = screen.getByText('Cancel');
+    await act(async () => {
+      fireEvent.click(cancelButton);
+    });
+
+    // State should update: userSlot becomes null, status becomes 'available'
+    await waitFor(() => {
+      const statusEl = screen.getByTestId('status-5.10.001');
+      expect(statusEl.textContent).toBe('Available');
+      expect(screen.queryByText('Own')).toBeNull(); // No longer owned
+    });
+  });
+
+  it('test_onConflict_callback_refetches_reservations', async () => {
+    // Test L160-165: onConflict callback
+    mockFetch({}, {
+      slots: { '5.10.001': { status: 'available' } },
+      totalGhostSlots: 10,
+      cohort: 1,
+    });
+
+    await act(async () => {
+      render(<SkillsetGrid skillsets={mockSkillsets} />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('ghost-card-5.10.001')).toBeDefined();
+    });
+
+    const initialFetchCallCount = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+
+    // Trigger onConflict callback
+    const conflictButton = screen.getByText('Conflict');
+    await act(async () => {
+      fireEvent.click(conflictButton);
+    });
+
+    // Should trigger a refetch of /api/reservations
+    await waitFor(() => {
+      const newFetchCallCount = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+      expect(newFetchCallCount).toBeGreaterThan(initialFetchCallCount);
+
+      // Verify it was a reservations API call
+      const recentCalls = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls.slice(initialFetchCallCount);
+      const hasReservationCall = recentCalls.some((call) => {
+        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
+        return url.includes('/api/reservations');
+      });
+      expect(hasReservationCall).toBe(true);
     });
   });
 });

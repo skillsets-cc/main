@@ -100,6 +100,162 @@ describe('auth', () => {
 
       expect(env.AUTH.delete).toHaveBeenCalledWith(`oauth:${state}`);
     });
+
+    it('successfully exchanges code and returns user data', async () => {
+      const env = createMockEnv();
+      const state = 'test-state';
+      const codeVerifier = 'test-verifier-123';
+      await env.AUTH.put(
+        `oauth:${state}`,
+        JSON.stringify({ codeVerifier, returnTo: '/skillset/test/foo' })
+      );
+
+      const mockUser = {
+        id: 12345,
+        login: 'testuser',
+        avatar_url: 'https://github.com/testuser.png',
+      };
+
+      // Mock token exchange
+      globalThis.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ access_token: 'gho_test_token' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockUser,
+        });
+
+      const result = await handleOAuthCallback(env, 'test-code', state);
+
+      expect(result.user).toEqual(mockUser);
+      expect(result.returnTo).toBe('/skillset/test/foo');
+
+      // Verify token exchange was called with PKCE verifier
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        'https://github.com/login/oauth/access_token',
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.stringContaining(codeVerifier),
+        })
+      );
+
+      // Verify user fetch was called with access token
+      expect(globalThis.fetch).toHaveBeenCalledWith(
+        'https://api.github.com/user',
+        expect.objectContaining({
+          headers: expect.objectContaining({
+            Authorization: 'Bearer gho_test_token',
+          }),
+        })
+      );
+    });
+
+    it('throws AuthError when token exchange fails with non-ok response', async () => {
+      const env = createMockEnv();
+      const state = 'test-state';
+      await env.AUTH.put(`oauth:${state}`, JSON.stringify({ codeVerifier: 'test-verifier' }));
+
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+      });
+
+      await expect(
+        handleOAuthCallback(env, 'test-code', state)
+      ).rejects.toMatchObject({
+        message: 'Failed to exchange OAuth code',
+        statusCode: 500,
+      });
+    });
+
+    it('throws AuthError when token response contains error field', async () => {
+      const env = createMockEnv();
+      const state = 'test-state';
+      await env.AUTH.put(`oauth:${state}`, JSON.stringify({ codeVerifier: 'test-verifier' }));
+
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ error: 'invalid_grant' }),
+      });
+
+      await expect(
+        handleOAuthCallback(env, 'test-code', state)
+      ).rejects.toMatchObject({
+        message: 'GitHub OAuth error: invalid_grant',
+        statusCode: 400,
+      });
+    });
+
+    it('throws AuthError when token response missing access_token', async () => {
+      const env = createMockEnv();
+      const state = 'test-state';
+      await env.AUTH.put(`oauth:${state}`, JSON.stringify({ codeVerifier: 'test-verifier' }));
+
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({}), // No access_token field
+      });
+
+      await expect(
+        handleOAuthCallback(env, 'test-code', state)
+      ).rejects.toMatchObject({
+        message: 'GitHub OAuth error: undefined',
+        statusCode: 400,
+      });
+    });
+
+    it('throws AuthError when user profile fetch fails', async () => {
+      const env = createMockEnv();
+      const state = 'test-state';
+      await env.AUTH.put(`oauth:${state}`, JSON.stringify({ codeVerifier: 'test-verifier' }));
+
+      // Mock successful token exchange but failed user fetch
+      globalThis.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ access_token: 'gho_test_token' }),
+        })
+        .mockResolvedValueOnce({
+          ok: false,
+          status: 500,
+        });
+
+      await expect(
+        handleOAuthCallback(env, 'test-code', state)
+      ).rejects.toMatchObject({
+        message: 'Failed to fetch GitHub user',
+        statusCode: 500,
+      });
+    });
+
+    it('returns user without returnTo when not specified', async () => {
+      const env = createMockEnv();
+      const state = 'test-state';
+      await env.AUTH.put(`oauth:${state}`, JSON.stringify({ codeVerifier: 'test-verifier' }));
+
+      const mockUser = {
+        id: 67890,
+        login: 'anotheruser',
+        avatar_url: 'https://github.com/another.png',
+      };
+
+      globalThis.fetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ access_token: 'gho_another_token' }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => mockUser,
+        });
+
+      const result = await handleOAuthCallback(env, 'test-code', state);
+
+      expect(result.user).toEqual(mockUser);
+      expect(result.returnTo).toBeUndefined();
+    });
   });
 
   describe('createSessionToken / verifySessionToken', () => {
@@ -133,6 +289,18 @@ describe('auth', () => {
       const tamperedToken = parts.join('.');
 
       const result = await verifySessionToken(env, tamperedToken);
+      expect(result).toBeNull();
+    });
+
+    it('returns null when token signed with different secret', async () => {
+      const env1 = createMockEnv({ JWT_SECRET: 'secret-one-at-least-32-chars-long' });
+      const env2 = createMockEnv({ JWT_SECRET: 'secret-two-at-least-32-chars-long' });
+
+      // Create token with one secret
+      const token = await createSessionToken(env1, mockUser);
+
+      // Try to verify with different secret
+      const result = await verifySessionToken(env2, token);
       expect(result).toBeNull();
     });
 
@@ -190,6 +358,29 @@ describe('auth', () => {
       const token = await createSessionToken(env, mockUser);
       const request = new Request('https://skillsets.cc/api/star', {
         headers: { Cookie: `session=${token}` },
+      });
+
+      const result = await getSessionFromRequest(env, request);
+      expect(result).toEqual({
+        userId: '12345',
+        login: 'testuser',
+        avatar: 'https://github.com/testuser.png',
+      });
+    });
+
+    it('handles malformed cookies gracefully', async () => {
+      const env = createMockEnv();
+      const mockUser: GitHubUser = {
+        id: 12345,
+        login: 'testuser',
+        avatar_url: 'https://github.com/testuser.png',
+      };
+
+      const token = await createSessionToken(env, mockUser);
+
+      // Cookie string with empty name entry (=value) and valid session
+      const request = new Request('https://skillsets.cc/api/star', {
+        headers: { Cookie: `=invalid; session=${token}; =another` },
       });
 
       const result = await getSessionFromRequest(env, request);

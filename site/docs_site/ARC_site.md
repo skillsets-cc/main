@@ -92,7 +92,7 @@ site/
     │   └── docs_pages/            # Per-file docs
     │
     ├── types/
-    │   ├── index.ts               # SearchIndex, SearchIndexEntry, McpServer, McpServerInner, SlotStatus, GhostSlot, ReservationState
+    │   ├── index.ts               # SearchIndex, SearchIndexEntry, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState
     │   ├── docs_types/            # Per-file docs
     │   └── __tests__/             # Type tests
     │
@@ -251,7 +251,6 @@ Return { batchId, status: "reserved" } → optimistic UI update
 - `react@19.x` — Interactive components
 - `fuse.js` — Client-side fuzzy search (in SkillsetGrid)
 - `marked` — Markdown to HTML
-- `mermaid` — Diagram rendering in skillset detail
 - `xss` — HTML sanitization
 
 ### Services

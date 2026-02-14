@@ -223,7 +223,13 @@ function statusIcon(status: AuditStatus): string {
   return '✗ FAIL';
 }
 
-function generateReport(results: AuditResults, cwd: string, enforceMcp: boolean = false): string {
+function colorIcon(status: AuditStatus): string {
+  if (status === 'PASS') return chalk.green('✓');
+  if (status === 'WARNING') return chalk.yellow('⚠');
+  return chalk.red('✗');
+}
+
+function generateReport(results: AuditResults, _cwd: string, enforceMcp: boolean = false): string {
   const timestamp = new Date().toISOString();
   const allPassed = isAuditPassing(results, enforceMcp);
 
@@ -554,12 +560,6 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
 
   // Summary
   const allPassed = isAuditPassing(results, !!options.check);
-
-  const colorIcon = (status: AuditStatus) => {
-    if (status === 'PASS') return chalk.green('✓');
-    if (status === 'WARNING') return chalk.yellow('⚠');
-    return chalk.red('✗');
-  };
 
   const checks: [AuditResult, string][] = [
     [results.manifest, 'Manifest'],

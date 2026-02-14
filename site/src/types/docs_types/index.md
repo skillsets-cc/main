@@ -9,7 +9,7 @@ Defines TypeScript interfaces for skillsets, search index, and related data stru
 | `SearchIndex` | interface | Root search index structure (version, generated_at, skillsets array) |
 | `SearchIndexEntry` | interface | Skillset entry in search index (id, name, description, verification, checksum, files, batch_id) |
 | `McpServer` | interface | MCP server configuration (stdio/http/docker type, command/args/url/image) |
-| `McpServerInner` | interface | Nested MCP server config (for aggregator types like docker-compose) |
+| `McpNestedServer` | interface | Nested MCP server config (for aggregator types like docker-compose) |
 | `SlotStatus` | type | Reservation slot status union type ('available' \| 'reserved' \| 'submitted') |
 | `GhostSlot` | interface | Single ghost entry slot (slotId, status, expiresAt, skillsetId) |
 | `ReservationState` | interface | Complete reservation system state (slots, totalGhostSlots, cohort, userSlot) |
@@ -60,7 +60,7 @@ Contains all skillset metadata for search and display:
   - `stdio`: Command + args (e.g., `npx -y @upstash/context7-mcp`)
   - `http`: URL endpoint
   - `docker`: Image + optional nested servers array
-- **McpServerInner**: For aggregator images (docker-compose) with multiple servers
+- **McpNestedServer**: For aggregator images (docker-compose) with multiple servers
 - **Fields**: `name`, `mcp_reputation`, `researched_at` (timestamp of manual review)
 
 ### Reservation Types

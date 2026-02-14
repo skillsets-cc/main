@@ -76,11 +76,7 @@ entry_point: "./content/CLAUDE.md"
       return Buffer.from('');
     });
 
-    await expect(submit()).rejects.toThrow('Process exit');
-
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('GitHub CLI (gh) not found')
-    );
+    await expect(submit()).rejects.toThrow('GitHub CLI (gh) not found');
   });
 
   it('checks for gh authentication', async () => {
@@ -90,11 +86,7 @@ entry_point: "./content/CLAUDE.md"
       return Buffer.from('');
     });
 
-    await expect(submit()).rejects.toThrow('Process exit');
-
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('not authenticated')
-    );
+    await expect(submit()).rejects.toThrow('GitHub CLI not authenticated');
   });
 
   it('checks for skillset.yaml', async () => {
@@ -107,11 +99,7 @@ entry_point: "./content/CLAUDE.md"
 
     // No skillset.yaml created
 
-    await expect(submit()).rejects.toThrow('Process exit');
-
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('skillset.yaml not found')
-    );
+    await expect(submit()).rejects.toThrow('skillset.yaml not found or invalid');
   });
 
   it('checks for audit report', async () => {
@@ -125,11 +113,7 @@ entry_point: "./content/CLAUDE.md"
     // Create skillset.yaml but no audit report
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
 
-    await expect(submit()).rejects.toThrow('Process exit');
-
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('AUDIT_REPORT.md not found')
-    );
+    await expect(submit()).rejects.toThrow('AUDIT_REPORT.md not found');
   });
 
   it('checks audit report is passing', async () => {
@@ -143,11 +127,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), '# Audit Report\n\n**NOT READY**');
 
-    await expect(submit()).rejects.toThrow('Process exit');
-
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('Audit report shows failures')
-    );
+    await expect(submit()).rejects.toThrow('Audit report shows failures');
   });
 
   it('checks for required files', async () => {
@@ -160,13 +140,9 @@ entry_point: "./content/CLAUDE.md"
 
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
-    // Missing README.md, PROOF.md, content/
+    // Missing PROOF.md, content/
 
-    await expect(submit()).rejects.toThrow('Process exit');
-
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('Missing required')
-    );
+    await expect(submit()).rejects.toThrow('Missing required');
   });
 
   it('creates PR with valid submission', async () => {
@@ -235,11 +211,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
-    await expect(submit()).rejects.toThrow('Process exit');
-
-    expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('Version must be greater than')
-    );
+    await expect(submit()).rejects.toThrow('Version must be greater than');
   });
 
   it('creates update PR with higher version', async () => {
@@ -321,10 +293,7 @@ entry_point: "./content/CLAUDE.md"
 `;
       writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
 
-      await expect(submit()).rejects.toThrow('Process exit');
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('skillset.yaml not found or invalid')
-      );
+      await expect(submit()).rejects.toThrow('skillset.yaml not found or invalid');
     });
 
     it('rejects name with backtick command substitution', async () => {
@@ -346,10 +315,7 @@ entry_point: "./content/CLAUDE.md"
 `;
       writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
 
-      await expect(submit()).rejects.toThrow('Process exit');
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('skillset.yaml not found or invalid')
-      );
+      await expect(submit()).rejects.toThrow('skillset.yaml not found or invalid');
     });
 
     it('rejects name with semicolon command chaining', async () => {
@@ -371,10 +337,7 @@ entry_point: "./content/CLAUDE.md"
 `;
       writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
 
-      await expect(submit()).rejects.toThrow('Process exit');
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('skillset.yaml not found or invalid')
-      );
+      await expect(submit()).rejects.toThrow('skillset.yaml not found or invalid');
     });
 
     it('rejects author handle with shell metacharacters', async () => {
@@ -396,10 +359,185 @@ entry_point: "./content/CLAUDE.md"
 `;
       writeFileSync(join(testDir, 'skillset.yaml'), maliciousYaml);
 
-      await expect(submit()).rejects.toThrow('Process exit');
-      expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining('skillset.yaml not found or invalid')
-      );
+      await expect(submit()).rejects.toThrow('skillset.yaml not found or invalid');
     });
+  });
+
+  it('exits when GitHub username cannot be determined', async () => {
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user --jq .login')) throw new Error('API error');
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    await expect(submit()).rejects.toThrow('Could not determine GitHub username');
+  });
+
+  it('creates new PR when no existing PR found', async () => {
+    const prUrl = 'https://github.com/skillsets-cc/main/pull/789';
+
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+      if (cmd.includes('gh repo fork')) return Buffer.from('');
+      if (cmd.includes('gh repo clone')) return Buffer.from('');
+      if (cmd.includes('gh auth setup-git')) return Buffer.from('');
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    vi.mocked(spawnSync).mockImplementation((cmd: string, args?: string[]) => {
+      if (cmd === 'gh' && args?.[0] === 'pr' && args?.[1] === 'list') {
+        return { status: 0, stdout: '', stderr: '', pid: 0, output: [], signal: null };
+      }
+      if (cmd === 'gh' && args?.[0] === 'pr' && args?.[1] === 'create') {
+        return { status: 0, stdout: prUrl, stderr: '', pid: 0, output: [], signal: null };
+      }
+      return { status: 0, stdout: '', stderr: '', pid: 0, output: [], signal: null };
+    });
+
+    vi.mocked(fetchSkillsetMetadata).mockResolvedValue(undefined);
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    writeFileSync(join(testDir, 'PROOF.md'), '# Proof');
+    writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
+    mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await submit();
+
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Submission complete')
+    );
+    expect(spawnSync).toHaveBeenCalledWith(
+      'gh', expect.arrayContaining(['pr', 'create']),
+      expect.any(Object)
+    );
+  });
+
+  it('handles registry unavailable during submission', async () => {
+    const prUrl = 'https://github.com/skillsets-cc/main/pull/999';
+
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+      if (cmd.includes('gh repo fork')) return Buffer.from('');
+      if (cmd.includes('gh repo clone')) return Buffer.from('');
+      if (cmd.includes('gh auth setup-git')) return Buffer.from('');
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    vi.mocked(spawnSync).mockImplementation((cmd: string, args?: string[]) => {
+      if (cmd === 'gh' && args?.[0] === 'pr') {
+        return { status: 0, stdout: prUrl, stderr: '', pid: 0, output: [], signal: null };
+      }
+      return { status: 0, stdout: '', stderr: '', pid: 0, output: [], signal: null };
+    });
+
+    vi.mocked(fetchSkillsetMetadata).mockRejectedValue(new Error('Network'));
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    writeFileSync(join(testDir, 'PROOF.md'), '# Proof');
+    writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
+    mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await submit();
+
+    expect(console.log).toHaveBeenCalledWith(
+      expect.stringContaining('Could not check registry')
+    );
+  });
+
+  it('shows manual instructions on submission error', async () => {
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+      if (cmd.includes('gh repo fork')) return Buffer.from('');
+      if (cmd.includes('gh repo clone')) throw new Error('Clone failed');
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    vi.mocked(fetchSkillsetMetadata).mockResolvedValue(undefined);
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    writeFileSync(join(testDir, 'PROOF.md'), '# Proof');
+    writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
+    mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await expect(submit()).rejects.toThrow('Process exit');
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('To submit manually'));
+  });
+
+  it('fails when commit detects no changes', async () => {
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+      if (cmd.includes('gh repo fork')) return Buffer.from('');
+      if (cmd.includes('gh repo clone')) return Buffer.from('');
+      if (cmd.includes('gh auth setup-git')) return Buffer.from('');
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    vi.mocked(spawnSync).mockImplementation((cmd: string, args?: string[]) => {
+      if (cmd === 'git' && args?.[0] === 'commit') {
+        return { status: 1, stdout: '', stderr: 'nothing to commit', pid: 0, output: [], signal: null };
+      }
+      return { status: 0, stdout: '', stderr: '', pid: 0, output: [], signal: null };
+    });
+
+    vi.mocked(fetchSkillsetMetadata).mockResolvedValue(undefined);
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    writeFileSync(join(testDir, 'PROOF.md'), '# Proof');
+    writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
+    mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await expect(submit()).rejects.toThrow('Process exit');
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('No changes detected'));
+  });
+
+  it('fails when push to fork fails', async () => {
+    vi.mocked(execSync).mockImplementation((cmd: string, opts?: any) => {
+      if (cmd === 'gh --version') return Buffer.from('gh version 2.0.0');
+      if (cmd === 'gh auth status') return Buffer.from('Logged in');
+      if (cmd.includes('gh api user')) return opts?.encoding ? 'testuser' : Buffer.from('testuser');
+      if (cmd.includes('gh repo fork')) return Buffer.from('');
+      if (cmd.includes('gh repo clone')) return Buffer.from('');
+      if (cmd.includes('gh auth setup-git')) return Buffer.from('');
+      return opts?.encoding ? '' : Buffer.from('');
+    });
+
+    vi.mocked(spawnSync).mockImplementation((cmd: string, args?: string[]) => {
+      if (cmd === 'git' && args?.[0] === 'push') {
+        return { status: 1, stdout: '', stderr: 'push rejected', pid: 0, output: [], signal: null };
+      }
+      return { status: 0, stdout: '', stderr: '', pid: 0, output: [], signal: null };
+    });
+
+    vi.mocked(fetchSkillsetMetadata).mockResolvedValue(undefined);
+
+    writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+    writeFileSync(join(testDir, 'PROOF.md'), '# Proof');
+    writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
+    mkdirSync(join(testDir, 'content'));
+    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+
+    await expect(submit()).rejects.toThrow('Process exit');
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('To submit manually'));
   });
 });

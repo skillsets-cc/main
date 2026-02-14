@@ -7,6 +7,20 @@
 - External: None
 - Internal: None
 
+## Public API
+
+| Export | Type | Description |
+|--------|------|-------------|
+| `SkillsetStatus` | type | Union type: `'active' \| 'deprecated' \| 'archived'` |
+| `SkillsetVerification` | interface | Verification metadata (production links, proof, audit report) |
+| `SkillsetCompatibility` | interface | Compatibility metadata (Claude Code version, languages) |
+| `McpNestedServer` | interface | Nested MCP server declaration for docker type |
+| `McpServer` | interface | MCP server declaration with type-specific fields |
+| `SearchIndex` | interface | CDN index structure with version and skillset entries |
+| `SearchIndexEntry` | interface | Individual skillset in search index |
+| `StatsResponse` | interface | Live stats from API (stars, downloads) |
+| `Skillset` | interface | Local skillset.yaml manifest structure |
+
 ## Key Components
 
 ### Interfaces
@@ -70,17 +84,21 @@ interface Skillset {
 }
 ```
 
-#### McpServer
-MCP server declaration in manifest:
+#### McpNestedServer
+Nested MCP server for docker type:
 ```typescript
-interface McpServerInner {
+interface McpNestedServer {
   name: string;
   command: string;
   args?: string[];
   mcp_reputation: string;
   researched_at: string;
 }
+```
 
+#### McpServer
+MCP server declaration in manifest:
+```typescript
 interface McpServer {
   name: string;
   type: 'stdio' | 'http' | 'docker';
@@ -88,7 +106,7 @@ interface McpServer {
   args?: string[];      // stdio
   url?: string;         // http
   image?: string;       // docker
-  servers?: McpServerInner[]; // docker inner servers
+  servers?: McpNestedServer[]; // docker inner servers
   mcp_reputation: string;
   researched_at: string;
 }

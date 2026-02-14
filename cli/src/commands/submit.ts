@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { execSync, spawnSync } from 'child_process';
 import { existsSync, readFileSync, mkdirSync, cpSync, rmSync } from 'fs';
-import { join, basename } from 'path';
+import { join } from 'path';
 import yaml from 'js-yaml';
 import { tmpdir } from 'os';
 import { fetchSkillsetMetadata } from '../lib/api.js';
@@ -11,18 +11,9 @@ import { REGISTRY_REPO } from '../lib/constants.js';
 
 const REGISTRY_URL = `https://github.com/${REGISTRY_REPO}`;
 
-function checkGhCli(): boolean {
+function ghCommandSucceeds(command: string): boolean {
   try {
-    execSync('gh --version', { stdio: 'ignore' });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function checkGhAuth(): boolean {
-  try {
-    execSync('gh auth status', { stdio: 'ignore' });
+    execSync(command, { stdio: 'ignore' });
     return true;
   } catch {
     return false;
@@ -31,8 +22,7 @@ function checkGhAuth(): boolean {
 
 function getGhUsername(): string | null {
   try {
-    const result = execSync('gh api user --jq .login', { encoding: 'utf-8' });
-    return result.trim();
+    return execSync('gh api user --jq .login', { encoding: 'utf-8' }).trim();
   } catch {
     return null;
   }
@@ -80,49 +70,38 @@ export async function submit(): Promise<void> {
   console.log(chalk.gray('Running pre-flight checks...\n'));
 
   // 1. Check gh CLI
-  if (!checkGhCli()) {
-    console.log(chalk.red('✗ GitHub CLI (gh) not found'));
-    console.log(chalk.gray('  Install: https://cli.github.com/'));
-    process.exit(1);
+  if (!ghCommandSucceeds('gh --version')) {
+    throw new Error('GitHub CLI (gh) not found. Install: https://cli.github.com/');
   }
   console.log(chalk.green('✓ GitHub CLI found'));
 
   // 2. Check gh auth
-  if (!checkGhAuth()) {
-    console.log(chalk.red('✗ GitHub CLI not authenticated'));
-    console.log(chalk.gray('  Run: gh auth login'));
-    process.exit(1);
+  if (!ghCommandSucceeds('gh auth status')) {
+    throw new Error('GitHub CLI not authenticated. Run: gh auth login');
   }
   console.log(chalk.green('✓ GitHub CLI authenticated'));
 
   // 3. Get username
   const username = getGhUsername();
   if (!username) {
-    console.log(chalk.red('✗ Could not determine GitHub username'));
-    process.exit(1);
+    throw new Error('Could not determine GitHub username');
   }
   console.log(chalk.green(`✓ Logged in as ${username}`));
 
   // 4. Check skillset.yaml
   const skillset = parseSkillsetYaml(cwd);
   if (!skillset) {
-    console.log(chalk.red('✗ skillset.yaml not found or invalid'));
-    console.log(chalk.gray('  Run: npx skillsets init'));
-    process.exit(1);
+    throw new Error('skillset.yaml not found or invalid. Run: npx skillsets init');
   }
   console.log(chalk.green(`✓ Skillset: ${skillset.name} v${skillset.version}`));
 
   // 5. Check audit report
   const audit = checkAuditReport(cwd);
   if (!audit.exists) {
-    console.log(chalk.red('✗ AUDIT_REPORT.md not found'));
-    console.log(chalk.gray('  Run: npx skillsets audit'));
-    process.exit(1);
+    throw new Error('AUDIT_REPORT.md not found. Run: npx skillsets audit');
   }
   if (!audit.passing) {
-    console.log(chalk.red('✗ Audit report shows failures'));
-    console.log(chalk.gray('  Fix issues and re-run: npx skillsets audit'));
-    process.exit(1);
+    throw new Error('Audit report shows failures. Fix issues and re-run: npx skillsets audit');
   }
   console.log(chalk.green('✓ Audit report passing'));
 
@@ -130,8 +109,7 @@ export async function submit(): Promise<void> {
   const requiredFiles = ['skillset.yaml', 'PROOF.md', 'AUDIT_REPORT.md', 'content'];
   for (const file of requiredFiles) {
     if (!existsSync(join(cwd, file))) {
-      console.log(chalk.red(`✗ Missing required: ${file}`));
-      process.exit(1);
+      throw new Error(`Missing required: ${file}`);
     }
   }
   console.log(chalk.green('✓ All required files present'));
@@ -153,13 +131,10 @@ export async function submit(): Promise<void> {
     registryAvailable = false;
   }
 
-  // Validate version bump (outside try-catch so process.exit works in tests)
+  // Validate version bump
   if (isUpdate && existingVersion) {
     if (compareVersions(skillset.version, existingVersion) <= 0) {
-      console.log(chalk.red(`✗ Version must be greater than ${existingVersion}`));
-      console.log(chalk.gray(`  Current: ${skillset.version}`));
-      console.log(chalk.gray('  Update skillset.yaml with a higher version'));
-      process.exit(1);
+      throw new Error(`Version must be greater than ${existingVersion} (current: ${skillset.version}). Update skillset.yaml with a higher version.`);
     }
     console.log(chalk.green(`✓ Update: ${existingVersion} → ${skillset.version}`));
   } else if (registryAvailable) {

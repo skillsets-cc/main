@@ -5,12 +5,23 @@ import * as checksum from '../../lib/checksum.js';
 import * as api from '../../lib/api.js';
 import degit from 'degit';
 import { confirm } from '@inquirer/prompts';
+import * as fsPromises from 'fs/promises';
 
 vi.mock('degit');
 vi.mock('../../lib/filesystem.js');
 vi.mock('../../lib/checksum.js');
 vi.mock('../../lib/api.js');
 vi.mock('@inquirer/prompts');
+vi.mock('fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof fsPromises>();
+  return {
+    ...actual,
+    mkdtemp: vi.fn().mockResolvedValue('/tmp/skillsets-mock'),
+    readdir: vi.fn().mockResolvedValue([]),
+    cp: vi.fn().mockResolvedValue(undefined),
+    rm: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 // Mock fetch globally
 const mockFetch = vi.fn();
@@ -50,7 +61,7 @@ describe('install command', () => {
       'skillsets-cc/main/skillsets/@user/test-skillset/content',
       expect.any(Object)
     );
-    expect(checksum.verifyChecksums).toHaveBeenCalledWith('@user/test-skillset', '/test/dir');
+    expect(checksum.verifyChecksums).toHaveBeenCalledWith('@user/test-skillset', '/tmp/skillsets-mock');
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Installation complete'));
   });
 
@@ -102,15 +113,13 @@ describe('install command', () => {
     expect(degit).toHaveBeenCalled();
   });
 
-  it('exits with error on checksum failure', async () => {
+  it('throws on checksum failure', async () => {
     vi.mocked(checksum.verifyChecksums).mockResolvedValue({
       valid: false,
       mismatches: [{ file: 'content/CLAUDE.md', expected: 'abc', actual: 'def' }],
     });
 
-    await install('@user/test-skillset', {});
-
-    expect(process.exit).toHaveBeenCalledWith(1);
+    await expect(install('@user/test-skillset', {})).rejects.toThrow('Checksum verification failed');
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('checksum mismatch'));
   });
 
@@ -211,13 +220,12 @@ describe('install command', () => {
       expect(degit).toHaveBeenCalled();
     });
 
-    it('exits with error in non-TTY without --accept-mcp', async () => {
+    it('throws in non-TTY without --accept-mcp', async () => {
       const originalIsTTY = process.stdin.isTTY;
       Object.defineProperty(process.stdin, 'isTTY', { value: false, writable: true });
 
       vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithMcp);
-      await install('@user/test-skillset', {});
-      expect(process.exit).toHaveBeenCalledWith(1);
+      await expect(install('@user/test-skillset', {})).rejects.toThrow('Use --accept-mcp');
       expect(degit).not.toHaveBeenCalled();
 
       Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
@@ -325,5 +333,57 @@ describe('install command', () => {
 
       Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
     });
+
+    it('formats http MCP server type with URL', async () => {
+      const originalIsTTY = process.stdin.isTTY;
+      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue({
+        ...metadataWithMcp,
+        mcp_servers: [{
+          name: 'remote-mcp',
+          type: 'http' as const,
+          url: 'https://mcp.example.com',
+          mcp_reputation: 'custom: remote MCP server',
+          researched_at: '2026-02-04',
+        }],
+      });
+      vi.mocked(confirm).mockResolvedValue(true);
+      await install('@user/test-skillset', {});
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('https://mcp.example.com'));
+
+      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+    });
+  });
+
+  it('copies verified content from temp dir to cwd', async () => {
+    const fsPromises = await import('fs/promises');
+    vi.mocked(fsPromises.readdir).mockResolvedValueOnce([
+      { name: 'CLAUDE.md', isDirectory: () => false },
+      { name: '.claude', isDirectory: () => true },
+    ] as any);
+
+    await install('@user/test-skillset', {});
+
+    expect(fsPromises.cp).toHaveBeenCalledTimes(2);
+  });
+
+  it('cleans up temp dir on clone failure', async () => {
+    const mockClone = vi.fn().mockRejectedValue(new Error('clone failed'));
+    vi.mocked(degit).mockReturnValue({ clone: mockClone } as any);
+    const fsPromises = await import('fs/promises');
+
+    await expect(install('@user/test-skillset', {})).rejects.toThrow('clone failed');
+
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      '/tmp/skillsets-mock',
+      expect.objectContaining({ recursive: true })
+    );
+  });
+
+  it('rejects invalid skillset ID format', async () => {
+    await install('invalid-format', {});
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Expected format'));
   });
 });

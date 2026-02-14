@@ -33,7 +33,7 @@ export interface SearchIndexEntry {
   batch_id?: string;
 }
 
-export interface McpServerInner {
+export interface McpNestedServer {
   name: string;
   command: string;
   args?: string[];
@@ -48,7 +48,7 @@ export interface McpServer {
   args?: string[];
   url?: string;
   image?: string;
-  servers?: McpServerInner[];
+  servers?: McpNestedServer[];
   mcp_reputation: string;
   researched_at: string;
 }

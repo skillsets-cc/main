@@ -33,7 +33,7 @@ export async function search(query: string, options: SearchOptions): Promise<voi
   });
 
   const results = fuse.search(query);
-  const limit = parseInt(options.limit || DEFAULT_SEARCH_LIMIT.toString(), 10);
+  const limit = Number(options.limit) || DEFAULT_SEARCH_LIMIT;
 
   if (results.length === 0) {
     console.log(chalk.yellow('No results found.'));
