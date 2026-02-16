@@ -1,7 +1,7 @@
 # Plugin Module
 
 ## Purpose
-Claude Code orchestrator plugin for skillsets.cc. Wraps the `npx skillsets` CLI with interactive workflows that handle non-TTY limitations — consent prompts, multi-step guided flows, and post-install customization.
+Claude Code orchestrator plugin for skillsets.cc. Wraps the `npx skillsets` CLI with guided multi-step flows and post-install customization.
 
 ## Architecture
 
@@ -38,46 +38,32 @@ User → /skillset:browse [query]
 ### Install
 ```
 User → /skillset:install @author/name
-  → npx skillsets view (pre-flight: README + audit report)
-  → Claude extracts MCP servers / runtime deps from audit report
-  → Claude presents findings, asks for consent
-  → npx skillsets install --accept-mcp --accept-deps
+  → npx skillsets install (interactive consent for MCP/deps)
   → Read QUICKSTART.md
   → Interactive section-by-section walkthrough
 ```
 
-The pre-flight check solves a non-TTY limitation: the CLI's interactive consent prompts for MCP servers and runtime dependencies can't pass through Claude's Bash tool. Instead, Claude runs `view` (which fetches the audit report), handles consent conversationally, then runs `install` with the `--accept-mcp --accept-deps` flags.
+The CLI handles MCP server and runtime dependency consent via interactive prompts that pass through Claude Code's Bash tool.
 
 ### Contribute
 ```
 User → /skillset:contribute
-  → Task 1: User runs npx skillsets init (gh CLI required)
+  → Task 1: npx skillsets init (gh CLI auth passes through)
   → Task 2: Claude reviews skillset.yaml, content/, PROOF.md
-  → Task 3: Claude runs npx skillsets audit
-  → Task 4: Claude runs /audit-skill (via Skill tool)
-  → Task 5: User runs npx skillsets submit (gh CLI required)
+  → Task 3: npx skillsets audit
+  → Task 4: /audit-skill (via Skill tool)
+  → Task 5: npx skillsets submit (gh CLI auth passes through)
 ```
 
-Tasks 1 and 5 are delegated to the user because they require GitHub CLI authentication for slot reservation and PR creation. Tasks 2–4 are run by Claude directly.
+All commands are run by Claude directly. Interactive prompts (including `gh` CLI authentication for init and submit) pass through to the user.
 
 ## Key Patterns
 
 ### Task Management
 All three skills use the `TaskCreate`/`TaskUpdate` phase tracking pattern. Tasks are created upfront with verbatim `subject`, `activeForm`, and `description`, then progressed sequentially. This prevents phase skipping and gives the user visibility into progress.
 
-### Non-TTY Consent
-The CLI has interactive prompts for MCP server and runtime dependency consent during install. Since Claude's Bash tool is non-TTY, the install skill splits this into two steps: (1) `view` to surface the audit report, (2) Claude handles consent conversationally, (3) `install` with accept flags. This is better UX than the CLI's raw prompts because Claude can explain what each MCP server does.
-
-### Mixed Execution
-The contribute skill has a clear split between Claude-run and user-run commands:
-
-| Command | Who runs | Why |
-|---------|----------|-----|
-| `npx skillsets init` | User | Needs gh CLI auth for slot reservation |
-| Content review | Claude | File reads + targeted feedback |
-| `npx skillsets audit` | Claude | Non-interactive validation |
-| `/audit-skill` | Claude | Invoked via Skill tool |
-| `npx skillsets submit` | User | Needs gh CLI auth to fork + PR |
+### Interactive Passthrough
+All CLI commands run through Claude's Bash tool. Interactive prompts — including `gh` CLI authentication for `init` and `submit` — pass through to the user directly.
 
 ### Skill Chaining
 Browse can invoke Install directly via the `Skill` tool — when a user finds a skillset they want, Claude installs it without requiring a separate `/skillset:install` invocation.
