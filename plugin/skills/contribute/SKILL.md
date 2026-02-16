@@ -22,7 +22,7 @@ Create ALL tasks upfront using `TaskCreate`. Pass the **subject**, **activeForm*
 
 - **subject**: Initialize skillset submission
 - **activeForm**: Initializing submission
-- **description**: Prerequisites: GitHub CLI (`gh`) installed and authenticated, an existing Claude Code workflow with `.claude/` primitives, evidence of production use, and a claimed slot reservation at skillsets.cc. Run `npx skillsets@latest init`. It will scaffold `skillset.yaml` and the submission directory structure, detect existing `.claude/` structure and offer to copy it into `content/`, and install the `/audit-skill` for qualitative review. Interactive prompts pass through to the user.
+- **description**: Prerequisites: GitHub CLI (`gh`) installed and authenticated, an existing Claude Code workflow with `.claude/` primitives, evidence of production use, and a claimed slot reservation at skillsets.cc. Ask the user for: skillset name, description (10-200 chars), GitHub handle, production URL, and tags (comma-separated, lowercase). Then run `npx skillsets@latest init --name <name> --description <desc> --handle <handle> --production-url <url> --tags <tags>`. Optionally pass `--author-url <url>` if they want something other than their GitHub profile. The CLI will skip interactive prompts when all flags are provided, auto-detect and copy existing files, and install the `/audit-skill` for qualitative review.
 
 ### Task 2: Prepare content
 

@@ -64,6 +64,12 @@ program
   .command('init')
   .description('Initialize a new skillset submission')
   .option('-y, --yes', 'Accept defaults without prompting')
+  .option('--name <name>', 'Skillset name')
+  .option('--description <desc>', 'Description (10-200 chars)')
+  .option('--handle <handle>', 'GitHub handle (e.g., @username)')
+  .option('--author-url <url>', 'Author URL')
+  .option('--production-url <url>', 'Production URL')
+  .option('--tags <tags>', 'Comma-separated tags')
   .action(run(init));
 
 program
