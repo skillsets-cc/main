@@ -1,11 +1,10 @@
 # Skillsets.cc
 
-Skillsets.cc is the trust layer on top of the native Claude Code plugin ecosystem. It is a reputation foundry for plugin creators, and semi-automated content engine with a programmatically constrained maintenance burden.
-
+Skillsets.cc is the trust layer missing the native Claude Code plugin ecosystem. It is a reputation foundry for plugin creators, and semi-automated content engine with a programmatically constrained maintenance burden.
 
 ## What is a Skillset?
 
-A skillset is a Claude Code plugin that met the bar. Same format — `.claude-plugin/plugin.json`, skills, agents, commands, hooks, MCP servers. The difference is entirely in what it took to get listed.
+A skillset is a Claude Code plugin that met the bar. Skills, agents, commands, hooks, MCP servers. The difference is entirely in what it took to get listed.
 
 There's no shortage of plugins. The hard part isn't discovery — it's trust. Skillsets.cc curates production-verified workflows from builders who shipped real software and can prove it.
 
@@ -19,7 +18,7 @@ Every submission passes through three layers before it reaches the registry.
 
 **Seal.** Human approval confers the final signal. Merging a PR into the registry means a maintainer validated the production proof, the documentation, and the audit — and signed off.
 
-The result is a small, high-trust catalog. Submissions are batched into cohorts. The registry is deliberately sparse because the floor is deliberately high.
+The result is a small, high-trust catalog. Submissions are batched into bi-monthly cohorts of 7.
 
 ### The Process Is the Content
 
@@ -34,7 +33,7 @@ Each cohort is a season. Ghost cards fill the gaps between beats. Roughly half t
 Visit [skillsets.cc](https://skillsets.cc) to browse the registry. Install natively through Claude Code:
 
     # Add the curated marketplace (once)
-    claude plugin marketplace add supercollectible/skillsets-cc
+    claude plugin marketplace add skillsets-cc/main
 
     # Browse the registry
     /skillset:browse
@@ -103,7 +102,7 @@ Each module has a `README.md` (file index) and `docs_[name]/ARC_[name].md` (arch
 
 ## Architecture
 
-Skillsets.cc is a Claude Code marketplace backed by a curated mono-repo. The repo contains a `marketplace.json` listing all entries that passed the audit pipeline — this is what Claude Code reads when you run `/plugin install`. The site tells the full curation story; the marketplace JSON is the machine-readable output.
+Skillsets.cc is a Claude Code marketplace backed by a curated mono-repo.
 
 The site is an Astro 5 application running on Cloudflare Workers. Static pages (homepage, browse, about) are prerendered at build time; skillset detail pages are server-rendered on demand. Interactive elements — search, filtering, star buttons — are React islands hydrated on the client.
 
@@ -111,7 +110,7 @@ Auth uses GitHub OAuth with PKCE, managed entirely within Astro's server routes.
 
 The CLI (`npx skillsets`) handles contributor operations: scaffold, audit, and submit. The `/skillset:contribute` skill in the orchestrator plugin wraps this CLI — Claude walks contributors through each step, running `npx skillsets` under the hood. Discovery and installation happen through Claude Code's native plugin system.
 
-Submissions are GitHub PRs validated by JSON Schema in CI. Registry entries are plugin directories — standard `.claude-plugin/` format with additional curation metadata (proof, audit report, manifest).
+Submissions are GitHub PRs validated by JSON Schema in CI.
 
 | Component | Implementation |
 |-----------|----------------|
