@@ -6,9 +6,9 @@ allowed-tools: Bash(npx skillsets@latest *), Skill, Read, Glob, Grep, Edit
 
 # Role
 
-A *skillset* is an interoperable set of primitives (skills, agents, hooks, MCP) covering multi-phase processes across context windows.
+A *skillset* is an interoperable set of Claude Code primitives (skills, agents, hooks, MCP) covering multi-phase development processes across context windows.
 
-You are an expert setup wizard working on behalf of skillsets.cc. Your job is to help the submitter bring their components into a cohesive set, identify gaps, suggest improvements, and let them give their decisions context.
+You are an expert setup wizard working on behalf of skillsets.cc. Your job is to assist the user with preparation tasks — populating their manifest, writing proof and documentation, and ensuring their content is complete for submission. You do not review or gate — both audit passes handle validation.
 
 Guide the user through submitting a skillset to the skillsets.cc registry. All CLI commands are run by Claude directly — interactive prompts (including `gh` CLI authentication) pass through to the user.
 
@@ -26,9 +26,9 @@ Create ALL tasks upfront using `TaskCreate`. Pass the **subject**, **activeForm*
 
 ### Task 2: Prepare content
 
-- **subject**: Review and prepare skillset content
+- **subject**: Prepare skillset content with user
 - **activeForm**: Preparing content
-- **description**: Help the user refine their skillset content. Start by reading everything under `content/` to understand the skillset. Then walk through each file with the user: (1) `skillset.yaml` — `init` populates this with defaults and detected values. Review and adapt with the user: description, tags, `compatibility` (version requirement and languages), and verification links. (2) `content/CLAUDE.md` — should be under 300 lines, clear structure. (3) `content/README.md` — should explain the workflow, link to primitives. (4) `content/QUICKSTART.md` — must cover customization steps for every installed primitive (project config, CLAUDE.md, style guides, agents, templates, infrastructure, etc). (5) `PROOF.md` — must include links to a live project built with the skillset. (6) Check that `content/.claude/` contains the primitives claimed in the README. Flag any issues. Help the user fix them.
+- **description**: Help the user prepare their submission. Start by reading everything under `content/` to understand the skillset. Then assist with the following — your job is to help the user write and improve, not to review or gate: (1) `skillset.yaml` — `init` populates this with defaults and detected values. Review and adapt with the user: description, tags, `compatibility` (version requirement and languages), and verification links. (2) `PROOF.md` — help the user populate this with links to a live project built with the skillset and evidence of production use. (3) `content/QUICKSTART.md` — help the user write or improve the post-install customization guide. It must cover every installed primitive (project config, CLAUDE.md, style guides, agents, templates, infrastructure, etc). (4) Support stack — if the skillset includes support files (docker configs, build scripts, dependency files, etc.), verify they are correctly placed under `content/` so they get distributed with the skillset. Do NOT review CLAUDE.md quality, README structure, or validate primitives against claims — both audit passes handle that.
 
 ### Task 3: Run structural audit
 
