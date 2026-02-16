@@ -15,7 +15,7 @@
 | `list` | `list()` | - | `--limit`, `--sort`, `--json` |
 | `search` | `search()` | `<query>` | `--tags`, `--limit` |
 | `view` | `view()` | `<skillsetId>` | - |
-| `install` | `install()` | `<skillsetId>` | `--force`, `--backup`, `--accept-mcp` |
+| `install` | `install()` | `<skillsetId>` | `--force`, `--backup`, `--accept-mcp`, `--accept-deps` |
 | `init` | `init()` | - | `--yes` |
 | `audit` | `audit()` | - | `--check` |
 | `submit` | `submit()` | - | - |

@@ -96,8 +96,8 @@ describe('ReservationCoordinator', () => {
 
       // All slots should be available with batch ID format
       for (let i = 1; i <= 10; i++) {
-        const slotId = `${i}.10.001`;
-        expect(data.slots[slotId].status).toBe('available');
+        const batchId = `${i}.10.001`;
+        expect(data.slots[batchId].status).toBe('available');
       }
     });
 
@@ -105,7 +105,7 @@ describe('ReservationCoordinator', () => {
       // Pre-populate a reservation with new format
       const storage = mockState.storage as any;
       const now = Math.floor(Date.now() / 1000);
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'reserved',
         userId: '123',
         githubLogin: 'testuser',
@@ -129,7 +129,7 @@ describe('ReservationCoordinator', () => {
       // Set an expired reservation
       const storage = mockState.storage as any;
       const now = Math.floor(Date.now() / 1000);
-      storage._store.set('slot:3.10.001', {
+      storage._store.set('batch:3.10.001', {
         status: 'reserved',
         userId: '123',
         githubLogin: 'testuser',
@@ -147,13 +147,13 @@ describe('ReservationCoordinator', () => {
       expect(data.slots['3.10.001'].status).toBe('available');
 
       // BUT storage still contains the entry (lazy expiry)
-      expect(storage._store.has('slot:3.10.001')).toBe(true);
+      expect(storage._store.has('batch:3.10.001')).toBe(true);
     });
 
     it('test_status_submitted_slot', async () => {
       // Pre-populate a submitted slot
       const storage = mockState.storage as any;
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'submitted',
         userId: '123',
         githubLogin: 'testuser',
@@ -181,7 +181,7 @@ describe('ReservationCoordinator', () => {
       });
 
       // Pre-populate a submitted slot from cohort 1
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'submitted',
         userId: '123',
         githubLogin: 'testuser',
@@ -210,7 +210,7 @@ describe('ReservationCoordinator', () => {
       const request = new Request('https://do/reserve', {
         method: 'POST',
         body: JSON.stringify({
-          slotId: '1.10.001',
+          batchId: '1.10.001',
           userId: '123',
           githubLogin: 'testuser',
         }),
@@ -220,12 +220,12 @@ describe('ReservationCoordinator', () => {
       expect(response.status).toBe(201);
 
       const data = await response.json() as any;
-      expect(data.slotId).toBe('1.10.001');
+      expect(data.batchId).toBe('1.10.001');
       expect(data.expiresAt).toBeGreaterThan(Math.floor(Date.now() / 1000));
 
       // Verify storage was updated with new format
       const storage = mockState.storage as any;
-      const slotData = storage._store.get('slot:1.10.001');
+      const slotData = storage._store.get('batch:1.10.001');
       expect(slotData).toBeDefined();
       expect(slotData.status).toBe('reserved');
       expect(slotData.userId).toBe('123');
@@ -241,7 +241,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '1.10.001',
+            batchId: '1.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -252,7 +252,7 @@ describe('ReservationCoordinator', () => {
       const request = new Request('https://do/reserve', {
         method: 'POST',
         body: JSON.stringify({
-          slotId: '2.10.001',
+          batchId: '2.10.001',
           userId: '123',
           githubLogin: 'testuser',
         }),
@@ -272,7 +272,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '1.10.001',
+            batchId: '1.10.001',
             userId: '123',
             githubLogin: 'user123',
           }),
@@ -283,7 +283,7 @@ describe('ReservationCoordinator', () => {
       const request = new Request('https://do/reserve', {
         method: 'POST',
         body: JSON.stringify({
-          slotId: '1.10.001',
+          batchId: '1.10.001',
           userId: '456',
           githubLogin: 'user456',
         }),
@@ -301,7 +301,7 @@ describe('ReservationCoordinator', () => {
       const request1 = new Request('https://do/reserve', {
         method: 'POST',
         body: JSON.stringify({
-          slotId: 'invalid',
+          batchId: 'invalid',
           userId: '123',
           githubLogin: 'testuser',
         }),
@@ -313,7 +313,7 @@ describe('ReservationCoordinator', () => {
       const request2 = new Request('https://do/reserve', {
         method: 'POST',
         body: JSON.stringify({
-          slotId: '1.10.002',
+          batchId: '1.10.002',
           userId: '123',
           githubLogin: 'testuser',
         }),
@@ -325,7 +325,7 @@ describe('ReservationCoordinator', () => {
       const request3 = new Request('https://do/reserve', {
         method: 'POST',
         body: JSON.stringify({
-          slotId: '11.10.001',
+          batchId: '11.10.001',
           userId: '123',
           githubLogin: 'testuser',
         }),
@@ -338,7 +338,7 @@ describe('ReservationCoordinator', () => {
       // Pre-populate an expired reservation
       const storage = mockState.storage as any;
       const now = Math.floor(Date.now() / 1000);
-      storage._store.set('slot:1.10.001', {
+      storage._store.set('batch:1.10.001', {
         status: 'reserved',
         userId: '123',
         githubLogin: 'olduser',
@@ -350,7 +350,7 @@ describe('ReservationCoordinator', () => {
       const request = new Request('https://do/reserve', {
         method: 'POST',
         body: JSON.stringify({
-          slotId: '1.10.001',
+          batchId: '1.10.001',
           userId: '456',
           githubLogin: 'newuser',
         }),
@@ -360,7 +360,7 @@ describe('ReservationCoordinator', () => {
       expect(response.status).toBe(201);
 
       // Verify old data was overwritten
-      const slotData = storage._store.get('slot:1.10.001');
+      const slotData = storage._store.get('batch:1.10.001');
       expect(slotData.userId).toBe('456');
       expect(slotData.githubLogin).toBe('newuser');
     });
@@ -373,7 +373,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '3.10.001',
+            batchId: '3.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -394,14 +394,14 @@ describe('ReservationCoordinator', () => {
 
       // Verify storage was cleared
       const storage = mockState.storage as any;
-      expect(storage._store.has('slot:3.10.001')).toBe(false);
+      expect(storage._store.has('batch:3.10.001')).toBe(false);
       expect(storage._store.has('user:123')).toBe(false);
     });
 
     it('test_release_submitted_slot', async () => {
       // Pre-populate a submitted slot
       const storage = mockState.storage as any;
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'submitted',
         userId: '123',
         githubLogin: 'testuser',
@@ -473,7 +473,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '1.10.001',
+            batchId: '1.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -491,14 +491,14 @@ describe('ReservationCoordinator', () => {
 
       // Verify reserved slot was deleted
       const storage = mockState.storage as any;
-      expect(storage._store.has('slot:1.10.001')).toBe(false);
+      expect(storage._store.has('batch:1.10.001')).toBe(false);
       expect(storage._store.has('user:123')).toBe(false);
     });
 
     it('test_config_cohort_change_preserves_submitted', async () => {
       // Pre-populate a submitted slot
       const storage = mockState.storage as any;
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'submitted',
         userId: '123',
         githubLogin: 'testuser',
@@ -517,8 +517,8 @@ describe('ReservationCoordinator', () => {
       expect(response.status).toBe(200);
 
       // Verify submitted slot data still exists
-      expect(storage._store.has('slot:5.10.001')).toBe(true);
-      const slotData = storage._store.get('slot:5.10.001');
+      expect(storage._store.has('batch:5.10.001')).toBe(true);
+      const slotData = storage._store.get('batch:5.10.001');
       expect(slotData.status).toBe('submitted');
 
       // Verify user key IS deleted (user can reserve in new cohort)
@@ -577,7 +577,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '5.10.001',
+            batchId: '5.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -599,7 +599,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '5.10.001',
+            batchId: '5.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -620,7 +620,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '5.10.001',
+            batchId: '5.10.001',
             userId: '123',
             githubLogin: 'alice',
           }),
@@ -650,7 +650,7 @@ describe('ReservationCoordinator', () => {
     it('test_verify_already_submitted', async () => {
       // Pre-populate a submitted slot
       const storage = mockState.storage as any;
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'submitted',
         userId: '123',
         githubLogin: 'testuser',
@@ -671,7 +671,7 @@ describe('ReservationCoordinator', () => {
       // Pre-populate an expired reservation
       const storage = mockState.storage as any;
       const now = Math.floor(Date.now() / 1000);
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'reserved',
         userId: '123',
         githubLogin: 'testuser',
@@ -705,7 +705,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '5.10.001',
+            batchId: '5.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -731,7 +731,7 @@ describe('ReservationCoordinator', () => {
 
       // Verify storage has submitted data
       const storage = mockState.storage as any;
-      const slotData = storage._store.get('slot:5.10.001');
+      const slotData = storage._store.get('batch:5.10.001');
       expect(slotData.status).toBe('submitted');
       expect(slotData.skillsetId).toBe('@user/Skill');
 
@@ -758,7 +758,7 @@ describe('ReservationCoordinator', () => {
     it('test_submit_already_submitted', async () => {
       // Pre-populate a submitted slot
       const storage = mockState.storage as any;
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'submitted',
         userId: '123',
         githubLogin: 'testuser',
@@ -800,7 +800,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '5.10.001',
+            batchId: '5.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -835,7 +835,7 @@ describe('ReservationCoordinator', () => {
       // Pre-populate an expired reservation
       const storage = mockState.storage as any;
       const now = Math.floor(Date.now() / 1000);
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'reserved',
         userId: '123',
         githubLogin: 'testuser',
@@ -876,7 +876,7 @@ describe('ReservationCoordinator', () => {
         new Request('https://do/reserve', {
           method: 'POST',
           body: JSON.stringify({
-            slotId: '5.10.001',
+            batchId: '5.10.001',
             userId: '123',
             githubLogin: 'testuser',
           }),
@@ -903,7 +903,7 @@ describe('ReservationCoordinator', () => {
     it('test_lookup_submitted_returns_null', async () => {
       // Pre-populate a submitted slot
       const storage = mockState.storage as any;
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'submitted',
         userId: '123',
         githubLogin: 'testuser',
@@ -924,7 +924,7 @@ describe('ReservationCoordinator', () => {
       // Pre-populate an expired reservation
       const storage = mockState.storage as any;
       const now = Math.floor(Date.now() / 1000);
-      storage._store.set('slot:5.10.001', {
+      storage._store.set('batch:5.10.001', {
         status: 'reserved',
         userId: '123',
         githubLogin: 'testuser',

@@ -8,7 +8,7 @@ import type { GhostSlot, ReservationState, SearchIndexEntry } from '../index';
 describe('Reservation Types', () => {
   it('test_ghost_slot_type_available', () => {
     const slot: GhostSlot = {
-      slotId: '1.10.001',
+      batchId: '1.10.001',
       status: 'available',
     };
 
@@ -18,7 +18,7 @@ describe('Reservation Types', () => {
 
   it('test_ghost_slot_type_reserved', () => {
     const slot: GhostSlot = {
-      slotId: '2.10.001',
+      batchId: '2.10.001',
       status: 'reserved',
       expiresAt: 1738900000,
     };
@@ -47,7 +47,7 @@ describe('Reservation Types', () => {
 
   it('test_ghost_slot_submitted_status', () => {
     const slot: GhostSlot = {
-      slotId: '5.11.001',
+      batchId: '5.11.001',
       status: 'submitted',
       skillsetId: '@user/Skill',
     };

@@ -2,19 +2,17 @@ import { useState, type ReactElement } from 'react';
 import { useCountdown } from './useCountdown.js';
 
 interface GhostCardProps {
-  slotId: string;
   batchId: string;
   status: 'available' | 'reserved' | 'submitted';
   expiresAt?: number;
   skillsetId?: string;
   isOwn: boolean;
-  onReserved: (slotId: string, expiresAt: number) => void;
+  onReserved: (batchId: string, expiresAt: number) => void;
   onCancelled: () => void;
   onConflict: () => void;
 }
 
 export default function GhostCard({
-  slotId,
   batchId,
   status,
   expiresAt,
@@ -33,7 +31,7 @@ export default function GhostCard({
       const response = await fetch('/api/reservations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slotId }),
+        body: JSON.stringify({ batchId }),
         credentials: 'include',
       });
 
@@ -48,8 +46,8 @@ export default function GhostCard({
       }
 
       if (response.status === 201) {
-        const data = await response.json() as { slotId: string; expiresAt: number };
-        onReserved(data.slotId, data.expiresAt);
+        const data = await response.json() as { batchId: string; expiresAt: number };
+        onReserved(data.batchId, data.expiresAt);
       }
     } catch (error) {
       console.error('[GhostCard] Reserve failed:', error);

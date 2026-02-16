@@ -55,6 +55,7 @@ program
   .option('-f, --force', 'Overwrite existing files')
   .option('-b, --backup', 'Backup existing files before install')
   .option('--accept-mcp', 'Accept MCP servers without prompting (required for non-interactive environments)')
+  .option('--accept-deps', 'Accept runtime dependencies without prompting')
   .action(run(install));
 
 // === Contribution Commands ===

@@ -5,6 +5,7 @@
  * - downloads:{skillsetId}           → download count (number as string)
  * - ratelimit:dl:{ip}:{hour}         → request count (hour-bucketed, 7200s TTL)
  */
+import { isHourlyRateLimited } from './rate-limit';
 
 const DL_RATE_LIMIT_MAX = 30; // Max downloads per hour per IP
 
@@ -16,16 +17,7 @@ export async function isDownloadRateLimited(
   kv: KVNamespace,
   ip: string
 ): Promise<boolean> {
-  const hour = Math.floor(Date.now() / 3_600_000);
-  const key = `ratelimit:dl:${ip}:${hour}`;
-  const current = parseInt((await kv.get(key)) ?? '0', 10);
-
-  if (current >= DL_RATE_LIMIT_MAX) {
-    return true;
-  }
-
-  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
-  return false;
+  return isHourlyRateLimited(kv, 'dl', ip, DL_RATE_LIMIT_MAX);
 }
 
 /**

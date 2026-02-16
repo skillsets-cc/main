@@ -20,6 +20,7 @@ Interactive scaffold for new skillset submission with ghost entry reservation lo
 |----------|----------------|
 | `SKILLSET_YAML_TEMPLATE` | `skillset.yaml` (with auto-populated batch_id) |
 | `README_TEMPLATE` | `content/README.md` |
+| `QUICKSTART_TEMPLATE` | `content/QUICKSTART.md` |
 | `PROOF_TEMPLATE` | `PROOF.md` |
 
 ### Prompts
@@ -62,6 +63,7 @@ init() → Verify gh CLI auth → Get GitHub user ID → Look up reservation →
 │       └── (other skill files)
 └── content/                # Installable files
     ├── README.md           # Generated if not detected
+    ├── QUICKSTART.md       # Generated if not detected
     └── (copied .claude/, CLAUDE.md, .mcp.json, docker/, etc.)
 ```
 

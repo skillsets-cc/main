@@ -5,12 +5,10 @@
  */
 import type { APIRoute } from 'astro';
 import { getSessionFromRequest, type Env } from '@/lib/auth';
-import { jsonResponse, errorResponse } from '@/lib/responses';
-import { getReservationStub } from '@/lib/reservation-do';
+import { jsonResponse, errorResponse, parseJsonBody } from '@/lib/responses';
+import { getReservationStub, BATCH_ID_REGEX } from '@/lib/reservation-do';
 import { isMaintainer } from '@/lib/maintainer';
 import { isValidSkillsetId } from '@/lib/validation';
-
-const BATCH_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 
 /**
  * POST /api/reservations/submit
@@ -36,12 +34,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return errorResponse('Forbidden', 403);
   }
 
-  let body: Record<string, unknown>;
-  try {
-    body = (await request.json()) as Record<string, unknown>;
-  } catch {
-    return errorResponse('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<Record<string, unknown>>(request);
+  if (body instanceof Response) return body;
 
   // Validate input before forwarding to DO
   const { batchId, skillsetId } = body;

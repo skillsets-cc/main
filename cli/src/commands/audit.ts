@@ -5,37 +5,12 @@ import { join, relative } from 'path';
 import yaml from 'js-yaml';
 import { fetchSkillsetMetadata } from '../lib/api.js';
 import { validateMcpServers } from '../lib/validate-mcp.js';
+import { validateRuntimeDeps } from '../lib/validate-deps.js';
 import { compareVersions } from '../lib/versions.js';
-
-type AuditStatus = 'PASS' | 'FAIL' | 'WARNING';
-
-interface AuditResult {
-  status: AuditStatus;
-  details: string;
-  findings?: string;
-}
-
-interface AuditResults {
-  manifest: AuditResult;
-  requiredFiles: AuditResult;
-  contentStructure: AuditResult;
-  fileSize: AuditResult;
-  binary: AuditResult;
-  secrets: AuditResult;
-  versionCheck: AuditResult;
-  readmeLinks: AuditResult;
-  mcpServers: AuditResult;
-  skillsetName?: string;
-  skillsetVersion?: string;
-  authorHandle?: string;
-  isUpdate: boolean;
-  existingVersion?: string;
-  files: { path: string; size: number }[];
-  largeFiles: { path: string; size: number }[];
-  binaryFiles: string[];
-  secretsFound: { file: string; line: number; pattern: string }[];
-  relativeLinks: { line: number; link: string }[];
-}
+import {
+  type AuditStatus, type AuditResult, type AuditResults,
+  isAuditPassing, colorIcon, generateReport,
+} from './audit-report.js';
 
 const MAX_FILE_SIZE = 1048576; // 1MB
 
@@ -130,7 +105,7 @@ function scanForSecrets(dir: string): { file: string; line: number; pattern: str
     if (filePath.includes('AUDIT_REPORT')) continue;
 
     try {
-      const content = readFileSync(join(dir, filePath), 'utf-8');
+      const content = readFileSync(fullPath, 'utf-8');
       const lines = content.split('\n');
 
       for (let i = 0; i < lines.length; i++) {
@@ -200,151 +175,29 @@ function validateManifest(cwd: string): { valid: boolean; errors: string[]; data
   }
 }
 
-function formatSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function isAuditPassing(results: AuditResults, enforceMcp: boolean): boolean {
-  return results.manifest.status === 'PASS' &&
-    results.requiredFiles.status === 'PASS' &&
-    results.contentStructure.status === 'PASS' &&
-    results.fileSize.status !== 'FAIL' &&
-    results.secrets.status === 'PASS' &&
-    results.readmeLinks.status === 'PASS' &&
-    results.versionCheck.status === 'PASS' &&
-    (enforceMcp ? results.mcpServers.status === 'PASS' : true);
-}
-
-function statusIcon(status: AuditStatus): string {
-  if (status === 'PASS') return '✓ PASS';
-  if (status === 'WARNING') return '⚠ WARNING';
-  return '✗ FAIL';
-}
-
-function colorIcon(status: AuditStatus): string {
-  if (status === 'PASS') return chalk.green('✓');
-  if (status === 'WARNING') return chalk.yellow('⚠');
-  return chalk.red('✗');
-}
-
-function generateReport(results: AuditResults, _cwd: string, enforceMcp: boolean = false): string {
-  const timestamp = new Date().toISOString();
-  const allPassed = isAuditPassing(results, enforceMcp);
-
-  const submissionType = results.isUpdate
-    ? `Update (${results.existingVersion} → ${results.skillsetVersion})`
-    : 'New submission';
-
-  let report = `# Audit Report
-
-**Generated:** ${timestamp}
-**Skillset:** ${results.skillsetName || 'Unknown'} v${results.skillsetVersion || '0.0.0'}
-**Author:** ${results.authorHandle || 'Unknown'}
-**Type:** ${submissionType}
-
----
-
-## Validation Summary
-
-| Check | Status | Details |
-|-------|--------|---------|
-| Manifest Validation | ${statusIcon(results.manifest.status)} | ${results.manifest.details} |
-| Required Files | ${statusIcon(results.requiredFiles.status)} | ${results.requiredFiles.details} |
-| Content Structure | ${statusIcon(results.contentStructure.status)} | ${results.contentStructure.details} |
-| File Size Check | ${statusIcon(results.fileSize.status)} | ${results.fileSize.details} |
-| Binary Detection | ${statusIcon(results.binary.status)} | ${results.binary.details} |
-| Secret Detection | ${statusIcon(results.secrets.status)} | ${results.secrets.details} |
-| README Links | ${statusIcon(results.readmeLinks.status)} | ${results.readmeLinks.details} |
-| Version Check | ${statusIcon(results.versionCheck.status)} | ${results.versionCheck.details} |
-| MCP Servers | ${statusIcon(results.mcpServers.status)} | ${results.mcpServers.details} |
-
----
-
-## Detailed Findings
-
-### 1. Manifest Validation
-
-${results.manifest.findings || 'All fields validated successfully.'}
-
-### 2. Required Files
-
-${results.requiredFiles.findings || 'All required files present.'}
-
-### 3. Content Structure
-
-${results.contentStructure.findings || 'Valid content structure detected.'}
-
-### 4. File Size Analysis
-
-${results.fileSize.findings || 'No large files detected.'}
-
-${results.largeFiles.length > 0 ? '**Large Files (>1MB):**\n' + results.largeFiles.map(f => `- ${f.path} (${formatSize(f.size)})`).join('\n') : ''}
-
-**Total Files:** ${results.files.length}
-**Total Size:** ${formatSize(results.files.reduce((sum, f) => sum + f.size, 0))}
-
-### 5. Binary File Detection
-
-${results.binary.findings || 'No binary files detected.'}
-
-${results.binaryFiles.length > 0 ? '**Binary Files Detected:**\n' + results.binaryFiles.map(f => `- ${f}`).join('\n') : ''}
-
-### 6. Secret Pattern Detection
-
-${results.secrets.findings || 'No secrets detected.'}
-
-${results.secretsFound.length > 0 ? '**Potential Secrets Found:**\n' + results.secretsFound.map(s => `- ${s.file}:${s.line} (${s.pattern})`).join('\n') : ''}
-
-### 7. README Link Check
-
-${results.readmeLinks.findings || 'All links use valid GitHub URLs.'}
-
-${results.relativeLinks.length > 0 ? '**Relative Links Found:**\n' + results.relativeLinks.map(l => `- Line ${l.line}: ${l.link}`).join('\n') : ''}
-
-### 8. MCP Server Validation
-
-${results.mcpServers.findings || 'MCP server declarations are consistent between content and manifest.'}
-
----
-
-## File Inventory
-
-| File | Size |
-|------|------|
-${results.files.map(f => `| ${f.path} | ${formatSize(f.size)} |`).join('\n')}
-
----
-
-## Submission Status
-
-${allPassed ? '**✓ READY FOR SUBMISSION**' : '**✗ NOT READY - Please fix the issues above**'}
-
-${allPassed
-    ? 'All validation checks passed. You can now submit this skillset to the registry.'
-    : 'Please address the failed checks before submitting.'}
-
----
-
-## Next Steps
-
-${allPassed
-    ? `1. Review this audit report
-2. Ensure PROOF.md has adequate production evidence
-3. Run: \`npx skillsets submit\``
-    : `1. Fix the issues flagged above
-2. Re-run: \`npx skillsets audit\`
-3. Repeat until all checks pass`}
-
----
-
-**Generated by:** \`npx skillsets audit\`
-**Schema Version:** 1.0
-**Report Date:** ${timestamp}
-`;
-
-  return report;
+/**
+ * Maps a qualitative validation result (MCP servers, runtime deps) to an AuditResult.
+ * In --check mode (CI), failures are hard FAILs. Otherwise, they are WARNINGs
+ * pending qualitative review via /audit-skill.
+ */
+function qualitativeCheck(
+  result: { valid: boolean; errors: string[] },
+  isCheck: boolean,
+  errorLabel: string,
+  contentLabel: string,
+): AuditResult {
+  if (result.valid) {
+    return { status: 'PASS', details: `${contentLabel} declarations valid` };
+  }
+  const findings = result.errors.map(e => `- ${e}`).join('\n');
+  if (isCheck) {
+    return { status: 'FAIL', details: `${result.errors.length} ${errorLabel} error(s)`, findings };
+  }
+  return {
+    status: 'WARNING',
+    details: 'Pending qualitative review',
+    findings: `${contentLabel} detected in content. The \`/audit-skill\` will populate \`skillset.yaml\` and CI will re-validate.\n\n${findings}`,
+  };
 }
 
 interface AuditOptions {
@@ -365,6 +218,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     versionCheck: { status: 'PASS', details: '' },
     readmeLinks: { status: 'PASS', details: '' },
     mcpServers: { status: 'PASS', details: '' },
+    runtimeDeps: { status: 'PASS', details: '' },
     isUpdate: false,
     files: [],
     largeFiles: [],
@@ -532,26 +386,16 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   // 9. MCP server validation
   spinner.text = 'Validating MCP servers...';
   const mcpResult = validateMcpServers(cwd);
-  if (mcpResult.valid) {
-    results.mcpServers = { status: 'PASS', details: 'MCP declarations valid' };
-  } else if (options.check) {
-    results.mcpServers = {
-      status: 'FAIL',
-      details: `${mcpResult.errors.length} MCP error(s)`,
-      findings: mcpResult.errors.map(e => `- ${e}`).join('\n'),
-    };
-  } else {
-    results.mcpServers = {
-      status: 'WARNING',
-      details: 'Pending qualitative review',
-      findings: 'MCP servers detected in content. The `/audit-skill` will populate `skillset.yaml` and CI will re-validate.\n\n' +
-        mcpResult.errors.map(e => `- ${e}`).join('\n'),
-    };
-  }
+  results.mcpServers = qualitativeCheck(mcpResult, !!options.check, 'MCP', 'MCP servers');
+
+  // 10. Runtime dependency validation
+  spinner.text = 'Validating runtime dependencies...';
+  const depsResult = validateRuntimeDeps(cwd);
+  results.runtimeDeps = qualitativeCheck(depsResult, !!options.check, 'dependency', 'Runtime dependencies');
 
   // Generate report
   spinner.text = 'Generating audit report...';
-  const report = generateReport(results, cwd, options.check);
+  const report = generateReport(results, !!options.check);
   if (!options.check) {
     writeFileSync(join(cwd, 'AUDIT_REPORT.md'), report);
   }
@@ -571,6 +415,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     [results.readmeLinks, 'README Links'],
     [results.versionCheck, 'Version'],
     [results.mcpServers, 'MCP Servers'],
+    [results.runtimeDeps, 'Runtime Deps'],
   ];
 
   console.log('\n' + chalk.bold('Audit Summary:'));

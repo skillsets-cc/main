@@ -22,7 +22,7 @@ describe('GET /api/me', () => {
     const data = await response.json();
 
     expect(response.status).toBe(401);
-    expect(data.error).toBe('Unauthorized');
+    expect(data.error).toBe('Authentication required');
   });
 
   it('test_returns_401_when_jwt_invalid', async () => {

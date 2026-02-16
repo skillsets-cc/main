@@ -3,6 +3,7 @@ import { createMockEnv, createAPIContext, createMockStub } from '../../../lib/te
 
 vi.mock('@/lib/reservation-do', () => ({
   getReservationStub: vi.fn(),
+  BATCH_ID_REGEX: /^\d{1,3}\.\d{1,3}\.\d{3}$/,
 }));
 
 import { GET } from '../reservations/verify';

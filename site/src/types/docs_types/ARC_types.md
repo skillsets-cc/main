@@ -131,14 +131,14 @@ verification: {
 ### Reservation State Structure
 ```typescript
 ReservationState: {
-  slots: Record<string, {            // slotId → slot state
+  slots: Record<string, {            // batchId → slot state
     status: 'available' | 'reserved' | 'submitted';
     expiresAt?: number;              // Timestamp (reserved only)
     skillsetId?: string;             // Present if submitted
   }>;
   totalGhostSlots: number;           // Config value
   cohort: number;                    // Current cohort number
-  userSlot: string | null;           // User's current reservation (slotId or null)
+  userSlot: string | null;           // User's current reservation (batchId or null)
 }
 ```
 
@@ -159,7 +159,7 @@ ReservationState: {
 ## Ghost Entry System
 
 Ghost entries reserve slots in the registry for verified contributors:
-- Each ghost entry has a unique `slotId` (e.g., `ghost-0001`)
+- Each ghost entry has a unique `batchId` (e.g., `1.100.001`)
 - Slots tracked in KV with `ReservationState` structure
 - Users reserve slots via `/api/reservations/reserve`
 - Reserved slots have 24-hour TTL before expiring to `available`
@@ -170,4 +170,4 @@ Ghost entries reserve slots in the registry for verified contributors:
 - Could add Zod/Yup schemas for runtime validation
 - Could generate TypeScript types from JSON Schema automatically
 - Could add discriminated unions for different skillset categories
-- Could add branded types for slotId/skillsetId (prevent string confusion)
+- Could add branded types for batchId/skillsetId (prevent string confusion)

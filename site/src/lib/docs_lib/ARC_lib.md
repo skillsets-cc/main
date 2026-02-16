@@ -18,19 +18,21 @@ lib/
 │   ├── sanitize.md
 │   ├── stars.md
 │   └── validation.md
-├── __tests__/                 # Library tests
+├── tests_lib/                 # Library tests
 │   ├── test-utils.ts
 │   ├── auth.test.ts
+│   ├── data.test.ts
 │   ├── downloads.test.ts
 │   ├── maintainer.test.ts
 │   ├── reservation-do.test.ts
 │   ├── sanitize.test.ts
+│   ├── stars.test.ts
 │   └── validation.test.ts
 ├── auth.ts                    # GitHub OAuth + JWT session management
 ├── data.ts                    # Search index access (build-time)
 ├── downloads.ts               # Download counting
 ├── maintainer.ts              # Maintainer authorization logic
-├── rate-limit.ts              # Hour-bucketed KV rate limiter
+├── rate-limit.ts              # Bucketed KV rate limiters (minute + hour)
 ├── reservation-do.ts          # Ghost entry reservation Durable Object
 ├── responses.ts               # JSON response helpers
 ├── sanitize.ts                # XSS protection for README content
@@ -46,7 +48,7 @@ lib/
 | **data.ts** | Read-only search index access | getSkillsets, getSkillsetById, getAllTags |
 | **downloads.ts** | Download count tracking | incrementDownloads, getDownloadCount, isDownloadRateLimited |
 | **maintainer.ts** | Maintainer authorization | isMaintainer |
-| **rate-limit.ts** | Hour-bucketed KV rate limiter | isHourlyRateLimited |
+| **rate-limit.ts** | Bucketed KV rate limiters | isMinuteRateLimited, isHourlyRateLimited |
 | **reservation-do.ts** | Ghost entry reservation coordination (Durable Object) | ReservationCoordinator, getReservationStub |
 | **responses.ts** | Standardized JSON responses | jsonResponse, errorResponse |
 | **sanitize.ts** | XSS protection for HTML and URL validation | sanitizeHtml, sanitizeUrl |
@@ -106,13 +108,13 @@ POST /api/reservations (reserve)
   ↓
 DO stub → /reserve → Atomic write (slot + user index)
   ↓
-Return { slotId, expiresAt }
+Return { batchId, expiresAt }
   ↓
 DELETE /api/reservations (release)
   ↓
 DO stub → /release → Atomic delete (slot + user index)
   ↓
-Return { released: slotId }
+Return { released: batchId }
 ```
 
 ### Data Access Flow
@@ -187,12 +189,12 @@ oauth:{state} → { codeVerifier, returnTo } (5-min TTL)
 
 ### DATA Namespace
 ```
-stars:{skillsetId}       → "42" (star count)
-user:{userId}:stars      → ["id1", "id2"] (starred skillset IDs)
-downloads:{skillsetId}   → "123" (download count)
-dl-rate:{ip}             → "7" (download request count, 3600s TTL)
-ratelimit:{userId}       → "7" (star request count, 60s TTL)
-ratelimit:{prefix}:{id}:{hour} → "3" (hour-bucketed rate limit counter, 7200s TTL)
+stars:{skillsetId}                  → "42" (star count)
+user:{userId}:stars                 → ["id1", "id2"] (starred skillset IDs)
+downloads:{skillsetId}              → "123" (download count)
+ratelimit:star:{userId}:{minute}    → "3" (star rate limit, 120s TTL)
+ratelimit:dl:{ip}:{hour}            → "7" (download rate limit, 7200s TTL)
+ratelimit:{prefix}:{id}:{bucket}    → "N" (generic bucketed rate limit counter)
 ```
 
 ### RESERVATIONS Durable Object Storage
@@ -207,3 +209,6 @@ config         → { totalGhostSlots, ttlDays, cohort }
 - Batch API in stats/counts.ts (single request for all counts)
 - KV caching with TTLs (rate limits, OAuth state)
 - Exponential backoff prevents KV throttling cascades
+
+## Known Limitations
+- **stats/counts.ts KV list pagination**: `KV.list()` returns max 1000 keys per call. The `GET /api/stats/counts` endpoint does not paginate, so it will silently drop entries if the registry grows past ~1000 skillsets. Pagination with cursor-based iteration should be added when the registry approaches this scale.

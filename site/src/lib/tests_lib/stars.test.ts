@@ -14,26 +14,29 @@ describe('stars', () => {
       const result = await isRateLimited(kv, 'user-123');
 
       expect(result).toBe(false);
-      expect(kv.put).toHaveBeenCalledWith('ratelimit:user-123', '1', {
-        expirationTtl: 60,
-      });
+      const minute = Math.floor(Date.now() / 60_000);
+      expect(kv.put).toHaveBeenCalledWith(
+        `ratelimit:star:user-123:${minute}`, '1', { expirationTtl: 120 },
+      );
     });
 
     it('returns false when under limit', async () => {
       const kv = createMockKV();
-      kv._store.set('ratelimit:user-123', '5');
+      const minute = Math.floor(Date.now() / 60_000);
+      kv._store.set(`ratelimit:star:user-123:${minute}`, '5');
 
       const result = await isRateLimited(kv, 'user-123');
 
       expect(result).toBe(false);
-      expect(kv.put).toHaveBeenCalledWith('ratelimit:user-123', '6', {
-        expirationTtl: 60,
-      });
+      expect(kv.put).toHaveBeenCalledWith(
+        `ratelimit:star:user-123:${minute}`, '6', { expirationTtl: 120 },
+      );
     });
 
     it('returns true when at limit', async () => {
       const kv = createMockKV();
-      kv._store.set('ratelimit:user-123', '10');
+      const minute = Math.floor(Date.now() / 60_000);
+      kv._store.set(`ratelimit:star:user-123:${minute}`, '10');
 
       const result = await isRateLimited(kv, 'user-123');
 
@@ -44,7 +47,8 @@ describe('stars', () => {
 
     it('returns true when over limit', async () => {
       const kv = createMockKV();
-      kv._store.set('ratelimit:user-123', '15');
+      const minute = Math.floor(Date.now() / 60_000);
+      kv._store.set(`ratelimit:star:user-123:${minute}`, '15');
 
       const result = await isRateLimited(kv, 'user-123');
 

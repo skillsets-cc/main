@@ -78,9 +78,14 @@ describe('TagFilter', () => {
     });
   });
 
-  it('sorts tags alphabetically', () => {
+  it('sorts tags alphabetically', async () => {
     const onResultsChange = vi.fn();
     render(<TagFilter skillsets={mockSkillsets} onResultsChange={onResultsChange} />);
+
+    // TagFilter uses createPortal — wait for portal to mount
+    await waitFor(() => {
+      expect(screen.getAllByRole('button').length).toBeGreaterThan(1);
+    });
 
     const buttons = screen.getAllByRole('button');
     // First button is "All", rest should be sorted

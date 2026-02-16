@@ -34,6 +34,7 @@ your-skillset/
 └── content/               # Files to install
     ├── CLAUDE.md          # Project instructions (required)
     ├── README.md          # User instructions (required)
+    ├── QUICKSTART.md      # Post-install customization guide (required)
     ├── .claude/           # Claude Code primitives (required)
     ├── .mcp.json          # MCP servers (if any)
     └── docker/            # Docker configs (if any)
@@ -46,6 +47,7 @@ your-skillset/
 **Required structure** (all must be present):
 - `skillset.yaml` — valid manifest (see reference below)
 - `content/README.md` — user-facing documentation
+- `content/QUICKSTART.md` — post-install customization guide (walked through by `/skillset:install`)
 - `content/CLAUDE.md` — project instructions entry point
 - `content/.claude/` — Claude Code primitives (skills, agents, hooks, settings)
 

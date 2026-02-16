@@ -5,7 +5,7 @@
  * Single named instance ("singleton") for serialized access.
  *
  * Storage schema:
- * - slot:{batchId} -> ReservedSlotData | SubmittedSlotData (discriminated union)
+ * - batch:{batchId} -> ReservedSlotData | SubmittedSlotData (discriminated union)
  * - user:{userId} -> batchId (string)
  * - config -> { totalGhostSlots: number, ttlDays: number, cohort: number }
  */
@@ -18,7 +18,13 @@ const DEFAULT_CONFIG = {
   cohort: 1,
 };
 
-const SLOT_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
+const MAX_DELETE_BATCH_SIZE = 128;
+
+function getUnixTimestamp(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+export const BATCH_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 const SKILLSET_ID_REGEX = /^@[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+$/;
 
 interface ReservedSlotData {
@@ -45,7 +51,7 @@ interface Config {
 }
 
 interface ReserveRequest {
-  slotId: string;
+  batchId: string;
   userId: string;
   githubLogin: string;
 }
@@ -79,7 +85,7 @@ function formatBatchId(position: number, batchSize: number, cohort: number): str
  * Validate batch ID against current config. Returns error string or null.
  */
 function validateBatchId(id: string, config: Config): string | null {
-  if (!SLOT_ID_REGEX.test(id)) return 'Invalid batch ID format';
+  if (!BATCH_ID_REGEX.test(id)) return 'Invalid batch ID format';
   const { position, batchSize, cohort } = parseBatchId(id);
   if (position < 1 || position > batchSize) return 'Position out of range';
   if (batchSize !== config.totalGhostSlots) return 'Batch size does not match current cohort';
@@ -151,7 +157,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const userId = request.headers.get('X-User-Id');
     const config = await this.getConfig();
 
-    const slotEntries = await this.ctx.storage.list<SlotData>({ prefix: 'slot:' });
+    const slotEntries = await this.ctx.storage.list<SlotData>({ prefix: 'batch:' });
     const slots: Record<string, {
       status: 'available' | 'reserved' | 'submitted';
       expiresAt?: number;
@@ -160,27 +166,27 @@ export class ReservationCoordinator extends DurableObject<Env> {
 
     // Initialize current cohort slots as available
     for (let i = 1; i <= config.totalGhostSlots; i++) {
-      const slotId = formatBatchId(i, config.totalGhostSlots, config.cohort);
-      slots[slotId] = { status: 'available' };
+      const batchId = formatBatchId(i, config.totalGhostSlots, config.cohort);
+      slots[batchId] = { status: 'available' };
     }
 
     // Status discrimination — expired slots are treated as available in the
     // response but their storage entries are NOT deleted. This preserves slot
     // data for the maintainer /submit flow.
-    const now = Math.floor(Date.now() / 1000);
+    const now = getUnixTimestamp();
 
     for (const [key, data] of slotEntries) {
-      const slotId = key.replace('slot:', '');
+      const batchId = key.replace('batch:', '');
 
       if (data.status === 'submitted') {
         // Submitted slots are permanent — include from ALL cohorts, not just current.
         const submitted = data as SubmittedSlotData;
-        slots[slotId] = { status: 'submitted', skillsetId: submitted.skillsetId };
+        slots[batchId] = { status: 'submitted', skillsetId: submitted.skillsetId };
       } else if (data.status === 'reserved') {
         const reserved = data as ReservedSlotData;
-        if (reserved.expiresAt > now && slots[slotId]) {
+        if (reserved.expiresAt > now && slots[batchId]) {
           // Active reservation — show as reserved
-          slots[slotId] = { status: 'reserved', expiresAt: reserved.expiresAt };
+          slots[batchId] = { status: 'reserved', expiresAt: reserved.expiresAt };
         }
         // Expired reservations: slot stays 'available' in the response.
         // Storage entry is preserved so /submit can still transition it.
@@ -208,18 +214,18 @@ export class ReservationCoordinator extends DurableObject<Env> {
 
   /**
    * POST /reserve - Reserve a slot for a user.
-   * Request body: { slotId: string, userId: string, githubLogin: string }
+   * Request body: { batchId: string, userId: string, githubLogin: string }
    *
-   * Returns 201 with { slotId, expiresAt } on success.
+   * Returns 201 with { batchId, expiresAt } on success.
    * Returns 409 if slot taken or user already has reservation.
    * Returns 404 if slot is invalid.
    */
   private async handleReserve(request: Request): Promise<Response> {
     const body = await request.json() as ReserveRequest;
-    const { slotId, userId, githubLogin } = body;
+    const { batchId, userId, githubLogin } = body;
 
     const config = await this.getConfig();
-    const error = validateBatchId(slotId, config);
+    const error = validateBatchId(batchId, config);
     if (error) {
       return new Response(
         JSON.stringify({ error: 'slot_not_found', message: error }),
@@ -231,8 +237,8 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const existingSlot = await this.ctx.storage.get<string>(`user:${userId}`);
     if (existingSlot) {
       // Verify it's not expired
-      const slotData = await this.ctx.storage.get<SlotData>(`slot:${existingSlot}`);
-      if (slotData && slotData.status === 'reserved' && slotData.expiresAt > Math.floor(Date.now() / 1000)) {
+      const slotData = await this.ctx.storage.get<SlotData>(`batch:${existingSlot}`);
+      if (slotData && slotData.status === 'reserved' && slotData.expiresAt > getUnixTimestamp()) {
         return new Response(
           JSON.stringify({
             error: 'user_has_reservation',
@@ -245,8 +251,8 @@ export class ReservationCoordinator extends DurableObject<Env> {
     }
 
     // Check if slot is available (not reserved by someone else)
-    const slotData = await this.ctx.storage.get<SlotData>(`slot:${slotId}`);
-    const now = Math.floor(Date.now() / 1000);
+    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
+    const now = getUnixTimestamp();
     if (slotData && slotData.status === 'reserved' && slotData.expiresAt > now) {
       return new Response(
         JSON.stringify({ error: 'slot_taken', message: 'Slot is already reserved' }),
@@ -264,11 +270,11 @@ export class ReservationCoordinator extends DurableObject<Env> {
     };
 
     // Write both keys WITHOUT await between them (atomic transaction)
-    this.ctx.storage.put(`slot:${slotId}`, newSlotData);
-    this.ctx.storage.put(`user:${userId}`, slotId);
+    this.ctx.storage.put(`batch:${batchId}`, newSlotData);
+    this.ctx.storage.put(`user:${userId}`, batchId);
 
     return new Response(
-      JSON.stringify({ slotId, expiresAt }),
+      JSON.stringify({ batchId, expiresAt }),
       { status: 201, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -277,7 +283,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
    * DELETE /release - Release user's reservation.
    * Request body: { userId: string }
    *
-   * Returns 200 with { released: slotId } on success.
+   * Returns 200 with { released: batchId } on success.
    * Returns 404 if user has no reservation.
    * Returns 409 if slot is in submitted state.
    */
@@ -285,8 +291,8 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const body = await request.json() as ReleaseRequest;
     const { userId } = body;
 
-    const slotId = await this.ctx.storage.get<string>(`user:${userId}`);
-    if (!slotId) {
+    const batchId = await this.ctx.storage.get<string>(`user:${userId}`);
+    if (!batchId) {
       return new Response(
         JSON.stringify({ error: 'no_reservation', message: 'User has no reservation' }),
         { status: 404, headers: { 'Content-Type': 'application/json' } }
@@ -294,7 +300,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
     }
 
     // Guard: submitted slots are terminal — cannot be released
-    const slotData = await this.ctx.storage.get<SlotData>(`slot:${slotId}`);
+    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
     if (slotData?.status === 'submitted') {
       return new Response(
         JSON.stringify({ error: 'already_submitted', message: 'Cannot release a submitted slot' }),
@@ -303,11 +309,11 @@ export class ReservationCoordinator extends DurableObject<Env> {
     }
 
     // Delete both slot and user keys — atomic write coalescing
-    this.ctx.storage.delete(`slot:${slotId}`);
+    this.ctx.storage.delete(`batch:${batchId}`);
     this.ctx.storage.delete(`user:${userId}`);
 
     return new Response(
-      JSON.stringify({ released: slotId }),
+      JSON.stringify({ released: batchId }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   }
@@ -368,7 +374,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
 
     // If cohort changes, wipe reserved slots but preserve submitted slot data.
     if (body.cohort !== undefined && body.cohort !== currentConfig.cohort) {
-      const allSlots = await this.ctx.storage.list<SlotData>({ prefix: 'slot:' });
+      const allSlots = await this.ctx.storage.list<SlotData>({ prefix: 'batch:' });
       const keysToDelete: string[] = [];
       for (const [key, data] of allSlots) {
         // Always delete user index key — frees user for new cohort reservations
@@ -377,9 +383,9 @@ export class ReservationCoordinator extends DurableObject<Env> {
         if (data.status === 'submitted') continue;
         keysToDelete.push(key);
       }
-      // Chunk to 128 keys per batch (DO storage.delete limit)
-      for (let i = 0; i < keysToDelete.length; i += 128) {
-        await this.ctx.storage.delete(keysToDelete.slice(i, i + 128));
+      // Chunk to MAX_DELETE_BATCH_SIZE keys per batch (DO storage.delete limit)
+      for (let i = 0; i < keysToDelete.length; i += MAX_DELETE_BATCH_SIZE) {
+        await this.ctx.storage.delete(keysToDelete.slice(i, i + MAX_DELETE_BATCH_SIZE));
       }
     }
 
@@ -413,14 +419,14 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const login = url.searchParams.get('login');
     const userId = url.searchParams.get('userId');
 
-    if (!batchId || !SLOT_ID_REGEX.test(batchId)) {
+    if (!batchId || !BATCH_ID_REGEX.test(batchId)) {
       return new Response(
         JSON.stringify({ valid: false, reason: 'invalid_batch_id' }),
         { headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    const slotData = await this.ctx.storage.get<SlotData>(`slot:${batchId}`);
+    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
     if (!slotData) {
       return new Response(
         JSON.stringify({ valid: false, reason: 'not_reserved' }),
@@ -437,7 +443,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
     }
 
     // Expired reserved slots fail verification
-    if (slotData.expiresAt <= Math.floor(Date.now() / 1000)) {
+    if (slotData.expiresAt <= getUnixTimestamp()) {
       return new Response(
         JSON.stringify({ valid: false, reason: 'not_reserved' }),
         { headers: { 'Content-Type': 'application/json' } }
@@ -485,7 +491,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
 
     // Validate batchId format only — NOT against current config.
     // Maintainer submit is authoritative and must work across cohorts.
-    if (!batchId || !SLOT_ID_REGEX.test(batchId)) {
+    if (!batchId || !BATCH_ID_REGEX.test(batchId)) {
       return new Response(
         JSON.stringify({ error: 'invalid_batch_id', message: 'batchId is required and must match format N.N.NNN' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -500,7 +506,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
       );
     }
 
-    const slotData = await this.ctx.storage.get<SlotData>(`slot:${batchId}`);
+    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
     if (!slotData) {
       return new Response(
         JSON.stringify({ error: 'not_reserved', message: 'Slot has no reservation' }),
@@ -524,9 +530,9 @@ export class ReservationCoordinator extends DurableObject<Env> {
       userId: slotData.userId,
       githubLogin: slotData.githubLogin,
       skillsetId,
-      submittedAt: Math.floor(Date.now() / 1000),
+      submittedAt: getUnixTimestamp(),
     };
-    this.ctx.storage.put(`slot:${batchId}`, submitted);
+    this.ctx.storage.put(`batch:${batchId}`, submitted);
     this.ctx.storage.delete(`user:${slotData.userId}`);
 
     return new Response(
@@ -544,36 +550,27 @@ export class ReservationCoordinator extends DurableObject<Env> {
   private async handleLookup(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const githubId = url.searchParams.get('githubId');
+    const nullResponse = () => new Response(
+      JSON.stringify({ batchId: null }),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
 
-    if (!githubId) {
-      return new Response(
-        JSON.stringify({ batchId: null }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    if (!githubId) return nullResponse();
 
-    const slotId = await this.ctx.storage.get<string>(`user:${githubId}`);
-    if (!slotId) {
-      return new Response(
-        JSON.stringify({ batchId: null }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    const batchId = await this.ctx.storage.get<string>(`user:${githubId}`);
+    if (!batchId) return nullResponse();
 
     // Only return batch ID for actively reserved slots.
     // Submitted slots return null — the reservation is fulfilled.
-    const slotData = await this.ctx.storage.get<SlotData>(`slot:${slotId}`);
-    const now = Math.floor(Date.now() / 1000);
+    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
+    const now = getUnixTimestamp();
     if (!slotData || slotData.status === 'submitted' ||
         (slotData.status === 'reserved' && slotData.expiresAt <= now)) {
-      return new Response(
-        JSON.stringify({ batchId: null }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      return nullResponse();
     }
 
     return new Response(
-      JSON.stringify({ batchId: slotId }),
+      JSON.stringify({ batchId }),
       { headers: { 'Content-Type': 'application/json' } }
     );
   }

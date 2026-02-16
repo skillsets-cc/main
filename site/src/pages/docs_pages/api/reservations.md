@@ -60,13 +60,13 @@ Caching:
 
 Request body:
 ```json
-{ "slotId": "001.001.001" }
+{ "batchId": "001.001.001" }
 ```
 
 Flow:
 1. Verify authentication (401 if missing)
 2. Check rate limit (5 ops/hour per user, hour-bucketed)
-3. Validate JSON body and slotId format (regex: `^\d{1,3}\.\d{1,3}\.\d{3}$`)
+3. Validate JSON body and batchId format (regex: `^\d{1,3}\.\d{1,3}\.\d{3}$`)
 4. Forward to Durable Object with userId and githubLogin
 5. DO atomically reserves slot if available
 6. Return result from DO (success or error)
@@ -74,7 +74,7 @@ Flow:
 Error responses:
 - 401 if not authenticated
 - 429 if rate limited (5 ops/hour exceeded)
-- 400 if invalid slotId format
+- 400 if invalid batchId format
 - 409 if slot already reserved (from DO)
 - 500 on DO failure
 
@@ -111,5 +111,5 @@ Prevents TTL-reset bug where frequent operations extend the window indefinitely.
 ## Security
 - POST/DELETE require authentication
 - Rate limiting prevents spam
-- slotId validation prevents injection
+- batchId validation prevents injection
 - Durable Object ensures atomic operations (no race conditions)

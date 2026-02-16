@@ -38,10 +38,11 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 |---|---------|------------|
 | 1 | Validate tier 1 report and load criteria | Validating tier 1 report |
 | 2 | Discover and populate MCP servers | Discovering MCP servers |
-| 3 | Evaluate primitives against criteria | Evaluating primitives |
-| 4 | Run safety scan | Scanning for safety issues |
-| 5 | Verify workflow artifacts in reference repo | Verifying workflow artifacts |
-| 6 | Append qualitative review to AUDIT_REPORT.md | Writing qualitative review |
+| 3 | Discover and populate runtime dependencies | Discovering runtime dependencies |
+| 4 | Evaluate primitives against criteria | Evaluating primitives |
+| 5 | Run safety scan | Scanning for safety issues |
+| 6 | Verify workflow artifacts in reference repo | Verifying workflow artifacts |
+| 7 | Append qualitative review to AUDIT_REPORT.md | Writing qualitative review |
 
 ## Process
 
@@ -52,11 +53,12 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 1. Read `AUDIT_REPORT.md` — verify it shows "READY FOR SUBMISSION"
 2. Read [CRITERIA.md](CRITERIA.md) for evaluation rubric
 3. Read `content/README.md` to extract claimed workflow
+4. Read `content/QUICKSTART.md` to understand the post-install customization guide
 
 ### Phase 2: Discover and Populate MCP Servers
 
 4. **Discover and populate MCP servers**:
-   - Scan `content/.mcp.json` (`mcpServers` key), `content/.claude/settings.json`, `content/.claude/settings.local.json`, `content/docker/**/config.yaml` (`mcp_servers` key)
+   - Scan all JSON files under `content/` for `mcpServers` key and all YAML files under `content/` for `mcp_servers` key (skip `node_modules/` directories). This covers `.mcp.json`, `.claude/settings.json`, `external-agents.json`, Docker configs, and any future config format.
    - If MCP servers found and `skillset.yaml` lacks `mcp_servers`: use **WebSearch** + **WebFetch** to research each package/image, then write `mcp_servers` array to `skillset.yaml`
    - If `mcp_servers` already exists in manifest: verify entries match content, update reputation data if stale
    - See [CRITERIA.md](CRITERIA.md) MCP section for reputation research requirements
@@ -87,7 +89,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
    **Docker servers** (from `content/docker/**/config.yaml`):
    ```yaml
    # docker type — requires image + nested servers array
-   - name: "<descriptive-name>"   # e.g. "litellm-proxy"
+   - name: "<descriptive-name>"   # e.g. "ollama-proxy"
      type: "docker"
      image: "<image>"             # must match a service image in docker-compose.yaml
      mcp_reputation: "<container image reputation, min 20 chars>"
@@ -102,9 +104,34 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
    **Do NOT** write docker-hosted servers as flat `stdio` entries — the validator matches content `docker` sources against manifest `docker` type with nested `servers`. Flat entries produce 2N errors (N content→manifest + N manifest→content mismatches).
 
-### Phase 3: Evaluate Primitives Against Criteria
+### Phase 3: Discover and Populate Runtime Dependencies
 
-5. Evaluate `content/` against criteria:
+5. **Discover and populate runtime dependencies**:
+   - Scan `content/` for known dependency files: `package.json`, `requirements.txt`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, and shell scripts in `.claude/scripts/` (skip `node_modules/`)
+   - For each dependency file found, extract the package list and check for lifecycle/install scripts
+   - If dependencies found and `skillset.yaml` lacks `runtime_dependencies`: use **WebSearch** + **WebFetch** to research each package, then write `runtime_dependencies` array to `skillset.yaml`
+   - If `runtime_dependencies` already exists in manifest: verify entries match content, update evaluation if stale
+   - If no dependency files found, mark this phase completed and move on
+
+   **CRITICAL — Schema for `runtime_dependencies` entries:**
+
+   CI validates bidirectional consistency between content and manifest. Use the exact structure below — extra fields cause `unevaluatedProperties` failures.
+
+   ```yaml
+   runtime_dependencies:
+     - path: ".claude/scripts/package.json"      # relative to content/
+       manager: "npm"                             # package manager (npm, pip, cargo, go, bundler, shell, etc.)
+       packages: ["typescript", "esbuild"]        # extracted package/dependency names
+       has_install_scripts: true                  # whether lifecycle scripts exist (preinstall, postinstall, etc.)
+       evaluation: "All packages well-maintained npm packages with >1M weekly downloads. postinstall script runs tsc to compile TypeScript."
+       researched_at: "2026-02-15"                # ISO date of evaluation
+   ```
+
+   **Evaluation field**: Free-text assessment of what the dependency does — installs, configures, modifies, runs. Include reputation data where available (npm downloads, maintainer, last publish). For shell scripts, describe what the script does. For config files, describe what they configure.
+
+### Phase 4: Evaluate Primitives Against Criteria
+
+6. Evaluate `content/` against criteria:
    - Skills (`content/.claude/skills/*/SKILL.md`)
    - Agents (`content/.claude/agents/*.md`)
    - Hooks (`content/.claude/settings.json`)
@@ -113,19 +140,21 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
    **Note**: A skillset is an interoperable set of primitives (skills, agents, hooks, MCP) covering multi-phase processes across context windows. Not all skillsets use all primitive types — evaluate what's present.
 
-### Phase 4: Run Safety Scan
+### Phase 5: Run Safety Scan
 
-6. **Safety scan**: Check all present primitives for prompt injection or malicious instructions
+7. **Safety scan**: Check all present primitives for prompt injection or malicious instructions
+   - If `external-agents.json` with `mcpServers` exists: verify `toolAllowlist` is present for filesystem servers and excludes write tools
+   - If `.claude/**/package.json` files exist: verify dependencies are reputable (same web lookup as MCP packages)
 
-### Phase 5: Verify Workflow Artifacts in Reference Repo
+### Phase 6: Verify Workflow Artifacts in Reference Repo
 
 **In reference repo** (user-provided path):
 
-7. Search for workflow artifacts matching the claimed workflow, e.g.: design and execution docs, analysis reports, etc. evaluate the relationship between these docs and the implemented code, as evidence for the claimed workflow.
+8. Search for workflow artifacts matching the claimed workflow, e.g.: design and execution docs, analysis reports, etc. evaluate the relationship between these docs and the implemented code, as evidence for the claimed workflow.
 
-### Phase 6: Append Qualitative Review to AUDIT_REPORT.md
+### Phase 7: Append Qualitative Review to AUDIT_REPORT.md
 
-8. Append findings to `AUDIT_REPORT.md`
+9. Append findings to `AUDIT_REPORT.md`
 
 **Important**: If phase 2 modified `skillset.yaml`, note this in the qualitative review. CI will re-run `npx skillsets audit --check` to validate the final state.
 

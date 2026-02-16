@@ -6,7 +6,7 @@
 import type { APIRoute } from 'astro';
 import { getSessionFromRequest, type Env } from '../../lib/auth';
 import { toggleStar, isRateLimited, isStarred, getStarCount } from '../../lib/stars';
-import { jsonResponse, errorResponse } from '../../lib/responses';
+import { jsonResponse, errorResponse, parseJsonBody } from '../../lib/responses';
 import { isValidSkillsetId } from '../../lib/validation';
 
 interface StarRequest {
@@ -18,7 +18,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const session = await getSessionFromRequest(env, request);
   if (!session) {
-    return errorResponse('Unauthorized', 401);
+    return errorResponse('Authentication required', 401);
   }
 
   const rateLimited = await isRateLimited(env.DATA, session.userId);
@@ -28,12 +28,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  let body: StarRequest;
-  try {
-    body = await request.json() as StarRequest;
-  } catch {
-    return errorResponse('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<StarRequest>(request);
+  if (body instanceof Response) return body;
 
   if (!body.skillsetId) {
     return errorResponse('Missing skillsetId', 400);

@@ -11,7 +11,8 @@
     "description",
     "author",
     "verification",
-    "tags"
+    "tags",
+    "compatibility"
   ],
   "properties": {
     "schema_version": {
@@ -144,6 +145,44 @@
       "type": "string",
       "pattern": "^\\./.+",
       "description": "Path to main documentation file (e.g., ./content/CLAUDE.md)"
+    },
+    "runtime_dependencies": {
+      "type": "array",
+      "maxItems": 30,
+      "items": {
+        "type": "object",
+        "required": ["path", "manager", "packages", "evaluation", "researched_at"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path to the dependency file from content/ (e.g., .claude/scripts/package.json)"
+          },
+          "manager": {
+            "type": "string",
+            "description": "Package manager or execution context (e.g., npm, pip, cargo, go, bundler, shell)"
+          },
+          "packages": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of dependency/package names or script filenames"
+          },
+          "has_install_scripts": {
+            "type": "boolean",
+            "description": "Whether the dependency file contains lifecycle/install scripts that execute code"
+          },
+          "evaluation": {
+            "type": "string",
+            "minLength": 20,
+            "description": "Auditor assessment of what this dependency does: installs, configures, modifies, runs. Includes reputation data where available."
+          },
+          "researched_at": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO date when evaluation was performed"
+          }
+        },
+        "unevaluatedProperties": false
+      }
     },
     "mcp_servers": {
       "type": "array",

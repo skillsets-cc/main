@@ -59,7 +59,7 @@ export type SlotStatus = 'available' | 'reserved' | 'submitted';
  * Represents a single ghost entry slot in the reservation system.
  */
 export interface GhostSlot {
-  slotId: string;
+  batchId: string;
   status: SlotStatus;
   expiresAt?: number;
   skillsetId?: string;

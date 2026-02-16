@@ -35,6 +35,17 @@ export interface McpServer {
   researched_at: string;
 }
 
+// Runtime dependency types
+
+export interface RuntimeDependency {
+  path: string;
+  manager: string;
+  packages: string[];
+  has_install_scripts?: boolean;
+  evaluation: string;
+  researched_at: string;
+}
+
 // Search index types
 
 export interface SearchIndex {
@@ -62,6 +73,7 @@ export interface SearchIndexEntry {
   checksum: string;
   files: Record<string, string>;
   mcp_servers?: McpServer[];
+  runtime_dependencies?: RuntimeDependency[];
 }
 
 export interface StatsResponse {
@@ -86,4 +98,5 @@ export interface Skillset {
   status: SkillsetStatus;
   entry_point: string;
   mcp_servers?: McpServer[];
+  runtime_dependencies?: RuntimeDependency[];
 }

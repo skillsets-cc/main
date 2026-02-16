@@ -56,6 +56,10 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart\n\nGet started here.');
   }
 
+  function readReport(): string {
+    return readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+  }
+
   it('passes with valid structure', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     createValidContent();
@@ -64,7 +68,7 @@ entry_point: "./content/CLAUDE.md"
 
     expect(existsSync(join(testDir, 'AUDIT_REPORT.md'))).toBe(true);
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('READY FOR SUBMISSION');
   });
 
@@ -73,7 +77,7 @@ entry_point: "./content/CLAUDE.md"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('skillset.yaml');
   });
@@ -85,7 +89,7 @@ entry_point: "./content/CLAUDE.md"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('README.md');
   });
@@ -98,7 +102,7 @@ entry_point: "./content/CLAUDE.md"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('QUICKSTART.md');
   });
@@ -108,7 +112,7 @@ entry_point: "./content/CLAUDE.md"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('content');
   });
@@ -121,7 +125,7 @@ entry_point: "./content/CLAUDE.md"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('Missing: .claude/, CLAUDE.md');
   });
@@ -134,7 +138,7 @@ entry_point: "./content/CLAUDE.md"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('Missing: CLAUDE.md');
   });
@@ -147,7 +151,7 @@ entry_point: "./content/CLAUDE.md"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('Missing: .claude/');
   });
@@ -162,21 +166,19 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('schema_version');
   });
 
   it('detects high-confidence secret patterns', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+    createValidContent();
     writeFileSync(join(testDir, 'content', 'config.ts'), 'const key = "sk-1234567890abcdefghijklmnopqrstuvwxyz123456789012"');
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('OpenAI Key');
   });
@@ -188,35 +190,31 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('READY FOR SUBMISSION');
     expect(report).toContain('Secret Detection | ✓ PASS');
   });
 
   it('detects AWS keys', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+    createValidContent();
     writeFileSync(join(testDir, 'content', 'config.ts'), 'const key = "AKIAIOSFODNN7EXAMPLE"');
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('AWS Key');
   });
 
   it('detects Anthropic keys', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-    mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-    writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+    createValidContent();
     writeFileSync(join(testDir, 'content', 'config.ts'), 'const key = "sk-ant-api03-abcdefghijklmnopqrst"');
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('Anthropic Key');
   });
@@ -229,7 +227,7 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('WARNING');
     expect(report).toContain('large');
   });
@@ -242,7 +240,7 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('READY FOR SUBMISSION');
     expect(report).toContain('New submission');
   });
@@ -269,7 +267,7 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('NOT READY');
     expect(report).toContain('Version must be');
   });
@@ -296,7 +294,7 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('READY FOR SUBMISSION');
     expect(report).toContain('Update');
     expect(report).toContain('0.9.0');
@@ -310,7 +308,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('READY FOR SUBMISSION');
       expect(report).toContain('MCP Servers | ✓ PASS');
     });
@@ -318,10 +316,7 @@ version: "not-semver"
     it('passes when content MCP matches manifest', async () => {
       const yamlWithMcp = validSkillsetYaml + `\nmcp_servers:\n  - name: context7\n    type: stdio\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n    mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"\n    researched_at: "2026-02-04"\n`;
       writeFileSync(join(testDir, 'skillset.yaml'), yamlWithMcp);
-      mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      createValidContent();
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -330,17 +325,14 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('READY FOR SUBMISSION');
       expect(report).toContain('MCP Servers | ✓ PASS');
     });
 
     it('reports MCP as pending qualitative review in normal mode (pre-skill)', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      createValidContent();
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -349,7 +341,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('READY FOR SUBMISSION');
       expect(report).toContain('MCP Servers | ⚠ WARNING');
       expect(report).toContain('Pending qualitative review');
@@ -357,10 +349,7 @@ version: "not-semver"
 
     it('fails MCP mismatch in --check mode (CI)', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      createValidContent();
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -377,10 +366,7 @@ version: "not-semver"
     it('fails when manifest has MCP but content does not in --check mode', async () => {
       const yamlWithMcp = validSkillsetYaml + `\nmcp_servers:\n  - name: context7\n    type: stdio\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n    mcp_reputation: "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash"\n    researched_at: "2026-02-04"\n`;
       writeFileSync(join(testDir, 'skillset.yaml'), yamlWithMcp);
-      mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      createValidContent();
 
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
       await audit({ check: true });
@@ -392,27 +378,21 @@ version: "not-semver"
     it('passes with Docker MCP when content and manifest match', async () => {
       const yamlWithDocker = validSkillsetYaml + `\nmcp_servers:\n  - name: litellm-proxy\n    type: docker\n    image: "ghcr.io/berriai/litellm:main-latest"\n    mcp_reputation: "ghcr: berriai/litellm, widely used LLM proxy"\n    researched_at: "2026-02-04"\n    servers:\n      - name: context7\n        command: npx\n        args: ["-y", "@upstash/context7-mcp"]\n        mcp_reputation: "npm: @upstash/context7-mcp"\n        researched_at: "2026-02-04"\n`;
       writeFileSync(join(testDir, 'skillset.yaml'), yamlWithDocker);
-      mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
+      createValidContent();
       mkdirSync(join(testDir, 'content', 'docker'), { recursive: true });
-      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
       writeFileSync(join(testDir, 'content', 'docker', 'docker-compose.yaml'), 'services:\n  litellm:\n    image: ghcr.io/berriai/litellm:main-latest\n');
       writeFileSync(join(testDir, 'content', 'docker', 'config.yaml'), 'mcp_servers:\n  context7:\n    command: npx\n    args: ["-y", "@upstash/context7-mcp"]\n');
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('READY FOR SUBMISSION');
       expect(report).toContain('MCP Servers | ✓ PASS');
     });
 
     it('includes MCP error details in findings section', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
-      mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
-      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
-      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      createValidContent();
       writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
         mcpServers: {
           context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
@@ -421,7 +401,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       // Error details appear in findings even in normal mode (informational)
       expect(report).toContain('### 8. MCP Server Validation');
       expect(report).toContain('context7');
@@ -449,7 +429,7 @@ version: "not-semver"
 
       await audit({ check: true });
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('Qualitative Review');
       expect(report).toContain('Approved by Opus');
     });
@@ -487,7 +467,7 @@ version: "not-semver"
       await audit();
 
       expect(existsSync(join(testDir, 'AUDIT_REPORT.md'))).toBe(true);
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('READY FOR SUBMISSION');
     });
   });
@@ -502,7 +482,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('READY FOR SUBMISSION');
       expect(report).toContain('README Links | ✓ PASS');
     });
@@ -518,7 +498,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('NOT READY');
       expect(report).toContain('README Links | ✗ FAIL');
       expect(report).toContain('2 relative link(s)');
@@ -538,7 +518,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('READY FOR SUBMISSION');
       expect(report).toContain('README Links | ✓ PASS');
     });
@@ -554,7 +534,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('NOT READY');
       expect(report).toContain('2 relative link(s)');
     });
@@ -570,7 +550,7 @@ version: "not-semver"
 
       await audit();
 
-      const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+      const report = readReport();
       expect(report).toContain('Line 5:');
     });
   });
@@ -583,7 +563,7 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('Binary Detection | ⚠ WARNING');
     expect(report).toContain('image.bin');
   });
@@ -596,8 +576,87 @@ version: "not-semver"
 
     await audit();
 
-    const report = readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
+    const report = readReport();
     expect(report).toContain('READY FOR SUBMISSION');
     expect(report).toContain('Registry unavailable');
+  });
+
+  describe('Runtime dependency validation', () => {
+    it('passes when no dep files present (default PASS)', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('Runtime Dependencies | ✓ PASS');
+    });
+
+    it('WARNING in normal mode when content has deps but manifest does not', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+      writeFileSync(join(testDir, 'content', 'package.json'), JSON.stringify({
+        dependencies: { lodash: '^4.0.0' },
+      }));
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('Runtime Dependencies | ⚠ WARNING');
+      expect(report).toContain('Pending qualitative review');
+    });
+
+    it('FAIL in --check mode when deps mismatch', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+      writeFileSync(join(testDir, 'content', 'package.json'), JSON.stringify({
+        dependencies: { lodash: '^4.0.0' },
+      }));
+
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+      await audit({ check: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      exitSpy.mockRestore();
+    });
+
+    it('PASS when content deps match manifest declarations', async () => {
+      const yamlWithDeps = validSkillsetYaml + `\nruntime_dependencies:\n  - path: package.json\n    manager: npm\n    packages:\n      - lodash\n    evaluation: "Well-known utility library"\n    researched_at: "2026-02-04"\n`;
+      writeFileSync(join(testDir, 'skillset.yaml'), yamlWithDeps);
+      createValidContent();
+      writeFileSync(join(testDir, 'content', 'package.json'), JSON.stringify({
+        dependencies: { lodash: '^4.0.0' },
+      }));
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('Runtime Dependencies | ✓ PASS');
+    });
+
+    it('includes runtime deps error details in report findings', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+      writeFileSync(join(testDir, 'content', 'requirements.txt'), 'flask\nrequests\n');
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('### 9. Runtime Dependencies');
+      expect(report).toContain('requirements.txt');
+      expect(report).toContain('not declared');
+    });
+
+    it('shows Runtime Deps in console summary', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+
+      await audit();
+
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Runtime Deps'));
+    });
   });
 });

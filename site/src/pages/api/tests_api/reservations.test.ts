@@ -7,6 +7,7 @@ vi.mock('@/lib/auth', () => ({
 
 vi.mock('@/lib/reservation-do', () => ({
   getReservationStub: vi.fn(),
+  BATCH_ID_REGEX: /^\d{1,3}\.\d{1,3}\.\d{3}$/,
 }));
 
 import { GET, POST, DELETE, isReservationRateLimited } from '../reservations';
@@ -53,7 +54,7 @@ describe('POST /api/reservations', () => {
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: '1.10.001' }),
+        body: JSON.stringify({ batchId: '1.10.001' }),
       })
     );
     const response = await POST(ctx);
@@ -65,21 +66,21 @@ describe('POST /api/reservations', () => {
 
   it('test_post_valid_reserve', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
-    const stubResponse = { slotId: '1.10.001', expiresAt: 1738900000 };
+    const stubResponse = { batchId: '1.10.001', expiresAt: 1738900000 };
     const stub = createMockStub({ status: 201, body: stubResponse });
     mockGetStub.mockReturnValue(stub);
 
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: '1.10.001' }),
+        body: JSON.stringify({ batchId: '1.10.001' }),
       })
     );
     const response = await POST(ctx);
     const data = await response.json();
 
     expect(response.status).toBe(201);
-    expect(data.slotId).toBe('1.10.001');
+    expect(data.batchId).toBe('1.10.001');
     // Verify DO stub receives githubLogin
     expect(stub.fetch).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -99,7 +100,7 @@ describe('POST /api/reservations', () => {
     const ctx1 = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: 'ghost-1' }),
+        body: JSON.stringify({ batchId: 'ghost-1' }),
       })
     );
     const response1 = await POST(ctx1);
@@ -111,7 +112,7 @@ describe('POST /api/reservations', () => {
     const ctx2 = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: 'invalid' }),
+        body: JSON.stringify({ batchId: 'invalid' }),
       })
     );
     const response2 = await POST(ctx2);
@@ -145,7 +146,7 @@ describe('POST /api/reservations', () => {
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: '1.10.001' }),
+        body: JSON.stringify({ batchId: '1.10.001' }),
       }),
     );
     // Override env with pre-filled rate limit
@@ -163,7 +164,7 @@ describe('POST /api/reservations', () => {
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
-        body: JSON.stringify({ slotId: '1.10.001' }),
+        body: JSON.stringify({ batchId: '1.10.001' }),
       })
     );
     const response = await POST(ctx);

@@ -1,39 +1,58 @@
 # validate-mcp.ts
 
-## Overview
-**Purpose**: Bidirectional validation of MCP server declarations between content files and skillset.yaml manifest. Ensures every MCP server in content is declared in the manifest (with matching details) and vice versa.
+## Purpose
+Bidirectional validation of MCP server declarations between content files and skillset.yaml manifest. Ensures every MCP server in content is declared in the manifest (with matching details) and vice versa.
+
+## Public API
+| Export | Type | Description |
+|--------|------|-------------|
+| `McpValidationResult` | interface | `{ valid: boolean; errors: string[] }` |
+| `validateMcpServers` | function | Run full bidirectional validation |
 
 ## Dependencies
-- External: `js-yaml`, `fs`
-- Internal: None
+- Internal: `lib/errors`
+- External: `js-yaml`, `fs`, `path`
 
-## Key Components
+## Integration Points
+- Used by: `commands/audit`
+- Emits/Consumes: None
 
-### Functions
-| Function | Purpose | Inputs → Output |
-|----------|---------|-----------------|
-| `validateMcpServers` | Run full bidirectional validation | `skillsetDir` → `McpValidationResult` |
-| `collectContentServers` | Discover MCP servers from content files | `skillsetDir, errors` → `ContentMcpServer[]` |
-| `collectManifestServers` | Parse MCP servers from skillset.yaml | `skillsetDir, errors` → `ManifestMcpServer[]` |
-| `findManifestMatch` | Match a content server to a manifest entry | `contentServer, manifestServers` → `ManifestMcpServer?` |
-| `validateDockerImage` | Check Docker image exists in any YAML under docker/ | `skillsetDir, image, errors` → `void` |
-| `findYamlFiles` | Recursively find all .yaml/.yml files in directory | `dir` → `string[]` |
+## Key Logic
 
-### Content Sources (checked in order)
-| Source | Format | Key |
-|--------|--------|-----|
-| `content/.mcp.json` | JSON | `mcpServers` (camelCase) |
-| `content/.claude/settings.json` | JSON | `mcpServers` (camelCase) |
-| `content/.claude/settings.local.json` | JSON | `mcpServers` (camelCase) |
-| `content/docker/**/*.yaml`, `**/*.yml` | YAML | `mcp_servers` (snake_case) |
+### Content Source Discovery
+The validator recursively scans all files in `content/` for MCP server declarations:
 
-### Validation Logic
-1. Collect servers from all content sources (deduplicate by name+source)
-2. Collect servers from `skillset.yaml` `mcp_servers` array
-3. If both empty → PASS
-4. Content→manifest: each content server must match a manifest entry (by name + command/args or url)
-5. Manifest→content: each manifest server must exist in content (native by name, docker inner servers by name)
-6. Docker: additionally validates image exists in any YAML file under `docker/`
+**Native MCP servers** (scans ALL `.json` files):
+- Format: `{ "mcpServers": { "name": { "command": "...", "args": [...] } } }` (camelCase)
+- Common locations: `.mcp.json`, `.claude/settings.json`, `.claude/settings.local.json`
+
+**Docker MCP servers** (scans ALL `.yaml` and `.yml` files):
+- Format: `mcp_servers: { name: { command: "...", args: [...] } }` (snake_case)
+- Common locations: `docker/**/*.yaml`, `docker/**/*.yml`
+
+### Internal Functions
+| Function | Purpose |
+|----------|---------|
+| `collectContentServers` | Recursively scan content/ for MCP declarations |
+| `collectManifestServers` | Parse skillset.yaml mcp_servers array |
+| `parseNativeServersFromJson` | Extract mcpServers from JSON file |
+| `findManifestMatch` | Match content server to manifest entry |
+| `validateDockerImage` | Verify Docker image exists in docker/ YAML files |
+| `findFilesByExtensions` | Recursively find files by extension (skips node_modules, .git) |
+| `arraysEqual` | Compare two string arrays for equality |
+
+### Validation Flow
+1. Scan all .json files in content/ for `mcpServers` objects (deduplicate by name+source='native')
+2. Scan all .yaml/.yml files in content/ for `mcp_servers` objects (deduplicate by name+source='docker')
+3. Parse skillset.yaml `mcp_servers` array
+4. If both content and manifest are empty → PASS
+5. **Content → Manifest**: Each content server must match a manifest entry
+   - Native servers: match by name + (command+args OR url)
+   - Docker servers: match by name within manifest's `servers` array
+6. **Manifest → Content**: Each manifest server must exist in content
+   - Native servers: must find matching name in content
+   - Docker servers: validate image exists in docker/ YAML + all inner servers exist in content
+7. Return validation result with error list
 
 ### Server Types
 | Type | Matching Criteria |

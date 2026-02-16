@@ -17,7 +17,6 @@ describe('GhostCard', () => {
   });
 
   const defaultProps = {
-    slotId: '1.10.001',
     batchId: '1.10.001',
     status: 'available' as const,
     isOwn: false,
@@ -71,7 +70,7 @@ describe('GhostCard', () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       status: 201,
       ok: true,
-      json: async () => ({ slotId: '1.10.001', expiresAt: now() + 604800 }),
+      json: async () => ({ batchId: '1.10.001', expiresAt: now() + 604800 }),
     }) as typeof fetch;
 
     render(<GhostCard {...defaultProps} onReserved={onReserved} />);
@@ -162,7 +161,7 @@ describe('GhostCard', () => {
     expect(button).toHaveProperty('disabled', true);
 
     // Resolve the fetch
-    resolvePromise!({ status: 201, ok: true, json: async () => ({ slotId: '1.10.001', expiresAt: now() + 604800 }) });
+    resolvePromise!({ status: 201, ok: true, json: async () => ({ batchId: '1.10.001', expiresAt: now() + 604800 }) });
 
     await waitFor(() => {
       expect(button).toHaveProperty('disabled', false);

@@ -12,13 +12,12 @@ React component for rendering individual ghost entry slot cards. Displays slot s
 ### Props (GhostCardProps)
 | Prop | Type | Description |
 |------|------|-------------|
-| `slotId` | string | Internal slot ID for API calls |
-| `batchId` | string | Display batch ID (e.g., "5.10.001") |
+| `batchId` | string | Batch ID for API calls and display (e.g., "5.10.001") |
 | `status` | 'available' \| 'reserved' \| 'submitted' | Slot state |
 | `expiresAt` | number? | Unix timestamp for reservation expiry |
 | `skillsetId` | string? | Skillset ID for submitted slots (e.g., "@user/SkillName") |
 | `isOwn` | boolean | Whether current user owns this reservation |
-| `onReserved` | function | Callback on successful reservation: `(slotId, expiresAt) => void` |
+| `onReserved` | function | Callback on successful reservation: `(batchId, expiresAt) => void` |
 | `onCancelled` | function | Callback on successful cancellation: `() => void` |
 | `onConflict` | function | Callback on 409 conflict (slot taken or user has reservation): `() => void` |
 
@@ -60,10 +59,10 @@ React component for rendering individual ghost entry slot cards. Displays slot s
 
 ### Reserve Flow
 1. User clicks "Claim" on available slot
-2. POST to `/api/reservations` with `{ slotId }`
+2. POST to `/api/reservations` with `{ batchId }`
 3. On 401: Redirect to `/login?returnTo=/` (auth required)
 4. On 409: Call `onConflict()` (slot taken or user has reservation)
-5. On 201: Call `onReserved(slotId, expiresAt)` (success)
+5. On 201: Call `onReserved(batchId, expiresAt)` (success)
 
 ### Cancel Flow
 1. User clicks "Cancel" on own reserved slot

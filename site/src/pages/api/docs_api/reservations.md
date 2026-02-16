@@ -45,9 +45,9 @@ Hour-bucketed KV keys prevent TTL-reset bug where incrementing a key also resets
 ### POST /api/reservations
 - **Auth**: Required (401 if missing)
 - **Rate Limit**: 5 operations/hour (429 if exceeded)
-- **Validation**: slotId must match format `N.N.NNN`
-- **Body**: `{ slotId: string }`
-- **Forwards to DO**: `/reserve` endpoint with slotId, userId, githubLogin
+- **Validation**: batchId must match format `N.N.NNN`
+- **Body**: `{ batchId: string }`
+- **Forwards to DO**: `/reserve` endpoint with batchId, userId, githubLogin
 
 ### DELETE /api/reservations
 - **Auth**: Required (401 if missing)

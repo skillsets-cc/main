@@ -7,11 +7,9 @@
  */
 import type { APIRoute } from 'astro';
 import { getSessionFromRequest, type Env } from '@/lib/auth';
-import { jsonResponse, errorResponse } from '@/lib/responses';
-import { getReservationStub } from '@/lib/reservation-do';
+import { jsonResponse, errorResponse, parseJsonBody } from '@/lib/responses';
+import { getReservationStub, BATCH_ID_REGEX } from '@/lib/reservation-do';
 import { isHourlyRateLimited } from '@/lib/rate-limit';
-
-const SLOT_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 
 /** Check if user has exceeded reservation rate limit (5 ops/hour). */
 export async function isReservationRateLimited(
@@ -54,7 +52,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * POST /api/reservations
  *
  * Reserve a slot for the authenticated user.
- * Request body: { slotId: string }
+ * Request body: { batchId: string }
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
@@ -70,22 +68,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  let body: { slotId?: string };
-  try {
-    body = (await request.json()) as { slotId?: string };
-  } catch {
-    return errorResponse('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<{ batchId?: string }>(request);
+  if (body instanceof Response) return body;
 
-  const { slotId } = body;
-  if (!slotId || !SLOT_ID_REGEX.test(slotId)) {
+  const { batchId } = body;
+  if (!batchId || !BATCH_ID_REGEX.test(batchId)) {
     return errorResponse('Invalid slot ID', 400);
   }
 
   const stub = getReservationStub(env);
   const doRequest = new Request('https://do/reserve', {
     method: 'POST',
-    body: JSON.stringify({ slotId, userId: session.userId, githubLogin: session.login }),
+    body: JSON.stringify({ batchId, userId: session.userId, githubLogin: session.login }),
   });
 
   try {

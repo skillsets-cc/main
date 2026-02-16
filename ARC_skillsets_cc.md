@@ -17,8 +17,8 @@ skillsets.cc/
 │
 ├── cli/                          # Node.js CLI (npx skillsets)
 │   └── src/
-│       ├── commands/             # search, list, view, install, init, audit, submit
-│       ├── lib/                  # API, checksum, constants, errors, filesystem, MCP validation, versions
+│       ├── commands/             # search, list, view, install, init, audit, audit-report, submit
+│       ├── lib/                  # API, checksum, constants, errors, filesystem, templates, validate-deps, validate-mcp, versions
 │       └── types/                # CLI-specific interfaces
 │
 ├── schema/                       # JSON Schema for validation
@@ -61,7 +61,7 @@ Contributor
   ↓
 npx skillsets init → scaffold skillset.yaml + content/
   ↓
-npx skillsets audit → validate manifest + MCP servers → generate AUDIT_REPORT.md
+npx skillsets audit → validate manifest + MCP servers + runtime deps → generate AUDIT_REPORT.md
   ↓
 npx skillsets submit → fork → branch → open PR via gh CLI
   ↓
@@ -106,13 +106,13 @@ Auth → GitHub OAuth (PKCE + CSRF → JWT in httpOnly cookie)
 ```
 list/search → CDN index + live stats from API → Fuse.js/sort → terminal
 view → GitHub raw content → terminal
-install → degit extract → checksum verify → POST /api/downloads
+install → MCP/deps warnings → degit extract → checksum verify → POST /api/downloads
 ```
 
 ### CLI: Contributor Flow
 ```
 init → interactive prompts → scaffold → reserve ghost slot (POST /api/reservations)
-audit → validate manifest + MCP → check registry (update detection) → AUDIT_REPORT.md
+audit → validate manifest + MCP + runtime deps → check registry (update detection) → AUDIT_REPORT.md
 submit → validate version bump → gh CLI → fork → branch → PR
 ```
 
@@ -166,7 +166,7 @@ submit → validate version bump → gh CLI → fork → branch → PR
 | **Sessions** | httpOnly/Secure/SameSite=Lax cookie, 7-day expiry | N/A |
 | **XSS** | js-xss whitelist on README HTML; sanitizeUrl for user URLs | N/A |
 | **Rate Limiting** | Stars: 10/min; Downloads: 30/hr; Reservations: 5/hr | N/A (server-side) |
-| **Input Validation** | Skillset ID format checks (prevent KV key injection) | Manifest + MCP validation |
+| **Input Validation** | Skillset ID format checks (prevent KV key injection) | Manifest + MCP + runtime deps validation |
 | **Checksums** | Generated at build time | SHA-256 verification on install |
 | **Authorization** | Maintainer-only endpoints (config, submit) | N/A |
 

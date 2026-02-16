@@ -7,7 +7,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   const session = await getSessionFromRequest(env, request);
 
   if (!session) {
-    return errorResponse('Unauthorized', 401);
+    return errorResponse('Authentication required', 401);
   }
 
   return jsonResponse({ login: session.login }, {

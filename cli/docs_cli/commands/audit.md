@@ -12,7 +12,7 @@
 
 ## Dependencies
 - External: `chalk`, `ora`, `js-yaml`, `fs`
-- Internal: `../lib/api.js` (`fetchSkillsetMetadata`), `../lib/versions.js` (`compareVersions`), `../lib/validate-mcp.js` (`validateMcpServers`)
+- Internal: `../lib/api.js` (`fetchSkillsetMetadata`), `../lib/versions.js` (`compareVersions`), `../lib/validate-mcp.js` (`validateMcpServers`), `../lib/validate-deps.js` (`validateRuntimeDeps`), `./audit-report.js` (report generation)
 
 ## Key Components
 
@@ -31,7 +31,7 @@
 | Check | Status | Criteria |
 |-------|--------|----------|
 | Manifest | PASS/FAIL | Schema compliance |
-| Required Files | PASS/FAIL | skillset.yaml, README.md, content/ |
+| Required Files | PASS/FAIL | skillset.yaml, README.md, QUICKSTART.md, content/ |
 | Content Structure | PASS/FAIL | Has both .claude/ and CLAUDE.md |
 | File Size | PASS/WARNING | Files under 1MB |
 | Binary Detection | PASS/WARNING | No binary files |
@@ -39,6 +39,7 @@
 | README Links | PASS/FAIL | No relative links to content/.claude/ |
 | Version Check | PASS/FAIL | New submission or version > existing |
 | MCP Servers | PASS/WARNING/FAIL | Bidirectional content↔manifest match (WARNING in normal mode, FAIL in `--check` mode) |
+| Runtime Dependencies | PASS/WARNING/FAIL | Bidirectional content↔manifest match (WARNING in normal mode, FAIL in `--check` mode) |
 
 ### Secret Patterns
 High-confidence patterns only (generic `password`/`token`/`secret` matchers removed — the `/audit-skill` handles qualitative secret review):
@@ -49,12 +50,12 @@ High-confidence patterns only (generic `password`/`token`/`secret` matchers remo
 
 ## Data Flow
 ```
-audit() → validateManifest() → Check files → Scan secrets → Check README links → Check registry → validateMcpServers() → generateReport()
+audit() → validateManifest() → Check files → Scan secrets → Check README links → Check registry → validateMcpServers() → validateRuntimeDeps() → generateReport()
 ```
 
 ## Integration Points
 - Called by: `index.ts`
-- Calls: `fetchSkillsetMetadata` (update detection), `validateMcpServers` (MCP check)
+- Calls: `fetchSkillsetMetadata` (update detection), `validateMcpServers` (MCP check), `validateRuntimeDeps` (runtime dependency check), `generateReport` (report generation)
 
 ## Output
 
@@ -73,4 +74,4 @@ The report indicates submission type:
 
 ## Testing
 - Test file: `tests_commands/audit.test.ts`
-- Key tests: Valid structure, missing files, schema errors, secrets, version validation, MCP validation (no MCP, matching, content-only, manifest-only, Docker end-to-end)
+- Key tests: Valid structure, missing files, schema errors, secrets, version validation, MCP validation (no MCP, matching, content-only, manifest-only, Docker end-to-end), runtime dependency validation

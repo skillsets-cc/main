@@ -2,41 +2,24 @@
  * Star functionality with KV-based rate limiting.
  *
  * Storage schema:
- * - stars:{skillsetId}        → star count (number as string)
- * - user:{userId}:stars       → JSON array of starred skillset IDs
- * - ratelimit:{userId}        → request count (with 60s TTL)
+ * - stars:{skillsetId}              → star count (number as string)
+ * - user:{userId}:stars             → JSON array of starred skillset IDs
+ * - ratelimit:star:{userId}:{min}   → request count (minute-bucketed, 120s TTL)
  */
 
+import { isMinuteRateLimited } from './rate-limit';
+
 const RATE_LIMIT_MAX = 10; // Max operations per minute
-const RATE_LIMIT_WINDOW = 60; // Window in seconds
 
 /**
  * Check if user has exceeded rate limit.
- * Uses KV with TTL for sliding window approximation.
+ * Uses minute-bucketed KV keys (fixed window, no TTL-reset drift).
  */
 export async function isRateLimited(
   kv: KVNamespace,
   userId: string
 ): Promise<boolean> {
-  const key = `ratelimit:${userId}`;
-  const currentCount = await kv.get(key);
-
-  if (!currentCount) {
-    // First request in this window
-    await kv.put(key, '1', { expirationTtl: RATE_LIMIT_WINDOW });
-    return false;
-  }
-
-  const count = parseInt(currentCount, 10);
-  if (count >= RATE_LIMIT_MAX) {
-    return true;
-  }
-
-  // Increment counter (TTL remains from original put)
-  await kv.put(key, (count + 1).toString(), {
-    expirationTtl: RATE_LIMIT_WINDOW,
-  });
-  return false;
+  return isMinuteRateLimited(kv, 'star', userId, RATE_LIMIT_MAX);
 }
 
 /**

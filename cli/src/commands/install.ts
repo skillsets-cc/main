@@ -7,15 +7,15 @@ import { verifyChecksums } from '../lib/checksum.js';
 import { fetchSkillsetMetadata } from '../lib/api.js';
 import { REGISTRY_REPO, DOWNLOADS_URL } from '../lib/constants.js';
 import { mkdtemp, rm, cp, readdir } from 'fs/promises';
-import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import type { McpServer } from '../types/index.js';
+import type { McpServer, RuntimeDependency } from '../types/index.js';
 
 interface InstallOptions {
   force?: boolean;
   backup?: boolean;
   acceptMcp?: boolean;
+  acceptDeps?: boolean;
 }
 
 function formatMcpWarning(mcpServers: McpServer[], skillsetId: string): string {
@@ -53,21 +53,22 @@ function formatMcpWarning(mcpServers: McpServer[], skillsetId: string): string {
 }
 
 /**
- * Prompts for MCP server consent. Returns true to proceed, false to abort.
- * Exits the process in non-interactive environments without --accept-mcp.
+ * Generic consent prompt. Returns true to proceed, false to abort.
+ * Throws in non-interactive environments when bypass is false.
  */
-async function confirmMcpConsent(
-  options: InstallOptions,
+async function confirmConsent(
+  bypassed: boolean,
+  nonTtyError: string,
   warningMessage: string,
   promptMessage: string,
   cleanup?: () => Promise<void>,
 ): Promise<boolean> {
-  if (!process.stdin.isTTY && !options.acceptMcp) {
+  if (!process.stdin.isTTY && !bypassed) {
     await cleanup?.();
-    throw new Error('This skillset includes MCP servers. Use --accept-mcp to install in non-interactive environments.');
+    throw new Error(nonTtyError);
   }
 
-  if (!options.acceptMcp) {
+  if (!bypassed) {
     console.log(warningMessage);
 
     const accepted = await confirm({
@@ -83,6 +84,28 @@ async function confirmMcpConsent(
   }
 
   return true;
+}
+
+function formatDepsWarning(deps: RuntimeDependency[], skillsetId: string): string {
+  let output = chalk.yellow('\n⚠  This skillset includes runtime dependencies:\n');
+
+  for (const dep of deps) {
+    output += chalk.white(`\n  ${dep.manager}: ${dep.path}\n`);
+    const pkgList = dep.packages.length > 5
+      ? dep.packages.slice(0, 5).join(', ') + ` (+${dep.packages.length - 5} more)`
+      : dep.packages.join(', ');
+    output += `    Packages: ${pkgList}\n`;
+    if (dep.has_install_scripts) {
+      output += chalk.red(`    ⚠ Has install lifecycle scripts\n`);
+    }
+    output += chalk.gray(`    Evaluation: ${dep.evaluation}\n`);
+    output += chalk.gray(`    Researched: ${dep.researched_at}\n`);
+  }
+
+  output += chalk.gray('\n  Dependencies may have changed since audit.\n');
+  output += chalk.cyan(`\n  Review before installing:\n    https://github.com/skillsets-cc/main/tree/main/skillsets/${skillsetId}/content\n`);
+
+  return output;
 }
 
 export async function install(skillsetId: string, options: InstallOptions): Promise<void> {
@@ -114,21 +137,32 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
     await backupFiles(conflicts, process.cwd());
   }
 
-  // Fetch metadata and check for MCP servers BEFORE degit
-  let metadataFetchFailed = false;
+  // Fetch metadata and check for MCP/deps consent BEFORE degit
   spinner.text = 'Fetching skillset metadata...';
-  const metadata = await fetchSkillsetMetadata(skillsetId).catch(() => {
-    metadataFetchFailed = true;
-    return undefined;
-  });
+  const metadata = await fetchSkillsetMetadata(skillsetId).catch(() => undefined);
 
   if (metadata?.mcp_servers && metadata.mcp_servers.length > 0) {
     spinner.stop();
 
-    const proceed = await confirmMcpConsent(
-      options,
+    const proceed = await confirmConsent(
+      !!options.acceptMcp,
+      'This skillset includes MCP servers. Use --accept-mcp to install in non-interactive environments.',
       formatMcpWarning(metadata.mcp_servers, skillsetId),
       'Install MCP servers?',
+    );
+    if (!proceed) return;
+
+    spinner.start('Downloading skillset...');
+  }
+
+  if (metadata?.runtime_dependencies && metadata.runtime_dependencies.length > 0) {
+    spinner.stop();
+
+    const proceed = await confirmConsent(
+      !!options.acceptDeps,
+      'This skillset includes runtime dependencies. Use --accept-deps to install in non-interactive environments.',
+      formatDepsWarning(metadata.runtime_dependencies, skillsetId),
+      'Install with runtime dependencies?',
     );
     if (!proceed) return;
 
@@ -147,25 +181,6 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
     });
 
     await emitter.clone(tempDir);
-
-    // Post-install MCP check: if metadata fetch failed, inspect downloaded content
-    if (metadataFetchFailed) {
-      const hasMcpJson = existsSync(join(tempDir, '.mcp.json'));
-      const hasClaudeSettings = existsSync(join(tempDir, '.claude', 'settings.json'));
-
-      if (hasMcpJson || hasClaudeSettings) {
-        spinner.stop();
-
-        const cleanupTemp = () => rm(tempDir, { recursive: true, force: true });
-        const warning = chalk.yellow('\n⚠  This skillset may include MCP servers (metadata unavailable for pre-check).')
-          + chalk.cyan(`\n\n  Review before installing:\n    https://github.com/skillsets-cc/main/tree/main/skillsets/${skillsetId}/content\n`);
-
-        const proceed = await confirmMcpConsent(options, warning, 'Continue installation?', cleanupTemp);
-        if (!proceed) return;
-
-        spinner.start('Verifying checksums...');
-      }
-    }
 
     // Verify checksums against temp directory
     spinner.text = 'Verifying checksums...';

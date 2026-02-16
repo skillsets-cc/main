@@ -16,6 +16,7 @@
 | `SkillsetCompatibility` | interface | Compatibility metadata (Claude Code version, languages) |
 | `McpNestedServer` | interface | Nested MCP server declaration for docker type |
 | `McpServer` | interface | MCP server declaration with type-specific fields |
+| `RuntimeDependency` | interface | Runtime dependency declaration (npm/pip packages) |
 | `SearchIndex` | interface | CDN index structure with version and skillset entries |
 | `SearchIndexEntry` | interface | Individual skillset in search index |
 | `StatsResponse` | interface | Live stats from API (stars, downloads) |
@@ -54,6 +55,7 @@ interface SearchIndexEntry {
   checksum: string;
   files: Record<string, string>; // path -> sha256
   mcp_servers?: McpServer[];     // MCP server declarations
+  runtime_dependencies?: RuntimeDependency[]; // Runtime dependency declarations
 }
 ```
 
@@ -81,6 +83,19 @@ interface Skillset {
   status: 'active' | 'deprecated' | 'archived';
   entry_point: string;
   mcp_servers?: McpServer[];
+}
+```
+
+#### RuntimeDependency
+Runtime dependency declaration:
+```typescript
+interface RuntimeDependency {
+  path: string;              // Relative path to manifest (package.json, requirements.txt)
+  manager: string;           // npm, pip, etc.
+  packages: string[];        // List of package names
+  has_install_scripts?: boolean;
+  evaluation: string;        // Qualitative evaluation from audit
+  researched_at: string;     // ISO 8601 timestamp
 }
 ```
 

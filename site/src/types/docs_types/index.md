@@ -11,7 +11,7 @@ Defines TypeScript interfaces for skillsets, search index, and related data stru
 | `McpServer` | interface | MCP server configuration (stdio/http/docker type, command/args/url/image) |
 | `McpNestedServer` | interface | Nested MCP server config (for aggregator types like docker-compose) |
 | `SlotStatus` | type | Reservation slot status union type ('available' \| 'reserved' \| 'submitted') |
-| `GhostSlot` | interface | Single ghost entry slot (slotId, status, expiresAt, skillsetId) |
+| `GhostSlot` | interface | Single ghost entry slot (batchId, status, expiresAt, skillsetId) |
 | `ReservationState` | interface | Complete reservation system state (slots, totalGhostSlots, cohort, userSlot) |
 
 ## Dependencies
@@ -65,5 +65,5 @@ Contains all skillset metadata for search and display:
 
 ### Reservation Types
 - **SlotStatus**: Union type defining valid slot states: 'available' (unclaimed), 'reserved' (held with TTL), 'submitted' (PR opened)
-- **GhostSlot**: Single slot state for UI (slotId, status enum, optional expiresAt/skillsetId)
+- **GhostSlot**: Single slot state for UI (batchId, status enum, optional expiresAt/skillsetId)
 - **ReservationState**: Complete system snapshot returned by `/api/reservations` (slots map, config, user's current slot)

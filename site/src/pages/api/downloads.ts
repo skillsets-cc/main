@@ -5,7 +5,7 @@
 import type { APIRoute } from 'astro';
 import type { Env } from '../../lib/auth';
 import { incrementDownloads, isDownloadRateLimited, getDownloadCount } from '../../lib/downloads';
-import { jsonResponse, errorResponse } from '../../lib/responses';
+import { jsonResponse, errorResponse, parseJsonBody } from '../../lib/responses';
 import { isValidSkillsetId } from '../../lib/validation';
 
 export const GET: APIRoute = async ({ request, locals }) => {
@@ -46,12 +46,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return errorResponse('Rate limit exceeded', 429);
   }
 
-  let body: DownloadRequest;
-  try {
-    body = (await request.json()) as DownloadRequest;
-  } catch {
-    return errorResponse('Invalid JSON body', 400);
-  }
+  const body = await parseJsonBody<DownloadRequest>(request);
+  if (body instanceof Response) return body;
 
   if (!body.skillset) {
     return errorResponse('Missing skillset', 400);

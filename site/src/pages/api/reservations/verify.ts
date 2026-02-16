@@ -6,10 +6,8 @@
 import type { APIRoute } from 'astro';
 import type { Env } from '@/lib/auth';
 import { jsonResponse, errorResponse } from '@/lib/responses';
-import { getReservationStub } from '@/lib/reservation-do';
+import { getReservationStub, BATCH_ID_REGEX } from '@/lib/reservation-do';
 import { isHourlyRateLimited } from '@/lib/rate-limit';
-
-const BATCH_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 
 /**
  * GET /api/reservations/verify
@@ -28,7 +26,7 @@ export const GET: APIRoute = async ({ request, locals, clientAddress }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
 
   if (await isHourlyRateLimited(env.DATA, 'verify', clientAddress, 30)) {
-    return errorResponse('Too many requests', 429, { message: 'Too many requests' });
+    return errorResponse('Too many requests', 429);
   }
 
   const url = new URL(request.url);

@@ -58,8 +58,10 @@ export default function StarButton({
         throw new Error('Failed to toggle star');
       }
 
-      setStarred(!starred);
-      setStars(starred ? stars - 1 : stars + 1);
+      // Reconcile with server-authoritative response
+      const result = (await response.json()) as { starred: boolean; count: number };
+      setStarred(result.starred);
+      setStars(result.count);
     } catch (error) {
       console.error('[StarButton] Error:', error);
     } finally {

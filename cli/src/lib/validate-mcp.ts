@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 import yaml from 'js-yaml';
+import { getErrorMessage } from './errors.js';
 
 export interface McpValidationResult {
   valid: boolean;
@@ -31,10 +32,6 @@ interface ManifestMcpServer {
   }>;
   mcp_reputation: string;
   researched_at: string;
-}
-
-function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
 }
 
 /**
@@ -131,38 +128,30 @@ function collectContentServers(skillsetDir: string, errors: string[]): ContentMc
     return servers;
   }
 
-  // Native MCP server sources (order matters for dedup: first found wins)
-  const nativeJsonPaths = [
-    join(contentDir, '.mcp.json'),
-    join(contentDir, '.claude', 'settings.json'),
-    join(contentDir, '.claude', 'settings.local.json'),
-  ];
-  for (const jsonPath of nativeJsonPaths) {
+  // Scan all JSON files under content for mcpServers keys
+  for (const jsonPath of findFilesByExtensions(contentDir, ['.json'])) {
     parseNativeServersFromJson(jsonPath, servers, errors);
   }
 
-  // Docker MCP servers from docker/**/*.yaml and docker/**/*.yml
-  const dockerDir = join(contentDir, 'docker');
-  if (existsSync(dockerDir)) {
-    for (const yamlPath of findYamlFiles(dockerDir)) {
-      try {
-        const content = readFileSync(yamlPath, 'utf-8');
-        const data = yaml.load(content) as Record<string, unknown>;
-        if (data.mcp_servers && typeof data.mcp_servers === 'object') {
-          for (const [name, config] of Object.entries(data.mcp_servers as Record<string, Record<string, unknown>>)) {
-            if (!servers.some(s => s.name === name && s.source === 'docker')) {
-              servers.push({
-                name,
-                source: 'docker',
-                command: config.command as string | undefined,
-                args: config.args as string[] | undefined,
-              });
-            }
+  // Scan all YAML files under content for mcp_servers keys
+  for (const yamlPath of findFilesByExtensions(contentDir, ['.yaml', '.yml'])) {
+    try {
+      const content = readFileSync(yamlPath, 'utf-8');
+      const data = yaml.load(content) as Record<string, unknown>;
+      if (data.mcp_servers && typeof data.mcp_servers === 'object') {
+        for (const [name, config] of Object.entries(data.mcp_servers as Record<string, Record<string, unknown>>)) {
+          if (!servers.some(s => s.name === name && s.source === 'docker')) {
+            servers.push({
+              name,
+              source: 'docker',
+              command: config.command as string | undefined,
+              args: config.args as string[] | undefined,
+            });
           }
         }
-      } catch (error: unknown) {
-        errors.push(`Failed to parse ${yamlPath}: ${getErrorMessage(error)}`);
       }
+    } catch (error: unknown) {
+      errors.push(`Failed to parse ${yamlPath}: ${getErrorMessage(error)}`);
     }
   }
 
@@ -239,7 +228,7 @@ function validateDockerImage(skillsetDir: string, image: string, errors: string[
     return;
   }
 
-  const found = findYamlFiles(dockerDir).some(yamlPath => {
+  const found = findFilesByExtensions(dockerDir, ['.yaml', '.yml']).some(yamlPath => {
     try {
       const content = readFileSync(yamlPath, 'utf-8');
       const data = yaml.load(content) as Record<string, unknown>;
@@ -258,18 +247,21 @@ function validateDockerImage(skillsetDir: string, image: string, errors: string[
   }
 }
 
+const SKIP_DIRS = new Set(['node_modules', '.git']);
+
 /**
- * Recursively find all YAML files (.yaml, .yml) in a directory
+ * Recursively find files matching any of the given extensions, skipping node_modules and .git.
  */
-function findYamlFiles(dir: string): string[] {
+function findFilesByExtensions(dir: string, extensions: string[]): string[] {
   if (!existsSync(dir)) return [];
 
   const results: string[] = [];
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP_DIRS.has(entry.name)) continue;
     const fullPath = join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...findYamlFiles(fullPath));
-    } else if (entry.name.endsWith('.yaml') || entry.name.endsWith('.yml')) {
+      results.push(...findFilesByExtensions(fullPath, extensions));
+    } else if (extensions.some(ext => entry.name.endsWith(ext))) {
       results.push(fullPath);
     }
   }

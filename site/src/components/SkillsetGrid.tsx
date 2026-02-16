@@ -57,12 +57,38 @@ export default function SkillsetGrid({
   // Build submitted slot cross-reference: skillsetId → batchId
   const submittedMap = new Map<string, string>();
   if (reservations) {
-    for (const [slotId, slot] of Object.entries(reservations.slots)) {
+    for (const [batchId, slot] of Object.entries(reservations.slots)) {
       if (slot.status === 'submitted' && slot.skillsetId) {
-        submittedMap.set(slot.skillsetId, slotId);
+        submittedMap.set(slot.skillsetId, batchId);
       }
     }
   }
+
+  const handleSlotReserved = (sid: string, exp: number) => {
+    setReservations(prev => prev ? {
+      ...prev,
+      userSlot: sid,
+      slots: { ...prev.slots, [sid]: { status: 'reserved', expiresAt: exp } },
+    } : prev);
+  };
+
+  const handleSlotCancelled = () => {
+    setReservations(prev => prev ? {
+      ...prev,
+      userSlot: null,
+      slots: {
+        ...prev.slots,
+        ...(prev.userSlot ? { [prev.userSlot]: { status: 'available' } } : {}),
+      },
+    } : prev);
+  };
+
+  const handleSlotConflict = () => {
+    fetch('/api/reservations', { credentials: 'include' })
+      .then(r => r.json())
+      .then(data => setReservations(data as ReservationState))
+      .catch(() => {});
+  };
 
   return (
     <div>
@@ -120,9 +146,9 @@ export default function SkillsetGrid({
       {reservations && Object.keys(reservations.slots).length > 0 && (
         <div className="flex flex-col border-t border-dashed border-border-ink mt-0">
           {Object.entries(reservations.slots)
-            .filter(([slotId, slot]) => {
+            .filter(([batchId, slot]) => {
               // Hide ghost card if a real skillset with this batch_id exists
-              if (skillsets.some(s => s.batch_id === slotId)) {
+              if (skillsets.some(s => s.batch_id === batchId)) {
                 return false;
               }
               // Hide submitted slots if matching by skillsetId
@@ -131,38 +157,17 @@ export default function SkillsetGrid({
               }
               return true;
             })
-            .map(([slotId, slot]) => (
+            .map(([batchId, slot]) => (
               <GhostCard
-                key={slotId}
-                slotId={slotId}
-                batchId={slotId}
+                key={batchId}
+                batchId={batchId}
                 status={slot.status}
                 expiresAt={slot.expiresAt}
                 skillsetId={slot.skillsetId}
-                isOwn={reservations.userSlot === slotId}
-                onReserved={(sid, exp) => {
-                  setReservations(prev => prev ? {
-                    ...prev,
-                    userSlot: sid,
-                    slots: { ...prev.slots, [sid]: { status: 'reserved', expiresAt: exp } },
-                  } : prev);
-                }}
-                onCancelled={() => {
-                  setReservations(prev => prev ? {
-                    ...prev,
-                    userSlot: null,
-                    slots: {
-                      ...prev.slots,
-                      ...(prev.userSlot ? { [prev.userSlot]: { status: 'available' } } : {}),
-                    },
-                  } : prev);
-                }}
-                onConflict={() => {
-                  fetch('/api/reservations', { credentials: 'include' })
-                    .then(r => r.json())
-                    .then(data => setReservations(data as ReservationState))
-                    .catch(() => {});
-                }}
+                isOwn={reservations.userSlot === batchId}
+                onReserved={handleSlotReserved}
+                onCancelled={handleSlotCancelled}
+                onConflict={handleSlotConflict}
               />
             ))}
         </div>

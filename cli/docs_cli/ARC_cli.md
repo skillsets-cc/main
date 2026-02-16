@@ -14,6 +14,7 @@ cli/src/
 │   ├── install.ts        # degit + checksum verification
 │   ├── init.ts           # Scaffold new skillset
 │   ├── audit.ts          # Validate before submission
+│   ├── audit-report.ts   # Audit report generation
 │   ├── submit.ts         # PR submission via gh CLI
 │   └── tests_commands/   # Command tests
 ├── lib/
@@ -22,6 +23,8 @@ cli/src/
 │   ├── filesystem.ts     # File operations
 │   ├── errors.ts         # Error handling
 │   ├── constants.ts      # Configuration
+│   ├── templates.ts      # Scaffold templates
+│   ├── validate-deps.ts  # Runtime dependency validation
 │   ├── validate-mcp.ts   # MCP server validation
 │   ├── versions.ts       # Semver comparison
 │   └── tests_lib/        # Library tests
@@ -43,9 +46,10 @@ cli/src/
 | `commands/list.ts` | Browse all available skillsets | [Docs](./commands/list.md) |
 | `commands/search.ts` | Fuzzy search against CDN index | [Docs](./commands/search.md) |
 | `commands/view.ts` | View skillset README from GitHub raw content | [Docs](./commands/view.md) |
-| `commands/install.ts` | Install skillset via degit + MCP warning + verify checksums | [Docs](./commands/install.md) |
-| `commands/init.ts` | Scaffold skillset submission | [Docs](./commands/init.md) |
-| `commands/audit.ts` | Validate + MCP check + generate report | [Docs](./commands/audit.md) |
+| `commands/install.ts` | Install skillset via degit + MCP/deps warnings + verify checksums | [Docs](./commands/install.md) |
+| `commands/init.ts` | Scaffold skillset submission with QUICKSTART.md | [Docs](./commands/init.md) |
+| `commands/audit.ts` | Validate + MCP check + runtime deps check + generate report | [Docs](./commands/audit.md) |
+| `commands/audit-report.ts` | Audit report types and markdown generation | [Docs](./commands/audit-report.md) |
 | `commands/submit.ts` | Open PR via gh CLI | [Docs](./commands/submit.md) |
 
 ### Libraries
@@ -56,6 +60,8 @@ cli/src/
 | `lib/filesystem.ts` | Conflict detection, backups | [Docs](./lib/filesystem.md) |
 | `lib/errors.ts` | Centralized error handling | [Docs](./lib/errors.md) |
 | `lib/constants.ts` | Configuration constants | [Docs](./lib/constants.md) |
+| `lib/templates.ts` | Scaffold templates for init command | [Docs](./lib/templates.md) |
+| `lib/validate-deps.ts` | Runtime dependency bidirectional validation | [Docs](./lib/validate-deps.md) |
 | `lib/validate-mcp.ts` | MCP server bidirectional validation | [Docs](./lib/validate-mcp.md) |
 | `lib/versions.ts` | Semver comparison for updates | [Docs](./lib/versions.md) |
 
@@ -75,11 +81,11 @@ cli/src/
 Consumer Flow:
 list/search → api.ts → CDN index + Live stats → Merge → Fuse.js/Sort → Terminal output
 view → api.ts → fetchSkillsetMetadata → GitHub raw content → Print to terminal
-install → Fetch metadata → MCP warning (if any) → degit → Extract content/ → checksum.ts → Verify → Track download
+install → Fetch metadata → MCP warning (if any) → Runtime deps warning (if any) → degit → Extract content/ → checksum.ts → Verify → Track download
 
 Contributor Flow:
-init → Interactive prompts → Generate scaffold
-audit → Validate manifest + files → MCP validation → Check registry (update detection) → Generate AUDIT_REPORT.md
+init → Interactive prompts → Generate scaffold (skillset.yaml, README.md, QUICKSTART.md, PROOF.md) → Install audit-skill
+audit → Validate manifest + files → MCP validation → Runtime deps validation → Check registry (update detection) → audit-report.ts → Generate AUDIT_REPORT.md
 submit → Check registry (update detection) → Validate version bump → gh CLI → Fork → Branch → PR
 ```
 
@@ -92,6 +98,7 @@ submit → Check registry (update detection) → Validate version bump → gh CL
 - **Conflict Detection**: Prevents accidental file overwrites during install
 - **Update Detection**: Checks registry to differentiate new submissions vs updates
 - **MCP Transparency**: Bidirectional validation of MCP servers between content and manifest; install-time warning with `--accept-mcp` bypass
+- **Runtime Deps Transparency**: Bidirectional validation of runtime dependencies between content and manifest; install-time warning with `--accept-deps` bypass
 
 ## Configuration
 | Constant | Value | Purpose |

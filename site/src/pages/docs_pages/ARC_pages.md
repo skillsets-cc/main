@@ -164,11 +164,11 @@ Return JSON { starred, count }
 
 ### Reservation Flow
 ```
-User → POST /api/reservations { slotId }
+User → POST /api/reservations { batchId }
   ↓
 Verify session + check rate limit
   ↓
-Validate slotId format
+Validate batchId format
   ↓
 Forward to Durable Object
   ↓

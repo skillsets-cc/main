@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdirSync, writeFileSync, rmSync } from 'fs';
+import { mkdirSync, mkdtempSync, writeFileSync, rmSync } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { validateMcpServers } from '../validate-mcp.js';
@@ -8,13 +8,16 @@ describe('validateMcpServers', () => {
   let testDir: string;
 
   beforeEach(() => {
-    testDir = join(tmpdir(), `skillsets-mcp-test-${Date.now()}`);
-    mkdirSync(testDir, { recursive: true });
+    testDir = mkdtempSync(join(tmpdir(), 'skillsets-mcp-test-'));
   });
 
   afterEach(() => {
     rmSync(testDir, { recursive: true, force: true });
   });
+
+  function writeMcpJson(servers: Record<string, unknown>) {
+    writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({ mcpServers: servers }));
+  }
 
   describe('truth table', () => {
     it('passes when no MCP servers in content or manifest', () => {
@@ -30,15 +33,13 @@ describe('validateMcpServers', () => {
     it('passes when content and manifest match (stdio)', () => {
       // Create .mcp.json in content
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: {
-            type: 'stdio',
-            command: 'npx',
-            args: ['-y', '@upstash/context7-mcp']
-          }
-        }
-      }));
+      writeMcpJson({
+        context7: {
+          type: 'stdio',
+          command: 'npx',
+          args: ['-y', '@upstash/context7-mcp'],
+        },
+      });
 
       // Create matching skillset.yaml
       writeFileSync(join(testDir, 'skillset.yaml'), `
@@ -60,11 +61,9 @@ mcp_servers:
 
     it('fails when content has MCP but manifest does not', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
-        }
-      }));
+      writeMcpJson({
+        context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
+      });
       writeFileSync(join(testDir, 'skillset.yaml'), 'schema_version: "1.0"\nname: test\n');
 
       const result = validateMcpServers(testDir);
@@ -153,11 +152,9 @@ mcp_servers:
 
     it('fails on command mismatch', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
-        }
-      }));
+      writeMcpJson({
+        context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
+      });
 
       // Manifest has different command
       writeFileSync(join(testDir, 'skillset.yaml'), `
@@ -180,11 +177,9 @@ mcp_servers:
 
     it('fails on args mismatch', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
-        }
-      }));
+      writeMcpJson({
+        context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
+      });
 
       // Manifest has different args
       writeFileSync(join(testDir, 'skillset.yaml'), `
@@ -206,14 +201,9 @@ mcp_servers:
 
     it('validates http type with URL matching', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          'remote-api': {
-            type: 'http',
-            url: 'https://api.example.com/mcp'
-          }
-        }
-      }));
+      writeMcpJson({
+        'remote-api': { type: 'http', url: 'https://api.example.com/mcp' },
+      });
 
       writeFileSync(join(testDir, 'skillset.yaml'), `
 schema_version: "1.0"
@@ -232,14 +222,9 @@ mcp_servers:
 
     it('fails on http URL mismatch', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          'remote-api': {
-            type: 'http',
-            url: 'https://api.example.com/mcp'
-          }
-        }
-      }));
+      writeMcpJson({
+        'remote-api': { type: 'http', url: 'https://api.example.com/mcp' },
+      });
 
       writeFileSync(join(testDir, 'skillset.yaml'), `
 schema_version: "1.0"
@@ -261,11 +246,9 @@ mcp_servers:
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
 
       // Server in .mcp.json
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
-        }
-      }));
+      writeMcpJson({
+        context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
+      });
 
       // Different server in .claude/settings.json
       writeFileSync(join(testDir, 'content', '.claude', 'settings.json'), JSON.stringify({
@@ -302,9 +285,7 @@ mcp_servers:
 
       // Same server in both files
       const serverConfig = { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] };
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: { context7: serverConfig }
-      }));
+      writeMcpJson({ context7: serverConfig });
       writeFileSync(join(testDir, 'content', '.claude', 'settings.json'), JSON.stringify({
         mcpServers: { context7: serverConfig }
       }));
@@ -468,11 +449,9 @@ mcp_servers:
       mkdirSync(join(testDir, 'content', 'docker'), { recursive: true });
 
       // Native server in .mcp.json
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
-        }
-      }));
+      writeMcpJson({
+        context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
+      });
 
       // Docker servers in config.yaml
       writeFileSync(join(testDir, 'content', 'docker', 'docker-compose.yaml'), `
@@ -518,11 +497,9 @@ mcp_servers:
     it('fails when native matches but docker inner server mismatches', () => {
       mkdirSync(join(testDir, 'content', 'docker'), { recursive: true });
 
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
-        }
-      }));
+      writeMcpJson({
+        context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
+      });
 
       writeFileSync(join(testDir, 'content', 'docker', 'docker-compose.yaml'), `
 services:
@@ -688,16 +665,87 @@ mcp_servers:
 
     it('returns error for malformed skillset.yaml', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
-        }
-      }));
+      writeMcpJson({
+        context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] },
+      });
       writeFileSync(join(testDir, 'skillset.yaml'), 'invalid: : yaml: [[[');
 
       const result = validateMcpServers(testDir);
       expect(result.valid).toBe(false);
       expect(result.errors[0]).toContain('skillset.yaml');
+    });
+  });
+
+  describe('generic scanning', () => {
+    it('finds mcpServers in non-standard JSON paths', () => {
+      mkdirSync(join(testDir, 'content', 'config'), { recursive: true });
+      writeFileSync(join(testDir, 'content', 'config', 'external-agents.json'), JSON.stringify({
+        mcpServers: {
+          context7: { type: 'stdio', command: 'npx', args: ['-y', '@upstash/context7-mcp'] }
+        }
+      }));
+
+      writeFileSync(join(testDir, 'skillset.yaml'), `
+schema_version: "1.0"
+name: test
+mcp_servers:
+  - name: context7
+    type: stdio
+    command: npx
+    args: ["-y", "@upstash/context7-mcp"]
+    mcp_reputation: "npm: @upstash/context7-mcp"
+    researched_at: "2026-02-05"
+`);
+
+      const result = validateMcpServers(testDir);
+      expect(result.valid).toBe(true);
+    });
+
+    it('finds mcp_servers in YAML files outside docker/', () => {
+      mkdirSync(join(testDir, 'content', 'infra'), { recursive: true });
+      writeFileSync(join(testDir, 'content', 'infra', 'mcp-config.yaml'), `
+mcp_servers:
+  context7:
+    command: npx
+    args: ["-y", "@upstash/context7-mcp"]
+`);
+
+      writeFileSync(join(testDir, 'skillset.yaml'), `
+schema_version: "1.0"
+name: test
+mcp_servers:
+  - name: litellm-proxy
+    type: docker
+    image: "ghcr.io/berriai/litellm:main-latest"
+    mcp_reputation: "ghcr: berriai/litellm"
+    researched_at: "2026-02-05"
+    servers:
+      - name: context7
+        command: npx
+        args: ["-y", "@upstash/context7-mcp"]
+        mcp_reputation: "npm: @upstash/context7-mcp"
+        researched_at: "2026-02-05"
+`);
+
+      // Even without docker/ the YAML scanner should find mcp_servers in content/infra/
+      const result = validateMcpServers(testDir);
+      // The content server is found as 'docker' source but manifest declares docker inner server
+      expect(result.errors.every(e => !e.includes('context7'))).toBe(true);
+    });
+
+    it('skips node_modules when scanning JSON', () => {
+      mkdirSync(join(testDir, 'content', 'node_modules', 'some-pkg'), { recursive: true });
+      writeFileSync(join(testDir, 'content', 'node_modules', 'some-pkg', 'mcp.json'), JSON.stringify({
+        mcpServers: {
+          internal: { type: 'stdio', command: 'node', args: ['server.js'] }
+        }
+      }));
+      writeFileSync(join(testDir, 'skillset.yaml'), 'schema_version: "1.0"\nname: test\n');
+      mkdirSync(join(testDir, 'content'), { recursive: true });
+
+      const result = validateMcpServers(testDir);
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
     });
   });
 
@@ -718,7 +766,7 @@ mcp_servers:
 
     it('handles empty mcpServers object', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({ mcpServers: {} }));
+      writeMcpJson({});
       writeFileSync(join(testDir, 'skillset.yaml'), 'schema_version: "1.0"\nname: test\n');
 
       const result = validateMcpServers(testDir);
@@ -727,11 +775,9 @@ mcp_servers:
 
     it('handles servers with no args', () => {
       mkdirSync(join(testDir, 'content'), { recursive: true });
-      writeFileSync(join(testDir, 'content', '.mcp.json'), JSON.stringify({
-        mcpServers: {
-          simple: { type: 'stdio', command: 'node' }
-        }
-      }));
+      writeMcpJson({
+        simple: { type: 'stdio', command: 'node' },
+      });
 
       writeFileSync(join(testDir, 'skillset.yaml'), `
 schema_version: "1.0"

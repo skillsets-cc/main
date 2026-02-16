@@ -27,6 +27,35 @@ vi.mock('fs/promises', async (importOriginal) => {
 const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
+/** Set process.stdin.isTTY and return a restore function */
+function setTTY(value: boolean): () => void {
+  const original = process.stdin.isTTY;
+  Object.defineProperty(process.stdin, 'isTTY', { value, writable: true });
+  return () => Object.defineProperty(process.stdin, 'isTTY', { value: original, writable: true });
+}
+
+const baseMetadata = {
+  id: '@user/test-skillset',
+  name: 'test-skillset',
+  description: 'Test skillset',
+  tags: ['test'],
+  author: { handle: '@user' },
+  stars: 10,
+  version: '1.0.0',
+  status: 'active' as const,
+  verification: {
+    production_links: [{ url: 'https://example.com' }],
+    audit_report: './AUDIT_REPORT.md',
+  },
+  compatibility: {
+    claude_code_version: '>=1.0.0',
+    languages: ['any'],
+  },
+  entry_point: './content/CLAUDE.md',
+  checksum: 'abc123',
+  files: {},
+};
+
 describe('install command', () => {
   const originalCwd = process.cwd;
   const originalExit = process.exit;
@@ -147,25 +176,7 @@ describe('install command', () => {
 
   describe('MCP server warning', () => {
     const metadataWithMcp = {
-      id: '@user/test-skillset',
-      name: 'test-skillset',
-      description: 'Test skillset',
-      tags: ['test'],
-      author: { handle: '@user' },
-      stars: 10,
-      version: '1.0.0',
-      status: 'active' as const,
-      verification: {
-        production_links: [{ url: 'https://example.com' }],
-        audit_report: './AUDIT_REPORT.md',
-      },
-      compatibility: {
-        claude_code_version: '>=1.0.0',
-        languages: ['any'],
-      },
-      entry_point: './content/CLAUDE.md',
-      checksum: 'abc123',
-      files: {},
+      ...baseMetadata,
       mcp_servers: [{
         name: 'context7',
         type: 'stdio' as const,
@@ -187,8 +198,7 @@ describe('install command', () => {
     });
 
     it('shows warning and prompts when MCP servers present', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+      const restoreTTY = setTTY(true);
 
       vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithMcp);
       vi.mocked(confirm).mockResolvedValue(true);
@@ -197,12 +207,11 @@ describe('install command', () => {
       expect(confirm).toHaveBeenCalled();
       expect(degit).toHaveBeenCalled();
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
 
     it('exits cleanly when user rejects MCP', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+      const restoreTTY = setTTY(true);
 
       vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithMcp);
       vi.mocked(confirm).mockResolvedValue(false);
@@ -210,7 +219,7 @@ describe('install command', () => {
       expect(degit).not.toHaveBeenCalled();
       expect(console.log).toHaveBeenCalledWith(expect.stringContaining('cancelled'));
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
 
     it('bypasses prompt with --accept-mcp', async () => {
@@ -221,14 +230,13 @@ describe('install command', () => {
     });
 
     it('throws in non-TTY without --accept-mcp', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: false, writable: true });
+      const restoreTTY = setTTY(false);
 
       vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithMcp);
       await expect(install('@user/test-skillset', {})).rejects.toThrow('Use --accept-mcp');
       expect(degit).not.toHaveBeenCalled();
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
 
     it('continues when metadata fetch fails', async () => {
@@ -238,8 +246,7 @@ describe('install command', () => {
     });
 
     it('--force does NOT bypass MCP prompt', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+      const restoreTTY = setTTY(true);
 
       vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithMcp);
       vi.mocked(confirm).mockResolvedValue(false);
@@ -248,12 +255,11 @@ describe('install command', () => {
       expect(confirm).toHaveBeenCalled();
       expect(degit).not.toHaveBeenCalled();
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
 
     it('--backup does NOT bypass MCP prompt', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+      const restoreTTY = setTTY(true);
 
       vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithMcp);
       vi.mocked(confirm).mockResolvedValue(false);
@@ -262,12 +268,11 @@ describe('install command', () => {
       expect(confirm).toHaveBeenCalled();
       expect(degit).not.toHaveBeenCalled();
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
 
     it('displays Docker servers in warning', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+      const restoreTTY = setTTY(true);
 
       const metadataWithDocker = {
         ...metadataWithMcp,
@@ -294,12 +299,11 @@ describe('install command', () => {
       expect(console.log).toHaveBeenCalledWith(expect.stringContaining('ghcr.io/berriai/litellm'));
       expect(degit).toHaveBeenCalled();
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
 
     it('displays multiple MCP servers in warning', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+      const restoreTTY = setTTY(true);
 
       const metadataMultiMcp = {
         ...metadataWithMcp,
@@ -331,12 +335,11 @@ describe('install command', () => {
       expect(console.log).toHaveBeenCalledWith(expect.stringContaining('filesystem'));
       expect(degit).toHaveBeenCalled();
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
 
     it('formats http MCP server type with URL', async () => {
-      const originalIsTTY = process.stdin.isTTY;
-      Object.defineProperty(process.stdin, 'isTTY', { value: true, writable: true });
+      const restoreTTY = setTTY(true);
 
       vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue({
         ...metadataWithMcp,
@@ -352,7 +355,7 @@ describe('install command', () => {
       await install('@user/test-skillset', {});
       expect(console.log).toHaveBeenCalledWith(expect.stringContaining('https://mcp.example.com'));
 
-      Object.defineProperty(process.stdin, 'isTTY', { value: originalIsTTY, writable: true });
+      restoreTTY();
     });
   });
 
@@ -385,5 +388,101 @@ describe('install command', () => {
     await install('invalid-format', {});
 
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Expected format'));
+  });
+
+  describe('Runtime deps warning', () => {
+    const metadataWithDeps = {
+      ...baseMetadata,
+      runtime_dependencies: [{
+        path: 'package.json',
+        manager: 'npm',
+        packages: ['lodash', 'express'],
+        has_install_scripts: false,
+        evaluation: 'Well-known packages',
+        researched_at: '2026-02-04',
+      }],
+    };
+
+    it('prompts when deps present', async () => {
+      const restoreTTY = setTTY(true);
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithDeps);
+      vi.mocked(confirm).mockResolvedValue(true);
+      await install('@user/test-skillset', {});
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('runtime dependencies'));
+      expect(confirm).toHaveBeenCalled();
+      expect(degit).toHaveBeenCalled();
+
+      restoreTTY();
+    });
+
+    it('exits on rejection', async () => {
+      const restoreTTY = setTTY(true);
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithDeps);
+      vi.mocked(confirm).mockResolvedValue(false);
+      await install('@user/test-skillset', {});
+      expect(degit).not.toHaveBeenCalled();
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('cancelled'));
+
+      restoreTTY();
+    });
+
+    it('bypasses with --accept-deps', async () => {
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithDeps);
+      await install('@user/test-skillset', { acceptDeps: true });
+      expect(confirm).not.toHaveBeenCalled();
+      expect(degit).toHaveBeenCalled();
+    });
+
+    it('throws in non-TTY without flag', async () => {
+      const restoreTTY = setTTY(false);
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue(metadataWithDeps);
+      await expect(install('@user/test-skillset', {})).rejects.toThrow('--accept-deps');
+      expect(degit).not.toHaveBeenCalled();
+
+      restoreTTY();
+    });
+
+    it('shows install script warning', async () => {
+      const restoreTTY = setTTY(true);
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue({
+        ...metadataWithDeps,
+        runtime_dependencies: [{
+          ...metadataWithDeps.runtime_dependencies![0],
+          has_install_scripts: true,
+        }],
+      });
+      vi.mocked(confirm).mockResolvedValue(true);
+      await install('@user/test-skillset', {});
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('install lifecycle scripts'));
+
+      restoreTTY();
+    });
+
+    it('prompts for both MCP + deps sequentially', async () => {
+      const restoreTTY = setTTY(true);
+
+      vi.mocked(api.fetchSkillsetMetadata).mockResolvedValue({
+        ...metadataWithDeps,
+        mcp_servers: [{
+          name: 'context7',
+          type: 'stdio' as const,
+          command: 'npx',
+          args: ['-y', '@upstash/context7-mcp'],
+          mcp_reputation: 'npm: @upstash/context7-mcp',
+          researched_at: '2026-02-04',
+        }],
+      });
+      vi.mocked(confirm).mockResolvedValue(true);
+      await install('@user/test-skillset', {});
+      // Two confirm calls: one for MCP, one for deps
+      expect(confirm).toHaveBeenCalledTimes(2);
+      expect(degit).toHaveBeenCalled();
+
+      restoreTTY();
+    });
   });
 });

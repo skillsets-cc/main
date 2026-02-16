@@ -24,8 +24,8 @@ The Durable Object exposes these internal endpoints (called via DO stub):
 | Method | Path | Purpose | Request | Response |
 |--------|------|---------|---------|----------|
 | GET | `/status` | Get all slot states + config | Header: `X-User-Id` (optional) | `{ slots, totalGhostSlots, cohort, userSlot }` |
-| POST | `/reserve` | Reserve a slot for user | `{ slotId, userId, githubLogin }` | `{ slotId, expiresAt }` |
-| DELETE | `/release` | Release user's reservation | `{ userId }` | `{ released: slotId }` |
+| POST | `/reserve` | Reserve a slot for user | `{ batchId, userId, githubLogin }` | `{ batchId, expiresAt }` |
+| DELETE | `/release` | Release user's reservation | `{ userId }` | `{ released: batchId }` |
 | POST | `/config` | Update configuration (maintainer) | `{ totalGhostSlots?, ttlDays?, cohort? }` | Updated config object |
 | GET | `/verify` | Verify batch ID + identity match (CI) | Query: `batchId`, `login?`, `userId?` | `{ valid: true/false, reason? }` |
 | POST | `/submit` | Transition slot to submitted (maintainer) | `{ batchId, skillsetId }` | `{ batchId, status, skillsetId }` |
@@ -66,11 +66,11 @@ Expired reserved slots appear as "available" in `/status` response BUT their sto
 The Durable Object runtime coalesces multiple `ctx.storage.put()` or `ctx.storage.delete()` calls within the same request into a single transaction. Reserve and release operations explicitly avoid `await` between related writes to ensure atomicity:
 ```typescript
 // Reserve (atomic)
-this.ctx.storage.put(`slot:${slotId}`, newSlotData);
-this.ctx.storage.put(`user:${userId}`, slotId);
+this.ctx.storage.put(`batch:${batchId}`, newSlotData);
+this.ctx.storage.put(`user:${userId}`, batchId);
 
 // Release (atomic)
-this.ctx.storage.delete(`slot:${slotId}`);
+this.ctx.storage.delete(`batch:${batchId}`);
 this.ctx.storage.delete(`user:${userId}`);
 ```
 

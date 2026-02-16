@@ -116,12 +116,11 @@ System prompt should include:
 
 ### Configuration Sources
 
-| Source | Path | Key |
-|--------|------|-----|
-| Claude Code native | `content/.mcp.json` | `mcpServers` |
-| Claude Code settings | `content/.claude/settings.json` | `mcpServers` |
-| Claude Code local settings | `content/.claude/settings.local.json` | `mcpServers` |
-| Docker-hosted | `content/docker/**/config.yaml` | `mcp_servers` |
+Scan all files under `content/` (skip `node_modules/`):
+- **JSON files** (`.json`): Look for `mcpServers` key (Claude Code native format — `.mcp.json`, `.claude/settings.json`, `external-agents.json`, etc.)
+- **YAML files** (`.yaml`, `.yml`): Look for `mcp_servers` key (Docker-hosted format — config files, compose files, etc.)
+
+Any file matching these patterns is a configuration source. Do not hardcode specific paths.
 
 ### Per-Server Evaluation
 
@@ -150,8 +149,6 @@ For each Docker-hosted MCP setup:
 4. **Volume mounts**: What directories are mounted? Are they read-only where possible?
 5. **README documentation**: Must document the Docker setup and what it runs
 
-**Convention note:** CI scans `content/docker/**/config.yaml` for the `mcp_servers` key. This is currently based on LiteLLM's config format (the only Docker MCP provider in the registry). Contributors using other Docker MCP providers must declare their servers in the same `mcp_servers` key structure, or document an alternative config path for CI scanning.
-
 ### Environment Variables
 
 - `${VAR}` = expand from environment
@@ -170,6 +167,52 @@ For each Docker-hosted MCP setup:
 ### Runtime Caveat (must include in audit report)
 
 MCP packages are fetched at runtime and may have changed since audit. `researched_at` captures when the lookup was performed, not ongoing validity.
+
+---
+
+## Runtime Dependencies
+
+Skillsets may include dependency files that trigger package installation or code execution. The install command consent-gates these based on manifest declarations.
+
+### Detection
+
+Scan all files under `content/` (skip `node_modules/`, `.git/`) for known dependency patterns:
+
+| File | Manager | Risk |
+|------|---------|------|
+| `package.json` | npm | Lifecycle scripts (`preinstall`, `postinstall`, etc.) execute arbitrary code |
+| `requirements.txt` | pip | `setup.py` can execute arbitrary code during install |
+| `pyproject.toml` | pip | Build system hooks can execute code |
+| `Cargo.toml` | cargo | `build.rs` scripts execute at compile time |
+| `go.mod` | go | Lower risk — no install-time code execution |
+| `Gemfile` | bundler | Extensions can execute code |
+| Shell scripts in `.claude/scripts/` | shell | Direct code execution |
+
+Any unrecognized file that appears to configure, install, or run something should also be evaluated.
+
+### Per-Dependency Evaluation
+
+For each dependency file found, evaluate:
+
+1. **Package reputation** (use WebSearch + WebFetch — mandatory for npm/pip/cargo):
+   - npm/PyPI: download counts, last publish date, maintainer identity
+   - GitHub: stars, open issues, last commit date
+   - Crates.io: download counts, last update
+2. **Lifecycle/install scripts**: Flag `preinstall`, `install`, `postinstall`, `prepare`, `build.rs`, `setup.py` as supply chain risk. Describe what the scripts do.
+3. **What does this dependency do?**: Assess what the dependency configures, installs, modifies, or runs. This goes into the `evaluation` field.
+4. **Version pinning**: Flag unpinned versions as a warning; recommend exact or range-pinned versions
+5. **Security configuration**: If the skillset includes `external-agents.json` with `mcpServers`, verify:
+   - `toolAllowlist` is present for filesystem servers
+   - `toolAllowlist` excludes write tools (`write_file`, `create_directory`, `move_file`, `edit_file`)
+   - API key env var names don't appear in MCP server `env` overrides (prevents key leakage to MCP servers)
+
+### Red Flags
+
+- `postinstall` scripts that download or execute remote code
+- Unpinned dependency versions in production
+- Dependencies with no clear purpose or justification in README
+- Shell scripts that modify system configuration without documentation
+- Large dependency trees for simple tasks (prefer built-in alternatives)
 
 ---
 
@@ -197,6 +240,34 @@ See @README for overview.
 - Code snippets instead of file references
 - Missing workflow documentation
 - No clear project structure overview
+
+---
+
+## QUICKSTART.md (`content/QUICKSTART.md`)
+
+**Location**: `content/QUICKSTART.md` (inside content/, distributed with the skillset)
+
+**Purpose**: Post-install customization guide. This is what `/skillset:install` walks end users through interactively after extracting the skillset files.
+
+**Structure Requirements**
+
+- Must exist (validated by tier 1 structural audit)
+- Sections should map to the installed primitives and configuration:
+  - Project configuration (CLAUDE.md customization, project-specific settings)
+  - Style guides (if the skillset includes them)
+  - Agent tuning (model selection, permission modes, tool access)
+  - Templates and resources (what to customize vs. use as-is)
+  - Infrastructure setup (MCP servers, Docker, external services — if applicable)
+- Each section should explain what needs customizing and why
+- Written for interactive walkthrough — Claude reads sections sequentially and helps the user make decisions
+
+**Red Flags**
+
+- Missing entirely (tier 1 gate — but verify here too)
+- Generic or empty sections (just headings, no actionable content)
+- Doesn't cover customization for installed primitives
+- Assumes user knows the skillset internally (should be cold-start friendly)
+- References files that don't exist in `content/`
 
 ---
 

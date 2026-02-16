@@ -301,10 +301,10 @@ Submitted via \`npx skillsets submit\`
     console.log(chalk.gray('A maintainer will review your submission.'));
     console.log(chalk.gray('You can track progress at the PR link above.'));
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     spinner.fail('Submission failed');
     console.log(chalk.red('\nError details:'));
-    console.log(chalk.gray(error.message || error));
+    console.log(chalk.gray(error instanceof Error ? error.message : String(error)));
 
     // Cleanup on error
     if (existsSync(tempDir)) {

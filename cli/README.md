@@ -15,6 +15,7 @@ cli/
 │   │   ├── install.ts
 │   │   ├── init.ts
 │   │   ├── audit.ts
+│   │   ├── audit-report.ts
 │   │   ├── submit.ts
 │   │   └── tests_commands/  # Command tests
 │   ├── lib/               # Shared utilities
@@ -23,6 +24,8 @@ cli/
 │   │   ├── constants.ts
 │   │   ├── errors.ts
 │   │   ├── filesystem.ts
+│   │   ├── templates.ts
+│   │   ├── validate-deps.ts
 │   │   ├── validate-mcp.ts
 │   │   ├── versions.ts
 │   │   └── tests_lib/     # Library tests
@@ -47,9 +50,10 @@ cli/
 | `list.ts` | Browse all skillsets with live stats | [Docs](./docs_cli/commands/list.md) |
 | `search.ts` | Fuzzy search by name, description, tags | [Docs](./docs_cli/commands/search.md) |
 | `view.ts` | View a skillset README before installing | [Docs](./docs_cli/commands/view.md) |
-| `install.ts` | Install skillset via degit + MCP warning + verify checksums | [Docs](./docs_cli/commands/install.md) |
-| `init.ts` | Scaffold new skillset for contribution | [Docs](./docs_cli/commands/init.md) |
-| `audit.ts` | Validate skillset + MCP servers before submission | [Docs](./docs_cli/commands/audit.md) |
+| `install.ts` | Install skillset via degit + MCP/deps warnings + verify checksums | [Docs](./docs_cli/commands/install.md) |
+| `init.ts` | Scaffold new skillset with QUICKSTART.md | [Docs](./docs_cli/commands/init.md) |
+| `audit.ts` | Validate skillset + MCP + runtime deps before submission | [Docs](./docs_cli/commands/audit.md) |
+| `audit-report.ts` | Audit report generation utilities | [Docs](./docs_cli/commands/audit-report.md) |
 | `submit.ts` | Open PR to registry | [Docs](./docs_cli/commands/submit.md) |
 
 ### Lib
@@ -60,8 +64,10 @@ cli/
 | `constants.ts` | Shared constants | [Docs](./docs_cli/lib/constants.md) |
 | `errors.ts` | Error types | [Docs](./docs_cli/lib/errors.md) |
 | `filesystem.ts` | File utilities | [Docs](./docs_cli/lib/filesystem.md) |
-| `versions.ts` | Semver comparison | [Docs](./docs_cli/lib/versions.md) |
+| `templates.ts` | Scaffold templates for init command | [Docs](./docs_cli/lib/templates.md) |
+| `validate-deps.ts` | Runtime dependency bidirectional validation | [Docs](./docs_cli/lib/validate-deps.md) |
 | `validate-mcp.ts` | MCP server bidirectional validation | [Docs](./docs_cli/lib/validate-mcp.md) |
+| `versions.ts` | Semver comparison | [Docs](./docs_cli/lib/versions.md) |
 
 ### Types
 | File | Purpose | Documentation |

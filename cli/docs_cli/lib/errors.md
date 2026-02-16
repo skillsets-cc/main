@@ -12,6 +12,7 @@
 ### Functions
 | Function | Purpose | Inputs → Output |
 |----------|---------|-----------------|
+| `getErrorMessage` | Extract message from error | `unknown` → `string` |
 | `handleError` | Format and exit on error | `unknown` → `never` |
 
 ## Data Flow

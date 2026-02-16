@@ -35,3 +35,15 @@ export function errorResponse(
 ): Response {
   return jsonResponse({ error, ...additionalData }, { status });
 }
+
+/**
+ * Parse JSON body from request with error handling.
+ * Returns parsed body or 400 error Response.
+ */
+export async function parseJsonBody<T>(request: Request): Promise<T | Response> {
+  try {
+    return await request.json() as T;
+  } catch {
+    return errorResponse('Invalid JSON body', 400);
+  }
+}

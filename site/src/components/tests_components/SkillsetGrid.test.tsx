@@ -5,15 +5,15 @@ import { mockSkillsets } from './fixtures';
 
 // Mock GhostCard to capture and trigger callbacks for testing
 vi.mock('../GhostCard', () => ({
-  default: ({ onReserved, onCancelled, onConflict, slotId, batchId, status, isOwn, skillsetId }: any) => {
+  default: ({ onReserved, onCancelled, onConflict, batchId, status, isOwn, skillsetId }: any) => {
     return (
-      <div data-testid={`ghost-card-${slotId}`}>
+      <div data-testid={`ghost-card-${batchId}`}>
         <span>{batchId}</span>
-        <span data-testid={`status-${slotId}`}>
+        <span data-testid={`status-${batchId}`}>
           {status === 'submitted' ? 'Submitted' : status === 'reserved' ? 'Reserved' : 'Available'}
         </span>
         {skillsetId && <span>{skillsetId}</span>}
-        <button onClick={() => onReserved?.(slotId, Date.now() + 3600000)}>Reserve</button>
+        <button onClick={() => onReserved?.(batchId, Date.now() + 3600000)}>Reserve</button>
         <button onClick={() => onCancelled?.()}>Cancel</button>
         <button onClick={() => onConflict?.()}>Conflict</button>
         {isOwn && <span>Own</span>}
