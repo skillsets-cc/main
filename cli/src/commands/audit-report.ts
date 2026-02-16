@@ -42,7 +42,7 @@ export function isAuditPassing(results: AuditResults, enforceMcp: boolean): bool
     results.requiredFiles.status === 'PASS' &&
     results.contentStructure.status === 'PASS' &&
     results.fileSize.status !== 'FAIL' &&
-    results.secrets.status === 'PASS' &&
+    results.secrets.status !== 'FAIL' &&
     results.readmeLinks.status === 'PASS' &&
     results.versionCheck.status === 'PASS' &&
     (enforceMcp ? results.mcpServers.status === 'PASS' : true) &&
@@ -61,9 +61,19 @@ export function colorIcon(status: AuditStatus): string {
   return chalk.red('✗');
 }
 
+export function hasWarnings(results: AuditResults): boolean {
+  const checks = [
+    results.manifest, results.requiredFiles, results.contentStructure,
+    results.fileSize, results.binary, results.secrets, results.readmeLinks,
+    results.versionCheck, results.mcpServers, results.runtimeDeps,
+  ];
+  return checks.some(c => c.status === 'WARNING');
+}
+
 export function generateReport(results: AuditResults, enforceMcp: boolean = false): string {
   const timestamp = new Date().toISOString();
   const allPassed = isAuditPassing(results, enforceMcp);
+  const warnings = hasWarnings(results);
 
   const submissionType = results.isUpdate
     ? `Update (${results.existingVersion} → ${results.skillsetVersion})`
@@ -156,23 +166,27 @@ ${results.files.map(f => `| ${f.path} | ${formatSize(f.size)} |`).join('\n')}
 
 ## Submission Status
 
-${allPassed ? '**✓ READY FOR SUBMISSION**' : '**✗ NOT READY - Please fix the issues above**'}
-
-${allPassed
-    ? 'All validation checks passed. You can now submit this skillset to the registry.'
-    : 'Please address the failed checks before submitting.'}
+${!allPassed
+    ? '**✗ NOT READY - Please fix the issues above**\n\nPlease address the failed checks before submitting.'
+    : warnings
+      ? '**⚠ READY FOR SUBMISSION — warnings require review**\n\nStructural checks passed but warnings were found. Review each warning with the `/contribute` wizard before submitting.'
+      : '**✓ READY FOR SUBMISSION**\n\nAll validation checks passed. You can now submit this skillset to the registry.'}
 
 ---
 
 ## Next Steps
 
-${allPassed
-    ? `1. Review this audit report
-2. Ensure PROOF.md has adequate production evidence
-3. Run: \`npx skillsets submit\``
-    : `1. Fix the issues flagged above
+${!allPassed
+    ? `1. Fix the issues flagged above
 2. Re-run: \`npx skillsets audit\`
-3. Repeat until all checks pass`}
+3. Repeat until all checks pass`
+    : warnings
+      ? `1. Run \`/contribute\` to review warnings with the wizard
+2. Confirm or resolve each warning
+3. Run: \`npx skillsets submit\``
+      : `1. Review this audit report
+2. Ensure PROOF.md has adequate production evidence
+3. Run: \`npx skillsets submit\``}
 
 ---
 

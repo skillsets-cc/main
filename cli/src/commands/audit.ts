@@ -9,7 +9,7 @@ import { validateRuntimeDeps } from '../lib/validate-deps.js';
 import { compareVersions } from '../lib/versions.js';
 import {
   type AuditStatus, type AuditResult, type AuditResults,
-  isAuditPassing, colorIcon, generateReport,
+  isAuditPassing, hasWarnings, colorIcon, generateReport,
 } from './audit-report.js';
 
 const MAX_FILE_SIZE = 1048576; // 1MB
@@ -24,10 +24,18 @@ const TEXT_EXTENSIONS = new Set([
 ]);
 
 const SECRET_PATTERNS = [
+  // Provider API keys
   { name: 'AWS Key', pattern: /AKIA[0-9A-Z]{16}/g },
-  { name: 'GitHub Token', pattern: /ghp_[a-zA-Z0-9]{36}/g },
-  { name: 'OpenAI Key', pattern: /sk-[a-zA-Z0-9]{48}/g },
+  { name: 'GitHub Token', pattern: /gh[ps]_[a-zA-Z0-9]{36,}/g },
+  { name: 'OpenAI Key', pattern: /sk-[a-zA-Z0-9]{32,}/g },
   { name: 'Anthropic Key', pattern: /sk-ant-[a-zA-Z0-9_-]{20,}/g },
+  { name: 'Slack Token', pattern: /xox[bpors]-[a-zA-Z0-9-]+/g },
+  { name: 'Stripe Key', pattern: /[sr]k_(live|test)_[a-zA-Z0-9]{20,}/g },
+  // Generic secrets
+  { name: 'Private Key', pattern: /-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----/g },
+  { name: 'Connection String', pattern: /(mongodb|postgres|mysql|redis):\/\/[^\s"']+:[^\s"']+@/g },
+  { name: 'Bearer Token', pattern: /["']Bearer [a-zA-Z0-9_\-.]{20,}["']/g },
+  { name: 'Generic Secret Assignment', pattern: /(password|secret|token|api_key|apikey)\s*[:=]\s*["'][^"']{8,}["']/gi },
 ];
 
 function getAllFiles(dir: string, baseDir: string = dir): { path: string; size: number }[] {
@@ -331,9 +339,9 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     results.secrets = { status: 'PASS', details: 'No secrets detected' };
   } else {
     results.secrets = {
-      status: 'FAIL',
+      status: 'WARNING',
       details: `${results.secretsFound.length} potential secret(s)`,
-      findings: 'Remove all API keys, tokens, and passwords before submitting.',
+      findings: 'Review each match below — false positives are common. Real secrets must be removed before submitting.',
     };
   }
 
@@ -426,13 +434,9 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
 
   console.log('');
 
-  if (allPassed) {
-    console.log(chalk.green('✓ READY FOR SUBMISSION'));
-    if (!options.check) {
-      console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
-      console.log(chalk.cyan('\nNext: npx skillsets submit'));
-    }
-  } else {
+  const warnings = hasWarnings(results);
+
+  if (!allPassed) {
     console.log(chalk.red('✗ NOT READY - Fix issues above'));
     if (!options.check) {
       console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
@@ -440,6 +444,18 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     }
     if (options.check) {
       process.exit(1);
+    }
+  } else if (warnings) {
+    console.log(chalk.yellow('⚠ READY FOR SUBMISSION — warnings require review'));
+    if (!options.check) {
+      console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
+      console.log(chalk.cyan('\nNext: /contribute to review warnings'));
+    }
+  } else {
+    console.log(chalk.green('✓ READY FOR SUBMISSION'));
+    if (!options.check) {
+      console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
+      console.log(chalk.cyan('\nNext: npx skillsets submit'));
     }
   }
 }

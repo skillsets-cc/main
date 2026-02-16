@@ -60,7 +60,7 @@ entry_point: "./content/CLAUDE.md"
     return readFileSync(join(testDir, 'AUDIT_REPORT.md'), 'utf-8');
   }
 
-  it('passes with valid structure', async () => {
+  it('passes with valid structure and no warnings', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     createValidContent();
 
@@ -69,7 +69,8 @@ entry_point: "./content/CLAUDE.md"
     expect(existsSync(join(testDir, 'AUDIT_REPORT.md'))).toBe(true);
 
     const report = readReport();
-    expect(report).toContain('READY FOR SUBMISSION');
+    expect(report).toContain('✓ READY FOR SUBMISSION');
+    expect(report).not.toContain('warnings require review');
   });
 
   it('fails without skillset.yaml', async () => {
@@ -171,7 +172,7 @@ version: "not-semver"
     expect(report).toContain('schema_version');
   });
 
-  it('detects high-confidence secret patterns', async () => {
+  it('detects high-confidence secret patterns as warnings', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     createValidContent();
     writeFileSync(join(testDir, 'content', 'config.ts'), 'const key = "sk-1234567890abcdefghijklmnopqrstuvwxyz123456789012"');
@@ -179,20 +180,21 @@ version: "not-semver"
     await audit();
 
     const report = readReport();
-    expect(report).toContain('NOT READY');
+    expect(report).toContain('warnings require review');
     expect(report).toContain('OpenAI Key');
+    expect(report).toContain('⚠ WARNING');
   });
 
-  it('does not flag generic password or token strings', async () => {
+  it('detects generic secret assignments as warnings', async () => {
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     createValidContent();
-    writeFileSync(join(testDir, 'content', 'example.ts'), 'password = "example_password_here"\ntoken = "my-test-token-12345678901234567890"');
+    writeFileSync(join(testDir, 'content', 'example.ts'), 'password = "example_password_here"');
 
     await audit();
 
     const report = readReport();
-    expect(report).toContain('READY FOR SUBMISSION');
-    expect(report).toContain('Secret Detection | ✓ PASS');
+    expect(report).toContain('warnings require review');
+    expect(report).toContain('Generic Secret Assignment');
   });
 
   it('detects AWS keys', async () => {
@@ -203,7 +205,7 @@ version: "not-semver"
     await audit();
 
     const report = readReport();
-    expect(report).toContain('NOT READY');
+    expect(report).toContain('warnings require review');
     expect(report).toContain('AWS Key');
   });
 
@@ -215,7 +217,7 @@ version: "not-semver"
     await audit();
 
     const report = readReport();
-    expect(report).toContain('NOT READY');
+    expect(report).toContain('warnings require review');
     expect(report).toContain('Anthropic Key');
   });
 

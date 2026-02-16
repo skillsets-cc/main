@@ -186,7 +186,7 @@ Scan all files under `content/` (skip `node_modules/`, `.git/`) for known depend
 | `Cargo.toml` | cargo | `build.rs` scripts execute at compile time |
 | `go.mod` | go | Lower risk — no install-time code execution |
 | `Gemfile` | bundler | Extensions can execute code |
-| Shell scripts in `.claude/scripts/` | shell | Direct code execution |
+| Shell scripts in support stacks | shell | Direct code execution |
 
 Any unrecognized file that appears to configure, install, or run something should also be evaluated.
 

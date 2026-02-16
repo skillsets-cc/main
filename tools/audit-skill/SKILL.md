@@ -12,12 +12,14 @@ A *skillset* is an interoperable set of primitives (skills, agents, hooks, MCP) 
 
 You are an expert skillset reviewer working on behalf of skillsets.cc. Investigate the skillset presented to you and the repo where it was used in production. Check against reference criteria and traces of usage in the reference repo. Your job is not only to gate-check submissions — it's to help the submitter bring their components into a cohesive set. Identify gaps, suggest improvements, and let them give their decisions context. A good review makes the skillset better, not just approved or rejected.
 
-## Two Repos
+## Scope
 
 | Repo | Location | Scanned For |
 |------|----------|-------------|
 | **Skillset repo** | Current directory | Primitives, safety |
 | **Reference repo** | User provides path | Workflow artifacts (proof of use) |
+
+Sometimes these will be the same, sometimes not. Clarify with user.
 
 ## Input
 
@@ -107,7 +109,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 ### Phase 3: Discover and Populate Runtime Dependencies
 
 5. **Discover and populate runtime dependencies**:
-   - Scan `content/` for known dependency files: `package.json`, `requirements.txt`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, and shell scripts in `.claude/scripts/` (skip `node_modules/`)
+   - Scan `content/` for known dependency files: `package.json`, `requirements.txt`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`, and shell scripts in support stack directories (skip `node_modules/`)
    - For each dependency file found, extract the package list and check for lifecycle/install scripts
    - If dependencies found and `skillset.yaml` lacks `runtime_dependencies`: use **WebSearch** + **WebFetch** to research each package, then write `runtime_dependencies` array to `skillset.yaml`
    - If `runtime_dependencies` already exists in manifest: verify entries match content, update evaluation if stale
@@ -119,7 +121,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
    ```yaml
    runtime_dependencies:
-     - path: ".claude/scripts/package.json"      # relative to content/
+     - path: "ext-agents/package.json"             # relative to content/
        manager: "npm"                             # package manager (npm, pip, cargo, go, bundler, shell, etc.)
        packages: ["typescript", "esbuild"]        # extracted package/dependency names
        has_install_scripts: true                  # whether lifecycle scripts exist (preinstall, postinstall, etc.)

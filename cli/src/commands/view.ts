@@ -9,7 +9,7 @@ function fail(spinner: ReturnType<typeof ora>, message: string): never {
 }
 
 export async function view(skillsetId: string): Promise<void> {
-  const spinner = ora('Fetching README...').start();
+  const spinner = ora('Fetching skillset details...').start();
 
   const metadata = await fetchSkillsetMetadata(skillsetId);
   if (!metadata) {
@@ -18,16 +18,21 @@ export async function view(skillsetId: string): Promise<void> {
 
   const [namespace, name] = skillsetId.split('/');
   const encodedPath = encodeURIComponent(namespace) + '/' + encodeURIComponent(name);
-  const url = `${GITHUB_RAW_BASE}/skillsets/${encodedPath}/content/README.md`;
-  const response = await fetch(url);
+  const readmeUrl = `${GITHUB_RAW_BASE}/skillsets/${encodedPath}/content/README.md`;
+  const auditUrl = `${GITHUB_RAW_BASE}/skillsets/${encodedPath}/AUDIT_REPORT.md`;
 
-  if (!response.ok) {
+  const [readmeResponse, auditResponse] = await Promise.all([
+    fetch(readmeUrl),
+    fetch(auditUrl),
+  ]);
+
+  if (!readmeResponse.ok) {
     fail(spinner, `Could not fetch README for '${skillsetId}'`);
   }
 
   spinner.stop();
 
-  const readme = await response.text();
+  const readme = await readmeResponse.text();
 
   console.log();
   console.log(chalk.bold(`  ${skillsetId}`));
@@ -35,4 +40,14 @@ export async function view(skillsetId: string): Promise<void> {
   console.log(chalk.dim('  ' + '─'.repeat(50)));
   console.log();
   console.log(readme);
+
+  if (auditResponse.ok) {
+    const audit = await auditResponse.text();
+    console.log();
+    console.log(chalk.dim('  ' + '─'.repeat(50)));
+    console.log(chalk.bold('  Audit Report'));
+    console.log(chalk.dim('  ' + '─'.repeat(50)));
+    console.log();
+    console.log(audit);
+  }
 }

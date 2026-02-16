@@ -13,7 +13,8 @@ Interactive scaffold for new skillset submission with ghost entry reservation lo
 | Function | Purpose | Inputs → Output |
 |----------|---------|-----------------|
 | `init` | Interactive skillset scaffold | `InitOptions` → `void` |
-| `copyDirRecursive` | Copy directory tree | `src, dest` → `void` |
+| `copyDirRecursive` | Copy directory tree with exclusions | `src, dest, exclusions?` → `void` |
+| `detectSupportStacks` | Scan top-level dirs for marker files | `cwd` → `string[]` |
 
 ### Templates
 | Template | Generated File |
@@ -64,18 +65,21 @@ init() → Verify gh CLI auth → Get GitHub user ID → Look up reservation →
 └── content/                # Installable files
     ├── README.md           # Generated if not detected
     ├── QUICKSTART.md       # Generated if not detected
-    └── (copied .claude/, CLAUDE.md, .mcp.json, docker/, etc.)
+    └── (copied .claude/, CLAUDE.md, .mcp.json, support stacks, etc.)
 ```
 
 ## Key Logic
 
 ### Auto-Detection
-Scans for existing skillset files:
-- `CLAUDE.md`
-- `README.md`
-- `.claude/` directory
-- `.mcp.json`
-- `docker/` directory
+Detects two categories of content:
+
+**Core files**: `CLAUDE.md`, `README.md`, `QUICKSTART.md`, `.claude/`, `.mcp.json`
+
+**Support stacks**: Any top-level directory containing a marker file:
+- Dependency manifests: `package.json`, `requirements.txt`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`
+- Config files: `Dockerfile`, `docker-compose.yml`, `docker-compose.yaml`, `Makefile`, `.env.example`
+
+When copying directories, `node_modules/`, `.env`, lock files (`package-lock.json`, `yarn.lock`, etc.), and `.git/` are automatically excluded.
 
 User selects which files to copy to `content/` via checkbox prompt.
 

@@ -166,15 +166,62 @@ describe('init command', () => {
     expect(content).toBe('{"mcpServers":{}}');
   });
 
-  it('detects and offers to copy existing docker/', async () => {
-    mkdirSync(join(testDir, 'docker', 'litellm'), { recursive: true });
-    writeFileSync(join(testDir, 'docker', 'litellm', 'config.yaml'), 'model: gpt-4');
+  it('detects support stack directories with marker files', async () => {
+    // Create a directory with a Dockerfile (config marker)
+    mkdirSync(join(testDir, 'docker'), { recursive: true });
+    writeFileSync(join(testDir, 'docker', 'Dockerfile'), 'FROM node:20');
+    writeFileSync(join(testDir, 'docker', 'config.yaml'), 'model: gpt-4');
 
     vi.mocked(checkbox).mockResolvedValue(['docker/']);
 
     await init({});
 
-    expect(existsSync(join(testDir, 'content', 'docker', 'litellm', 'config.yaml'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'docker', 'Dockerfile'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'docker', 'config.yaml'))).toBe(true);
+  });
+
+  it('detects support stack with dependency manifest', async () => {
+    mkdirSync(join(testDir, 'ext-agents'), { recursive: true });
+    writeFileSync(join(testDir, 'ext-agents', 'package.json'), '{"dependencies":{}}');
+    writeFileSync(join(testDir, 'ext-agents', 'runner.mjs'), 'export default {}');
+
+    vi.mocked(checkbox).mockResolvedValue(['ext-agents/']);
+
+    await init({});
+
+    expect(existsSync(join(testDir, 'content', 'ext-agents', 'package.json'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'ext-agents', 'runner.mjs'))).toBe(true);
+  });
+
+  it('excludes node_modules and .env when copying support stacks', async () => {
+    mkdirSync(join(testDir, 'ext-agents', 'node_modules', 'dep'), { recursive: true });
+    writeFileSync(join(testDir, 'ext-agents', 'package.json'), '{"dependencies":{}}');
+    writeFileSync(join(testDir, 'ext-agents', 'runner.mjs'), 'export default {}');
+    writeFileSync(join(testDir, 'ext-agents', '.env'), 'SECRET=key');
+    writeFileSync(join(testDir, 'ext-agents', 'node_modules', 'dep', 'index.js'), '');
+
+    vi.mocked(checkbox).mockResolvedValue(['ext-agents/']);
+
+    await init({});
+
+    expect(existsSync(join(testDir, 'content', 'ext-agents', 'package.json'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'ext-agents', 'runner.mjs'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'ext-agents', 'node_modules'))).toBe(false);
+    expect(existsSync(join(testDir, 'content', 'ext-agents', '.env'))).toBe(false);
+  });
+
+  it('does not detect directories without marker files as support stacks', async () => {
+    mkdirSync(join(testDir, 'random-dir'), { recursive: true });
+    writeFileSync(join(testDir, 'random-dir', 'notes.txt'), 'just notes');
+
+    await init({});
+
+    // checkbox should not have been called with random-dir/
+    const checkboxCalls = vi.mocked(checkbox).mock.calls;
+    if (checkboxCalls.length > 0) {
+      const choices = (checkboxCalls[0][0] as any).choices.map((c: any) => c.value);
+      expect(choices).not.toContain('random-dir/');
+    }
   });
 
   it('asks for confirmation if skillset.yaml exists', async () => {

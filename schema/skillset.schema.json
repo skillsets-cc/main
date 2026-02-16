@@ -131,6 +131,17 @@
           },
           "uniqueItems": true,
           "description": "Compatible programming languages (lowercase)"
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "maxItems": 20,
+          "uniqueItems": true,
+          "description": "System-level prerequisites (e.g., docker, node >= 20, python >= 3.10)"
         }
       },
       "additionalProperties": false
@@ -155,7 +166,7 @@
         "properties": {
           "path": {
             "type": "string",
-            "description": "Relative path to the dependency file from content/ (e.g., .claude/scripts/package.json)"
+            "description": "Relative path to the dependency file from content/ (e.g., ext-agents/package.json)"
           },
           "manager": {
             "type": "string",

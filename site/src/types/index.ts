@@ -24,6 +24,7 @@ export interface SearchIndexEntry {
   compatibility: {
     claude_code_version: string;
     languages: string[];
+    requirements?: string[];
   };
   context_image_url?: string;
   entry_point: string;

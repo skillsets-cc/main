@@ -7,6 +7,29 @@ import degit from 'degit';
 import { execSync } from 'child_process';
 import { CDN_BASE_URL } from '../lib/constants.js';
 
+/** Marker files that indicate a directory is a self-contained support stack */
+const SUPPORT_STACK_MARKERS = [
+  // Dependency manifests
+  'package.json', 'requirements.txt', 'pyproject.toml',
+  'Cargo.toml', 'go.mod', 'Gemfile',
+  // Config files
+  'Dockerfile', 'docker-compose.yml', 'docker-compose.yaml',
+  'Makefile', '.env.example',
+];
+
+/** Directories to skip when scanning for support stacks */
+const SCAN_SKIP = new Set([
+  'node_modules', '.git', 'content', '.claude',
+]);
+
+/** Files/directories to exclude when copying support stacks */
+const COPY_EXCLUSIONS = new Set([
+  'node_modules', '.env',
+  'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml',
+  'Gemfile.lock', 'Cargo.lock', 'go.sum',
+  '.git',
+]);
+
 interface InitOptions {
   yes?: boolean;
 }
@@ -127,22 +150,41 @@ This skillset has been verified in production.
 [List projects or products built using this skillset]
 `;
 
-function copyDirRecursive(src: string, dest: string): void {
+function copyDirRecursive(src: string, dest: string, exclusions?: Set<string>): void {
   if (!existsSync(dest)) {
     mkdirSync(dest, { recursive: true });
   }
 
   const entries = readdirSync(src, { withFileTypes: true });
   for (const entry of entries) {
+    if (exclusions?.has(entry.name)) continue;
+
     const srcPath = join(src, entry.name);
     const destPath = join(dest, entry.name);
 
     if (entry.isDirectory()) {
-      copyDirRecursive(srcPath, destPath);
+      copyDirRecursive(srcPath, destPath, exclusions);
     } else {
       copyFileSync(srcPath, destPath);
     }
   }
+}
+
+/** Scan top-level directories for self-contained support stacks */
+function detectSupportStacks(cwd: string): string[] {
+  const stacks: string[] = [];
+
+  for (const entry of readdirSync(cwd, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (entry.name.startsWith('.') || SCAN_SKIP.has(entry.name)) continue;
+
+    const dirEntries = readdirSync(join(cwd, entry.name));
+    if (dirEntries.some(f => SUPPORT_STACK_MARKERS.includes(f))) {
+      stacks.push(entry.name + '/');
+    }
+  }
+
+  return stacks;
 }
 
 export async function init(_options: InitOptions): Promise<void> {
@@ -279,21 +321,35 @@ export async function init(_options: InitOptions): Promise<void> {
 
   const tags = tagsInput.split(',').map((t) => t.trim());
 
-  // Auto-detect existing files
-  const candidateFiles = ['CLAUDE.md', 'README.md', '.claude/', '.mcp.json', 'docker/'];
-  const detectedFiles = candidateFiles.filter((f) => {
+  // Auto-detect existing files — core skillset files and primitives
+  const coreFiles = [
+    'CLAUDE.md', 'README.md', 'QUICKSTART.md',
+    '.claude/', '.mcp.json',
+  ];
+  const detectedCore = coreFiles.filter((f) => {
     const checkPath = f.endsWith('/') ? f.slice(0, -1) : f;
     return existsSync(join(cwd, checkPath));
   });
 
+  // Scan top-level directories for self-contained support stacks
+  const detectedStacks = detectSupportStacks(cwd);
+
+  const allDetected = [...detectedCore, ...detectedStacks];
+
   let filesToCopy: string[] = [];
-  if (detectedFiles.length > 0) {
-    console.log(chalk.green('\n✓ Detected existing skillset files:'));
-    detectedFiles.forEach((f) => console.log(`  - ${f}`));
+  if (allDetected.length > 0) {
+    if (detectedCore.length > 0) {
+      console.log(chalk.green('\n✓ Detected skillset files:'));
+      detectedCore.forEach((f) => console.log(`  - ${f}`));
+    }
+    if (detectedStacks.length > 0) {
+      console.log(chalk.green('\n✓ Detected support stacks:'));
+      detectedStacks.forEach((f) => console.log(`  - ${f}`));
+    }
 
     filesToCopy = await checkbox({
       message: 'Select files to copy to content/:',
-      choices: detectedFiles.map((f) => ({ name: f, value: f, checked: true })),
+      choices: allDetected.map((f) => ({ name: f, value: f, checked: true })),
     });
   }
 
@@ -310,8 +366,8 @@ export async function init(_options: InitOptions): Promise<void> {
       const dest = join(cwd, 'content', file);
 
       if (file.endsWith('/')) {
-        // Directory
-        copyDirRecursive(src.slice(0, -1), dest.slice(0, -1));
+        // Directory — apply exclusions (node_modules, .env, lock files)
+        copyDirRecursive(src.slice(0, -1), dest.slice(0, -1), COPY_EXCLUSIONS);
       } else {
         // File
         copyFileSync(src, dest);

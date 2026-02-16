@@ -1,93 +1,85 @@
 ---
 name: contribute
 description: Walk through the full skillsets.cc submission process. Guides scaffold, validation, and submission of a new skillset.
-allowed-tools: Bash(npx skillsets@latest audit *), Read, Glob, Grep, Edit
+allowed-tools: Bash(npx skillsets@latest audit *), Skill, Read, Glob, Grep, Edit
 ---
 
-# Contribute a Skillset
+# Role
 
-Guide the user through submitting a skillset to the skillsets.cc registry. This is a multi-step process with mixed execution — some commands require the user's GitHub authentication and must be run by the user directly.
+A *skillset* is an interoperable set of primitives (skills, agents, hooks, MCP) covering multi-phase processes across context windows.
 
-## Prerequisites
+You are an expert setup wizard working on behalf of skillsets.cc. Your job is to help the submitter bring their components into a cohesive set, identify gaps, suggest improvements, and let them give their decisions context.
 
-- Node.js installed (for npx)
-- GitHub CLI (`gh`) installed and authenticated
-- An existing Claude Code workflow with `.claude/` primitives (skills, agents, hooks, etc.)
-- Evidence of production use (shipped software, deployed applications)
+Guide the user through submitting a skillset to the skillsets.cc registry. This is a multi-step process with mixed execution — `init` and `submit` require the user's GitHub CLI authentication and must be run by the user directly. The structural audit and qualitative review are run by Claude.
 
-## Step 1: Initialize (User Runs)
+---
 
-**The user must run this command themselves** — it requires gh cli:
+## Phase Tracking
 
-```
-npx skillsets@latest init
-```
+Create ALL tasks upfront using `TaskCreate`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a task until the prior task is completed.
 
-Tell the user to run this in their terminal. It will:
-- Scaffold `skillset.yaml` and the submission directory structure
-- Detect existing `.claude/` structure and offer to copy it into `content/`
-- Reserve a ghost slot on skillsets.cc (requires GitHub auth)
-- Install the `/audit-skill` for qualitative review
+### Task 1: Initialize submission
 
-Wait for the user to confirm they've completed this step before proceeding.
+- **subject**: Guide user through npx skillsets init
+- **activeForm**: Initializing submission
+- **description**: **The user must run this command themselves** — it requires gh CLI authentication. Prerequisites: GitHub CLI (`gh`) installed and authenticated, an existing Claude Code workflow with `.claude/` primitives, evidence of production use, and a claimed slot reservation at skillsets.cc. Tell the user to run `npx skillsets@latest init` in their terminal. It will scaffold `skillset.yaml` and the submission directory structure, detect existing `.claude/` structure and offer to copy it into `content/`, and install the `/audit-skill` for qualitative review. Wait for the user to confirm they've completed this step before proceeding.
 
-## Step 2: Prepare Content
+### Task 2: Prepare content
 
-Help the user prepare their skillset content:
+- **subject**: Review and prepare skillset content
+- **activeForm**: Preparing content
+- **description**: Help the user refine their skillset content. Start by reading everything under `content/` to understand the skillset. Then walk through each file with the user: (1) `skillset.yaml` — `init` populates this with defaults and detected values. Review and adapt with the user: description, tags, `compatibility` (version requirement and languages), and verification links. (2) `content/CLAUDE.md` — should be under 300 lines, clear structure. (3) `content/README.md` — should explain the workflow, link to primitives. (4) `content/QUICKSTART.md` — must cover customization steps for every installed primitive (project config, CLAUDE.md, style guides, agents, templates, infrastructure, etc). (5) `PROOF.md` — must include links to a live project built with the skillset. (6) Check that `content/.claude/` contains the primitives claimed in the README. Flag any issues. Help the user fix them.
 
-1. Review `skillset.yaml` — verify all fields are filled correctly
-2. Review `content/CLAUDE.md` — should be under 300 lines, clear structure
-3. Review `content/README.md` — should explain the workflow, link to primitives
-4. Review `content/QUICKSTART.md` — must cover customization steps for every installed primitive (project config, style guides, agents, templates, infrastructure). This is what `/skillset:install` walks end users through.
-5. Review `PROOF.md` — must include links to production usage, metrics, evidence
-6. Check that `content/.claude/` contains the primitives claimed in the README
+### Task 3: Run structural audit
 
-Flag any issues. Help the user fix them.
+- **subject**: Run npx skillsets audit
+- **activeForm**: Running structural audit
+- **description**: Run `npx skillsets@latest audit`. This validates: manifest schema compliance, required files present, content structure, file sizes, binary detection, secrets scanning, README links, version comparison, MCP server consistency, and runtime dependency declarations. If issues are found, help the user resolve them and re-run until the report shows "READY FOR SUBMISSION." See Command Reference below for audit flags.
 
-## Step 3: Structural Audit (Claude Runs)
+### Task 4: Run qualitative review
 
-Run the tier 1 structural validation:
+- **subject**: Run /audit-skill qualitative review
+- **activeForm**: Running qualitative review
+- **description**: Run `/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]` via the Skill tool. The `/audit-skill` is a project-level skill installed by `npx skillsets init` in Task 1. It evaluates primitive quality, researches MCP server reputation, scans for safety issues, runtime dependencies, and verifies workflow artifacts in the reference repo. It appends findings to `AUDIT_REPORT.md` and `skillset.yaml`. Ask the user for the path to their reference repo before invoking. Iterate on feedback until the verdict is APPROVED.
 
-```
-npx skillsets@latest audit
-```
+### Task 5: Guide submission
 
-This validates:
-- Manifest schema compliance
-- Required files present
-- Content structure
-- Secrets scanning
-- MCP server consistency
-- Version comparison (for updates)
+- **subject**: Guide user through npx skillsets submit
+- **activeForm**: Guiding submission
+- **description**: **The user must run this command themselves** — it requires GitHub CLI authentication to fork the registry and open a PR. Tell the user to run `npx skillsets@latest submit` in their terminal. It will validate the version (must be higher than existing for updates), fork the registry repo, create a branch named `submit/{author}/{name}`, copy the submission, and open a PR. After submission, CI runs `npx skillsets audit --check` to re-validate, and a maintainer reviews the production proof.
 
-If issues are found, help the user resolve them and re-run until the report shows "READY FOR SUBMISSION."
+---
 
-## Step 4: Qualitative Review (User Runs)
+## Command Reference
 
-The `/audit-skill` is a project-level skill installed by `npx skillsets init` in Step 1 — it's not part of this plugin. It lives at `.claude/skills/audit-skill/SKILL.md` in the user's skillset directory. Run:
+### init (user runs)
 
 ```
-/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]
+npx skillsets@latest init [options]
 ```
 
-This is the tier 2 Opus review — it evaluates primitive quality, researches MCP server reputation, scans for safety issues, runtime dependencies, and verifies workflow artifacts in the reference repo. It appends findings to `AUDIT_REPORT.md` and `skillset.yaml`
+| Flag | Description |
+|------|-------------|
+| `-y, --yes` | Accept all defaults without prompting |
 
-The user should iterate on feedback until the verdict is APPROVED.
+Requires `gh` CLI authenticated and an active slot reservation at skillsets.cc.
 
-## Step 5: Submit (User Runs)
+### audit (Claude runs)
 
-**The user must run this command themselves** — it requires GitHub CLI authentication to fork the registry and open a PR:
+```
+npx skillsets@latest audit [options]
+```
+
+| Flag | Description |
+|------|-------------|
+| `--check` | CI mode — fails hard on errors, does not write AUDIT_REPORT.md |
+
+Checks performed: manifest schema, required files, content structure, file sizes, binary detection, secrets scanning, README links, version comparison, MCP server consistency, runtime dependency declarations.
+
+### submit (user runs)
 
 ```
 npx skillsets@latest submit
 ```
 
-Tell the user to run this in their terminal. It will:
-- Validate the version (must be higher than existing for updates)
-- Fork the registry repo
-- Create a branch
-- Copy the submission
-- Open a PR
-
-After submission, CI runs `npx skillsets audit --check` to re-validate, and a maintainer reviews the production proof.
-
+No flags. Requires `gh` CLI authenticated, valid `skillset.yaml`, and AUDIT_REPORT.md showing "READY FOR SUBMISSION."

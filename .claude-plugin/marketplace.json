@@ -1,6 +1,9 @@
 {
   "name": "skillsets-cc",
-  "description": "Curated registry of production-verified Claude Code workflows.",
+  "metadata": {
+    "description": "Curated registry of production-verified Claude Code workflows.",
+    "version": "1.0.0"
+  },
   "owner": {
     "name": "supercollectible",
     "email": "hello@supercollectible.dev"

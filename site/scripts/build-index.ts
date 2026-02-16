@@ -40,6 +40,7 @@ interface SkillsetYaml {
   compatibility?: {
     claude_code_version?: string;
     languages?: string[];
+    requirements?: string[];
   };
   status?: 'active' | 'deprecated' | 'archived';
   entry_point?: string;
@@ -84,6 +85,7 @@ interface SearchIndexEntry {
   compatibility: {
     claude_code_version: string;
     languages: string[];
+    requirements?: string[];
   };
   entry_point: string;
   context_image_url?: string;
@@ -255,6 +257,7 @@ function buildSkillsetEntry(
     compatibility: {
       claude_code_version: manifest.compatibility?.claude_code_version || '>=1.0.0',
       languages: manifest.compatibility?.languages || ['any'],
+      ...(manifest.compatibility?.requirements && { requirements: manifest.compatibility.requirements }),
     },
     entry_point: manifest.entry_point || './content/CLAUDE.md',
     context_image_url: manifest.context_image_url,

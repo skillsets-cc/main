@@ -11,6 +11,7 @@ export interface SkillsetVerification {
 export interface SkillsetCompatibility {
   claude_code_version: string;
   languages: string[];
+  requirements?: string[];
 }
 
 // MCP server types

@@ -187,6 +187,12 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
               <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary">Languages</dt>
               <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.languages.join(', ')}</dd>
             </div>
+            {skillset.compatibility.requirements && skillset.compatibility.requirements.length > 0 && (
+              <div>
+                <dt class="text-xs uppercase tracking-wider font-bold text-text-tertiary">Requirements</dt>
+                <dd class="font-mono text-sm text-text-ink">{skillset.compatibility.requirements.join(', ')}</dd>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -1,19 +1,45 @@
 # Contributing to Skillsets.cc
 
-Skillsets.cc is a curated registry of **production-verified** Claude Code workflows. We accept complete workflows that have shipped real software, with clear documentation and evidence of production use.
+Skillsets.cc is the trust layer missing in the native Claude Code plugin ecosystem. It is a reputation foundry for plugin creators, a discovery engine for users, and a quality standard for the ecosystem. We accept complete workflows that have shipped real software, with clear documentation and evidence of production use.
+
+### Prerequisites
+
+- The skillsets.cc plugin installed 
+```
+claude plugin marketplace add skillsets-cc/main
+/plugin install skillset@skillsets-cc
+```
+- GitHub CLI (`gh`) installed and authenticated
+- NPM installed
+- An existing Claude Code workflow with `.claude/` primitives
+- Evidence of production use
+- A claimed slot reservation at [skillsets.cc](https://skillsets.cc)
 
 ## Quick Start
+
+The easiest way to submit is with the `/skillset:contribute` wizard. It walks you through the full flow — scaffolding, content prep, audits, and submission — step by step.
+
+```
+# In Claude Code, with the skillsets.cc plugin installed:
+/skillset:contribute
+```
+
+The wizard orchestrates the same commands you'd run manually (see [Manual Flow](#manual-flow) below), but guides you through each step, reviews your content, helps resolve audit warnings, and fills in manifest fields collaboratively.
+
+## Manual Flow
+
+If you prefer to run each step yourself, or want to understand what `/skillset:contribute` does under the hood:
 
 ```bash
 # 1. Initialize (scaffolds structure + installs audit skill)
 npx skillsets init
 
-# 2. Develop skillset in /content. Edit PROOF.md with production evidence
+# 2. Prepare content in /content, edit PROOF.md with production evidence
 
-# 3. Tier 1: Structural validation
+# 3. Structural validation
 npx skillsets audit
 
-# 4. Tier 2: Qualitative review (in Claude Code)
+# 4. Qualitative review (in Claude Code)
 /audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]
 
 # 5. Submit PR to registry (requires gh CLI)
@@ -22,7 +48,7 @@ npx skillsets submit
 
 ## Generated Structure
 
-`npx skillsets init` auto-detects existing `CLAUDE.md`, `README.md`, `.claude/`, `.mcp.json`, and `docker/` in your project root and offers to copy them into `content/`.
+`npx skillsets init` auto-detects existing skillset files (`CLAUDE.md`, `README.md`, `QUICKSTART.md`, `.claude/`, `.mcp.json`) and support stack directories (any top-level directory containing a dependency manifest or config file like `package.json`, `Dockerfile`, `Makefile`, etc.) in your project root and offers to copy them into `content/`. When copying directories, `node_modules/`, `.env`, and lock files are automatically excluded.
 
 ```
 your-skillset/
@@ -37,7 +63,7 @@ your-skillset/
     ├── QUICKSTART.md      # Post-install customization guide (required)
     ├── .claude/           # Claude Code primitives (required)
     ├── .mcp.json          # MCP servers (if any)
-    └── docker/            # Docker configs (if any)
+    └── ext-agents/        # Support stacks (if any — auto-detected)
 ```
 
 ## Audit Requirements
@@ -57,12 +83,18 @@ your-skillset/
 | Manifest | Valid schema, semver version, author handle, tags, production links |
 | Required files | `skillset.yaml`, `content/`, `content/README.md` |
 | Content structure | Both `content/.claude/` and `content/CLAUDE.md` present |
-| Secrets | No hardcoded credentials (AWS `AKIA`, GitHub `ghp_`, OpenAI `sk-`, Anthropic `sk-ant-`) |
 | README links | Links to `content/.claude/` must use full GitHub URLs |
 | Version | Updates must have version > existing registry version |
 | MCP consistency | Content↔manifest MCP declarations must match (gating in CI `--check` mode only) |
 
-**Non-gating warnings**: files over 1MB, binary files detected.
+**Non-gating warnings** (surfaced for review, don't block submission):
+| Warning | Rule |
+|---------|------|
+| Secrets | Potential credentials detected (API keys, tokens, private keys, connection strings, generic assignments) |
+| File size | Files over 1MB |
+| Binary files | Binary files in content/ |
+
+When warnings are found, the audit reports **"READY FOR SUBMISSION — warnings require review"**. The `/skillset:contribute` wizard helps triage each warning — confirming false positives or resolving real issues before submission.
 
 The `/audit-skill` handles qualitative review: primitive quality, MCP reputation research, workflow verification against a reference repo, and safety scanning.
 
@@ -90,6 +122,7 @@ tags: ["tag1", "tag2"]            # 1-10 tags, lowercase
 compatibility:
   claude_code_version: ">=1.0.0"
   languages: ["python", "typescript"]
+  requirements: ["docker", "node >= 20"]  # Optional: system-level prereqs
 
 status: "active"                  # active | deprecated | archived
 entry_point: "./content/CLAUDE.md"

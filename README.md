@@ -1,6 +1,6 @@
 # Skillsets.cc
 
-Skillsets.cc is the trust layer missing the native Claude Code plugin ecosystem. It is a reputation foundry for plugin creators, and semi-automated content engine with a programmatically constrained maintenance burden.
+Skillsets.cc is the trust layer missing in the native Claude Code plugin ecosystem. It is a reputation foundry for plugin creators, and semi-automated content engine with a programmatically constrained maintenance burden.
 
 ## What is a Skillset?
 
@@ -77,7 +77,13 @@ skillsets-cc/
 │   │   └── types/                # TypeScript interfaces
 │   └── docs_cli/                 # CLI architecture docs
 │
-├── skillsets/                    # Registry entries
+├── plugin/                      # Claude Code orchestrator plugin
+│   ├── .claude-plugin/          # Plugin manifest
+│   └── skills/                  # /skillset:browse, :install, :contribute
+│
+├── .claude-plugin/              # Marketplace manifest
+│
+├── skillsets/                   # Registry entries
 │   └── @{namespace}/
 │       └── {name}/
 │           ├── skillset.yaml     # Manifest
@@ -99,6 +105,7 @@ Each module has a `README.md` (file index) and `docs_[name]/ARC_[name].md` (arch
 | **Root** | — | [ARC_skillsets_cc.md](./ARC_skillsets_cc.md) |
 | **Site** | [site/README.md](./site/README.md) | [ARC_site.md](./site/docs_site/ARC_site.md) |
 | **CLI** | [cli/README.md](./cli/README.md) | [ARC_cli.md](./cli/docs_cli/ARC_cli.md) |
+| **Plugin** | [plugin/README.md](./plugin/README.md) | [ARC_plugin.md](./plugin/docs_plugin/ARC_plugin.md) |
 
 ## Architecture
 
