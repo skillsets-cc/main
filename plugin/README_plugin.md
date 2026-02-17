@@ -1,7 +1,7 @@
 # Skillset Plugin
 
 ## Purpose
-Claude Code orchestrator plugin for skillsets.cc. Provides native `/skillset:browse`, `/skillset:install`, and `/skillset:contribute` skills that wrap the CLI and manage interactive workflows Claude can't delegate to a non-TTY shell.
+Claude Code orchestrator plugin for skillsets.cc. Three skills — `/browse`, `/install`, `/contribute` — that wrap the CLI and manage interactive workflows Claude can't delegate to a non-TTY shell.
 
 ## Architecture
 ```
@@ -10,11 +10,11 @@ plugin/
 │   └── plugin.json              # Plugin manifest (name, version, author)
 ├── skills/
 │   ├── browse/
-│   │   └── SKILL.md             # /skillset:browse — discovery via list, search, view
+│   │   └── SKILL.md             # /browse — discovery via list, search, view
 │   ├── install/
-│   │   └── SKILL.md             # /skillset:install — pre-flight consent + install + QUICKSTART walkthrough
+│   │   └── SKILL.md             # /install — verified install + QUICKSTART onboarding
 │   └── contribute/
-│       └── SKILL.md             # /skillset:contribute — full submission flow (init → audit → submit)
+│       └── SKILL.md             # /contribute — 5-phase submission flow
 └── docs_plugin/
     └── ARC_plugin.md            # Architecture reference
 
@@ -37,9 +37,9 @@ plugin/
 ### Skills
 | File | Purpose |
 |------|---------|
-| `skills/browse/SKILL.md` | Discovery: `list`, `search`, `view` commands with all flags. Can invoke `/skillset:install` directly. |
-| `skills/install/SKILL.md` | Installation: pre-flight consent for MCP/deps via `view`, then `install --accept-mcp --accept-deps`, then QUICKSTART walkthrough. |
-| `skills/contribute/SKILL.md` | Submission: 5-phase flow — `init` (user), content review (Claude), `audit` (Claude), `/audit-skill` (Claude), `submit` (user). |
+| `skills/browse/SKILL.md` | Discovery: `list`, `search`, `view` commands. Can invoke `/install` directly. |
+| `skills/install/SKILL.md` | Onboarding: verified install with MCP/dep consent, then interactive QUICKSTART walkthrough. |
+| `skills/contribute/SKILL.md` | Submission: 5-phase flow — init, content prep, structural audit, qualitative audit, submit. |
 
 ## Related Documentation
 - [CLI Reference](../cli/README.md) — Commands the plugin wraps
