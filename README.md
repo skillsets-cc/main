@@ -1,6 +1,6 @@
 # Skillsets.cc
 
-**Skillsets.cc** is the trust layer missing in the native Claude Code plugin ecosystem. We are building out the high-signal path between power users and the rest of the community: it's a reputation foundry for creators, a low-noise discovery engine for users, and content generator that promotes the newest hotness.
+**Skillsets.cc** is the trust layer missing in the Claude Code ecosystem. We are building out the high-signal path between power users and the rest of the community: it's a reputation foundry for creators, a low-noise discovery engine for users, and content generator that promotes the newest hotness.
 
 ## What is a Skillset?
 
