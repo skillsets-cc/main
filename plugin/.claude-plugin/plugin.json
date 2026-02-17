@@ -1,7 +1,6 @@
 {
   "name": "skillset",
   "description": "Browse, install, and contribute production-verified Claude Code workflows from skillsets.cc.",
-  "version": "1.2.2",
   "author": {
     "name": "supercollectible",
     "url": "https://supercollectible.dev"
