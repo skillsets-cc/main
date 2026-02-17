@@ -210,6 +210,20 @@ describe('init command', () => {
     expect(existsSync(join(testDir, 'content', 'ext-agents', '.env'))).toBe(false);
   });
 
+  it('detects support stack with nested marker files', async () => {
+    // Marker is two levels deep: ext/docker/litellm/docker-compose.yaml
+    mkdirSync(join(testDir, 'ext', 'docker', 'litellm'), { recursive: true });
+    writeFileSync(join(testDir, 'ext', 'docker', 'litellm', 'docker-compose.yaml'), 'services: {}');
+    writeFileSync(join(testDir, 'ext', 'docker', 'litellm', 'config.yaml'), 'model: gpt-4');
+
+    vi.mocked(checkbox).mockResolvedValue(['ext/']);
+
+    await init({});
+
+    expect(existsSync(join(testDir, 'content', 'ext', 'docker', 'litellm', 'docker-compose.yaml'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'ext', 'docker', 'litellm', 'config.yaml'))).toBe(true);
+  });
+
   it('does not detect directories without marker files as support stacks', async () => {
     mkdirSync(join(testDir, 'random-dir'), { recursive: true });
     writeFileSync(join(testDir, 'random-dir', 'notes.txt'), 'just notes');

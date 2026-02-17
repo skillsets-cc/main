@@ -176,6 +176,16 @@ function copyDirRecursive(src: string, dest: string, exclusions?: Set<string>): 
   }
 }
 
+/** Check if a directory tree contains any support stack marker file */
+function hasMarkerDeep(dir: string): boolean {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (COPY_EXCLUSIONS.has(entry.name)) continue;
+    if (entry.isFile() && SUPPORT_STACK_MARKERS.includes(entry.name)) return true;
+    if (entry.isDirectory() && hasMarkerDeep(join(dir, entry.name))) return true;
+  }
+  return false;
+}
+
 /** Scan top-level directories for self-contained support stacks */
 function detectSupportStacks(cwd: string): string[] {
   const stacks: string[] = [];
@@ -184,8 +194,7 @@ function detectSupportStacks(cwd: string): string[] {
     if (!entry.isDirectory()) continue;
     if (entry.name.startsWith('.') || SCAN_SKIP.has(entry.name)) continue;
 
-    const dirEntries = readdirSync(join(cwd, entry.name));
-    if (dirEntries.some(f => SUPPORT_STACK_MARKERS.includes(f))) {
+    if (hasMarkerDeep(join(cwd, entry.name))) {
       stacks.push(entry.name + '/');
     }
   }
