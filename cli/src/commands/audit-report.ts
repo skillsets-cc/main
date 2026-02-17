@@ -169,7 +169,7 @@ ${results.files.map(f => `| ${f.path} | ${formatSize(f.size)} |`).join('\n')}
 ${!allPassed
     ? '**✗ NOT READY - Please fix the issues above**\n\nPlease address the failed checks before submitting.'
     : warnings
-      ? '**⚠ READY FOR SUBMISSION — warnings require review**\n\nStructural checks passed but warnings were found. Review each warning with the `/contribute` wizard before submitting.'
+      ? '**⚠ READY FOR SUBMISSION — warnings require review**\n\nStructural checks passed but warnings were found. Review each warning with the `/skillset:contribute` wizard before submitting.'
       : '**✓ READY FOR SUBMISSION**\n\nAll validation checks passed. You can now submit this skillset to the registry.'}
 
 ---
@@ -181,7 +181,7 @@ ${!allPassed
 2. Re-run: \`npx skillsets audit\`
 3. Repeat until all checks pass`
     : warnings
-      ? `1. Run \`/contribute\` to review warnings with the wizard
+      ? `1. Run \`/skillset:contribute\` to review warnings with the wizard
 2. Confirm or resolve each warning
 3. Run: \`npx skillsets submit\``
       : `1. Review this audit report

@@ -16,7 +16,7 @@ Guide the user through submitting a skillset to the skillsets.cc registry. All C
 
 ## Phase Tracking
 
-Create ALL tasks upfront using `TaskCreate`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a task until the prior task is completed.
+Create ALL tasks and subtasks upfront using `TaskCreate`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a task until the prior task is completed.
 
 ### Task 1: Initialize submission
 
@@ -28,7 +28,7 @@ Create ALL tasks upfront using `TaskCreate`. Pass the **subject**, **activeForm*
 
 - **subject**: Prepare skillset content with user
 - **activeForm**: Preparing content
-- **description**: Help the user populate submission files. Qualitative review is handled by `/audit-skill` later. Assist with: (1) `skillset.yaml` — version number, `compatibility.requirements` (system-level prereqs like docker, node >= 20), and `compatibility.languages`. (2) `PROOF.md` — at minimum a link to a live product built with the skillset (this is the product the audit verifies later). Can also include links to the public repo, writeups, case studies, or metrics. (3) `content/README.md` — user-facing documentation: what the skillset does, what's included, how to use it. (4) `content/QUICKSTART.md` — post-install customization guide covering every installed primitive. (5) Optionally, offer to generalize project-specific content in CLAUDE.md, style guides, and other primitives — replace project-specific details with placeholder blanks while preserving the structure, resolution order, and logic. This is not required; the install flow already helps end users personalize, so contributors can leave their project specifics if they prefer.
+- **description**: Help the user populate submission files. Qualitative review is handled by `/audit-skill` later. Assist with: (1) `skillset.yaml` — version number, `compatibility.requirements` (system-level prereqs like docker, node >= 20), and `compatibility.languages`. (2) `PROOF.md` — at minimum a link to a live product built with the skillset (this is the product the audit verifies later). Can also include links to the public repo, writeups, case studies, or metrics. (3) `content/README.md` — user-facing documentation: what the skillset does, what's included, how to use it. (4) `content/QUICKSTART.md` — post-install customization guide covering every installed primitive. (5) Offer to generalize project-specific content in CLAUDE.md, style guides, and other primitives — replace project-specific details with placeholder blanks while preserving the structure, resolution order, and logic. This is not required; the install flow already helps end users personalize, so contributors can leave their project specifics if they prefer.
 
 ### Task 3: Run structural audit
 

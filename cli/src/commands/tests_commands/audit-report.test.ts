@@ -94,7 +94,7 @@ describe('generateReport', () => {
     });
     const report = generateReport(results);
     expect(report).toContain('⚠ READY FOR SUBMISSION — warnings require review');
-    expect(report).toContain('/contribute');
+    expect(report).toContain('/skillset:contribute');
     expect(report).not.toContain('✓ READY FOR SUBMISSION');
   });
 

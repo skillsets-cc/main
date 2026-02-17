@@ -449,7 +449,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     console.log(chalk.yellow('⚠ READY FOR SUBMISSION — warnings require review'));
     if (!options.check) {
       console.log(chalk.gray('\nGenerated: AUDIT_REPORT.md'));
-      console.log(chalk.cyan('\nNext: /contribute to review warnings'));
+      console.log(chalk.cyan('\nNext: /skillset:contribute to review warnings'));
     }
   } else {
     console.log(chalk.green('✓ READY FOR SUBMISSION'));
