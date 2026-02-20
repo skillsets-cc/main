@@ -1,16 +1,18 @@
 # Skillsets.cc
 
-**Skillsets.cc** is the trust layer missing in the Claude Code ecosystem. We are building out the high-signal path between power users and the rest of the community: it's a reputation foundry for creators, a low-noise discovery engine for users, and content generator that promotes the newest hotness.
+Claude Code has no trust layer. Skillsets.cc is raising the bar with a high-signal reputation foundry for power-users who ship more than they talk, and low-noise discovery engine for those who want to learn from the best.
+
+This addresses the fundamental weakness with the extension ecosystem, which is growing at an exponential rate with no quality infrastructure. No verification, no integrity checks, little dependency transparency, and no real way to pinpoint the proven production stacks in a jungle of slop. See [PROBLEM_SPACE.md](./PROBLEM_SPACE.md) for the full landscape analysis.
 
 ## What is a Skillset?
 
-A **skillset** is an integrated Claude Code workflow that actually met the bar. Expertly forged combinations of skills, agents, commands, hooks, plugins, MCP servers, custom support-stacks, in unholy union and at your service. We only accept complete workflows that have shipped real software, with clear documentation and evidence of production use.
+A **skillset** is an integrated Claude Code workflow that actually shipped software. Expertly forged combinations of skills, agents, commands, hooks, plugins, MCP servers, and custom support-stacks, in unholy union and at your service. It's the core operating environment, not an add-on. We only accept complete workflows that have shipped real software, with clear documentation and evidence of production use.
 
 ## The Bar
 
 Contributions are limited to bi-monthly cohorts of 10. Every submission passes through three verification tiers before it reaches the registry.
 
-**Structural audit** validates manifest schema, required files, content structure, file sizes, binary detection, secrets scanning, and README links. If the structure isn't clean, the process stops here.
+**Structural audit** validates manifest schema, required files, content structure, file sizes, binary detection, secrets scanning, and README formatting. If the structure isn't clean, the process stops here.
 
 **Qualitative review.** Our review agent evaluates every primitive — skills, agents, hooks, MCP servers, CLAUDE.md — against published [criteria](./tools/audit-skill/CRITERIA.md). Third-party MCP servers and runtime dependencies are researched for provenance and reputation. A safety scan checks all primitives for prompt injection and exfiltration. The reviewer then searches the contributor's reference repo for collaboration artifacts — design docs, execution docs, analysis reports — as evidence the skillset actually shipped software. Findings are appended to the audit report with a verdict.
 
@@ -33,6 +35,8 @@ Visit [skillsets.cc](https://skillsets.cc) to browse the registry, or search fro
 
 `/install` is an onboarding agent, not a file extractor. Claude installs the skillset, then walks you through customizing it for your project — so you land in a working environment, not a pile of extracted files.
 
+*Skillsets come with all the guarantees of probabilistic space — as with any OSS, verify before you trust.*
+
 ## We All Want To Learn From You
 
 You built a high-dimensional skillset, not a toy. Give it a dedicated repo, spin up Claude Code, and run the following command:
@@ -43,17 +47,15 @@ This is our submission agent. It scaffolds your structure, helps you prepare con
 
 ## What We Solve For
 
-The technical structure solves for five interconnected pain points:
+The technical structure solves for four interconnected pain points:
 
-**For end users**, the plugin ecosystem is 200k+ skills with minimal vetting. Marketplaces scrape GitHub with a 2-star minimum as the quality floor. Nothing ships as a complete workflow; you get individual primitives and assemble them yourself, hoping for the best. And installation is file extraction — no guidance on how to configure anything for your project. Skillsets.cc inverts all of that: three verification tiers, checksum verified installs, and an onboarding agent that sets it up with you.
+**For end users**, you're assembling individual primitives yourself and hoping they work together. You can't tell what's compatible and what's been vetted. You don't know what dependencies come along for the ride. And installation dumps files with no guidance on how to configure them for your project. Skillsets.cc inverts all of that: verified complete workflows, dependency transparency at install time, and an onboarding agent that sets it up with you.
 
 **For contributors**, if you built an integrated Claude Code workflow there's no distribution channel for it. Your production stack sits next to a weekend experiment of dubious provenance and there's no way to tell them apart. Publishing through skillsets.cc gives your work structural validation, a qualitative review, dependency attestation, and a verified listing with built-in promotion. The submission agent runs the full process without ever leaving Claude Code, and the onboarding agent on the install side means your skillset actually gets adopted.
 
-**For the ecosystem**, plugins are cached runtime extensions — great for adding capabilities, but structurally limited to native primitives. They are not speced to configure your core operating environment beyond the basics, with no formal path for custom support stacks. A skillset installs to the project root: CLAUDE.md, .claude/, support stacks, configs — files you own, edit, and adapt. Every version is a diffable commit in the registry, so updates have a real path: /install [Skillset Name] --backup, let Claude diff the two versions, and port your customizations forward. 
+**For maintainers**, it's a programmatically constrained workload. Bi-monthly cohorts capped at 10, that only increase when the team grows. Two automated audit tiers gate submissions before human review. The site, auth, and API run as a single Cloudflare Worker. There is no traditional backend to maintain — just a mono-repo, an astro site, a schema, a three-skill plugin, a micro-CLI, and a Worker.
 
-**For maintainers**, it's a programmatically constrained workload. Bi-monthly cohorts capped at 10, that only increase when the team grows. Two automated audit tiers gate submissions before human review. The site, auth, and API run as a single Cloudflare Worker. There is no traditional backend to maintain — just a mono-repo, a schema, a three-skill plugin, a CLI, and a three-function Worker.
-
-**For the story**, promotion is baked into the system architecture from the get-go, and largely automated. A submission starts as an anonymous claim visible on the site with a countdown timer, and a **submit announcement**. Visitors see claimed positions filling and timers ticking between publications. It's a reason to check back in. When the PR merges, the identity is revealed in a **merge announcement** templated from the manifest, proof, and audit report. The creator gets a **livestream showcase** — a conversation and live demo — and a **deep dive post**. Four story beats per submission, making each cohort a 40 beat season. The registry stays alive even between editorial posts because something is always in-flight, always resolving.
+**For the story**, narrative cadence is a system property, not an editorial afterthought. A submission starts as an anonymous claim visible on the site with a countdown timer, and a **submit announcement**. Visitors see claimed positions filling and timers ticking between publications. It's a reason to check back in. When the PR merges, the identity is revealed in a **merge announcement** templated from the manifest, proof, and audit report. The creator gets a **livestream showcase** — a conversation and live demo — and a **deep dive post**. Four story beats per submission, making each cohort a 40 beat season. The registry stays alive even between editorial posts because something is always in-flight, always resolving.
 
 ## Architecture
 

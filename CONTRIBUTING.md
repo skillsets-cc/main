@@ -8,7 +8,7 @@ A skillset is a proven, integrated development workflow built on Claude Code pri
 
 ## Why not a plugin?
 
-Plugins are great for adding capabilities to Claude's core toolkit. Skillsets are that core toolkit. It's the operating environment, not an add-on. It installs to the project root — CLAUDE.md, .claude/, support-stack, and everything the workflow needs — because these files are meant to be owned, edited, and versioned with your codebase. Plugins can't deliver that within its spec, and don't ship with integrity checks. Skillset installs are SHA-256 verified against the registry, and every listing has passed structural validation, qualitative Opus review, and human approval.
+Plugins are great for adding capabilities to Claude's core toolkit. Skillsets are that core toolkit. It's the operating environment, not an add-on. It installs to the project root — CLAUDE.md, .claude/, support-stack, and everything the workflow needs — because these files are meant to be owned, edited, and versioned with your codebase. Every version is a diffable commit in the registry, so updates have a real path: /install [Skillset Name] --backup, let Claude diff the two versions, and port your customizations forward.Plugins can't deliver that within its spec, and don't ship with integrity checks. Skillset installs are SHA-256 verified against the registry, and every listing has passed structural validation, qualitative Opus review, and human approval.
 
 ## Whats in it for you?
 
