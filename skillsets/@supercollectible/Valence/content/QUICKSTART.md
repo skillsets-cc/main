@@ -13,12 +13,12 @@ your-project/
 │   ├── agents/           # Sub-agent definitions (ar-*, pm-*, qa-*, build)
 │   └── resources/        # Style guides & templates
 ├── CLAUDE.md             # Project config ← START HERE
-└── docker/litellm/       # Multi-model proxy (optional)
+└── Valence_ext/          # External agent runner (optional, for /ar and /pmatch)
 ```
 
 ---
 
-## CLAUDE.md 
+## CLAUDE.md
 
 The installed `CLAUDE.md` is a template. Replace the placeholder content with your project's specifics.
 
@@ -56,7 +56,7 @@ The installed `CLAUDE.md` is a template. Replace the placeholder content with yo
 
 ---
 
-## Style Guides 
+## Style Guides
 
 Located in `.claude/resources/`. These encode your coding standards so agents follow them.
 
@@ -81,7 +81,7 @@ Located in `.claude/resources/`. These encode your coding standards so agents fo
 
 ---
 
-## Agents 
+## Agents
 
 Located in `.claude/agents/`. Customize for your stack.
 
@@ -116,46 +116,97 @@ Located in `.claude/resources/`. Structure for generated docs.
 
 ## Multi-Model Infrastructure
 
-Required only for adversarial review (`/ar`) and pattern matching (`/pmatch`).
+Required only for adversarial review (`/ar`) and pattern matching (`/pmatch`). Valence_ext is a standalone Node.js agent runner — no Docker required.
 
 ```bash
-cd docker/litellm
+cd Valence_ext && npm install
 cp .env.example .env
 # Add your API keys:
 # - KIMI_API_KEY
-# - DEEPSEEK_API_KEY
-docker-compose up -d
+# - OPENROUTER_API_KEY
+source .env
 ```
 
 ### External Agents
 
-Located in `.claude/agents/`. These run via LiteLLM proxy.
+Located in `.claude/agents/`. These run via the Valence_ext external agent runner.
 
 | File | Model | Used By |
 |------|-------|---------|
 | `ar-k.md` | Kimi | `/ar` |
-| `ar-d.md` | Deepseek | `/ar` |
+| `ar-glm5.md` | GLM-5 (via OpenRouter) | `/ar` |
 | `pm-k.md` | Kimi | `/pmatch` |
 
 **What you can customize:**
 
-1. **Swap models** — Edit `docker/litellm/config.yaml` and `.env`:
-   ```yaml
-   # config.yaml
-   - model_name: kimi-review
-     litellm_params:
-       model: your-preferred-model  # Any LiteLLM-supported model
-       api_key: os.environ/YOUR_API_KEY
-   ```
-   ```bash
-   # .env
-   YOUR_API_KEY=sk-...
+1. **Swap models** — Edit `Valence_ext/external-agents.json`:
+   ```json
+   {
+     "kimi-review": {
+       "provider": "openai-compat",
+       "baseURL": "https://your-provider.com/v1",
+       "model": "your-model",
+       "apiKeyEnv": "YOUR_API_KEY",
+       "mcpServers": ["filesystem", "context7"]
+     }
+   }
    ```
 
-2. **Change endpoint** — If running LiteLLM elsewhere, update agent frontmatter:
-   ```yaml
-   endpoint: http://your-host:4000/chat/completions
-   ```
+2. **Add a new provider** — Create `Valence_ext/providers/<name>.mjs` exporting the 5 normalization functions, register in `providers/index.mjs`
 
 ---
 
+## Environment Setup
+
+These steps configure your Claude Code session for Valence. Do these last — the final step requires a restart.
+
+### 1. Context7 MCP Server
+
+Valence uses Context7 for live library documentation lookups during `/design` and `/ar` phases. Add it to your Claude Code session:
+
+```bash
+claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp
+```
+
+Verify it's registered:
+
+```bash
+claude mcp list
+```
+
+### 2. Install tmux
+
+Multi-agent skills (`/ar`, `/build`, `/pmatch`) spawn teammates in tmux panes.
+
+```bash
+# macOS
+brew install tmux
+
+# Ubuntu/Debian
+sudo apt-get install tmux
+
+# Fedora/RHEL/Arch
+sudo dnf install tmux   # or: sudo pacman -S tmux
+```
+
+### 3. Enable Agent Teams
+
+Add to your shell profile (`.bashrc`, `.zshrc`, etc.):
+
+```bash
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+```
+
+Or set it in `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  }
+}
+```
+
+**Restart Claude Code** to pick up the new environment. When a skill spawns teammates, each gets its own tmux pane with its own permission prompt.
+
+---

@@ -1,6 +1,6 @@
 ---
 name: qf
-description: Frontend QA audit. Checks design system, resource cleanup, accessibility.
+description: Frontend QA audit against frontend_styleguide.md. Migrates __tests__ to tests_[module]. Checks Tailwind compliance, component patterns, resource cleanup, security, accessibility.
 agents:
   - name: qa-f
     model: sonnet
