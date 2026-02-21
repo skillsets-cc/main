@@ -126,6 +126,12 @@ jobs:
               continue
             fi
 
+            # Skip reservation check for updates to existing skillsets
+            if git cat-file -e ${{ github.event.pull_request.base.sha }}:"$dir/skillset.yaml" 2>/dev/null; then
+              echo "✅ Existing skillset — reservation check skipped"
+              continue
+            fi
+
             BATCH_ID=$(yq eval '.batch_id' "$dir/skillset.yaml")
             PR_AUTHOR="${{ github.event.pull_request.user.login }}"
             PR_AUTHOR_ID="${{ github.event.pull_request.user.id }}"
