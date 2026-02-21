@@ -1,17 +1,16 @@
 # Production Proof
 
-## Overview
-
-This skillset has been verified in production.
-
 ## Production URL
 
 https://skillsets.cc
 
 ## Evidence
 
-[Add screenshots, testimonials, or other evidence of production usage]
+- **skillsets.cc** — the registry itself was built entirely using this skillset (Astro SSR + Cloudflare Workers + CLI, designed, reviewed, planned, and built through the Valence workflow)
+- **Reference repo**: https://github.com/supercollectible/Valence
 
 ## Projects Built
 
-[List projects or products built using this skillset]
+| Project | Stack | Valence Phases Used |
+|---------|-------|---------------------|
+| [skillsets.cc](https://skillsets.cc) | Astro 5, Cloudflare Workers, KV, GitHub OAuth | /arm → /design → /ar → /plan → /build → /denoise → /qf → /qd |

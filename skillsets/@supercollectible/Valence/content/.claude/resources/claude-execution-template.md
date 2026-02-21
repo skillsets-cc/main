@@ -30,9 +30,9 @@ Coverage: Minimum 80%
 
 #### File Locations
 ```
-Style Guides: Valence/resources/frontend_styleguide.md, backend_styleguide.md
-Agents:       Valence/agents/AGENT_*.md
-Skills:       Valence/skills/SKILL_*.md
+Style Guides: .claude/resources/frontend_styleguide.md, workers_styleguide.md, cli_styleguide.md
+Agents:       .claude/agents/AGENT_*.md
+Skills:       .claude/skills/SKILL_*.md
 ```
 
 #### Environment Setup

@@ -3,7 +3,7 @@ batch_id: "1.10.001"
 
 # Identity
 name: "Valence"
-version: "3.0.12"
+version: "3.0.15"
 description: "Built for agency > automation, Valence is an opinionated path to quality output."
 
 author:
@@ -30,28 +30,36 @@ compatibility:
   claude_code_version: ">=1.0.0"
   languages:
     - "any"
+  requirements:
+    - "tmux"
+    - "node >= 18"
 
 # Lifecycle
 status: "active"
 
-# MCP Servers (discovered in content/docker/litellm/config.yaml)
+# MCP Servers (spawned by Valence_ext external agent runner)
 mcp_servers:
-  - name: "litellm-proxy"
-    type: "docker"
-    image: "ghcr.io/berriai/litellm:main-latest"
-    mcp_reputation: "ghcr: berriai/litellm — actively maintained LLM proxy by BerriAI, widely adopted for multi-model routing. Exposes port 4000 locally, config and project mounted read-only. Used here to provide Kimi and Deepseek access for adversarial review and pattern matching."
+  - name: "context7"
+    type: "stdio"
+    command: "npx"
+    args: ["@upstash/context7-mcp"]
+    mcp_reputation: "npm: @upstash/context7-mcp — 304k weekly downloads, MIT licensed, v2.1.1. Maintained by Upstash. Provides live library documentation to LLMs via resolve-library-id and query-docs tools."
     researched_at: "2026-02-10"
-    servers:
-      - name: "context7"
-        command: "npx"
-        args: ["-y", "@upstash/context7-mcp"]
-        mcp_reputation: "npm: @upstash/context7-mcp — 304k weekly downloads, MIT licensed, v2.1.1. Maintained by Upstash. Provides live library documentation to LLMs via resolve-library-id and query-docs tools."
-        researched_at: "2026-02-10"
-      - name: "filesystem"
-        command: "npx"
-        args: ["-y", "@modelcontextprotocol/server-filesystem", "/project:ro"]
-        mcp_reputation: "npm: @modelcontextprotocol/server-filesystem — 171k weekly downloads, MIT licensed, v2026.1.14. Official MCP server by Anthropic's modelcontextprotocol org. Read-only codebase access (:ro flag)."
-        researched_at: "2026-02-10"
+  - name: "filesystem"
+    type: "stdio"
+    command: "npx"
+    args: ["@modelcontextprotocol/server-filesystem", "."]
+    mcp_reputation: "npm: @modelcontextprotocol/server-filesystem — 171k weekly downloads, MIT licensed. Official MCP server by Anthropic's modelcontextprotocol org. Read-only codebase access (toolAllowlist restricts to read operations)."
+    researched_at: "2026-02-10"
+
+# Runtime Dependencies
+runtime_dependencies:
+  - path: "Valence_ext/package.json"
+    manager: "npm"
+    packages: ["@modelcontextprotocol/sdk", "@modelcontextprotocol/server-filesystem", "@upstash/context7-mcp", "zod"]
+    has_install_scripts: false
+    evaluation: "MCP SDK (5.6M weekly downloads, official Anthropic org, MIT) and its peer dep zod (87.6M weekly downloads, MIT). Filesystem server (171k weekly, official Anthropic org) and Context7 (304k weekly, Upstash) pre-installed for local npx resolution. No lifecycle scripts. Only needed for /ar and /pmatch with external models."
+    researched_at: "2026-02-21"
 
 # Content
 entry_point: "./content/CLAUDE.md"

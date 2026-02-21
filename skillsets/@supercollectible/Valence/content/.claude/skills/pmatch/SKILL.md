@@ -15,7 +15,7 @@ agents:
 ## Your Role
 You orchestrate pattern matching agents to validate alignment between a source-of-truth and a target. Lightweight alternative to `/ar` for checking if plans match designs, or implementations match plans.
 
-Kimi (pm-k) is a Haiku proxy agent — it reads the documents, curls the LiteLLM endpoint, and relays results. It needs `bypassPermissions` mode so the curl call isn't blocked.
+Kimi (pm-k) is a Haiku proxy agent — it runs the Valence_ext external agent runner and relays results. It needs `bypassPermissions` mode so the bash call isn't blocked.
 
 ---
 
