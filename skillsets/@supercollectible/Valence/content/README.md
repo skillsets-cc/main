@@ -1,6 +1,6 @@
 Valence exists at the outer limits of your combining-power. It is an exoskeleton that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. It's what happens when you can finally work at the speed of thought.
 
-This workflow is what survived 2.5k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded team-based skillset with formalized quality gates, adversarial reviews and auditable handoffs. The Valence team takes you from idea to reviewed, tested, documented code, while you own all key decisions. 
+This workflow is what survived 3k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded team-based skillset with formalized quality gates, adversarial reviews and auditable handoffs. The Valence team takes you from idea to reviewed, tested, documented code, while you own all key decisions. 
 
 ---
 
@@ -141,7 +141,7 @@ Eight checkpoints, each blocking forward progress until validation passes. The s
 | Gate | Mechanism | Validates |
 |------|-----------|-----------|
 | **Brief** | /arm | Requirements, constraints, style, key concepts extracted |
-| **Design** | ar-o / ar-k / ar-d | First principles, internal consistency, best practices |
+| **Design** | ar-o / ar-k / ar-glm5 | First principles, internal consistency, best practices |
 | **Plan** | /pmatch | Plan matches design, complete acceptance criteria |
 | **Per-task** | /build workflow | Acceptance criteria, test cases |
 | **Code quality** | /denoise | Dead code, comments, redundancy, complexity |
@@ -209,13 +209,13 @@ The cost curve: Opus is expensive but catches design flaws that compound downstr
 
 ### Adversarial Review
 
-Three models, same protocol, different blind spots. The value isn't any single critique—it's where they *disagree*. When Opus flags an edge case that Kimi missed, or Deepseek questions an assumption both others accepted, that's signal. Unanimous approval means either the design is solid or all three share a blind spot.
+Three models, same protocol, different blind spots. The value isn't any single critique—it's where they *disagree*. When Opus flags an edge case that Kimi missed, or GLM-5 questions an assumption both others accepted, that's signal. Unanimous approval means either the design is solid or all three share a blind spot.
 
 | Agent | Model | Strength |
 |-------|-------|----------|
 | `ar-o` | Opus | Exhaustive edge cases, deep assumption chains |
 | `ar-k` | Kimi | Broad knowledge base, fast pattern recognition |
-| `ar-d` | Deepseek | Alternative training distribution, cost-effective |
+| `ar-glm5` | GLM-5 | Alternative training distribution, cost-effective |
 
 The orchestrator aggregates findings, deduplicates overlapping critiques, and presents cost/benefit recommendations. Human decides which critiques warrant design changes.
 
@@ -272,7 +272,7 @@ Each teammate receives a prompt pointing at the work artifact (design doc, execu
 
 | Skill | Teammates | Pattern |
 |-------|-----------|---------|
-| `/ar` | ar-o, ar-k, ar-d | All parallel → aggregate findings |
+| `/ar` | ar-o, ar-k, ar-glm5 | All parallel → aggregate findings |
 | `/build` | build (×N) | Parallel or sequenced by dependency → validate |
 | `/pmatch` | pm-s, pm-k | All parallel → merge consensus |
 
@@ -280,14 +280,16 @@ Single-agent skills (`/denoise`, `/qf`, `/qb`, `/qd`) also spawn as teammates vi
 
 ### Multi-Model Infrastructure
 
-Adversarial review and pattern matching require access to models outside Claude. A LiteLLM proxy routes requests and provides MCP tool access to external agents.
+Adversarial review and pattern matching require access to models outside Claude. Valence_ext is a provider-agnostic Node.js external agent runner that drives external models with MCP tool access, direct API calls, and bidirectional tool-call normalization. No Docker required.
 
 **Architecture**:
 ```
-Claude Code (Opus) ──► LiteLLM Proxy ──┬──► Kimi (ar-k, pm-k)
-                                       ├──► Deepseek (ar-d)
-                                       ├──► Context7 MCP (library docs)
-                                       └──► Filesystem MCP (codebase access)
+Claude Code (Opus orchestrator)
+  └── spawns thin Haiku teammate (ar-k, ar-glm5, pm-k)
+       └── runs: node Valence_ext/external-agent.mjs --agent <profile> --prompt <path> --output <file>
+              ├── spawns MCP servers per profile config
+              ├── agent loop: fetch → normalize → tool_calls? → MCP execute → repeat
+              └── writes final output to --output file
 ```
 
 **Models available**:
@@ -295,19 +297,19 @@ Claude Code (Opus) ──► LiteLLM Proxy ──┬──► Kimi (ar-k, pm-k)
 | Model | Agent | Purpose |
 |-------|-------|---------|
 | `moonshot/kimi-k2.5` | ar-k, pm-k | Broad knowledge, fast pattern recognition |
-| `deepseek/deepseek-reasoner` | ar-d | Strong reasoning, alternative perspective |
+| `z-ai/glm-5` (via OpenRouter) | ar-glm5 | Alternative training distribution, cost-effective |
 
 **MCP integration**: External agents get two MCP servers:
 - **Context7**: Library documentation via `resolve-library-id` and `query-docs`
-- **Filesystem**: Read-only codebase access via `read_text_file`, `search_files`, `list_directory`, `directory_tree`
+- **Filesystem**: Read-only codebase access via `read_file`, `search_files`, `list_directory`
 
-This gives ar-k and ar-d the same grounding capabilities as ar-o—they can explore architecture docs, module READMEs, and existing code independently.
+This gives ar-k and ar-glm5 the same grounding capabilities as ar-o—they can explore architecture docs, module READMEs, and existing code independently.
 
 **Setup**:
 ```bash
-cd docker/litellm
-cp .env.example .env  # Add KIMI_API_KEY, DEEPSEEK_API_KEY, CONTEXT7_API_KEY
-docker-compose up -d
+cd Valence_ext && npm install
+cp .env.example .env  # Add KIMI_API_KEY, OPENROUTER_API_KEY
+source .env
 ```
 
 ---
@@ -337,10 +339,10 @@ your-project/
     │   ├── qa-f.md                # Frontend module audit
     │   ├── qa-b.md                # Backend module audit
     │   ├── ar-o.md                # Adversarial review (Opus)
-    │   ├── ar-k.md                # Adversarial review (Kimi via LiteLLM)
-    │   ├── ar-d.md                # Adversarial review (Deepseek via LiteLLM)
+    │   ├── ar-k.md                # Adversarial review (Kimi via Valence_ext)
+    │   ├── ar-glm5.md             # Adversarial review (GLM-5 via Valence_ext)
     │   ├── pm-s.md                # Pattern matching (Sonnet)
-    │   └── pm-k.md                # Pattern matching (Kimi via LiteLLM)
+    │   └── pm-k.md                # Pattern matching (Kimi via Valence_ext)
     │
     └── resources/                 # Shared resources (style guides, templates)
         ├── frontend_styleguide.md

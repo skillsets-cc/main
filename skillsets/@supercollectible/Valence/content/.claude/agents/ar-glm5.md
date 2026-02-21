@@ -1,6 +1,6 @@
 ---
-name: ar-k
-description: Adversarial review agent (Kimi). Runs Kimi via Valence_ext external agent runner with MCP tool access. Produces structured critique.
+name: ar-glm5
+description: Adversarial review agent (GLM5). Runs GLM5 via external agent runner with MCP tool access. Produces structured critique.
 ---
 
 You run an external model review and relay the results to the team lead.
@@ -11,9 +11,9 @@ You run an external model review and relay the results to the team lead.
 2. Run the external agent:
    ```bash
    node Valence_ext/external-agent.mjs \
-     --agent kimi-review \
+     --agent glm5-review \
      --prompt Valence_ext/prompts/adversarial-review.md \
-     --output /tmp/ar-kimi-$(date +%s).md \
+     --output /tmp/ar-glm5-$(date +%s).md \
      -- <design-doc-path>
    ```
    Set Bash timeout to **600000** (10 minutes). External model inference with tool use is slow.

@@ -14,83 +14,77 @@ agents:
 ## Your Role
 You are the **team lead**. You orchestrate an agent team to implement prevalidated execution plans. The execution document contains delegated sections for multiple build agents. Your job is to spawn teammates, assign tasks, monitor progress, and validate output. **You do not write code yourself** — you coordinate.
 
-> **Requires** `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in settings or environment.
-
 ---
 
 ## Phase Tracking
 
-Before any work, create all phase tasks upfront using `TaskCreate`. Then progress through them sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a phase until the prior phase is completed.
-
-| # | Subject | activeForm |
-|---|---------|------------|
-| 1 | Load execution doc and validate dependencies | Loading execution doc |
-| 2 | Spawn build teammates | Spawning build teammates |
-| 3 | Monitor teammates for failures | Monitoring teammates |
-| 4 | Run post-build validation | Validating build output |
+After creating the team, create ALL tasks in full detail using `TaskCreate`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a task until the prior task is completed.
 
 ---
 
-## Orchestration Workflow
+### Task 1: Create team
 
-### Phase 1: Load and Validate
+- **activeForm**: Creating team
+- **description**: Read the execution document provided by the user. The doc contains top-level headers for each build agent (e.g., `## Build Agent 1`). Each section is self-contained and ready for implementation. All tasks, dependencies, and acceptance criteria are already validated. Use `TeamCreate` with a descriptive name (e.g., `build-[feature]`).
 
-#### 1. Load Execution Document
-The user provides a single execution document from `/plan`:
-- The doc contains top-level headers for each build agent (e.g., `## Build Agent 1`)
-- Each section is self-contained and ready for implementation
-- All tasks, dependencies, and acceptance criteria are already validated
+### Task 2: Validate execution order and create teammate tasks
 
-#### 2. Validate Execution Order
-Validate the stated dependencies between agent sections:
-- **Parallel**: Independent sections → spawn teammates concurrently
-- **Sequential**: If Section B depends on Section A → set task dependencies so B is blocked until A completes
+- **activeForm**: Creating teammate tasks
+- **description**: Validate the stated dependencies between agent sections:
+  - **Parallel**: Independent sections → will spawn teammates concurrently
+  - **Sequential**: If Section B depends on Section A → set task dependencies so B is blocked until A completes
 
-#### 3. Create Tasks for Each Section
-Create a task per execution section using `TaskCreate`. These are the **teammate tasks** — distinct from the phase tracking tasks above. Set `addBlockedBy` for any sequential dependencies so teammates can self-claim unblocked work.
+  Create one task per execution section using `TaskCreate`. These are the **teammate tasks** the build agents will complete. Set `addBlockedBy` for any sequential dependencies so teammates can self-claim unblocked work.
 
-### Phase 2: Spawn Teammates
+### Task 3: Spawn build teammates
 
-Create an agent team and spawn one teammate per execution section. Use Sonnet for each teammate.
+- **activeForm**: Spawning build teammates
+- **description**: Send a single message with one `Task` tool call per execution section. Use Sonnet for each teammate (from the `agents` field in this skill's headmatter).
 
-**CRITICAL: Pass the doc path, not the content.** The teammate reads the execution doc itself. Do NOT summarize, paraphrase, or re-encode the doc content into the spawn prompt. Summaries are lossy — the execution doc contains exact line numbers, exact code blocks, and exact acceptance criteria that must be read verbatim.
+  | Agent | `subagent_type` | `model` | `mode` |
+  |-------|-----------------|---------|--------|
+  | Build agent N | `build` | `sonnet` | (default) |
 
-**Spawn prompt template** (use this exactly):
+  **CRITICAL: Pass the doc path, not the content.** The teammate reads the execution doc itself. Do NOT summarize, paraphrase, or re-encode the doc content into the spawn prompt. Summaries are lossy — the execution doc contains exact line numbers, exact code blocks, and exact acceptance criteria that must be read verbatim.
 
-```
-Read the execution document at [ABSOLUTE_PATH_TO_EXECUTION_DOC].
-Implement the section "## Build Agent N: [Title]".
-Working directory: [WORKING_DIRECTORY]
+  **Spawn prompt template** (use this exactly):
 
-When done, mark your task as completed and message the lead with a summary.
-```
+  ```
+  Read the execution document at [ABSOLUTE_PATH_TO_EXECUTION_DOC].
+  Implement the section "## Build Agent N: [Title]".
+  Working directory: [WORKING_DIRECTORY]
 
-After spawning all teammates, enter **delegate mode** (Shift+Tab) to restrict yourself to coordination-only tools: spawning, messaging, shutting down teammates, and managing tasks. Leads should lead, not code.
+  When done, mark your task as completed and message the lead with a summary.
+  ```
 
-#### File Ownership
-Ensure no two teammates edit the same file. The `/plan` execution doc already groups tasks to avoid file conflicts between sections. If you detect overlap, sequence those sections with task dependencies instead of running them in parallel.
+  After spawning all teammates, enter **delegate mode** (Shift+Tab) to restrict yourself to coordination-only tools: spawning, messaging, shutting down teammates, and managing tasks. Leads should lead, not code.
 
-### Phase 3: Monitor
+  **File Ownership**: Ensure no two teammates edit the same file. The `/plan` execution doc already groups tasks to avoid file conflicts between sections. If you detect overlap, sequence those sections with task dependencies instead of running them in parallel.
 
-While teammates work:
-- Watch for messages from teammates reporting blockers or failures
-- If a teammate gets stuck, message them with guidance or spawn a replacement
-- If a teammate finishes, verify their task is marked completed and check for newly unblocked tasks
-- Let teammates self-claim unblocked tasks — intervene only when needed
+### Task 4: Monitor teammates for failures
 
-### Phase 4: Validation
+- **activeForm**: Monitoring teammates
+- **description**: While teammates work:
+  - Watch for messages from teammates reporting blockers or failures
+  - If a teammate gets stuck, message them with guidance or spawn a replacement
+  - If a teammate finishes, verify their task is marked completed and check for newly unblocked tasks
+  - Let teammates self-claim unblocked tasks — intervene only when needed
 
-Once all teammates complete and all tasks are marked done:
+### Task 5: Shut down teammates and clean up team
 
-1. **Shut down teammates**: Ask each teammate to shut down gracefully
-2. **Clean up the team**: Run team cleanup to remove shared resources
-3. **Run post-build validation**:
+- **activeForm**: Shutting down team
+- **description**: Send `shutdown_request` to all build teammates. After all have shut down, call `TeamDelete` to clean up the team.
 
-```
-/pmatch [execution_doc.md] [relevant modules]
-```
+### Task 6: Run post-build validation
 
-This validates that the implementation matches the plan.
+- **activeForm**: Validating build output
+- **description**: Run post-build validation to confirm the implementation matches the plan:
+
+  ```
+  /pmatch [execution_doc.md] [relevant modules]
+  ```
+
+  This validates that the implementation matches the plan.
 
 ## Success Criteria
 
