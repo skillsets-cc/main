@@ -1,0 +1,15 @@
+{
+  "id": "chatcmpl-kimi-002",
+  "object": "chat.completion",
+  "created": 1739520100,
+  "model": "kimi-k2.5",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": "Based on my analysis of the architecture document, the design follows solid principles and is ready for implementation."
+    },
+    "finish_reason": "stop"
+  }],
+  "usage": { "prompt_tokens": 3500, "completion_tokens": 240, "total_tokens": 3740 }
+}
