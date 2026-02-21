@@ -1,6 +1,6 @@
 ---
 name: ar
-description: Opus-orchestrated adversarial review with cost/benefit analysis. Launches ar-o, ar-k, ar-d in parallel, synthesizes findings. Use for validating design docs before /plan.
+description: Opus-orchestrated adversarial review with cost/benefit analysis. Launches ar-o, ar-k, ar-glm5 in parallel, synthesizes findings. Use for validating design docs before /plan.
 allowed-tools: Read, Glob, Grep, Task
 argument-hint: "[path/to/document]"
 agents:
@@ -8,7 +8,7 @@ agents:
     model: opus
   - name: ar-k
     model: haiku
-  - name: ar-d
+  - name: ar-glm5
     model: haiku
 ---
 
@@ -16,139 +16,135 @@ agents:
 
 You orchestrate adversarial review agents and synthesize their findings into actionable recommendations.
 
-Kimi (ar-k) and Deepseek (ar-d) are Haiku proxy agents — they read the design doc, curl the LiteLLM endpoint, and relay results. They need `bypassPermissions` mode so the curl call isn't blocked.
-
 ---
 
 ## Phase Tracking
 
-Before any work, create all phase tasks upfront using `TaskCreate`. Then progress through them sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a phase until the prior phase is completed.
-
-| # | Subject | activeForm |
-|---|---------|------------|
-| 1 | Create team and spawn reviewers | Spawning reviewers |
-| 2 | Aggregate findings | Aggregating findings |
-| 3 | Evaluate findings (cost/benefit) | Evaluating findings |
-| 4 | Produce adversarial review report | Producing report |
-
----
-
-## Step 1: Create Team and Spawn Reviewers
-
-Read the target design document, then create a team and spawn all three reviewers as teammates.
-
-All agents have their own built-in protocols and establish their own codebase context. You just point them at the document.
-
-### 1.1 Create Team
-
-Use `TeamCreate` with a descriptive name (e.g., `ar-[feature]`).
-
-### 1.2 Create Tasks
-
-Create one task per reviewer using `TaskCreate`. These are the teammate tasks the reviewers will complete.
-
-### 1.3 Spawn Teammates
-
-Send a **single message** with three `Task` tool calls. For each agent, use the `model` from the `agents` field in this skill's headmatter:
-
-| Agent | `subagent_type` | `model` | `mode` | `team_name` |
-|-------|-----------------|---------|--------|-------------|
-| Opus reviewer | `ar-o` | `opus` | (default) | team name |
-| Kimi reviewer | `ar-k` | `haiku` | `bypassPermissions` | team name |
-| Deepseek reviewer | `ar-d` | `haiku` | `bypassPermissions` | team name |
-
-**Prompt**: Pass the document path from the `/ar` argument. Example:
-
-```
-Review the design document at PROCESS_DOCS/design/feature-name.md
-
-When done, mark your task as completed and message the lead with your critique.
-```
-
-### 1.4 Error Handling
+After creating the team, create ALL tasks in full detail using `TaskCreate`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a task until the prior task is completed.
 
 If an agent fails or is killed, proceed with the remaining agents. Two-of-three is sufficient. Note reduced confidence in the report if fewer than three complete.
 
 ---
 
-## Step 2: Aggregate Findings
+### Task 1: Create team
 
-Collect critique notes from all agents:
+- **activeForm**: Creating team
+- **description**: Read the target design document. Use `TeamCreate` with a descriptive name (e.g., `ar-[feature]`).
 
-### 2.1 Deduplicate
-- Group by category (architecture, security, performance, etc.)
-- Overlapping concerns from multiple agents → higher confidence
-- Note unique concerns and which agent raised them
+### Task 2: Create reviewer tasks
 
-### 2.2 Identify Patterns
-- Are multiple agents flagging the same area? → likely real issue
-- Single-agent concern with strong reasoning? → still valid
-- Conflicting assessments? → flag for deeper evaluation
+- **activeForm**: Creating reviewer tasks
+- **description**: Create one task per reviewer using `TaskCreate`. These are the teammate tasks the reviewers will complete.
 
----
+### Task 3: Spawn reviewer teammates
 
-## Step 3: Evaluate Findings (Lazy Context)
+- **activeForm**: Spawning reviewers
+- **description**: Send a single message with three `Task` tool calls. For each agent, use the `model` from the `agents` field in this skill's headmatter. Pass the document path from the `/ar` argument. Prompt: "Review the design document at [PATH]. When done, mark your task as completed and message the lead with your critique."
 
-Now load context on-demand to validate each finding.
+  | Agent | `subagent_type` | `model` | `mode` |
+  |-------|-----------------|---------|--------|
+  | Opus reviewer | `ar-o` | `opus` | (default) |
+  | Kimi reviewer | `ar-k` | `haiku` | `bypassPermissions` |
+  | GLM reviewer | `ar-glm5` | `haiku` | `bypassPermissions` |
 
-### 3.1 For Each Finding
-Read relevant docs only when needed:
-- Finding about module X → read `README_X.md` or `ARC_X.md`
-- Finding about integration → read `ARCHITECTURE_*.md`
-- Finding about patterns → read style guides
+### Task 4: Deduplicate findings
 
-### 3.2 Validate Claims
-For each finding, verify in context:
-- Is the agent's claim accurate? (Check against actual code/docs)
-- Is this a real problem or false positive for our context?
-- Did the agent miss relevant constraints that change the assessment?
+- **activeForm**: Deduplicating findings
+- **description**: Collect critique notes from all agents. Group by category (architecture, security, performance, etc.). Overlapping concerns from multiple agents get higher confidence. Note unique concerns and which agent raised them.
 
-### 3.3 Cost/Benefit Analysis
-For validated findings, assess remediation value:
+### Task 5: Identify cross-agent patterns
 
-| Factor | Question |
-|--------|----------|
-| **Severity** | Minor inconvenience, degraded UX, or system failure? |
-| **Probability** | Edge case, common path, or guaranteed? |
-| **Remediation Cost** | Simple fix, moderate rework, or architectural change? |
-| **Reversibility** | Fixable later, or load-bearing decision now? |
-| **Context Fit** | Does this matter for our users, scale, and constraints? |
+- **activeForm**: Identifying patterns
+- **description**: Analyze the deduplicated findings for cross-agent signal. Multiple agents flagging the same area → likely real issue. Single-agent concern with strong reasoning → still valid. Conflicting assessments → flag for deeper evaluation in the next step.
 
-Not all valid findings warrant action. A real issue with low probability and high remediation cost may be correctly classified as "Noted."
+### Task 6: Load context and validate claims
 
-### 3.4 Classify
+- **activeForm**: Validating claims
+- **description**: Load codebase context on-demand to validate each finding. Read relevant docs only when needed (finding about module X → read its README/ARC; finding about integration → read architecture docs; finding about patterns → read style guides). For each finding, verify: Is the agent's claim accurate? (Check against actual code/docs.) Is this a real problem or false positive for our context? Did the agent miss relevant constraints that change the assessment? Mark false positives with reasoning.
 
-| Level | Criteria |
-|-------|----------|
-| **Critical** | Blocks progress—must fix before implementation |
-| **Recommended** | High-value fix—worth addressing, not blocking |
-| **Noted** | Awareness only—minor or speculative |
+### Task 7: Run cost/benefit analysis per finding
 
----
+- **activeForm**: Running cost/benefit analysis
+- **description**: For each validated finding (not false positives), assess remediation value using ALL five factors below. Write the assessment per finding explicitly — do not skip any factor.
 
-## Step 4: Produce Report
+  | Factor | Question |
+  |--------|----------|
+  | **Severity** | Minor inconvenience, degraded UX, or system failure? |
+  | **Probability** | Edge case, common path, or guaranteed? |
+  | **Remediation Cost** | Simple fix, moderate rework, or architectural change? |
+  | **Reversibility** | Fixable later, or load-bearing decision now? |
+  | **Context Fit** | Does this matter for our users, scale, and constraints? |
 
-Shut down teammates and clean up the team, then output the report.
+  Not all valid findings warrant action. A real issue with low probability and high remediation cost may be correctly classified as "Noted."
 
-```markdown
-# Adversarial Review: [Document Name]
+### Task 8: Classify findings (Critical/Recommended/Noted)
 
-## Summary
-[1-2 sentence verdict]
+- **activeForm**: Classifying findings
+- **description**: Using the cost/benefit analysis from the previous task, classify each finding into one of three levels:
 
-## Critical (Must Address)
-- **[Issue]**: [Why it breaks things] → [Mitigation]
+  | Level | Criteria |
+  |-------|----------|
+  | **Critical** | Blocks progress — must fix before implementation |
+  | **Recommended** | High-value fix — worth addressing, not blocking |
+  | **Noted** | Awareness only — minor or speculative |
 
-## Recommended (High Value)
-- **[Issue]**: [Severity + impact] → [Mitigation]
+### Task 9: Shut down teammates and clean up team
 
-## Noted (Awareness)
-- **[Issue]**: [Minor concern]
+- **activeForm**: Shutting down team
+- **description**: Send `shutdown_request` to all reviewer teammates. After all have shut down, call `TeamDelete` to clean up the team.
 
-## Recommendation
-[ ] REVISE — Critical issues require design changes before /plan
-[ ] PROCEED — Ready for /plan with optional improvements noted
-```
+### Task 10: Write adversarial review report
+
+- **activeForm**: Writing report
+- **description**: Write the report to `PROCESS_DOCS/reviews/ar_NN_[design_doc].md` using this template. Each Critical and Recommended finding MUST include its cost/benefit assessment.
+
+  ```markdown
+  # Adversarial Review: [Document Name]
+
+  ## Summary
+  [1-2 sentence verdict]
+
+  ## Critical (Must Address)
+
+  ### [Issue Title]
+  **Flagged by**: [agent(s)]  |  **Confidence**: [High/Medium/Low]
+
+  [What's wrong and why it breaks things]
+
+  | Factor | Assessment |
+  |--------|------------|
+  | Severity | [Minor inconvenience / Degraded UX / System failure] |
+  | Probability | [Edge case / Common path / Guaranteed] |
+  | Remediation Cost | [Simple fix / Moderate rework / Architectural change] |
+  | Reversibility | [Fixable later / Load-bearing decision now] |
+  | Context Fit | [Why this matters or doesn't for our users, scale, constraints] |
+
+  **Mitigation**: [What to do]
+
+  ## Recommended (High Value)
+
+  ### [Issue Title]
+  **Flagged by**: [agent(s)]  |  **Confidence**: [High/Medium/Low]
+
+  [Severity and impact]
+
+  | Factor | Assessment |
+  |--------|------------|
+  | Severity | [Minor inconvenience / Degraded UX / System failure] |
+  | Probability | [Edge case / Common path / Guaranteed] |
+  | Remediation Cost | [Simple fix / Moderate rework / Architectural change] |
+  | Reversibility | [Fixable later / Load-bearing decision now] |
+  | Context Fit | [Why this matters or doesn't for our users, scale, constraints] |
+
+  **Mitigation**: [What to do]
+
+  ## Noted (Awareness)
+  - **[Issue]**: [Minor concern]
+
+  ## Recommendation
+  [ ] REVISE — Critical issues require design changes before /plan
+  [ ] PROCEED — Ready for /plan with optional improvements noted
+  ```
 
 ---
 
