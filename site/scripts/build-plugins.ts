@@ -42,8 +42,6 @@ interface PluginJson {
   description: string;
   version: string;
   author: { name: string; url?: string };
-  homepage: string;
-  repository: string;
   license: string;
   keywords: string[];
 }
@@ -54,8 +52,6 @@ interface MarketplacePlugin {
   description: string;
   version: string;
   author: { name: string; url?: string };
-  homepage: string;
-  repository: string;
   license: string;
   keywords: string[];
   category: string;
@@ -98,8 +94,6 @@ export function generatePluginJson(manifest: SkillsetYaml, id: string): PluginJs
       name: manifest.author.handle.replace(/^@/, ''),
       ...(manifest.author.url && { url: manifest.author.url }),
     },
-    homepage: `https://skillsets.cc/skillset/${id}`,
-    repository: 'https://github.com/skillsets-cc/main',
     license: 'MIT',
     keywords: manifest.tags,
   };
@@ -273,8 +267,6 @@ export function generateSkillsetPlugin(
       name: manifest.author.handle.replace(/^@/, ''),
       ...(manifest.author.url && { url: manifest.author.url }),
     },
-    homepage: `https://skillsets.cc/skillset/${id}`,
-    repository: 'https://github.com/skillsets-cc/main',
     license: 'MIT',
     keywords: manifest.tags,
     category: 'development',
@@ -293,8 +285,6 @@ export function readContributePlugin(config: BuildConfig): MarketplacePlugin {
     description: raw.description,
     version: raw.version,
     author: raw.author,
-    homepage: raw.homepage || 'https://skillsets.cc/contribute',
-    repository: raw.repository || 'https://github.com/skillsets-cc/main',
     license: raw.license || 'MIT',
     keywords: raw.keywords || ['skillsets', 'contribute', 'submission'],
     category: 'development',

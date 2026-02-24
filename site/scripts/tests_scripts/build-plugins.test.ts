@@ -55,10 +55,8 @@ describe('build-plugins', () => {
       expect(result.description).toBe('Built for agency.');
       expect(result.author.name).toBe('supercollectible'); // @ stripped
       expect(result.author.url).toBe('https://supercollectible.dev');
-      expect(result.homepage).toBe('https://skillsets.cc/skillset/@supercollectible/Valence');
       expect(result.keywords).toEqual(['sdlc', 'multi-agent']);
       expect(result.license).toBe('MIT');
-      expect(result.repository).toBe('https://github.com/skillsets-cc/main');
     });
 
     it('omits url when author.url is absent', () => {
@@ -217,8 +215,6 @@ describe('build-plugins', () => {
           description: 'Contribute plugin',
           version: '1.0.0',
           author: { name: 'supercollectible' },
-          homepage: 'https://skillsets.cc/contribute',
-          repository: 'https://github.com/skillsets-cc/main',
           license: 'MIT',
           keywords: ['contribute'],
           category: 'development',
@@ -229,8 +225,6 @@ describe('build-plugins', () => {
           description: 'Built for agency.',
           version: '3.0.0',
           author: { name: 'supercollectible' },
-          homepage: 'https://skillsets.cc/skillset/@supercollectible/Valence',
-          repository: 'https://github.com/skillsets-cc/main',
           license: 'MIT',
           keywords: ['sdlc'],
           category: 'development',
@@ -292,8 +286,6 @@ entry_point: "./content/CLAUDE.md"
           description: 'Contribute plugin',
           version: '1.0.0',
           author: { name: 'supercollectible' },
-          homepage: 'https://skillsets.cc/contribute',
-          repository: 'https://github.com/skillsets-cc/main',
           license: 'MIT',
           keywords: ['contribute'],
         })
