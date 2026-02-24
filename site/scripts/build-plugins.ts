@@ -42,6 +42,7 @@ interface PluginJson {
   description: string;
   version: string;
   author: { name: string; url?: string };
+  repository: string;
   license: string;
   keywords: string[];
 }
@@ -94,6 +95,7 @@ export function generatePluginJson(manifest: SkillsetYaml, id: string): PluginJs
       name: manifest.author.handle.replace(/^@/, ''),
       ...(manifest.author.url && { url: manifest.author.url }),
     },
+    repository: 'https://github.com/skillsets-cc/main',
     license: 'MIT',
     keywords: manifest.tags,
   };
