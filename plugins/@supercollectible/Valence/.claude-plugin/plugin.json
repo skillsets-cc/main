@@ -1,0 +1,20 @@
+{
+  "name": "Valence",
+  "description": "Built for agency > automation, Valence is an opinionated path to quality output.",
+  "version": "3.0.16",
+  "author": {
+    "name": "supercollectible",
+    "url": "https://github.com/supercollectible"
+  },
+  "homepage": "https://skillsets.cc/skillset/@supercollectible/Valence",
+  "repository": "https://github.com/skillsets-cc/main",
+  "license": "MIT",
+  "keywords": [
+    "teammates",
+    "multi-agent",
+    "spec-driven",
+    "test-driven",
+    "atomic",
+    "first-principles"
+  ]
+}

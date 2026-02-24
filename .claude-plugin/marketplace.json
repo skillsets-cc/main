@@ -2,7 +2,7 @@
   "name": "skillsets-cc",
   "metadata": {
     "description": "Curated registry of production-verified Claude Code workflows.",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "owner": {
     "name": "supercollectible",
@@ -10,18 +10,44 @@
   },
   "plugins": [
     {
-      "name": "skillset",
-      "source": "./plugin",
-      "description": "Browse, install, and contribute production-verified Claude Code workflows from skillsets.cc.",
-      "version": "1.2.4",
+      "name": "contribute",
+      "source": "./plugins/contribute",
+      "description": "Submit a skillset to the skillsets.cc registry.",
+      "version": "1.0.0",
       "author": {
         "name": "supercollectible",
         "url": "https://supercollectible.dev"
       },
-      "homepage": "https://skillsets.cc",
+      "homepage": "https://skillsets.cc/contribute",
       "repository": "https://github.com/skillsets-cc/main",
       "license": "MIT",
-      "keywords": ["skillsets", "curated", "production", "workflows", "registry"],
+      "keywords": [
+        "skillsets",
+        "contribute",
+        "submission"
+      ],
+      "category": "development"
+    },
+    {
+      "name": "Valence",
+      "source": "./plugins/@supercollectible/Valence",
+      "description": "Built for agency > automation, Valence is an opinionated path to quality output.",
+      "version": "3.0.16",
+      "author": {
+        "name": "supercollectible",
+        "url": "https://github.com/supercollectible"
+      },
+      "homepage": "https://skillsets.cc/skillset/@supercollectible/Valence",
+      "repository": "https://github.com/skillsets-cc/main",
+      "license": "MIT",
+      "keywords": [
+        "teammates",
+        "multi-agent",
+        "spec-driven",
+        "test-driven",
+        "atomic",
+        "first-principles"
+      ],
       "category": "development"
     }
   ]
