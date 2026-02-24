@@ -107,7 +107,7 @@ export function generateInstallSkillMd(manifest: SkillsetYaml, id: string): stri
   return `---
 name: install
 description: "Install ${name} — ${description}"
-allowed-tools: Bash(npx skillsets@latest install *), Read, Glob
+allowed-tools: Bash(npx skillsets@latest *), Read, Glob
 ---
 
 # Install ${name}
@@ -120,19 +120,25 @@ Install ${name} from the skillsets.cc registry into the current project director
 
 Create ALL tasks upfront using \`TaskCreate\`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark \`in_progress\` before starting, \`completed\` after finishing. Do not begin a task until the prior task is completed.
 
-### Task 1: Install skillset
+### Task 1: Show README
+
+- **subject**: Show ${name} README
+- **activeForm**: Showing README
+- **description**: Run \`npx skillsets@latest view ${id}\` to fetch the README. Strip all image markup from the output before displaying — remove markdown images (\`![alt](url)\`) and HTML image tags (\`<img ... />\` or \`<img ...>\`). Also remove any surrounding \`<p>\`, \`<div>\`, or \`<picture>\` wrappers that contained only images and are now empty. Then print: "Welcome to **${name}**. Skillsets are complex — they reshape how your agent thinks, plans, and ships. Read this before you install:" followed by the cleaned README text verbatim. Wait for the user to confirm they want to proceed before moving to Task 2.
+
+### Task 2: Install skillset
 
 - **subject**: Install ${name} from registry
 - **activeForm**: Installing ${name}
 - **description**: Run \`npx skillsets@latest install ${id}\`. The CLI will interactively prompt for MCP server and runtime dependency consent if the skillset declares any. Ask the user whether to \`--force\` (overwrite) or \`--backup\` (preserve existing files) if they have conflicting files.
 
-### Task 2: Read QUICKSTART.md
+### Task 3: Read QUICKSTART.md
 
 - **subject**: Read QUICKSTART.md
 - **activeForm**: Reading quickstart guide
 - **description**: Read the installed \`QUICKSTART.md\` — every skillset ships one. Identify each section that needs interactive walkthrough with the user. Sections vary by skillset but typically cover project configuration, style guides, agent tuning, templates, and infrastructure setup.
 
-### Task 3: Walk through customization
+### Task 4: Walk through customization
 
 - **subject**: Walk through customization with user
 - **activeForm**: Walking through customization
