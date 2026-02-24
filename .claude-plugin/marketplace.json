@@ -18,8 +18,6 @@
         "name": "supercollectible",
         "url": "https://supercollectible.dev"
       },
-      "homepage": "https://skillsets.cc/contribute",
-      "repository": "https://github.com/skillsets-cc/main",
       "license": "MIT",
       "keywords": [
         "skillsets",
@@ -37,8 +35,6 @@
         "name": "supercollectible",
         "url": "https://github.com/supercollectible"
       },
-      "homepage": "https://skillsets.cc/skillset/@supercollectible/Valence",
-      "repository": "https://github.com/skillsets-cc/main",
       "license": "MIT",
       "keywords": [
         "teammates",
