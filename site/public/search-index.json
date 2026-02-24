@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-02-24T11:22:31.687Z",
+  "generated_at": "2026-02-24T11:47:29.479Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -19,7 +19,7 @@
         "handle": "@supercollectible",
         "url": "https://github.com/supercollectible"
       },
-      "stars": 0,
+      "stars": 1,
       "version": "3.0.16",
       "status": "active",
       "verification": {
