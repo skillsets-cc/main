@@ -7,6 +7,7 @@
     "dev:cf": "astro build && wrangler dev --persist-to .wrangler/state",
     "build": "astro build",
     "build:index": "tsx scripts/build-index.ts",
+    "build:plugins": "tsx scripts/build-plugins.ts",
     "preview": "wrangler dev --persist-to .wrangler/state",
     "astro": "astro",
     "test": "vitest",

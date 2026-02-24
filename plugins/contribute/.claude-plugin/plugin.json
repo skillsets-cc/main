@@ -1,0 +1,13 @@
+{
+  "name": "contribute",
+  "description": "Submit a skillset to the skillsets.cc registry.",
+  "version": "1.0.0",
+  "author": {
+    "name": "supercollectible",
+    "url": "https://supercollectible.dev"
+  },
+  "homepage": "https://skillsets.cc/contribute",
+  "repository": "https://github.com/skillsets-cc/main",
+  "license": "MIT",
+  "keywords": ["skillsets", "contribute", "submission"]
+}
