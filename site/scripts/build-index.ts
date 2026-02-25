@@ -33,7 +33,6 @@ interface SkillsetYaml {
   };
   verification: {
     production_links: Array<{ url: string; label?: string }>;
-    production_proof?: string;
     audit_report: string;
   };
   tags: string[];
@@ -62,6 +61,21 @@ interface SkillsetYaml {
     mcp_reputation: string;
     researched_at: string;
   }>;
+  cc_extensions?: Array<{
+    name: string;
+    type: 'native' | 'plugin';
+    source?: string;
+    cc_reputation: string;
+    researched_at: string;
+  }>;
+  runtime_dependencies?: Array<{
+    path: string;
+    manager: string;
+    packages: string[];
+    has_install_scripts?: boolean;
+    evaluation: string;
+    researched_at: string;
+  }>;
 }
 
 interface SearchIndexEntry {
@@ -79,7 +93,6 @@ interface SearchIndexEntry {
   status: 'active' | 'deprecated' | 'archived';
   verification: {
     production_links: Array<{ url: string; label?: string }>;
-    production_proof?: string;
     audit_report: string;
   };
   compatibility: {
@@ -92,6 +105,8 @@ interface SearchIndexEntry {
   checksum: string;
   files: Record<string, string>;
   mcp_servers?: SkillsetYaml['mcp_servers'];
+  cc_extensions?: SkillsetYaml['cc_extensions'];
+  runtime_dependencies?: SkillsetYaml['runtime_dependencies'];
 }
 
 interface SearchIndex {
@@ -251,7 +266,6 @@ function buildSkillsetEntry(
     status: manifest.status || 'active',
     verification: {
       production_links: manifest.verification.production_links,
-      production_proof: manifest.verification.production_proof,
       audit_report: manifest.verification.audit_report,
     },
     compatibility: {
@@ -264,6 +278,8 @@ function buildSkillsetEntry(
     checksum,
     files,
     mcp_servers: manifest.mcp_servers,
+    cc_extensions: manifest.cc_extensions,
+    runtime_dependencies: manifest.runtime_dependencies,
   };
 }
 

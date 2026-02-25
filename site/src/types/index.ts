@@ -18,7 +18,6 @@ export interface SearchIndexEntry {
   status: 'active' | 'deprecated' | 'archived';
   verification: {
     production_links: Array<{ url: string; label?: string }>;
-    production_proof?: string;
     audit_report: string;
   };
   compatibility: {
@@ -31,7 +30,26 @@ export interface SearchIndexEntry {
   checksum: string;
   files: Record<string, string>;
   mcp_servers?: McpServer[];
+  cc_extensions?: CcExtension[];
+  runtime_dependencies?: RuntimeDependency[];
   batch_id?: string;
+}
+
+export interface CcExtension {
+  name: string;
+  type: 'native' | 'plugin';
+  source?: string;
+  cc_reputation: string;
+  researched_at: string;
+}
+
+export interface RuntimeDependency {
+  path: string;
+  manager: string;
+  packages: string[];
+  has_install_scripts?: boolean;
+  evaluation: string;
+  researched_at: string;
 }
 
 export interface McpNestedServer {
