@@ -1,0 +1,77 @@
+schema_version: "1.0"
+batch_id: "2.10.001"
+
+# Identity
+name: "Valence"
+version: "3.2.0"
+description: "Spec-driven Claude Code workflow with adversarial review, QA agents, and orchestrated builds"
+
+author:
+  handle: "@supercollectible"
+  url: "https://github.com/supercollectible"
+
+# Verification
+verification:
+  production_links:
+    - url: "https://skillsets.cc"
+  audit_report: "./AUDIT_REPORT.md"
+
+# Discovery
+tags:
+  - "teammates"
+  - "multi-agent"
+  - "spec-driven"
+  - "test-driven"
+  - "atomic"
+  - "first-principles"
+
+compatibility:
+  claude_code_version: ">=2.2.58"
+  languages:
+    - "any"
+  requirements:
+    - "tmux"
+    - "node >= 18"
+    - "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1"
+
+# Lifecycle
+status: "active"
+
+# MCP Servers (spawned by Valence_ext external agent runner)
+mcp_servers:
+  - name: "context7"
+    type: "stdio"
+    command: "npx"
+    args: ["@upstash/context7-mcp"]
+    mcp_reputation: "npm: @upstash/context7-mcp — 304k+ weekly downloads, MIT licensed, v2.1.2. Maintained by Upstash. Provides live library documentation to LLMs via resolve-library-id and query-docs tools."
+    researched_at: "2026-02-28"
+  - name: "filesystem"
+    type: "stdio"
+    command: "npx"
+    args: ["@modelcontextprotocol/server-filesystem", "."]
+    mcp_reputation: "npm: @modelcontextprotocol/server-filesystem — 137k+ weekly downloads, MIT licensed. Official MCP server by Anthropic's modelcontextprotocol org. Read-only codebase access (toolAllowlist restricts to read operations)."
+    researched_at: "2026-02-28"
+
+# Runtime Dependencies
+runtime_dependencies:
+  - path: "Valence_ext/package.json"
+    manager: "npm"
+    packages: ["@modelcontextprotocol/sdk", "@modelcontextprotocol/server-filesystem", "@upstash/context7-mcp", "zod"]
+    has_install_scripts: false
+    evaluation: "MCP SDK (5M+ weekly downloads, official Anthropic org, MIT) and its peer dep zod (87M+ weekly downloads, MIT). Filesystem server (137k+ weekly, official Anthropic org) and Context7 (304k+ weekly, Upstash) pre-installed for local npx resolution. No lifecycle scripts. Only needed for /ar and /pmatch with external models."
+    researched_at: "2026-02-28"
+
+# CC Extensions
+cc_extensions:
+  - name: "security-review"
+    type: "native"
+    cc_reputation: "Built-in Claude Code skill for automated security auditing. Ships with all CC installations. Multi-stage verification filters false positives."
+    researched_at: "2026-02-28"
+  - name: "code-simplifier"
+    type: "plugin"
+    source: "registry:code-simplifier"
+    cc_reputation: "Official Anthropic plugin from claude-plugins-official repo. Used internally by the Claude Code team. Install via 'claude plugin install code-simplifier'."
+    researched_at: "2026-02-28"
+
+# Content
+entry_point: "./content/CLAUDE.md"

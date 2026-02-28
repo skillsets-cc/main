@@ -1,0 +1,15 @@
+{
+  "id": "chatcmpl-openrouter-002",
+  "object": "chat.completion",
+  "created": 1739520300,
+  "model": "z-ai/glm-5",
+  "choices": [{
+    "index": 0,
+    "message": {
+      "role": "assistant",
+      "content": "The codebase structure is well-organized with clear module boundaries and consistent naming conventions."
+    },
+    "finish_reason": "stop"
+  }],
+  "usage": { "prompt_tokens": 2200, "completion_tokens": 180, "total_tokens": 2380 }
+}
