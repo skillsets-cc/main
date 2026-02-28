@@ -1,33 +1,18 @@
 # errors.ts
 
-## Overview
-**Purpose**: Centralized error handling for CLI commands
+## Purpose
+Centralized error handling utilities for CLI commands — safe message extraction from unknown thrown values and fatal error display with process exit.
+
+## Public API
+| Export | Type | Description |
+|--------|------|-------------|
+| `getErrorMessage` | function | Safely extract a string message from any thrown value (`unknown` → `string`) |
+| `handleError` | function | Print error in red and exit process with code 1 (`unknown` → `never`) |
 
 ## Dependencies
-- External: `chalk`
 - Internal: None
-
-## Key Components
-
-### Functions
-| Function | Purpose | Inputs → Output |
-|----------|---------|-----------------|
-| `getErrorMessage` | Extract message from error | `unknown` → `string` |
-| `handleError` | Format and exit on error | `unknown` → `never` |
-
-## Data Flow
-```
-handleError(error) → Format message → console.error() → process.exit(1)
-```
+- External: `chalk`
 
 ## Integration Points
-- Called by: `index.ts` (all command catch blocks)
-- Calls: None
-
-## Error Handling
-- `Error` instance: Prints `Error: ${message}`
-- Other types: Prints raw value with "Unexpected error:"
-
-## Testing
-- Test file: `tests_lib/errors.test.ts`
-- Key tests: Error instance handling, unknown error handling, process exit
+- Used by: `index.ts` (all command catch blocks), `lib/validate-deps`, `lib/validate-mcp`
+- Emits/Consumes: None

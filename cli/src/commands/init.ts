@@ -56,7 +56,6 @@ author:
 verification:
   production_links:
     - url: "{{PRODUCTION_URL}}"
-  production_proof: "./PROOF.md"
   audit_report: "./AUDIT_REPORT.md"
 
 # Discovery
@@ -137,23 +136,17 @@ your-project/
 [Add links to documentation, examples, or support channels]
 `;
 
-const PROOF_TEMPLATE = `# Production Proof
+const INSTALL_NOTES_TEMPLATE = `# {{NAME}}
 
-## Overview
+<!--
+Install notes for pre-install display. Max 4000 characters total.
+What does this skillset do? What should users know before installing?
+The dependency section below is populated by /audit-skill during review.
+-->
 
-This skillset has been verified in production.
+## Dependencies
 
-## Production URL
-
-{{PRODUCTION_URL}}
-
-## Evidence
-
-[Add screenshots, testimonials, or other evidence of production usage]
-
-## Projects Built
-
-[List projects or products built using this skillset]
+<!-- Populated automatically by /audit-skill -->
 `;
 
 function copyDirRecursive(src: string, dest: string, exclusions?: Set<string>): void {
@@ -385,7 +378,7 @@ export async function init(options: InitOptions): Promise<void> {
 
   // Auto-detect existing files — core skillset files and primitives
   const coreFiles = [
-    'CLAUDE.md', 'README.md', 'QUICKSTART.md',
+    'CLAUDE.md', 'README.md', 'QUICKSTART.md', 'INSTALL_NOTES.md',
     '.claude/', '.mcp.json',
   ];
   const detectedCore = coreFiles.filter((f) => {
@@ -473,9 +466,12 @@ export async function init(options: InitOptions): Promise<void> {
       writeFileSync(join(cwd, 'content', 'QUICKSTART.md'), quickstart);
     }
 
-    // Generate PROOF.md
-    const proof = PROOF_TEMPLATE.replace('{{PRODUCTION_URL}}', productionUrl);
-    writeFileSync(join(cwd, 'PROOF.md'), proof);
+    // Generate content/INSTALL_NOTES.md (if not copying existing)
+    if (!existsSync(join(cwd, 'content', 'INSTALL_NOTES.md'))) {
+      const installNotes = INSTALL_NOTES_TEMPLATE
+        .replace(/\{\{NAME\}\}/g, name);
+      writeFileSync(join(cwd, 'content', 'INSTALL_NOTES.md'), installNotes);
+    }
 
     // Install audit-skill from registry
     spinner.text = 'Fetching audit-skill...';
@@ -492,10 +488,10 @@ export async function init(options: InitOptions): Promise<void> {
     // Summary
     console.log(chalk.green('\n✓ Initialized skillset submission:\n'));
     console.log('  skillset.yaml     - Manifest (edit as needed)');
-    console.log('  PROOF.md          - Production evidence (add details)');
     console.log('  content/          - Installable files');
     console.log('    ├── README.md       - Documentation');
     console.log('    ├── QUICKSTART.md   - Post-install guide');
+    console.log('    ├── INSTALL_NOTES.md - Pre-install notes');
     if (filesToCopy.length > 0) {
       filesToCopy.forEach((f) => console.log(`    └── ${f}`));
     } else {
@@ -505,7 +501,7 @@ export async function init(options: InitOptions): Promise<void> {
     console.log('    └── audit-skill/');
 
     console.log(chalk.cyan('\nNext steps:'));
-    console.log('  1. Edit PROOF.md with production evidence');
+    console.log('  1. Edit content/INSTALL_NOTES.md with install notes');
     console.log('  2. Ensure content/ has your skillset files');
     console.log('  3. Run: npx skillsets audit');
     console.log('  4. Run: /audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]');

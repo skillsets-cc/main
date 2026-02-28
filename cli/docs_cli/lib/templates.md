@@ -9,7 +9,7 @@ Template strings for scaffolding new skillsets via the `init` command.
 | `SKILLSET_YAML_TEMPLATE` | string | Template for skillset.yaml manifest with placeholder variables |
 | `README_TEMPLATE` | string | Template for skillset README.md documentation |
 | `QUICKSTART_TEMPLATE` | string | Template for QUICKSTART.md installation guide |
-| `PROOF_TEMPLATE` | string | Template for PROOF.md production verification |
+| `INSTALL_NOTES_TEMPLATE` | string | Template for content/INSTALL_NOTES.md pre-install notes |
 
 ## Dependencies
 - Internal: None

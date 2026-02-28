@@ -15,12 +15,14 @@ This is a JSON Schema document (not code), so there are no exports. It defines v
 | `version` | string | Yes | Semver (e.g., `1.0.0`) |
 | `description` | string | Yes | 10-200 characters |
 | `author` | object | Yes | `handle` (required), `url` (optional) |
-| `verification` | object | Yes | `production_links` (1-5), `production_proof` (optional), `audit_report` (required) |
+| `verification` | object | Yes | `production_links` (1-5), `audit_report` (required) |
 | `tags` | array | Yes | 1-10 unique tags, lowercase, 2-30 chars |
 | `compatibility` | object | No | `claude_code_version` (semver range), `languages` (array) |
 | `status` | string | No | `"active"` (default), `"deprecated"`, or `"archived"` |
 | `entry_point` | string | No | Path to main doc (e.g., `./content/CLAUDE.md`) |
 | `mcp_servers` | array | No | 0-20 servers with type-specific validation |
+| `cc_extensions` | array | No | 0-20 extensions with type-specific validation |
+| `runtime_dependencies` | array | No | 0-30 dependencies with manager/packages/evaluation |
 
 ## Dependencies
 
@@ -67,8 +69,25 @@ Docker-compose or multi-server images can have nested `servers` array (max 10):
 - Each server has own `name`, `command`, `args`, `mcp_reputation`, `researched_at`
 - No nesting beyond this level (flat hierarchy)
 
+### CC Extension Validation
+Discriminated union based on `type` field:
+- **native**: Ships with Claude Code (e.g., `security-review`), no `source` required
+- **plugin**: External extension, requires `source` with format `registry:<id>`, `npm:<package>`, or `github:<owner>/<repo>`
+
+All types require:
+- `cc_reputation` (min 20 chars, assessment of provenance and trust basis)
+- `researched_at` (ISO date, timestamp of manual review)
+
+### Runtime Dependency Validation
+Each entry requires:
+- `path`: Relative path to dependency file from `content/`
+- `manager`: Package manager (npm, pip, cargo, go, bundler, shell)
+- `packages`: Array of dependency names
+- `evaluation` (min 20 chars, assessment of what the dependency does)
+- `researched_at` (ISO date, timestamp of evaluation)
+
 ### Path Constraints
-All path fields (`production_proof`, `audit_report`, `entry_point`) must:
+All path fields (`audit_report`, `entry_point`) must:
 - Start with `./` (relative path, inside skillset directory)
 - Prevent path traversal (enforced by build scripts, not schema regex)
 

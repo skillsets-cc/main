@@ -16,6 +16,8 @@ function makeResults(overrides: Partial<AuditResults> = {}): AuditResults {
     readmeLinks: { status: 'PASS', details: 'ok' },
     mcpServers: { status: 'PASS', details: 'ok' },
     runtimeDeps: { status: 'PASS', details: 'ok' },
+    installNotes: { status: 'PASS', details: 'ok' },
+    ccExtensions: { status: 'PASS', details: 'ok' },
     isUpdate: false,
     files: [],
     largeFiles: [],

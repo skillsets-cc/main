@@ -53,7 +53,7 @@ This scaffolds the submission structure, auto-detects existing skillset and supp
 Claude helps you populate the submission files:
 
 - **`skillset.yaml`** — version, `compatibility.requirements` (support stack prereqs like docker, node >= 20, etc.), `compatibility.languages`
-- **`PROOF.md`** — production evidence (at minimum a link to a live product built with the skillset)
+- **`content/INSTALL_NOTES.md`** — install-time notes (what the skillset does, what it changes, under 4000 chars)
 - **`content/README.md`** — user-facing documentation: what the skillset does, what's included, how to use it
 - **`content/QUICKSTART.md`** — post-install customization guide that `/install` guides the end user through
 - **`Generalization`** — replace project-specific details in CLAUDE.md and other primitives with placeholder blanks while preserving structure and logic
@@ -108,15 +108,13 @@ Note: Use `%40` for the `@` symbol in the username.
 
 The tier 1 audit (`npx skillsets audit`) will flag relative links that should use this format.
 
-## Production Proof
+## Install Notes
 
-Your `PROOF.md` must demonstrate real-world usage with any combination of the following:
-
-- Link to live deployed application or public repository
-- Metrics (test coverage, deployments, code shipped)
-- Links to videos, writeups, or case studies (external links, not embedded)
-
-See [@supercollectible/Valence/PROOF.md](./skillsets/@supercollectible/Valence/PROOF.md) for an example.
+Your `content/INSTALL_NOTES.md` should help users understand what they're getting before install:
+- What the skillset does and what it changes about their workflow
+- References to full documentation
+- Keep under 4000 characters
+- The dependency section is populated automatically by the audit skill
 
 ## Updating a Skillset
 

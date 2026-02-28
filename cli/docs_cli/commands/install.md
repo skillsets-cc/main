@@ -27,7 +27,7 @@
 
 ## Data Flow
 ```
-install(id) → detectConflicts() → backupFiles() → fetchMetadata() → MCP warning (pre-check) → Runtime deps warning (pre-check) → degit.clone(tempDir) → MCP warning (post-check if metadata failed) → verifyChecksums(tempDir) → copy to cwd
+install(id) → validateId → detectConflicts() → [backupFiles()] → fetchMetadata() → [MCP warning + consent] → [deps warning + consent] → degit.clone(tempDir) → verifyChecksums(tempDir) → cp to cwd → trackDownload
 ```
 
 ## Integration Points
@@ -43,10 +43,7 @@ install(id) → detectConflicts() → backupFiles() → fetchMetadata() → MCP 
   - `--accept-mcp` bypasses prompt (required for non-interactive/CI environments)
   - `--force` and `--backup` do NOT bypass MCP prompt (they handle file conflicts only)
   - Non-TTY without `--accept-mcp`: exits with error
-- **Post-check fallback**: If metadata fetch fails, downloads to temp directory first, then checks for `.mcp.json` or `.claude/settings.json`
-  - If MCP indicators found: displays generic warning (metadata unavailable), prompts user
-  - Cleanup temp directory if user rejects
-  - Continues to checksum verification if accepted
+  - If metadata fetch fails, silently skips MCP warning (no fallback post-check)
 
 **Runtime Dependencies Warning Flow**:
 - **Pre-check**: Fetches metadata to check for `runtime_dependencies`

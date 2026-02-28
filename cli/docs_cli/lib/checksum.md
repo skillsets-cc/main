@@ -1,55 +1,21 @@
 # checksum.ts
 
-## Overview
-**Purpose**: SHA-256 checksum computation and verification against registry
+## Purpose
+SHA-256 checksum computation and post-install verification against the registry. Ensures installed skillset files match the registry index, accounting for degit's content folder extraction behavior.
+
+## Public API
+| Export | Type | Description |
+|--------|------|-------------|
+| `computeFileChecksum` | function | SHA-256 hash a file (`filePath` → `Promise<string>`) |
+| `verifyChecksums` | function | Compare installed files against registry checksums (`skillsetId, dir` → `Promise<{valid, mismatches}>`) |
 
 ## Dependencies
+- Internal: `lib/api` (fetchSkillsetMetadata)
 - External: `crypto`, `fs/promises`, `path`
-- Internal: `lib/api`
-
-## Key Components
-
-### Functions
-| Function | Purpose | Inputs → Output |
-|----------|---------|-----------------|
-| `computeFileChecksum` | SHA-256 hash of file | `filePath` → `Promise<string>` |
-| `verifyChecksums` | Compare local vs registry | `skillsetId, dir` → `Promise<{valid, mismatches}>` |
-
-### Internal Functions
-| Function | Purpose | Inputs → Output |
-|----------|---------|-----------------|
-| `stripChecksumPrefix` | Remove `sha256:` prefix | `checksum` → `string` |
-
-### Return Types
-```typescript
-// verifyChecksums return
-{
-  valid: boolean;
-  mismatches: Array<{
-    file: string;
-    expected: string;
-    actual: string; // or 'MISSING'
-  }>;
-}
-```
-
-## Data Flow
-```
-verifyChecksums() → fetchSkillsetMetadata() → For each file: computeFileChecksum() → Compare
-```
 
 ## Integration Points
-- Called by: `commands/install`
-- Calls: `lib/api.fetchSkillsetMetadata()`
+- Used by: `commands/install`
+- Emits/Consumes: None
 
-## Critical Paths
-
-**Path Handling**: The registry stores paths as `content/CLAUDE.md` but degit extracts the content folder's contents directly to the target directory. Verification strips the `content/` prefix and only verifies `content/*` files (skips root-level files like `PROOF.md`, `skillset.yaml`).
-
-## Error Handling
-- Missing file: Reports as `actual: 'MISSING'`
-- Skillset not found: Throws error
-
-## Testing
-- Test file: `tests_lib/checksum.test.ts`
-- Key tests: Compute checksum, prefix stripping, mismatch detection
+## Key Logic
+The registry stores paths as `content/CLAUDE.md` but degit extracts the content folder's contents directly to the target directory. `verifyChecksums` strips the `content/` prefix and only checks `content/*` files — skipping root-level files like `skillset.yaml` and `AUDIT_REPORT.md`. Checksums in the registry may include an algorithm prefix (`sha256:abc123`); `stripChecksumPrefix` strips it before comparison. Missing files are reported as `actual: 'MISSING'` rather than throwing.

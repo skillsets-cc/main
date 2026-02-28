@@ -8,7 +8,7 @@ allowed-tools: Bash(npx skillsets@latest *), Skill, Read, Glob, Grep, Edit
 
 A *skillset* is an interoperable set of Claude Code primitives (skills, agents, hooks, MCP) covering multi-phase development processes across context windows.
 
-You are an expert setup wizard working on behalf of skillsets.cc. Your job is to assist the user with preparation tasks — populating their manifest, writing proof and documentation, and ensuring their content is complete for submission. You do not review or gate — both audit passes handle validation.
+You are an expert setup wizard working on behalf of skillsets.cc. Your job is to assist the user with preparation tasks — populating their manifest, writing documentation, and ensuring their content is complete for submission. You do not review or gate — both audit passes handle validation.
 
 Guide the user through submitting a skillset to the skillsets.cc registry. All CLI commands are run by Claude directly — interactive prompts (including `gh` CLI authentication) pass through to the user.
 
@@ -28,7 +28,7 @@ Create ALL tasks and subtasks upfront using `TaskCreate`. Pass the **subject**, 
 
 - **subject**: Prepare skillset content with user
 - **activeForm**: Preparing content
-- **description**: Help the user populate submission files. Qualitative review is handled by `/audit-skill` later. Assist with: (1) `skillset.yaml` — version number, `compatibility.requirements` (system-level prereqs like docker, node >= 20), and `compatibility.languages`. (2) `PROOF.md` — at minimum a link to a live product built with the skillset (this is the product the audit verifies later). Can also include links to the public repo, writeups, case studies, or metrics. (3) `content/README.md` — user-facing documentation: what the skillset does, what's included, how to use it. (4) `content/QUICKSTART.md` — post-install customization guide covering every installed primitive. (5) Offer to generalize project-specific content in CLAUDE.md, style guides, and other primitives — replace project-specific details with placeholder blanks while preserving the structure, resolution order, and logic. This is not required; the install flow already helps end users personalize, so contributors can leave their project specifics if they prefer.
+- **description**: Help the user populate submission files. Qualitative review is handled by `/audit-skill` later. Assist with: (1) `skillset.yaml` — version number, `compatibility.requirements` (system-level prereqs like docker, node >= 20), and `compatibility.languages`. (2) `content/INSTALL_NOTES.md` — install-time notes: what the skillset does, what it changes about the user's workflow, references to full documentation. Keep under 4000 chars. The dependency section will be populated automatically by /audit-skill in Task 4. (3) `content/README.md` — user-facing documentation: what the skillset does, what's included, how to use it. (4) `content/QUICKSTART.md` — post-install customization guide covering every installed primitive. (5) Offer to generalize project-specific content in CLAUDE.md, style guides, and other primitives — replace project-specific details with placeholder blanks while preserving the structure, resolution order, and logic. This is not required; the install flow already helps end users personalize, so contributors can leave their project specifics if they prefer.
 
 ### Task 3: Run structural audit
 
@@ -40,13 +40,13 @@ Create ALL tasks and subtasks upfront using `TaskCreate`. Pass the **subject**, 
 
 - **subject**: Run /audit-skill qualitative review
 - **activeForm**: Running qualitative review
-- **description**: Run `/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]` via the Skill tool. The `/audit-skill` is a project-level skill installed by `npx skillsets init` in Task 1. It evaluates primitive quality, researches MCP server reputation, scans for safety issues, runtime dependencies, and verifies workflow artifacts in the reference repo. It appends findings to `AUDIT_REPORT.md` and `skillset.yaml`. Ask the user for the path to their reference repo before invoking. Iterate on feedback until the verdict is APPROVED.
+- **description**: Run `/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]` via the Skill tool. The `/audit-skill` is a project-level skill installed by `npx skillsets init` in Task 1. It evaluates primitive quality, researches MCP server reputation, scans for safety issues, runtime dependencies, and verifies workflow artifacts in the reference repo. It appends findings to `AUDIT_REPORT.md` and `skillset.yaml`. The audit-skill also populates the dependency section of `content/INSTALL_NOTES.md` with researched reputation data. Ask the user for the path to their reference repo before invoking. Iterate on feedback until the verdict is APPROVED.
 
 ### Task 5: Submit to registry
 
 - **subject**: Submit skillset to registry
 - **activeForm**: Submitting skillset
-- **description**: Run `npx skillsets@latest submit`. It will validate the version (must be higher than existing for updates), fork the registry repo, create a branch named `submit/{author}/{name}`, copy the submission, and open a PR. Interactive prompts (including `gh` auth) pass through to the user. After submission, CI runs `npx skillsets audit --check` to re-validate, and a maintainer reviews the production proof.
+- **description**: Run `npx skillsets@latest submit`. It will validate the version (must be higher than existing for updates), fork the registry repo, create a branch named `submit/{author}/{name}`, copy the submission, and open a PR. Interactive prompts (including `gh` auth) pass through to the user. After submission, CI runs `npx skillsets audit --check` to re-validate, and a maintainer reviews production evidence and audit report.
 
 ---
 

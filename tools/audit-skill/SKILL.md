@@ -41,10 +41,11 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 | 1 | Validate tier 1 report and load criteria | Validating tier 1 report |
 | 2 | Discover and populate MCP servers | Discovering MCP servers |
 | 3 | Discover and populate runtime dependencies | Discovering runtime dependencies |
-| 4 | Evaluate primitives against criteria | Evaluating primitives |
-| 5 | Run safety scan | Scanning for safety issues |
-| 6 | Verify workflow artifacts in reference repo | Verifying workflow artifacts |
-| 7 | Append qualitative review to AUDIT_REPORT.md | Writing qualitative review |
+| 4 | Discover and populate CC extensions | Discovering CC extensions |
+| 5 | Evaluate primitives against criteria | Evaluating primitives |
+| 6 | Run safety scan | Scanning for safety issues |
+| 7 | Verify workflow artifacts in reference repo | Verifying workflow artifacts |
+| 8 | Append qualitative review and populate INSTALL_NOTES.md | Writing qualitative review |
 
 ## Process
 
@@ -56,6 +57,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 2. Read [CRITERIA.md](CRITERIA.md) for evaluation rubric
 3. Read `content/README.md` to extract claimed workflow
 4. Read `content/QUICKSTART.md` to understand the post-install customization guide
+5. Read `content/INSTALL_NOTES.md` to understand current install notes state
 
 ### Phase 2: Discover and Populate MCP Servers
 
@@ -131,9 +133,38 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
    **Evaluation field**: Free-text assessment of what the dependency does — installs, configures, modifies, runs. Include reputation data where available (npm downloads, maintainer, last publish). For shell scripts, describe what the script does. For config files, describe what they configure.
 
-### Phase 4: Evaluate Primitives Against Criteria
+### Phase 4: Discover and Populate CC Extensions
 
-6. Evaluate `content/` against criteria:
+6. **Discover and populate CC extensions**:
+   - Read `content/` files — SKILL.md files, agent definitions, CLAUDE.md, README.md — and identify references to external Claude Code skills and plugins through contextual understanding
+   - For each discovered external extension, classify as `native` (ships with Claude Code) or `plugin` (external)
+   - For plugin-type extensions: determine install source using the locked format (`registry:<id>`, `npm:<package>`, `github:<owner>/<repo>`)
+   - Research reputation: WebSearch for plugin source, verify native skills exist in current CC version
+   - If extensions found and `skillset.yaml` lacks `cc_extensions`: write `cc_extensions` array to `skillset.yaml`
+   - If `cc_extensions` already exists in manifest: verify entries match content, update if stale
+   - If no external extensions found, mark this phase completed and move on
+
+   **CRITICAL — Schema for `cc_extensions` entries:**
+
+   CI validates the structured `cc_extensions[]` array in `skillset.yaml`. Use the exact structure below — extra fields cause `unevaluatedProperties` failures.
+
+   ```yaml
+   cc_extensions:
+     - name: "security-review"           # extension name as invoked
+       type: "native"                    # native = ships with Claude Code
+       cc_reputation: "Built-in Claude Code skill for automated security auditing. Available by default in all CC installations."
+       researched_at: "2026-02-20"       # ISO date of evaluation
+
+     - name: "code-simplifier"           # extension name as invoked
+       type: "plugin"                    # plugin = external, needs install
+       source: "registry:code-simplifier" # registry:<id>, npm:<pkg>, or github:<owner>/<repo>
+       cc_reputation: "Skillsets.cc registry plugin maintained by @supercollectible. Used for post-implementation cleanup and code simplification."
+       researched_at: "2026-02-20"
+   ```
+
+### Phase 5: Evaluate Primitives Against Criteria
+
+7. Evaluate `content/` against criteria:
    - Skills (`content/.claude/skills/*/SKILL.md`)
    - Agents (`content/.claude/agents/*.md`)
    - Hooks (`content/.claude/settings.json`)
@@ -142,21 +173,61 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
    **Note**: A skillset is an interoperable set of primitives (skills, agents, hooks, MCP) covering multi-phase processes across context windows. Not all skillsets use all primitive types — evaluate what's present.
 
-### Phase 5: Run Safety Scan
+### Phase 6: Run Safety Scan
 
-7. **Safety scan**: Check all present primitives for prompt injection or malicious instructions
+8. **Safety scan**: Check all present primitives for prompt injection or malicious instructions
    - If `external-agents.json` with `mcpServers` exists: verify `toolAllowlist` is present for filesystem servers and excludes write tools
    - If `.claude/**/package.json` files exist: verify dependencies are reputable (same web lookup as MCP packages)
 
-### Phase 6: Verify Workflow Artifacts in Reference Repo
+### Phase 7: Verify Workflow Artifacts in Reference Repo
 
 **In reference repo** (user-provided path):
 
-8. Search for workflow artifacts matching the claimed workflow, e.g.: design and execution docs, analysis reports, etc. evaluate the relationship between these docs and the implemented code, as evidence for the claimed workflow.
+9. Search for workflow artifacts matching the claimed workflow, e.g.: design and execution docs, analysis reports, etc. evaluate the relationship between these docs and the implemented code, as evidence for the claimed workflow.
 
-### Phase 7: Append Qualitative Review to AUDIT_REPORT.md
+### Phase 8: Append Qualitative Review and Populate INSTALL_NOTES.md
 
-9. Append findings to `AUDIT_REPORT.md`
+10. Append findings to `AUDIT_REPORT.md`
+
+11. **Populate INSTALL_NOTES.md dependency section**: Write the `## Dependencies` section of `content/INSTALL_NOTES.md` with three subsections:
+
+    - **MCP Servers** — structured markdown table + prose reputation summary
+    - **Runtime Dependencies** — structured markdown table + prose reputation summary
+    - **Claude Code Extensions** — structured markdown table + prose reputation summary
+
+    All reputation data comes from the WebSearch/WebFetch research done in earlier phases. If `INSTALL_NOTES.md` already has a `## Dependencies` section (from a previous audit run), replace it. Preserve everything above the `## Dependencies` heading (author's prose).
+
+    Example dependency section format:
+    ```markdown
+    ## Dependencies
+
+    ### MCP Servers
+
+    | Server | Type | Command | Reputation |
+    |--------|------|---------|------------|
+    | context7 | stdio | `npx -y @upstash/context7-mcp` | npm: @upstash/context7-mcp, 50k weekly downloads |
+
+    Context7 provides live documentation lookup via MCP. The package is published by Upstash, a well-known serverless data provider. 50k weekly npm downloads, actively maintained.
+
+    ### Runtime Dependencies
+
+    | Path | Manager | Packages | Install Scripts |
+    |------|---------|----------|-----------------|
+    | ext-agents/package.json | npm | hono, @mcp/sdk, zod | Yes (tsc) |
+
+    The ext-agents stack uses Hono for HTTP routing and the official MCP SDK. All packages are well-maintained with >100k weekly downloads.
+
+    ### Claude Code Extensions
+
+    | Extension | Type | Source | Status |
+    |-----------|------|--------|--------|
+    | security-review | native | Claude Code built-in | Available by default |
+    | code-simplifier | plugin | skillsets.cc registry | Install separately |
+
+    This skillset uses the native /security-review skill for automated security audits. The code-simplifier plugin is available from the skillsets.cc registry.
+    ```
+
+    If a subsection has no entries, omit it entirely.
 
 **Important**: If phase 2 modified `skillset.yaml`, note this in the qualitative review. CI will re-run `npx skillsets audit --check` to validate the final state.
 
@@ -201,7 +272,7 @@ Append this section to `AUDIT_REPORT.md`:
 
 **[APPROVED / NEEDS REVISION]**
 
-[If revision needed: prioritized list of required fixes]
+[If revision needed: prioritized list of required fixes, including any issues with INSTALL_NOTES.md quality or completeness]
 ```
 
 ## Acceptance Criteria

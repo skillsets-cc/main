@@ -84,7 +84,7 @@ view → api.ts → fetchSkillsetMetadata → GitHub raw content → Print to te
 install → Fetch metadata → MCP warning (if any) → Runtime deps warning (if any) → degit → Extract content/ → checksum.ts → Verify → Track download
 
 Contributor Flow:
-init → Interactive prompts → Generate scaffold (skillset.yaml, README.md, QUICKSTART.md, PROOF.md) → Install audit-skill
+init → Interactive prompts → Generate scaffold (skillset.yaml, README.md, QUICKSTART.md, INSTALL_NOTES.md) → Install audit-skill
 audit → Validate manifest + files → MCP validation → Runtime deps validation → Check registry (update detection) → audit-report.ts → Generate AUDIT_REPORT.md
 submit → Check registry (update detection) → Validate version bump → gh CLI → Fork → Branch → PR
 ```

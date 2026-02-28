@@ -19,6 +19,8 @@ export interface AuditResults {
   readmeLinks: AuditResult;
   mcpServers: AuditResult;
   runtimeDeps: AuditResult;
+  installNotes: AuditResult;
+  ccExtensions: AuditResult;
   skillsetName?: string;
   skillsetVersion?: string;
   authorHandle?: string;
@@ -46,7 +48,9 @@ export function isAuditPassing(results: AuditResults, enforceMcp: boolean): bool
     results.readmeLinks.status === 'PASS' &&
     results.versionCheck.status === 'PASS' &&
     (enforceMcp ? results.mcpServers.status === 'PASS' : true) &&
-    (enforceMcp ? results.runtimeDeps.status === 'PASS' : true);
+    (enforceMcp ? results.runtimeDeps.status === 'PASS' : true) &&
+    results.installNotes.status === 'PASS' &&
+    (enforceMcp ? results.ccExtensions.status === 'PASS' : true);
 }
 
 function statusIcon(status: AuditStatus): string {
@@ -66,6 +70,7 @@ export function hasWarnings(results: AuditResults): boolean {
     results.manifest, results.requiredFiles, results.contentStructure,
     results.fileSize, results.binary, results.secrets, results.readmeLinks,
     results.versionCheck, results.mcpServers, results.runtimeDeps,
+    results.installNotes, results.ccExtensions,
   ];
   return checks.some(c => c.status === 'WARNING');
 }
@@ -102,6 +107,8 @@ export function generateReport(results: AuditResults, enforceMcp: boolean = fals
 | Version Check | ${statusIcon(results.versionCheck.status)} | ${results.versionCheck.details} |
 | MCP Servers | ${statusIcon(results.mcpServers.status)} | ${results.mcpServers.details} |
 | Runtime Dependencies | ${statusIcon(results.runtimeDeps.status)} | ${results.runtimeDeps.details} |
+| Install Notes | ${statusIcon(results.installNotes.status)} | ${results.installNotes.details} |
+| CC Extensions | ${statusIcon(results.ccExtensions.status)} | ${results.ccExtensions.details} |
 
 ---
 
@@ -154,6 +161,14 @@ ${results.mcpServers.findings || 'MCP server declarations are consistent between
 
 ${results.runtimeDeps.findings || 'Runtime dependency declarations are consistent between content and manifest.'}
 
+### 10. Install Notes
+
+${results.installNotes.findings || 'Install notes present and valid.'}
+
+### 11. CC Extensions
+
+${results.ccExtensions.findings || 'CC extension declarations are consistent with manifest.'}
+
 ---
 
 ## File Inventory
@@ -185,7 +200,7 @@ ${!allPassed
 2. Confirm or resolve each warning
 3. Run: \`npx skillsets submit\``
       : `1. Review this audit report
-2. Ensure PROOF.md has adequate production evidence
+2. Review production evidence and audit findings
 3. Run: \`npx skillsets submit\``}
 
 ---

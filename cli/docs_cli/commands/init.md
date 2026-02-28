@@ -5,7 +5,7 @@ Interactive scaffold for new skillset submission with ghost entry reservation lo
 
 ## Dependencies
 - **External**: `chalk`, `ora`, `@inquirer/prompts`, `fs`, `path`, `degit`, `child_process`
-- **Internal**: None
+- **Internal**: `lib/constants.ts` (`CDN_BASE_URL`)
 
 ## Key Components
 
@@ -22,7 +22,7 @@ Interactive scaffold for new skillset submission with ghost entry reservation lo
 | `SKILLSET_YAML_TEMPLATE` | `skillset.yaml` (with auto-populated batch_id) |
 | `README_TEMPLATE` | `content/README.md` |
 | `QUICKSTART_TEMPLATE` | `content/QUICKSTART.md` |
-| `PROOF_TEMPLATE` | `PROOF.md` |
+| `INSTALL_NOTES_TEMPLATE` | `content/INSTALL_NOTES.md` |
 
 ### Prompts
 | Field | Validation |
@@ -57,7 +57,6 @@ init() → Verify gh CLI auth → Get GitHub user ID → Look up reservation →
 ```
 ./
 ├── skillset.yaml           # Manifest with auto-populated batch_id
-├── PROOF.md                # Production evidence template
 ├── .claude/skills/
 │   └── audit-skill/        # Installed via degit from registry
 │       ├── SKILL.md        # Opus qualitative review instructions
@@ -65,6 +64,7 @@ init() → Verify gh CLI auth → Get GitHub user ID → Look up reservation →
 └── content/                # Installable files
     ├── README.md           # Generated if not detected
     ├── QUICKSTART.md       # Generated if not detected
+    ├── INSTALL_NOTES.md    # Pre-install notes template
     └── (copied .claude/, CLAUDE.md, .mcp.json, support stacks, etc.)
 ```
 
@@ -73,7 +73,7 @@ init() → Verify gh CLI auth → Get GitHub user ID → Look up reservation →
 ### Auto-Detection
 Detects two categories of content:
 
-**Core files**: `CLAUDE.md`, `README.md`, `QUICKSTART.md`, `.claude/`, `.mcp.json`
+**Core files**: `CLAUDE.md`, `README.md`, `QUICKSTART.md`, `INSTALL_NOTES.md`, `.claude/`, `.mcp.json`
 
 **Support stacks**: Any top-level directory containing a marker file:
 - Dependency manifests: `package.json`, `requirements.txt`, `pyproject.toml`, `Cargo.toml`, `go.mod`, `Gemfile`

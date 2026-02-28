@@ -89,11 +89,6 @@
           "maxItems": 5,
           "description": "URLs to live deployments, repositories, or case studies (1-5)"
         },
-        "production_proof": {
-          "type": "string",
-          "pattern": "^\\./.+",
-          "description": "Path to PROOF.md file (optional)"
-        },
         "audit_report": {
           "type": "string",
           "pattern": "^\\./.+",
@@ -193,6 +188,46 @@
           }
         },
         "unevaluatedProperties": false
+      }
+    },
+    "cc_extensions": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "cc_reputation", "researched_at"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Extension name as invoked (e.g., 'security-review', 'code-simplifier')"
+          },
+          "type": {
+            "enum": ["native", "plugin"],
+            "description": "native = ships with Claude Code, plugin = external"
+          },
+          "source": {
+            "type": "string",
+            "pattern": "^(registry:|npm:|github:).+",
+            "description": "Install source for plugins. Format: 'registry:<id>' for skillsets.cc plugins, 'npm:<package>' for npm packages, 'github:<owner>/<repo>' for GitHub repos. Required for type: plugin."
+          },
+          "cc_reputation": {
+            "type": "string",
+            "minLength": 20,
+            "description": "Assessment of the extension: provenance, maintenance, trust basis."
+          },
+          "researched_at": {
+            "type": "string",
+            "format": "date",
+            "description": "ISO date when evaluation was performed"
+          }
+        },
+        "unevaluatedProperties": false,
+        "allOf": [
+          {
+            "if": { "properties": { "type": { "const": "plugin" } }, "required": ["type"] },
+            "then": { "required": ["source"] }
+          }
+        ]
       }
     },
     "mcp_servers": {

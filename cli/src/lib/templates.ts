@@ -14,7 +14,6 @@ author:
 verification:
   production_links:
     - url: "{{PRODUCTION_URL}}"
-  production_proof: "./PROOF.md"
   audit_report: "./AUDIT_REPORT.md"
 
 # Discovery
@@ -95,21 +94,15 @@ your-project/
 [Add links to documentation, examples, or support channels]
 `;
 
-export const PROOF_TEMPLATE = `# Production Proof
+export const INSTALL_NOTES_TEMPLATE = `# {{NAME}}
 
-## Overview
+<!--
+Install notes for pre-install display. Max 4000 characters total.
+What does this skillset do? What should users know before installing?
+The dependency section below is populated by /audit-skill during review.
+-->
 
-This skillset has been verified in production.
+## Dependencies
 
-## Production URL
-
-{{PRODUCTION_URL}}
-
-## Evidence
-
-[Add screenshots, testimonials, or other evidence of production usage]
-
-## Projects Built
-
-[List projects or products built using this skillset]
+<!-- Populated automatically by /audit-skill -->
 `;

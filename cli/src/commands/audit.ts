@@ -208,6 +208,53 @@ function qualitativeCheck(
   };
 }
 
+function validateCcExtensions(cwd: string): { valid: boolean; errors: string[] } {
+  const manifestPath = join(cwd, 'skillset.yaml');
+  if (!existsSync(manifestPath)) return { valid: true, errors: [] };
+
+  try {
+    const content = readFileSync(manifestPath, 'utf-8');
+    const data = yaml.load(content) as Record<string, any>;
+
+    if (!data.cc_extensions || !Array.isArray(data.cc_extensions)) {
+      return { valid: true, errors: [] };
+    }
+
+    const errors: string[] = [];
+    const names = new Set<string>();
+
+    for (const ext of data.cc_extensions) {
+      if (!ext.name) {
+        errors.push('CC extension missing required field: name');
+        continue;
+      }
+      if (!ext.type || !['native', 'plugin'].includes(ext.type)) {
+        errors.push(`CC extension '${ext.name}': type must be 'native' or 'plugin'`);
+      }
+      if (!ext.cc_reputation || ext.cc_reputation.length < 20) {
+        errors.push(`CC extension '${ext.name}': cc_reputation required (min 20 chars)`);
+      }
+      if (!ext.researched_at) {
+        errors.push(`CC extension '${ext.name}': researched_at required (ISO date)`);
+      }
+      if (ext.type === 'plugin' && !ext.source) {
+        errors.push(`CC extension '${ext.name}': source required for plugin type`);
+      }
+      if (ext.source && !/^(registry:|npm:|github:).+/.test(ext.source)) {
+        errors.push(`CC extension '${ext.name}': source must start with registry:, npm:, or github:`);
+      }
+      if (names.has(ext.name)) {
+        errors.push(`CC extension '${ext.name}': duplicate name`);
+      }
+      names.add(ext.name);
+    }
+
+    return { valid: errors.length === 0, errors };
+  } catch {
+    return { valid: true, errors: [] };
+  }
+}
+
 interface AuditOptions {
   check?: boolean;
 }
@@ -227,6 +274,8 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     readmeLinks: { status: 'PASS', details: '' },
     mcpServers: { status: 'PASS', details: '' },
     runtimeDeps: { status: 'PASS', details: '' },
+    installNotes: { status: 'PASS', details: '' },
+    ccExtensions: { status: 'PASS', details: '' },
     isUpdate: false,
     files: [],
     largeFiles: [],
@@ -256,6 +305,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   const hasContent = existsSync(join(cwd, 'content'));
   const hasReadme = existsSync(join(cwd, 'content', 'README.md'));
   const hasQuickstart = existsSync(join(cwd, 'content', 'QUICKSTART.md'));
+  const hasInstallNotes = existsSync(join(cwd, 'content', 'INSTALL_NOTES.md'));
   const hasSkillsetYaml = existsSync(join(cwd, 'skillset.yaml'));
 
   const missingFiles: string[] = [];
@@ -263,6 +313,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   if (!hasContent) missingFiles.push('content/');
   if (!hasReadme) missingFiles.push('content/README.md');
   if (!hasQuickstart) missingFiles.push('content/QUICKSTART.md');
+  if (!hasInstallNotes) missingFiles.push('content/INSTALL_NOTES.md');
 
   if (missingFiles.length === 0) {
     results.requiredFiles = { status: 'PASS', details: 'All present' };
@@ -272,6 +323,30 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
       details: `Missing: ${missingFiles.join(', ')}`,
       findings: missingFiles.map(f => `- Missing: ${f}`).join('\n'),
     };
+  }
+
+  // 2b. Install notes validation
+  spinner.text = 'Validating install notes...';
+  if (hasInstallNotes) {
+    const installNotesContent = readFileSync(join(cwd, 'content', 'INSTALL_NOTES.md'), 'utf-8');
+
+    if (installNotesContent.length > 4000) {
+      results.installNotes = {
+        status: 'FAIL',
+        details: `Exceeds 4000 character limit (${installNotesContent.length} chars)`,
+        findings: 'INSTALL_NOTES.md must be under 4000 characters for pre-install display.',
+      };
+    } else if (options.check && installNotesContent.includes('<!-- Populated automatically by /audit-skill -->')) {
+      results.installNotes = {
+        status: 'FAIL',
+        details: 'Placeholder content detected',
+        findings: 'INSTALL_NOTES.md still contains placeholder content. The /audit-skill must populate the dependency section before submission.',
+      };
+    } else {
+      results.installNotes = { status: 'PASS', details: 'Valid' };
+    }
+  } else {
+    results.installNotes = { status: 'FAIL', details: 'Missing' };
   }
 
   // 3. Content structure
@@ -401,6 +476,11 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   const depsResult = validateRuntimeDeps(cwd);
   results.runtimeDeps = qualitativeCheck(depsResult, !!options.check, 'dependency', 'Runtime dependencies');
 
+  // 11. CC extensions validation
+  spinner.text = 'Validating CC extensions...';
+  const ccResult = validateCcExtensions(cwd);
+  results.ccExtensions = qualitativeCheck(ccResult, !!options.check, 'CC extension', 'CC extensions');
+
   // Generate report
   spinner.text = 'Generating audit report...';
   const report = generateReport(results, !!options.check);
@@ -424,6 +504,8 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     [results.versionCheck, 'Version'],
     [results.mcpServers, 'MCP Servers'],
     [results.runtimeDeps, 'Runtime Deps'],
+    [results.installNotes, 'Install Notes'],
+    [results.ccExtensions, 'CC Extensions'],
   ];
 
   console.log('\n' + chalk.bold('Audit Summary:'));

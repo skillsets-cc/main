@@ -99,14 +99,38 @@ describe('init command', () => {
     expect(content).toContain('npx skillsets install');
   });
 
-  it('creates PROOF.md', async () => {
+  it('does not create PROOF.md', async () => {
     await init({});
 
-    expect(existsSync(join(testDir, 'PROOF.md'))).toBe(true);
+    expect(existsSync(join(testDir, 'PROOF.md'))).toBe(false);
+  });
 
-    const content = readFileSync(join(testDir, 'PROOF.md'), 'utf-8');
-    expect(content).toContain('Production Proof');
-    expect(content).toContain('https://example.com/project');
+  it('creates content/INSTALL_NOTES.md', async () => {
+    await init({});
+
+    expect(existsSync(join(testDir, 'content', 'INSTALL_NOTES.md'))).toBe(true);
+
+    const content = readFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), 'utf-8');
+    expect(content).toContain('# test-skillset');
+    expect(content).toContain('## Dependencies');
+  });
+
+  it('does not overwrite existing content/INSTALL_NOTES.md', async () => {
+    mkdirSync(join(testDir, 'content'), { recursive: true });
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# My Custom Install Notes');
+
+    await init({});
+
+    const content = readFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), 'utf-8');
+    expect(content).toBe('# My Custom Install Notes');
+  });
+
+  it('skillset.yaml does not contain production_proof', async () => {
+    await init({});
+
+    const content = readFileSync(join(testDir, 'skillset.yaml'), 'utf-8');
+    expect(content).not.toContain('production_proof');
+    expect(content).not.toContain('PROOF.md');
   });
 
   it('creates content directory', async () => {

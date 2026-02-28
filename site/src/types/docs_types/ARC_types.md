@@ -111,7 +111,6 @@ Contains all skillset metadata for search, display, and installation:
 ```typescript
 verification: {
   production_links: Array<{ url: string; label?: string }>;
-  production_proof?: string;        // Optional path to PROOF.md
   audit_report: string;              // Required path to AUDIT_REPORT.md
 }
 ```

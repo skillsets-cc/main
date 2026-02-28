@@ -4,7 +4,6 @@ export type SkillsetStatus = 'active' | 'deprecated' | 'archived';
 
 export interface SkillsetVerification {
   production_links: Array<{ url: string; label?: string }>;
-  production_proof?: string;
   audit_report: string;
 }
 
@@ -33,6 +32,16 @@ export interface McpServer {
   image?: string;
   servers?: McpNestedServer[];
   mcp_reputation: string;
+  researched_at: string;
+}
+
+// CC extension types
+
+export interface CcExtension {
+  name: string;
+  type: 'native' | 'plugin';
+  source?: string;
+  cc_reputation: string;
   researched_at: string;
 }
 
@@ -75,6 +84,7 @@ export interface SearchIndexEntry {
   files: Record<string, string>;
   mcp_servers?: McpServer[];
   runtime_dependencies?: RuntimeDependency[];
+  cc_extensions?: CcExtension[];
 }
 
 export interface StatsResponse {
@@ -91,7 +101,7 @@ export interface Skillset {
   description: string;
   author: {
     handle: string;
-    url: string;
+    url?: string;
   };
   verification: SkillsetVerification;
   tags: string[];
@@ -100,4 +110,5 @@ export interface Skillset {
   entry_point: string;
   mcp_servers?: McpServer[];
   runtime_dependencies?: RuntimeDependency[];
+  cc_extensions?: CcExtension[];
 }

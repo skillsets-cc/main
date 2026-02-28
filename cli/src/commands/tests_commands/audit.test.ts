@@ -48,12 +48,13 @@ status: "active"
 entry_point: "./content/CLAUDE.md"
 `;
 
-  /** Create the minimum valid content structure: content/.claude/, content/CLAUDE.md, content/README.md, content/QUICKSTART.md */
+  /** Create the minimum valid content structure: content/.claude/, content/CLAUDE.md, content/README.md, content/QUICKSTART.md, content/INSTALL_NOTES.md */
   function createValidContent() {
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README.md'), '# Test\n\nDescription');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
     writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart\n\nGet started here.');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test Skillset\n\nThis skillset provides testing capabilities.\n\n## Dependencies\n\nNo external dependencies required.');
   }
 
   function readReport(): string {
@@ -87,6 +88,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -100,6 +102,7 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -123,6 +126,7 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content'));
     writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'other.txt'), 'something');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -136,6 +140,7 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', '.claude', 'settings.json'), '{}');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -149,6 +154,7 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content'));
     writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -481,6 +487,7 @@ version: "not-semver"
       writeFileSync(join(testDir, 'content', 'README.md'), '# Test\n\n[External](https://example.com)\n[Other](./other.md)');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -497,6 +504,7 @@ version: "not-semver"
         '# Test\n\n[Skill](content/.claude/skills/my-skill/SKILL.md)\n[Agent](./content/.claude/agents/my-agent.md)'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -517,6 +525,7 @@ version: "not-semver"
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
       writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -533,6 +542,7 @@ version: "not-semver"
         '# Test\n\n| [One](content/.claude/a.md) | [Two](content/.claude/b.md) |'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -549,6 +559,7 @@ version: "not-semver"
         '# Test\n\nFirst paragraph.\n\n[Link](content/.claude/test.md)\n\nMore text.'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -659,6 +670,137 @@ version: "not-semver"
       await audit();
 
       expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Runtime Deps'));
+    });
+  });
+
+  describe('Install notes validation', () => {
+    it('fails without content/INSTALL_NOTES.md', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
+      writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+      writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('NOT READY');
+      expect(report).toContain('INSTALL_NOTES.md');
+    });
+
+    it('passes with valid INSTALL_NOTES.md', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('Install Notes | ✓ PASS');
+    });
+
+    it('fails when INSTALL_NOTES.md exceeds 4000 chars', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), 'x'.repeat(4001));
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('NOT READY');
+      expect(report).toContain('Exceeds 4000 character limit');
+    });
+
+    it('fails placeholder INSTALL_NOTES.md in --check mode', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'),
+        '# Test\n\n## Dependencies\n\n<!-- Populated automatically by /audit-skill -->');
+
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+      await audit({ check: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      exitSpy.mockRestore();
+    });
+
+    it('passes placeholder INSTALL_NOTES.md in normal mode', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'),
+        '# Test\n\n## Dependencies\n\n<!-- Populated automatically by /audit-skill -->');
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+    });
+
+    it('shows Install Notes in console summary', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+
+      await audit();
+
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Install Notes'));
+    });
+  });
+
+  describe('CC extensions validation', () => {
+    it('passes when no cc_extensions present', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('CC Extensions | ✓ PASS');
+    });
+
+    it('passes with valid cc_extensions', async () => {
+      const yamlWithCc = validSkillsetYaml + `\ncc_extensions:\n  - name: security-review\n    type: native\n    cc_reputation: "Built-in Claude Code skill for automated security review"\n    researched_at: "2026-02-20"\n  - name: code-simplifier\n    type: plugin\n    source: "registry:code-simplifier"\n    cc_reputation: "Skillsets.cc registry plugin for post-implementation cleanup"\n    researched_at: "2026-02-20"\n`;
+      writeFileSync(join(testDir, 'skillset.yaml'), yamlWithCc);
+      createValidContent();
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('CC Extensions | ✓ PASS');
+    });
+
+    it('warns on cc_extensions errors in normal mode', async () => {
+      const yamlWithBadCc = validSkillsetYaml + `\ncc_extensions:\n  - name: bad-ext\n    type: plugin\n    cc_reputation: "short"\n    researched_at: "2026-02-20"\n`;
+      writeFileSync(join(testDir, 'skillset.yaml'), yamlWithBadCc);
+      createValidContent();
+
+      await audit();
+
+      const report = readReport();
+      expect(report).toContain('READY FOR SUBMISSION');
+      expect(report).toContain('CC Extensions | ⚠ WARNING');
+    });
+
+    it('fails on cc_extensions errors in --check mode', async () => {
+      const yamlWithBadCc = validSkillsetYaml + `\ncc_extensions:\n  - name: bad-ext\n    type: plugin\n    cc_reputation: "short"\n    researched_at: "2026-02-20"\n`;
+      writeFileSync(join(testDir, 'skillset.yaml'), yamlWithBadCc);
+      createValidContent();
+
+      const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+      await audit({ check: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(1);
+      exitSpy.mockRestore();
+    });
+
+    it('shows CC Extensions in console summary', async () => {
+      writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
+      createValidContent();
+
+      await audit();
+
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('CC Extensions'));
     });
   });
 });

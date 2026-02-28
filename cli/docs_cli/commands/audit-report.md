@@ -11,6 +11,7 @@ Shared utilities for generating audit reports. Provides types, formatters, and m
 | `AuditResult` | interface | Single check result (status, details, findings) |
 | `AuditResults` | interface | Complete audit results for all checks |
 | `isAuditPassing` | function | Determines if submission is ready (boolean) |
+| `hasWarnings` | function | Returns true if any check has WARNING status |
 | `colorIcon` | function | Returns colored icon for terminal output (✓/⚠/✗) |
 | `generateReport` | function | Generates markdown audit report from results |
 
@@ -26,17 +27,17 @@ Shared utilities for generating audit reports. Provides types, formatters, and m
 
 ## Key Logic
 
-**Report Structure**: 10-section markdown document
+**Report Structure**: 12-section markdown document
 1. Header (timestamp, skillset metadata, submission type)
-2. Validation Summary table (10 checks)
+2. Validation Summary table (12 checks)
 3. Detailed findings for each check
 4. File inventory with sizes
 5. Submission status (ready/not ready)
 6. Next steps (submit or fix issues)
 
 **Pass Criteria** (`isAuditPassing`):
-- Manifest, required files, content structure, secrets, README links, version check must all be `PASS`
-- File size must not be `FAIL` (warnings allowed)
-- MCP servers and runtime deps must be `PASS` only if `enforceMcp` is true
+- Manifest, required files, content structure, README links, version check, installNotes must all be `PASS`
+- File size and secrets must not be `FAIL` (warnings allowed)
+- MCP servers, runtime deps, and CC extensions must be `PASS` only if `enforceMcp` is true
 
 **Update Detection**: Report header shows `New submission` vs `Update (v1.0.0 → v1.1.0)` based on `results.isUpdate`

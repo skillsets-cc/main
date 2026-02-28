@@ -102,7 +102,7 @@ skillsets-cc/
 │       └── {name}/
 │           ├── skillset.yaml     # Manifest
 │           ├── README.md         # Documentation
-│           ├── PROOF.md          # Production evidence
+│           ├── INSTALL_NOTES.md  # Pre-install notes
 │           ├── AUDIT_REPORT.md   # Validation results
 │           └── content/          # Files to install
 │

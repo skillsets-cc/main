@@ -1,50 +1,23 @@
 # api.ts
 
-## Overview
-**Purpose**: Fetch and cache search index and live stats from CDN and API
+## Purpose
+Fetches and caches the search index and live stats from skillsets.cc CDN and API. Provides indexed skillset discovery and star/download merging for CLI display commands.
+
+## Public API
+| Export | Type | Description |
+|--------|------|-------------|
+| `fetchSearchIndex` | function | Get search index with 1-hour in-process cache → `Promise<SearchIndex>` |
+| `fetchSkillsetMetadata` | function | Look up a single skillset by ID → `Promise<SearchIndexEntry \| undefined>` |
+| `fetchStats` | function | Get live star/download counts with 1-minute cache, non-throwing → `Promise<StatsResponse>` |
+| `mergeStats` | function | Overlay live stats onto skillset entries → `SearchIndexEntry[]` |
 
 ## Dependencies
-- External: None (uses native fetch)
 - Internal: `types/index`, `lib/constants`
-
-## Key Components
-
-### Functions
-| Function | Purpose | Inputs → Output |
-|----------|---------|-----------------|
-| `fetchSearchIndex` | Get cached or fresh index | - → `Promise<SearchIndex>` |
-| `fetchSkillsetMetadata` | Find skillset by ID | `skillsetId` → `Promise<SearchIndexEntry \| undefined>` |
-| `fetchStats` | Get live stars/downloads | - → `Promise<StatsResponse>` |
-| `mergeStats` | Merge live stats into skillsets | `skillsets, stats` → `SearchIndexEntry[]` |
-
-### Module State
-| Variable | Type | Purpose |
-|----------|------|---------|
-| `cachedIndex` | `SearchIndex \| null` | Cached index data |
-| `cacheTime` | `number` | Timestamp of cache |
-| `cachedStats` | `StatsResponse \| null` | Cached stats data |
-| `statsCacheTime` | `number` | Timestamp of stats cache |
-
-## Data Flow
-```
-fetchSearchIndex() → Check cache → If stale: fetch CDN → Update cache → Return
-```
+- External: Native `fetch`
 
 ## Integration Points
-- Called by: `commands/list`, `commands/search`, `commands/install`, `commands/audit`, `commands/submit`, `lib/checksum`
-- Calls: CDN endpoint
+- Used by: `commands/list`, `commands/search`, `commands/install`, `commands/audit`, `commands/submit`, `lib/checksum`
+- Emits/Consumes: None
 
-## Configuration
-- `SEARCH_INDEX_URL`: `https://skillsets.cc/search-index.json`
-- `STATS_URL`: `https://skillsets.cc/api/stats/counts`
-- `CACHE_TTL_MS`: 1 hour (3600000ms) for index
-- `STATS_CACHE_TTL_MS`: 1 minute (60000ms) for stats
-
-## Error Handling
-- Index fetch error: Throws with status text
-- Stats fetch error: Returns empty stats (non-blocking)
-- Network error: Index propagates to caller; stats returns empty
-
-## Testing
-- Test file: `tests_lib/api.test.ts`
-- Key tests: Caching behavior, merge logic, error handling
+## Key Logic
+Module-level cache variables (`cachedIndex`, `cachedStats`) persist for the process lifetime. Index fetch errors propagate to the caller; stats fetch errors return an empty `{ stars: {}, downloads: {} }` object so display commands degrade gracefully. `mergeStats` uses the index-stored `stars` as fallback when live stats are unavailable.

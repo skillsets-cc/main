@@ -21,32 +21,43 @@
 |----------|---------|-----------------|
 | `audit` | Run all validation checks | `options?: {check?: boolean}` → `void` |
 | `validateManifest` | Check skillset.yaml schema | `cwd` → `{valid, errors, data}` |
-| `getAllFiles` | Recursive file listing | `dir` → `{path, size}[]` |
-| `isBinaryFile` | Detect binary content | `path` → `boolean` |
+| `validateCcExtensions` | Validate cc_extensions field in manifest | `cwd` → `{valid, errors}` |
+| `qualitativeCheck` | Map validation result to AuditResult (WARNING in normal, FAIL in --check) | `result, isCheck, errorLabel, contentLabel` → `AuditResult` |
+| `getAllFiles` | Recursive file listing | `dir, baseDir?` → `{path, size}[]` |
+| `isBinaryFile` | Detect binary content | `filePath` → `boolean` |
 | `scanForSecrets` | Find leaked credentials | `dir` → `{file, line, pattern}[]` |
-| `scanReadmeLinks` | Check README for relative links | `cwd` → `{line, link}[]` |
-| `generateReport` | Create markdown report | `results` → `string` |
+| `scanReadmeLinks` | Check README for relative links to content/.claude/ | `cwd` → `{line, link}[]` |
 
 ### Validation Checks
 | Check | Status | Criteria |
 |-------|--------|----------|
 | Manifest | PASS/FAIL | Schema compliance |
-| Required Files | PASS/FAIL | skillset.yaml, README.md, QUICKSTART.md, content/ |
-| Content Structure | PASS/FAIL | Has both .claude/ and CLAUDE.md |
+| Required Files | PASS/FAIL | skillset.yaml, content/, README.md, QUICKSTART.md, INSTALL_NOTES.md |
+| Content Structure | PASS/FAIL | Has both content/.claude/ and content/CLAUDE.md |
 | File Size | PASS/WARNING | Files under 1MB |
-| Binary Detection | PASS/WARNING | No binary files |
-| Secret Detection | PASS/FAIL | No API keys/tokens |
+| Binary Detection | PASS/WARNING | No binary files in content/ |
+| Secret Detection | PASS/WARNING | No API keys/tokens detected |
 | README Links | PASS/FAIL | No relative links to content/.claude/ |
 | Version Check | PASS/FAIL | New submission or version > existing |
 | MCP Servers | PASS/WARNING/FAIL | Bidirectional content↔manifest match (WARNING in normal mode, FAIL in `--check` mode) |
 | Runtime Dependencies | PASS/WARNING/FAIL | Bidirectional content↔manifest match (WARNING in normal mode, FAIL in `--check` mode) |
+| Install Notes | PASS/FAIL | INSTALL_NOTES.md ≤4000 chars; no placeholder content in `--check` mode |
+| CC Extensions | PASS/WARNING/FAIL | cc_extensions entries valid (WARNING in normal mode, FAIL in `--check` mode) |
 
 ### Secret Patterns
-High-confidence patterns only (generic `password`/`token`/`secret` matchers removed — the `/audit-skill` handles qualitative secret review):
+Provider API keys and generic credential patterns:
 - AWS Key: `AKIA[0-9A-Z]{16}`
-- GitHub Token: `ghp_[a-zA-Z0-9]{36}`
-- OpenAI Key: `sk-[a-zA-Z0-9]{48}`
+- GitHub Token: `gh[ps]_[a-zA-Z0-9]{36,}`
+- OpenAI Key: `sk-[a-zA-Z0-9]{32,}`
 - Anthropic Key: `sk-ant-[a-zA-Z0-9_-]{20,}`
+- Slack Token: `xox[bpors]-...`
+- Stripe Key: `[sr]k_(live|test)_...`
+- Private Key: PEM headers
+- Connection String: `(mongodb|postgres|mysql|redis)://user:pass@...`
+- Bearer Token: `"Bearer [token]"`
+- Generic Secret Assignment: `(password|secret|token|api_key|apikey) = "value"` (case-insensitive)
+
+Secrets result in WARNING (not FAIL) to allow false positives in example/docs content.
 
 ## Data Flow
 ```
