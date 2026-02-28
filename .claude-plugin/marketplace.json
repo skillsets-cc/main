@@ -25,26 +25,6 @@
         "submission"
       ],
       "category": "development"
-    },
-    {
-      "name": "Valence",
-      "source": "./plugins/@supercollectible/Valence",
-      "description": "Built for agency > automation, Valence is an opinionated path to quality output.",
-      "version": "3.0.16",
-      "author": {
-        "name": "supercollectible",
-        "url": "https://github.com/supercollectible"
-      },
-      "license": "MIT",
-      "keywords": [
-        "teammates",
-        "multi-agent",
-        "spec-driven",
-        "test-driven",
-        "atomic",
-        "first-principles"
-      ],
-      "category": "development"
     }
   ]
 }
