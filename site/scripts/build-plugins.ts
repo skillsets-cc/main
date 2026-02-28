@@ -14,7 +14,7 @@
 
 import {
   readFileSync, writeFileSync, mkdirSync,
-  existsSync, readdirSync, rmSync,
+  existsSync, readdirSync, rmSync, copyFileSync,
 } from 'fs';
 import { join } from 'path';
 import { parse as parseYaml } from 'yaml';
@@ -26,6 +26,41 @@ const STATIC_PLUGIN_DIRS = new Set(['contribute']);
 
 // ── Interfaces ─────────────────────────────────────────────────────
 
+interface McpServer {
+  name: string;
+  type: 'stdio' | 'http' | 'docker';
+  command?: string;
+  args?: string[];
+  url?: string;
+  image?: string;
+  mcp_reputation: string;
+  researched_at: string;
+  servers?: Array<{
+    name: string;
+    command: string;
+    args?: string[];
+    mcp_reputation: string;
+    researched_at: string;
+  }>;
+}
+
+interface RuntimeDep {
+  path: string;
+  manager: string;
+  packages: string[];
+  has_install_scripts?: boolean;
+  evaluation: string;
+  researched_at: string;
+}
+
+interface CcExtension {
+  name: string;
+  type: 'native' | 'plugin';
+  source?: string;
+  cc_reputation: string;
+  researched_at: string;
+}
+
 interface SkillsetYaml {
   name: string;
   version: string;
@@ -35,6 +70,9 @@ interface SkillsetYaml {
     url?: string;
   };
   tags: string[];
+  mcp_servers?: McpServer[];
+  runtime_dependencies?: RuntimeDep[];
+  cc_extensions?: CcExtension[];
 }
 
 interface PluginJson {
@@ -104,6 +142,22 @@ export function generatePluginJson(manifest: SkillsetYaml, id: string): PluginJs
 export function generateInstallSkillMd(manifest: SkillsetYaml, id: string): string {
   const name = manifest.name;
   const description = manifest.description;
+  const hasMcpOrRuntimeDeps = (manifest.mcp_servers?.length ?? 0) > 0
+    || (manifest.runtime_dependencies?.length ?? 0) > 0;
+  const acceptFlags = hasMcpOrRuntimeDeps
+    ? ' --accept-mcp --accept-deps'
+    : '';
+  const pluginDeps = manifest.cc_extensions
+    ?.filter(e => e.type === 'plugin') ?? [];
+
+  let pluginNote = '';
+  if (pluginDeps.length > 0) {
+    const pluginList = pluginDeps
+      .map(p => `  - **${p.name}** (${p.source})`)
+      .join('\n');
+    pluginNote = `\n\nThis skillset also uses external Claude Code plugins that are not bundled:\n${pluginList}\nInstall them separately if not already available.`;
+  }
+
   return `---
 name: install
 description: "Install ${name} — ${description}"
@@ -120,29 +174,23 @@ Install ${name} from the skillsets.cc registry into the current project director
 
 Create ALL tasks upfront using \`TaskCreate\`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark \`in_progress\` before starting, \`completed\` after finishing. Do not begin a task until the prior task is completed.
 
-### Task 1: Show README
+### Task 1: Review install notes and install
 
-- **subject**: Show ${name} README
-- **activeForm**: Showing README
-- **description**: Run \`npx skillsets@latest view ${id}\` to fetch the README. Strip all image markup from the output before displaying — remove markdown images (\`![alt](url)\`) and HTML image tags (\`<img ... />\` or \`<img ...>\`). Also remove any surrounding \`<p>\`, \`<div>\`, or \`<picture>\` wrappers that contained only images and are now empty. Then print: "Welcome to **${name}**. Skillsets are complex — they reshape how your agent thinks, plans, and ships. Read this before you install:" followed by the cleaned README text verbatim. Wait for the user to confirm they want to proceed before moving to Task 2.
+- **subject**: Review install notes and install ${name}
+- **activeForm**: Reviewing install notes
+- **description**: Read \`references/INSTALL_NOTES.md\`. Print: "Before installing **${name}**, review what's included:" followed by the install notes content verbatim.${hasMcpOrRuntimeDeps ? ' Then note: "This skillset declares external dependencies listed above. Proceeding will install them."' : ''}${pluginNote ? ` Then note the external plugin dependencies listed below.` : ''} Ask the user to confirm they want to proceed. If confirmed: run \`npx skillsets@latest install ${id}${acceptFlags}\`. If declined: stop.${pluginNote}
 
-### Task 2: Install skillset
-
-- **subject**: Install ${name} from registry
-- **activeForm**: Installing ${name}
-- **description**: Run \`npx skillsets@latest install ${id}\`. The CLI will interactively prompt for MCP server and runtime dependency consent if the skillset declares any. Ask the user whether to \`--force\` (overwrite) or \`--backup\` (preserve existing files) if they have conflicting files.
-
-### Task 3: Read QUICKSTART.md
+### Task 2: Read QUICKSTART.md
 
 - **subject**: Read QUICKSTART.md
 - **activeForm**: Reading quickstart guide
 - **description**: Read the installed \`QUICKSTART.md\` — every skillset ships one. Identify each section that needs interactive walkthrough with the user. Sections vary by skillset but typically cover project configuration, style guides, agent tuning, templates, and infrastructure setup.
 
-### Task 4: Walk through customization
+### Task 3: Walk through customization
 
 - **subject**: Walk through customization with user
 - **activeForm**: Walking through customization
-- **description**: Walk the user through each QUICKSTART.md section interactively. For each section: explain what needs customizing and why, help the user make decisions for their project, apply the changes, and confirm before moving on. The goal is a customized, working skillset by the end of the conversation — not just extracted files.
+- **description**: First, ask the user whether they want a guided walkthrough or prefer to customize on their own. If they skip, mark this task completed. Otherwise, walk through each QUICKSTART.md section using \`AskUserQuestion\` — explain what needs customizing, present the options, and let the user decide. Only apply changes the user explicitly chooses. Never edit files autonomously — the user drives, you guide.
 
 ---
 
@@ -264,6 +312,16 @@ export function generateSkillsetPlugin(
   const skillDir = join(pluginDir, 'skills', 'install');
   mkdirSync(skillDir, { recursive: true });
   writeFileSync(join(skillDir, 'SKILL.md'), generateInstallSkillMd(manifest, id));
+
+  // Copy INSTALL_NOTES.md to skill references
+  const referencesDir = join(skillDir, 'references');
+  const installNotesSource = join(
+    config.skillsetsDir, id, 'content', 'INSTALL_NOTES.md'
+  );
+  if (existsSync(installNotesSource)) {
+    mkdirSync(referencesDir, { recursive: true });
+    copyFileSync(installNotesSource, join(referencesDir, 'INSTALL_NOTES.md'));
+  }
 
   // Return marketplace entry
   return {

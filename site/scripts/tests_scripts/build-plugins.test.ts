@@ -78,7 +78,7 @@ describe('build-plugins', () => {
   });
 
   describe('generateInstallSkillMd', () => {
-    it('expands placeholders correctly', () => {
+    it('generates 3-task template with install notes reference', () => {
       const manifest = {
         name: 'Valence',
         version: '3.0.0',
@@ -92,6 +92,15 @@ describe('build-plugins', () => {
 
       const result = generateInstallSkillMd(manifest, '@supercollectible/Valence');
 
+      // Check 3-task structure
+      expect(result).toContain('### Task 1: Review install notes and install');
+      expect(result).toContain('### Task 2: Read QUICKSTART.md');
+      expect(result).toContain('### Task 3: Walk through customization');
+      expect(result).not.toContain('### Task 4:');
+
+      // Check references
+      expect(result).toContain('references/INSTALL_NOTES.md');
+
       // Check title
       expect(result).toContain('# Install Valence');
 
@@ -101,12 +110,6 @@ describe('build-plugins', () => {
       // Check CLI command
       expect(result).toContain('npx skillsets@latest install @supercollectible/Valence');
 
-      // Check activeForm
-      expect(result).toContain('**activeForm**: Installing Valence');
-
-      // Check task subject
-      expect(result).toContain('**subject**: Install Valence from registry');
-
       // Verify markdown structure
       expect(result).toContain('## Phase Tracking');
       expect(result).toContain('## Command Reference');
@@ -114,6 +117,171 @@ describe('build-plugins', () => {
 
       // Verify code fences are properly formatted (not escaped)
       expect(result).toMatch(/```\s*npx skillsets@latest install/);
+
+      // No accept flags in install command (flags table in Command Reference always lists them)
+      expect(result).not.toContain('@supercollectible/Valence --accept-mcp');
+      expect(result).not.toContain('@supercollectible/Valence --accept-deps');
+    });
+
+    it('adds accept flags when manifest has MCP servers', () => {
+      const manifest = {
+        name: 'TestSkillset',
+        version: '1.0.0',
+        description: 'Test description.',
+        author: { handle: '@test' },
+        tags: ['test'],
+        mcp_servers: [{
+          name: 'context7',
+          type: 'stdio' as const,
+          command: 'npx',
+          args: ['-y', '@upstash/context7-mcp'],
+          mcp_reputation: 'npm: @upstash/context7-mcp, 50k weekly downloads',
+          researched_at: '2026-02-04',
+        }],
+      };
+
+      const result = generateInstallSkillMd(manifest, '@test/TestSkillset');
+
+      expect(result).toContain('--accept-mcp --accept-deps');
+      expect(result).toContain('declares external dependencies');
+    });
+
+    it('adds accept flags when manifest has runtime dependencies', () => {
+      const manifest = {
+        name: 'TestSkillset',
+        version: '1.0.0',
+        description: 'Test description.',
+        author: { handle: '@test' },
+        tags: ['test'],
+        runtime_dependencies: [{
+          path: 'package.json',
+          manager: 'npm',
+          packages: ['lodash'],
+          evaluation: 'Well-known utility library with millions of downloads',
+          researched_at: '2026-02-04',
+        }],
+      };
+
+      const result = generateInstallSkillMd(manifest, '@test/TestSkillset');
+
+      expect(result).toContain('--accept-mcp --accept-deps');
+    });
+
+    it('includes plugin note when cc_extensions has plugin type', () => {
+      const manifest = {
+        name: 'TestSkillset',
+        version: '1.0.0',
+        description: 'Test description.',
+        author: { handle: '@test' },
+        tags: ['test'],
+        cc_extensions: [{
+          name: 'code-simplifier',
+          type: 'plugin' as const,
+          source: 'registry:code-simplifier',
+          cc_reputation: 'Skillsets.cc registry plugin for cleanup',
+          researched_at: '2026-02-20',
+        }],
+      };
+
+      const result = generateInstallSkillMd(manifest, '@test/TestSkillset');
+
+      expect(result).toContain('code-simplifier');
+      expect(result).toContain('registry:code-simplifier');
+      expect(result).toContain('external Claude Code plugins');
+    });
+
+    it('does not include plugin note when cc_extensions are all native', () => {
+      const manifest = {
+        name: 'TestSkillset',
+        version: '1.0.0',
+        description: 'Test description.',
+        author: { handle: '@test' },
+        tags: ['test'],
+        cc_extensions: [{
+          name: 'security-review',
+          type: 'native' as const,
+          cc_reputation: 'Claude Code built-in skill, available by default',
+          researched_at: '2026-02-20',
+        }],
+      };
+
+      const result = generateInstallSkillMd(manifest, '@test/TestSkillset');
+
+      expect(result).not.toContain('external Claude Code plugins');
+      expect(result).not.toContain('Install them separately');
+    });
+
+    it('produces both accept flags and plugin note when combined', () => {
+      const manifest = {
+        name: 'TestSkillset',
+        version: '1.0.0',
+        description: 'Test description.',
+        author: { handle: '@test' },
+        tags: ['test'],
+        mcp_servers: [{
+          name: 'context7',
+          type: 'stdio' as const,
+          command: 'npx',
+          args: ['-y', '@upstash/context7-mcp'],
+          mcp_reputation: 'npm: @upstash/context7-mcp, 50k weekly downloads',
+          researched_at: '2026-02-04',
+        }],
+        cc_extensions: [{
+          name: 'code-simplifier',
+          type: 'plugin' as const,
+          source: 'registry:code-simplifier',
+          cc_reputation: 'Skillsets.cc registry plugin for cleanup',
+          researched_at: '2026-02-20',
+        }],
+      };
+
+      const result = generateInstallSkillMd(manifest, '@test/TestSkillset');
+
+      expect(result).toContain('--accept-mcp --accept-deps');
+      expect(result).toContain('declares external dependencies');
+      expect(result).toContain('external Claude Code plugins');
+      expect(result).toContain('code-simplifier');
+    });
+
+    it('lists all plugin deps when multiple cc_extensions are plugins', () => {
+      const manifest = {
+        name: 'TestSkillset',
+        version: '1.0.0',
+        description: 'Test description.',
+        author: { handle: '@test' },
+        tags: ['test'],
+        cc_extensions: [
+          {
+            name: 'security-review',
+            type: 'native' as const,
+            cc_reputation: 'Claude Code built-in skill',
+            researched_at: '2026-02-20',
+          },
+          {
+            name: 'code-simplifier',
+            type: 'plugin' as const,
+            source: 'registry:code-simplifier',
+            cc_reputation: 'Skillsets.cc registry plugin for cleanup',
+            researched_at: '2026-02-20',
+          },
+          {
+            name: 'doc-gen',
+            type: 'plugin' as const,
+            source: 'npm:@example/doc-gen',
+            cc_reputation: 'npm package with 10k weekly downloads',
+            researched_at: '2026-02-20',
+          },
+        ],
+      };
+
+      const result = generateInstallSkillMd(manifest, '@test/TestSkillset');
+
+      // Both plugins listed
+      expect(result).toContain('**code-simplifier** (registry:code-simplifier)');
+      expect(result).toContain('**doc-gen** (npm:@example/doc-gen)');
+
+      // Native extension not listed as plugin dep
+      expect(result).not.toContain('**security-review**');
     });
   });
 
@@ -316,6 +484,8 @@ entry_point: "./content/CLAUDE.md"
       const skillContent = readFileSync(skillPath, 'utf-8');
       expect(skillContent).toContain('# Install Example');
       expect(skillContent).toContain('npx skillsets@latest install @test/Example');
+      expect(skillContent).toContain('### Task 1: Review install notes and install');
+      expect(skillContent).toContain('references/INSTALL_NOTES.md');
 
       // Verify marketplace.json
       expect(existsSync(config.marketplaceFile)).toBe(true);
@@ -324,6 +494,97 @@ entry_point: "./content/CLAUDE.md"
       expect(marketplace.plugins).toHaveLength(2);
       expect(marketplace.plugins[0].name).toBe('contribute');
       expect(marketplace.plugins[1].name).toBe('Example');
+    });
+
+    it('copies INSTALL_NOTES.md to skill references', () => {
+      // Set up test skillset with content/INSTALL_NOTES.md
+      const skillsetDir = join(config.skillsetsDir, '@test', 'Example');
+      mkdirSync(join(skillsetDir, 'content'), { recursive: true });
+
+      const manifest = `schema_version: "1.0"
+name: Example
+version: 1.0.0
+description: Example skillset for testing
+author:
+  handle: "@testuser"
+  url: "https://example.com"
+tags:
+  - test
+verification:
+  production_links:
+    - url: "https://example.com/product"
+  audit_report: "./AUDIT_REPORT.md"
+status: active
+entry_point: "./content/CLAUDE.md"
+`;
+
+      writeFileSync(join(skillsetDir, 'skillset.yaml'), manifest);
+      writeFileSync(join(skillsetDir, 'content', 'INSTALL_NOTES.md'), '# Example\n\nInstall notes here.');
+
+      // Set up static contribute plugin
+      const contributePluginDir = join(config.pluginsDir, 'contribute', '.claude-plugin');
+      mkdirSync(contributePluginDir, { recursive: true });
+      writeFileSync(
+        join(contributePluginDir, 'plugin.json'),
+        JSON.stringify({
+          name: 'contribute', description: 'Contribute', version: '1.0.0',
+          author: { name: 'test' }, license: 'MIT', keywords: ['contribute'],
+        })
+      );
+
+      buildPlugins(config);
+
+      // Verify INSTALL_NOTES.md was copied
+      const referencesPath = join(
+        config.pluginsDir, '@test', 'Example', 'skills', 'install', 'references', 'INSTALL_NOTES.md'
+      );
+      expect(existsSync(referencesPath)).toBe(true);
+      const content = readFileSync(referencesPath, 'utf-8');
+      expect(content).toContain('# Example');
+      expect(content).toContain('Install notes here.');
+    });
+
+    it('skips references directory when INSTALL_NOTES.md is missing', () => {
+      // Set up test skillset WITHOUT content/INSTALL_NOTES.md
+      const skillsetDir = join(config.skillsetsDir, '@test', 'Example');
+      mkdirSync(skillsetDir, { recursive: true });
+
+      const manifest = `schema_version: "1.0"
+name: Example
+version: 1.0.0
+description: Example skillset for testing
+author:
+  handle: "@testuser"
+tags:
+  - test
+verification:
+  production_links:
+    - url: "https://example.com/product"
+  audit_report: "./AUDIT_REPORT.md"
+status: active
+entry_point: "./content/CLAUDE.md"
+`;
+
+      writeFileSync(join(skillsetDir, 'skillset.yaml'), manifest);
+
+      // Set up static contribute plugin
+      const contributePluginDir = join(config.pluginsDir, 'contribute', '.claude-plugin');
+      mkdirSync(contributePluginDir, { recursive: true });
+      writeFileSync(
+        join(contributePluginDir, 'plugin.json'),
+        JSON.stringify({
+          name: 'contribute', description: 'Contribute', version: '1.0.0',
+          author: { name: 'test' }, license: 'MIT', keywords: ['contribute'],
+        })
+      );
+
+      buildPlugins(config);
+
+      // Verify references directory was NOT created
+      const referencesPath = join(
+        config.pluginsDir, '@test', 'Example', 'skills', 'install', 'references'
+      );
+      expect(existsSync(referencesPath)).toBe(false);
     });
 
     it('handles errors gracefully and continues processing other skillsets', () => {
