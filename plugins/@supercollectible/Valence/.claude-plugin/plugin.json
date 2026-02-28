@@ -1,0 +1,19 @@
+{
+  "name": "Valence",
+  "description": "Spec-driven Claude Code workflow with adversarial review, QA agents, and orchestrated builds",
+  "version": "3.2.0",
+  "author": {
+    "name": "supercollectible",
+    "url": "https://github.com/supercollectible"
+  },
+  "repository": "https://github.com/skillsets-cc/main",
+  "license": "MIT",
+  "keywords": [
+    "teammates",
+    "multi-agent",
+    "spec-driven",
+    "test-driven",
+    "atomic",
+    "first-principles"
+  ]
+}
