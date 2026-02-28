@@ -1,5 +1,117 @@
 {
   "version": "1.0",
-  "generated_at": "2026-02-28T14:39:55.751Z",
-  "skillsets": []
+  "generated_at": "2026-02-07T14:23:44.145Z",
+  "skillsets": [
+    {
+      "id": "@supercollectible/Valence",
+      "name": "Valence",
+      "description": "Built for agency > automation, Valence is an opinionated path to quality output.",
+      "tags": [
+        "sdlc",
+        "multi-agent",
+        "adversarial-review",
+        "spec-driven",
+        "test-driven",
+        "first-principles"
+      ],
+      "author": {
+        "handle": "@supercollectible",
+        "url": "https://supercollectible.dev"
+      },
+      "stars": 0,
+      "version": "3.0.0",
+      "status": "active",
+      "verification": {
+        "production_links": [
+          {
+            "url": "https://skillsets.cc"
+          },
+          {
+            "url": "https://supercollectible.dev"
+          }
+        ],
+        "production_proof": "./PROOF.md",
+        "audit_report": "./AUDIT_REPORT.md"
+      },
+      "compatibility": {
+        "claude_code_version": ">=1.0.0",
+        "languages": [
+          "any"
+        ]
+      },
+      "entry_point": "./content/CLAUDE.md",
+      "context_image_url": "https://iili.io/fmReA3Q.png",
+      "checksum": "sha256:97212dbd37a4567e4e28456fe90d67e446f4d8432db5ff09f4d0c1c84b98498f",
+      "files": {
+        "AUDIT_REPORT.md": "sha256:2936e598b94acc274b600106a5a500d28e13b2e4c4de6906d9dd1cf9f7d9c924",
+        "PROOF.md": "sha256:5b6aef93b4e6506360e22d9db6135bce8435361e628acdc5289abf302de13dcc",
+        "README.md": "sha256:3152310ad169a34e65438b8932d9043ab804010d5f6bc548c22943f2753ec7f7",
+        "content/.claude/agents/ar-d.md": "sha256:84f34b63e4392b901ad749aaa882e24d251188e36ff36e3523f64e0e4b45e085",
+        "content/.claude/agents/ar-k.md": "sha256:254b555ac94317c8c8c26a6cf0255a9621eb01344ddeee4b8b72c0a2f8044d65",
+        "content/.claude/agents/ar-o.md": "sha256:a70aa95e8f0d7ab4e957c0e2f5e36632ffbd57ee874cf278adcd85466919620a",
+        "content/.claude/agents/build.md": "sha256:f7e504c41a31c3b18f886da041fa0a4e95699ded463f75da7503c2d6ba388fa0",
+        "content/.claude/agents/pm-k.md": "sha256:636ae7cefea2bf525c3c929d1b6057706f6527805d4b2499b8d6f8c952784fd5",
+        "content/.claude/agents/pm-s.md": "sha256:6d507c37403944ba4e2691a65a6374f3634c6a5bdca668c81041243a8ab92380",
+        "content/.claude/agents/qa-b.md": "sha256:570a27fe84061c284ae68d5d541263c8dc03a6b2d9620aa0bb69c73892c171f9",
+        "content/.claude/agents/qa-docs.md": "sha256:88f6ebb9dde1e9d8e495945d4921214ced21cf4b386662949527e041f6b6bf95",
+        "content/.claude/agents/qa-f.md": "sha256:240768e940da5c37a02562100245774464391c667a254a1cac5fbd38ddf80834",
+        "content/.claude/resources/ARC_doc_template.md": "sha256:e522b34c737aea16d0e2d7a108ec725c4b89e6a2237e4b0909db856de9fbe86e",
+        "content/.claude/resources/README_module_template.md": "sha256:a1f638e49c1a60ae709bbb0a24df9660f5a924044c5a57b12facee5ce9b416d7",
+        "content/.claude/resources/backend_styleguide.md": "sha256:c1a771cd5361354e613a902a8193cbd16597ad532f798fad4ebe9be852f021f8",
+        "content/.claude/resources/claude-execution-template.md": "sha256:9b78c3d6933738dd3818f7ebe78cf7e1bf3e00448b1b0f2e95cd081f08ca62ea",
+        "content/.claude/resources/file_doc_template.md": "sha256:625f7bbf0099b49d6d5285c093f42403306a6b548c6c6c1af9ef24b7447b29fc",
+        "content/.claude/resources/frontend_styleguide.md": "sha256:dc63fd38342daaf39266fce387326aba2e8c9c055be233200e5b3663eee6aeac",
+        "content/.claude/skills/ar/SKILL.md": "sha256:8f9eee9bf952c2a23badcaef3d84f876a824403b2d4b2501cf86e1fb0b5bad14",
+        "content/.claude/skills/arm/SKILL.md": "sha256:8447ecb20f9c0718d47c4e95d7f15b92e90d7560bab02775bab3400816d4509c",
+        "content/.claude/skills/audit-skill/CRITERIA.md": "sha256:1dda3d3a386dc5eca85c0c16c4fdcdf9335214199b195c0e58c5f5691a0d5220",
+        "content/.claude/skills/audit-skill/SKILL.md": "sha256:742eec825cd6132e159427f0817cc53fc82616bd8b61b8574bb363126d0ed85f",
+        "content/.claude/skills/build/SKILL.md": "sha256:df3635dcae83e8282d3f757a01acd9c4f278bfd02ddeadf96dcab98ef7c3a3b2",
+        "content/.claude/skills/denoise/SKILL.md": "sha256:93e083a1c46fb38ad63fd173e26c16a00a1532890f0c59c9369dc9a52cefc5bc",
+        "content/.claude/skills/design/SKILL.md": "sha256:d2121ee8f9eee92d6227198291d6559fc18edf3f601a471b32441a6f6137a14d",
+        "content/.claude/skills/plan/SKILL.md": "sha256:496c1cf1492768059ad35b560e4822f2c799e12aefb8a23e3fb44c14a83be5c9",
+        "content/.claude/skills/pmatch/SKILL.md": "sha256:d62e2f3f009cfcabee784a3defc5a7dd7fd39bda757fbf7480e77c6cbfed5383",
+        "content/.claude/skills/qb/SKILL.md": "sha256:7617771561c70892415270701b0cbd0d44c91b7eaa3b28200835737a0f98ac88",
+        "content/.claude/skills/qd/SKILL.md": "sha256:ea38c803bedde87e4ab4f9ca65b295168755522756f46b1aa08c0d103b2f0e82",
+        "content/.claude/skills/qf/SKILL.md": "sha256:cbe288e36ffc2aabb8daebf4b9f557fa230739c42e452496fd187159d77d53b0",
+        "content/CLAUDE.md": "sha256:d8c96b09b76462b8341e6270d17376217b50b7c0ba0eeff5d2f2529f9c1cc294",
+        "content/QUICKSTART.md": "sha256:6b3d7d04108f69c60f208073134474741881eae1781d2ac04f7b016119c5ad9a",
+        "content/docker/litellm/.env.example": "sha256:222c04d404b30f064626aa4afd03df830bbc4324f3ff8709db361cf1d9a3eae7",
+        "content/docker/litellm/config.yaml": "sha256:60c78d217b1aaf07d35c77c717ddb77596c352558a395ed6e32a68a38460aa42",
+        "content/docker/litellm/docker-compose.yaml": "sha256:22f3974636f3b61619ffc41aacc19ddcfe91befa2c20da5b0357825bd0e86703",
+        "skillset.yaml": "sha256:e30fb8a557405c98f92b8edb195963a045041847121308da4da4e1ac6921fb4e"
+      },
+      "mcp_servers": [
+        {
+          "name": "litellm-proxy",
+          "type": "docker",
+          "image": "ghcr.io/berriai/litellm:main-latest",
+          "mcp_reputation": "Widely used LLM proxy, active maintenance, 20k+ GitHub stars",
+          "researched_at": "2026-02-05",
+          "servers": [
+            {
+              "name": "context7",
+              "command": "npx",
+              "args": [
+                "-y",
+                "@upstash/context7-mcp"
+              ],
+              "mcp_reputation": "npm: @upstash/context7-mcp, 50k weekly downloads, maintained by Upstash",
+              "researched_at": "2026-02-05"
+            },
+            {
+              "name": "filesystem",
+              "command": "npx",
+              "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/project:ro"
+              ],
+              "mcp_reputation": "npm: @modelcontextprotocol/server-filesystem, official Anthropic MCP server",
+              "researched_at": "2026-02-05"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
