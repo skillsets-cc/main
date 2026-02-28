@@ -55,7 +55,7 @@ This system is an exoskeleton, not a replacement. Automation without structure i
 
 <a id="the-valence-workflow"></a>
 
-Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is a modular, and standardized for interoperability and coordination through Claude Code's native agent team and task systems.
+Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is modular, and standardized for interoperability and coordination through Claude Code's native agent team and task systems.
 
 <a id="arm"></a>
 
