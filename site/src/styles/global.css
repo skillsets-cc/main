@@ -3,26 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  /* Crimson Pro has a smaller x-height than Inter, so bump the
-     base font-size from 16px → 18px to compensate globally. */
   html {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   body {
-    font-family: 'Crimson Pro', serif;
+    font-family: 'Outfit', sans-serif;
     scrollbar-gutter: stable;
+    /* Subtle noise overlay or dark canvas effects can be placed here if needed, but for now just basic text setup */
   }
 
-  /* Optically balance JetBrains Mono with Crimson Pro.
-     JetBrains has a larger x-height, so at the same px size it looks bigger.
-     Scale mono down ~90% to visually match serif body text. */
   code, pre, kbd, samp, .font-mono {
-    font-size: 0.95em;
+    font-size: 0.90em;
     font-weight: 500;
   }
 
-  /* Custom Scrollbar */
+  /* Custom Scrollbar - Dark Mode */
   ::-webkit-scrollbar {
     width: 14px;
     height: 14px;
@@ -41,6 +37,15 @@
 
   ::-webkit-scrollbar-thumb:hover {
     background-color: theme('colors.text.tertiary');
+  }
+  
+  /* Utilities for glow effects */
+  .glow-border-hover {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .glow-border-hover:hover {
+    border-color: theme('colors.accent.DEFAULT');
+    box-shadow: 0 0 15px theme('colors.accent.highlight');
   }
 }
 

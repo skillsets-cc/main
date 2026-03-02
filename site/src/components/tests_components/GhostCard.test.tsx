@@ -27,9 +27,9 @@ describe('GhostCard', () => {
 
   it('test_renders_available_with_batch_id', () => {
     render(<GhostCard {...defaultProps} />);
-    expect(screen.getByText('Claim')).toBeDefined();
+    expect(screen.getByText('CLAIM_SLOT')).toBeDefined();
     expect(screen.getByText('1.10.001')).toBeDefined();
-    const article = screen.getByText('Claim').closest('article');
+    const article = screen.getByText('CLAIM_SLOT').closest('article');
     expect(article?.className).toContain('border-border-ink');
   });
 
@@ -44,7 +44,7 @@ describe('GhostCard', () => {
     );
     expect(screen.getByText(/Claimed by/)).toBeDefined();
     expect(screen.getByText('1.10.001')).toBeDefined();
-    expect(screen.queryByText('Cancel')).toBeNull();
+    expect(screen.queryByText('Cancel Reservation')).toBeNull();
     const article = screen.getByText(/Claimed by/).closest('article');
     expect(article?.className).toContain('border-accent/30');
   });
@@ -58,7 +58,7 @@ describe('GhostCard', () => {
         isOwn={true}
       />
     );
-    expect(screen.getByText('Cancel')).toBeDefined();
+    expect(screen.getByText('Cancel Reservation')).toBeDefined();
     // Countdown should have orange text
     const countdown = screen.getByText(/delivers within/);
     expect(countdown.className).toContain('text-accent');
@@ -74,7 +74,7 @@ describe('GhostCard', () => {
     }) as typeof fetch;
 
     render(<GhostCard {...defaultProps} onReserved={onReserved} />);
-    fireEvent.click(screen.getByText('Claim'));
+    fireEvent.click(screen.getByText('CLAIM_SLOT'));
 
     await waitFor(() => {
       expect(onReserved).toHaveBeenCalledWith('1.10.001', expect.any(Number));
@@ -95,7 +95,7 @@ describe('GhostCard', () => {
     });
 
     render(<GhostCard {...defaultProps} />);
-    fireEvent.click(screen.getByText('Claim'));
+    fireEvent.click(screen.getByText('CLAIM_SLOT'));
 
     await waitFor(() => {
       expect(window.location.href).toBe('/login?returnTo=/');
@@ -115,7 +115,7 @@ describe('GhostCard', () => {
     }) as typeof fetch;
 
     render(<GhostCard {...defaultProps} onConflict={onConflict} />);
-    fireEvent.click(screen.getByText('Claim'));
+    fireEvent.click(screen.getByText('CLAIM_SLOT'));
 
     await waitFor(() => {
       expect(onConflict).toHaveBeenCalled();
@@ -139,7 +139,7 @@ describe('GhostCard', () => {
         onCancelled={onCancelled}
       />
     );
-    fireEvent.click(screen.getByText('Cancel'));
+    fireEvent.click(screen.getByText('Cancel Reservation'));
 
     await waitFor(() => {
       expect(onCancelled).toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe('GhostCard', () => {
     globalThis.fetch = vi.fn().mockReturnValue(fetchPromise) as typeof fetch;
 
     render(<GhostCard {...defaultProps} />);
-    const button = screen.getByText('Claim');
+    const button = screen.getByText('CLAIM_SLOT');
     fireEvent.click(button);
 
     // Button should be disabled during loading

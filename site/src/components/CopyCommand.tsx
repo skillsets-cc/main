@@ -38,7 +38,7 @@ export default function CopyCommand({ command, heading, disclaimer }: CopyComman
   const isSection = !!heading;
 
   const inner = (
-    <div className="bg-surface-white border border-border-ink p-4 rounded-none">
+    <div className="bg-[#0a0a0a] border border-accent/20 p-4 rounded-none">
       <div className="flex items-center gap-2">
         <pre className="flex-1 overflow-x-auto">
           <code>{command}</code>

@@ -87,7 +87,7 @@ export default function SkillsetGrid({
     fetch('/api/reservations', { credentials: 'include' })
       .then(r => r.json())
       .then(data => setReservations(data as ReservationState))
-      .catch(() => {});
+      .catch(() => { });
   };
 
   return (
@@ -101,7 +101,7 @@ export default function SkillsetGrid({
           const batchId = skillset.batch_id ?? submittedMap.get(skillset.id);
 
           return (
-            <article key={skillset.id} className="group border-b border-border-ink py-3 md:py-6 hover:bg-surface-paper transition-colors cursor-pointer">
+            <article key={skillset.id} className="group border border-border-ink bg-surface-paper py-4 px-4 md:py-6 md:px-6 mb-4 rounded-none hover:bg-surface-white transition-all cursor-pointer glow-border-hover">
               <a href={`/skillset/${namespace}/${name}`} className="block">
                 <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-1 md:gap-2 mb-1 md:mb-2">
                   <h3 className="text-lg md:text-xl font-serif font-bold text-text-ink group-hover:text-accent transition-colors">
@@ -111,24 +111,24 @@ export default function SkillsetGrid({
                     v{skillset.version} • {skillset.author.handle}
                   </span>
                 </div>
-                <p className="text-sm md:text-base text-text-secondary font-serif leading-relaxed max-w-3xl mb-2 md:mb-3 line-clamp-1 md:line-clamp-none">
+                <p className="text-sm md:text-base text-text-secondary font-serif leading-relaxed max-w-3xl mb-4 line-clamp-2 md:line-clamp-none">
                   {skillset.description}
                 </p>
 
-                <div className="flex items-center gap-2 md:gap-4 overflow-x-auto">
+                <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pt-2 border-t border-border-ink/50 group-hover:border-accent/30 transition-colors">
                   <span className="flex items-center gap-1 text-xs font-mono text-text-tertiary">
                     <StarIcon />
                     {liveStars[skillset.id] ?? skillset.stars}
                   </span>
 
                   {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
-                    <span className="text-xs font-mono text-accent border border-accent-light px-1 rounded-none" title={`${skillset.mcp_servers.length} MCP server(s)`}>
+                    <span className="text-xs font-mono text-accent border border-accent/50 px-1.5 py-0.5 rounded-sm" title={`${skillset.mcp_servers.length} MCP server(s)`}>
                       MCP
                     </span>
                   )}
 
                   {skillset.tags.map(tag => (
-                    <span key={tag} className="hidden md:inline text-xs font-mono text-text-tertiary border border-border-ink px-1 rounded-none">
+                    <span key={tag} className="hidden md:inline text-xs font-mono text-text-tertiary border border-accent/20 px-1.5 py-0.5 rounded-sm bg-surface-white">
                       #{tag}
                     </span>
                   ))}

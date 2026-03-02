@@ -9,44 +9,80 @@ const skillsets = getSkillsets();
 ---
 
 <BaseLayout title="Skillsets.cc">
-  <div class="max-w-7xl mx-auto px-4 pt-6 md:pt-12 pb-20">
-    <section class="mb-12 text-lg md:text-xl text-text-secondary font-serif leading-relaxed space-y-3">
-      <p>
-        A <span class="font-bold text-text-ink">skillset</span> is an integrated workflow built on tightly coupled Claude Code primitives—skills, agents, hooks, plugins, and MCP.
-      </p>
-      <p>
-        <span class="font-bold text-text-ink">Skillsets.cc</span> is a community-driven <a href="/about" class="text-accent hover:underline">registry</a> of these consolidated workflows.
-      </p>
-      <p>
-        We list limited, high-friction submissions that actually shipped, maintained by the authors.
-      </p>
-      <p>
-        Browse and install natively in Claude Code:
-      </p>
-      <div class="bg-surface-white border border-border-ink p-4 rounded-none font-mono text-sm space-y-1 my-2">
-        <div class="text-text-tertiary"># Add the curated marketplace (once)</div>
-        <div>claude plugin marketplace add skillsets-cc/main</div>
-        <div class="mt-3 text-text-tertiary"># Browse the registry</div>
-        <div class="text-accent">/skillset:browse</div>
-        <div class="mt-3 text-text-tertiary"># Install a skillset</div>
-        <div class="text-accent">/skillset:install &lt;name&gt;</div>
+  <!-- Snap scroll container -->
+  <div class="h-screen overflow-y-auto snap-y snap-mandatory">
+
+    <!-- Hero section — full viewport -->
+    <section class="snap-start min-h-screen flex flex-col justify-center relative">
+      <div class="max-w-3xl mx-auto px-4">
+
+        <!-- Lead — large, prominent -->
+        <p class="text-2xl md:text-3xl text-text-ink font-serif leading-snug mb-4">
+          A <span class="font-bold">skillset</span> is an integrated workflow built on tightly coupled Claude Code primitives—skills, agents, hooks, plugins, and MCP.
+        </p>
+
+        <!-- Supporting copy — smaller, secondary -->
+        <div class="space-y-3 text-base md:text-lg text-text-secondary font-serif leading-relaxed mb-3">
+          <p>
+            <span class="font-bold text-text-ink">Skillsets.cc</span> is a community-driven <a href="/about" class="text-accent hover:underline">registry</a> of these consolidated workflows.
+          </p>
+          <p>
+            We list limited, high-friction submissions that actually shipped, maintained by the authors.
+          </p>
+        </div>
+
+        <!-- Quickstart -->
+        <p class="text-base md:text-lg text-text-secondary font-serif mb-10">Add <span class="text-accent font-mono">skillsets-cc/main</span> to plugin marketplaces and install skillsets from there.</p>
+        <div class="bg-[#0a0a0a] border border-accent/20 rounded-sm overflow-hidden font-mono text-[13px] shadow-xl">
+          <div class="p-4 md:p-6 space-y-3">
+            <!-- Prompt -->
+            <div class="flex items-center text-text-ink mb-4 pb-2 border-b border-border-ink">
+              <span class="text-text-secondary mr-2">❯</span>
+              <span class="text-text-ink">/plugin</span>
+            </div>
+
+            <!-- Tab bar -->
+            <div class="flex flex-wrap gap-4 text-text-secondary mb-6 tracking-wide">
+              <span>Plugins</span>
+              <span>Discover</span>
+              <span>Installed</span>
+              <span class="bg-surface-paper text-text-ink px-1 rounded-sm border border-accent/20">Marketplaces</span>
+              <span class="text-text-tertiary hidden sm:inline">(←/→ or tab to cycle)</span>
+            </div>
+
+            <!-- Add marketplace (pulsing) -->
+            <div class="flex items-center text-accent animate-pulse">
+              <span class="mr-2">❯</span>
+              <span class="font-bold">+ Add Marketplace</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <p class="mt-10 text-base md:text-lg text-text-secondary font-serif">
+          Already a pro? Bet your skillset kicks ass... <a href="/contribute" class="text-accent hover:underline">Cohort 001, assemble!</a>
+        </p>
       </div>
-      <p>
-        Or directly*: <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets install &lt;name&gt;</code>
-      </p>
-      <p>
-        Already a pro? Bet your skillset kicks ass... <a href="/contribute" class="text-accent hover:underline">Cohort 001, assemble!</a>
-      </p>
+
+      <!-- Down arrow -->
+      <a href="#registry" class="absolute bottom-8 left-1/2 -translate-x-1/2 text-accent animate-bounce font-mono text-lg">
+        ↓
+      </a>
     </section>
 
-    <div class="sticky top-0 bg-surface-white z-50 -mx-4 px-4 pt-3 pb-0">
-      <span class="text-base font-bold uppercase tracking-wider text-accent font-mono">Registry</span>
-      <p class="text-sm text-text-tertiary font-serif mt-1">
-        *Skillsets come with all the guarantees of probabilistic space — as with any OSS, verify before you trust.
-      </p>
-      <div class="border-b-2 border-accent mt-2"></div>
-    </div>
+    <!-- Registry section — snaps to top -->
+    <section id="registry" class="snap-start min-h-screen">
+      <div class="max-w-5xl mx-auto px-4 pb-20">
+        <div class="sticky top-0 bg-[#020202] z-40 -mx-4 px-4 pt-4 pb-0 mb-6 border-b border-accent/20">
+          <h3 class="text-base font-bold uppercase tracking-wider text-accent font-mono glow-border-hover inline-block border-b border-accent pb-1">Registry</h3>
+          <p class="text-sm text-text-tertiary font-serif mt-2 pb-2">
+            *Skillsets come with all the guarantees of probabilistic space — as with any OSS, verify before you trust.
+          </p>
+        </div>
 
-    <SkillsetGrid client:load skillsets={skillsets} />
+        <SkillsetGrid client:load skillsets={skillsets} />
+      </div>
+    </section>
+
   </div>
 </BaseLayout>

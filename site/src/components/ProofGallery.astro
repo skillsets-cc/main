@@ -29,12 +29,12 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<section class="sticky top-[6.5rem] z-50 -mx-4 px-4 pb-0 bg-surface-white">
+<section class="sticky top-[6.5rem] z-50 -mx-4 px-4 pb-0 bg-[#020202]">
   <div class="flex flex-wrap gap-2">
     {productionLinks.map((link) => (
       <a
         href={sanitizeUrl(link.url)}
-        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-surface-white border border-accent text-accent rounded-none"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -46,7 +46,7 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
     {hasAuditReport && (
       <a
         href={auditReportUrl}
-        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-surface-white border border-accent text-accent rounded-none"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -55,10 +55,10 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
       </a>
     )}
 
-    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-surface-white border border-accent text-accent rounded-none">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none">
       <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
       schema valid
     </span>
   </div>
-  <div class="border-b-2 border-accent mt-4"></div>
+  <div class="border-b border-accent/20 mt-4"></div>
 </section>

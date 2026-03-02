@@ -21,5 +21,10 @@ export default defineConfig({
     ssr: {
       external: ['node:buffer'],
     },
+    resolve: {
+      alias: {
+        'cloudflare:workers': new URL('./vitest-mocks/cloudflare-workers.ts', import.meta.url).pathname,
+      },
+    },
   },
 });

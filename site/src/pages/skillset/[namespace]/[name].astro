@@ -26,7 +26,7 @@ if (!skillset) {
 }
 
 const authorUrl = sanitizeUrl(skillset.author.url || `https://github.com/${skillset.author.handle.replace('@', '')}`);
-const installCommand = `npx skillsets install ${skillsetId}`;
+const installCommand = `/install ${skillset.name}`;
 
 // Fetch README from GitHub at runtime
 const encodedPath = encodeURIComponent(namespace) + '/' + encodeURIComponent(name);
@@ -51,15 +51,12 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
 
 <BaseLayout title={`${skillset.name} - Skillsets.cc`}>
   <article class="max-w-4xl mx-auto px-4 py-12">
-    <div class="sticky top-0 z-50 -mx-4 px-4 pt-6 pb-4 md:pb-10 bg-surface-white">
+    <div class="sticky top-0 z-50 -mx-4 px-4 pt-6 pb-4 md:pb-10 bg-[#020202]">
       <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
-          <h1 class="text-4xl font-bold font-serif mb-2 text-text-ink">{skillset.name}</h1>
-          <p class="text-lg text-text-secondary font-serif">
-            by <a href={authorUrl} class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">
-              {skillset.author.handle}
-            </a>
-          </p>
+          <h1 class="text-4xl font-bold font-serif text-text-ink">
+            {skillset.name} <span class="text-lg font-normal text-text-secondary">by <a href={authorUrl} class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">{skillset.author.handle}</a></span>
+          </h1>
         </div>
 
         <div class="flex items-center gap-2">
@@ -99,16 +96,14 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
     </header>
 
     <div class="space-y-6">
-      <section class="p-4 rounded-none">
-        <div class="flex flex-col gap-2 md:flex-row md:gap-6">
-          <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap md:pt-2">Install</h2>
-          <div class="flex-1 min-w-0">
-            <CopyCommand client:load command={installCommand} />
-            <p class="mt-1.5 text-sm text-text-tertiary font-serif italic">
-              Reviewed best-effort with no security guarantees. You are the final quality gate, as with any OSS.
-            </p>
-          </div>
-        </div>
+      <section>
+        <p class="text-sm text-text-secondary font-serif mb-2">
+          In Claude Code, add the skillset plugin from the skillsets.cc marketplace, and run:
+        </p>
+        <CopyCommand client:load command={installCommand} />
+        <p class="mt-1.5 text-sm text-text-tertiary font-serif italic">
+          Reviewed best-effort with no security guarantees. You are the final quality gate, as with any OSS.
+        </p>
       </section>
 
       <ProofGallery

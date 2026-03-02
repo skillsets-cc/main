@@ -11,22 +11,11 @@ export default function AuthStatus() {
       .catch(() => setLoggedIn(false));
   }, []);
 
-  if (loggedIn === null) return null;
-
-  if (loggedIn) {
-    return (
-      <a href="/logout" className={linkStyles}>
-        Log out
-      </a>
-    );
-  }
+  if (!loggedIn) return null;
 
   return (
-    <a
-      href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`}
-      className={linkStyles}
-    >
-      Log in
+    <a href="/logout" className={linkStyles}>
+      Log out
     </a>
   );
 }

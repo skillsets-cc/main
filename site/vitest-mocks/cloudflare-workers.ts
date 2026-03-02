@@ -1,5 +1,5 @@
 /**
- * Mock for cloudflare:workers module used in Vitest tests.
+ * Mock for cloudflare:workers module used in Vitest tests and dev mode.
  */
 
 export class DurableObject {
@@ -11,3 +11,5 @@ export class DurableObject {
     this.env = env;
   }
 }
+
+export const env = {};

@@ -5,32 +5,32 @@ export default {
     extend: {
       colors: {
         surface: {
-          paper: '#FAFAFA', // Academic paper off-white
-          white: '#FFFFFF',
+          paper: '#050505', // Deep space black
+          white: '#111111', // Elevated dark surface
         },
         text: {
-          ink: '#1A1A1A', // Stark black
-          secondary: '#555555',
-          tertiary: '#777777',
+          ink: '#EDEDED', // Off-white for max readability
+          secondary: '#A0A0A0', // Muted text
+          tertiary: '#737373', // Subtle text
         },
         accent: {
-          DEFAULT: '#F97316', // Single accent color (orange-500)
-          light: '#FDBA74',   // Lighter accent (orange-300)
-          highlight: '#FFF3C4', // Highlighter yellow for selection
+          DEFAULT: '#f97316', // Orange 500
+          light: '#fb923c',   // Orange 400
+          highlight: '#ea580c', // Orange 600
         },
         border: {
-          ink: '#E5E7EB', // Structural gray
-          strong: '#1A1A1A', // Strong border
+          ink: '#222222', // Subtle borders
+          strong: '#333333', // Strong border
         },
         status: {
-          success: '#22c55e', // green-500
-          error: '#ef4444',   // red-500
-          warning: '#f59e0b', // amber-500
+          success: '#22c55e',
+          error: '#ef4444',
+          warning: '#f59e0b',
         },
       },
       fontFamily: {
-        serif: ['"Crimson Pro"', 'serif'],
-        sans: ['"Crimson Pro"', 'serif'],
+        serif: ['"Outfit"', 'sans-serif'],
+        sans: ['"Outfit"', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       spacing: {
@@ -42,32 +42,32 @@ export default {
       },
       borderRadius: {
         none: '0',
-        sm: '2px', // Minimal radius
+        sm: '2px',
         md: '4px',
       },
       typography: {
         DEFAULT: {
           css: {
-            '--tw-prose-body': '#555555',
-            '--tw-prose-headings': '#1A1A1A',
-            '--tw-prose-links': '#F97316',
-            '--tw-prose-code': '#1A1A1A',
-            '--tw-prose-pre-bg': '#FAFAFA',
-            '--tw-prose-pre-code': '#1A1A1A',
-            '--tw-prose-bullets': '#777777',
-            '--tw-prose-counters': '#777777',
-            'color': '#555555',
+            '--tw-prose-body': '#A0A0A0',
+            '--tw-prose-headings': '#EDEDED',
+            '--tw-prose-links': '#f97316',
+            '--tw-prose-code': '#EDEDED',
+            '--tw-prose-pre-bg': '#111111',
+            '--tw-prose-pre-code': '#EDEDED',
+            '--tw-prose-bullets': '#737373',
+            '--tw-prose-counters': '#737373',
+            'color': '#A0A0A0',
             'fontSize': '1.125rem',
-            'fontFamily': '"Crimson Pro", serif',
+            'fontFamily': '"Outfit", sans-serif',
             'code': {
-              backgroundColor: '#FAFAFA',
-              border: '1px solid #E5E7EB',
+              backgroundColor: '#111111',
+              border: '1px solid #222222',
               padding: '0.125rem 0.5rem',
               borderRadius: '0',
               fontWeight: '400',
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: '0.875em',
-              color: '#1A1A1A',
+              color: '#EDEDED',
             },
             'code::before': {
               content: '""',
@@ -76,9 +76,9 @@ export default {
               content: '""',
             },
             'pre': {
-              backgroundColor: '#FAFAFA',
-              border: '1px solid #E5E7EB',
-              color: '#1A1A1A',
+              backgroundColor: '#111111',
+              border: '1px solid #222222',
+              color: '#EDEDED',
               padding: '1rem',
               borderRadius: '0',
               overflow: 'auto',
@@ -93,24 +93,24 @@ export default {
               fontSize: 'inherit',
             },
             'a': {
-              color: '#F97316',
+              color: '#f97316',
               textDecoration: 'underline',
               '&:hover': {
-                color: '#EA580C',
+                color: '#fb923c',
               },
             },
             'h1, h2, h3, h4': {
-              fontFamily: '"Crimson Pro", serif',
+              fontFamily: '"Outfit", sans-serif',
               fontWeight: '600',
             },
             'p': {
-              color: '#555555',
+              color: '#A0A0A0',
             },
             'li': {
-              color: '#555555',
+              color: '#A0A0A0',
             },
             'strong': {
-              color: '#1A1A1A',
+              color: '#EDEDED',
               fontWeight: '600',
             },
           },
