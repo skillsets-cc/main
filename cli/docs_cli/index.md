@@ -4,9 +4,10 @@
 CLI entry point. Registers all commands with Commander.js and wraps every async action in unified error handling via the `run()` helper.
 
 ## Public API
-| Export | Type | Description |
-|--------|------|-------------|
-| `run` | function | Wraps an async command handler with `handleError` on rejection |
+No exports. This is the CLI entry point, not an importable module.
+
+Internal helpers:
+- `run<T>` — wraps an async command handler with `.catch(handleError)` for unified error reporting
 
 ## Dependencies
 - Internal: `commands/search`, `commands/list`, `commands/view`, `commands/install`, `commands/init`, `commands/audit`, `commands/submit`, `lib/errors`

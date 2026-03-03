@@ -11,7 +11,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   // Get optional return URL from query param (must be relative path)
   const url = new URL(request.url);
   const raw = url.searchParams.get('returnTo') || '/';
-  const returnTo = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/';
+  const returnTo = raw.startsWith('/') && !raw.startsWith('//') && !raw.includes('\\') ? raw : '/';
 
   try {
     const { redirectUrl } = await initiateOAuth(env, returnTo);

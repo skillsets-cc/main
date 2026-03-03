@@ -30,7 +30,7 @@ export const GET: APIRoute = async ({ request, locals, clientAddress }) => {
   const url = new URL(request.url);
   const githubId = url.searchParams.get('githubId');
 
-  if (!githubId) {
+  if (!githubId || !/^\d+$/.test(githubId)) {
     return jsonResponse({ batchId: null });
   }
 

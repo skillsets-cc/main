@@ -79,14 +79,13 @@ describe('POST /api/downloads', () => {
   it('test_returns_429_when_rate_limited', async () => {
     const mockKV = createMockKV();
     const hour = Math.floor(Date.now() / 3600000);
-    mockKV._store.set(`ratelimit:dl:1.2.3.4:${hour}`, '30');
+    mockKV._store.set(`ratelimit:dl:127.0.0.1:${hour}`, '30');
 
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/downloads', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'CF-Connecting-IP': '1.2.3.4',
         },
         body: JSON.stringify({ skillset: 'test/skillset' }),
       }),

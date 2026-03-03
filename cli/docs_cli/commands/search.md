@@ -1,41 +1,19 @@
 # search.ts
 
-## Overview
-**Purpose**: Fuzzy search skillsets by name, description, or tags using Fuse.js
+## Purpose
+Fuzzy-searches skillsets by name, description, tags, or author handle using Fuse.js. Optionally pre-filters by tags before running the fuzzy match.
+
+## Public API
+| Export | Type | Description |
+|--------|------|-------------|
+| `search` | function | Search skillsets by query string with optional tag filter and result limit |
 
 ## Dependencies
-- External: `fuse.js`, `chalk`
-- Internal: `lib/api`, `lib/constants`
-
-## Key Components
-
-### Functions
-| Function | Purpose | Inputs → Output |
-|----------|---------|-----------------|
-| `search` | Execute fuzzy search | `query, SearchOptions` → `void` |
-
-### Options
-| Option | Type | Default | Purpose |
-|--------|------|---------|---------|
-| `tags` | `string[]` | - | Filter by tags |
-| `limit` | `string` | `10` | Max results |
-
-## Data Flow
-```
-search(query) → fetchSearchIndex() + fetchStats() → mergeStats() → Filter by tags → Fuse.search() → Display
-```
+- Internal: `lib/api.ts` (fetchSearchIndex, fetchStats, mergeStats), `lib/constants.ts` (DEFAULT_SEARCH_LIMIT)
+- External: `fuse.js` (fuzzy search), `chalk` (terminal colors)
 
 ## Integration Points
-- Called by: `index.ts`
-- Calls: `lib/api.fetchSearchIndex()`, `lib/api.fetchStats()`, `lib/api.mergeStats()`
+- Used by: `index.ts` (CLI entry point)
 
-## Critical Paths
-**Search Flow**: Query → CDN index → Tag filter → Fuse fuzzy match → Ranked results
-
-## Configuration
-- Fuse threshold: `0.3` (lower = stricter matching)
-- Search keys: `name`, `description`, `tags`, `author.handle`
-
-## Testing
-- Test file: `tests_commands/search.test.ts`
-- Key tests: Basic search, tag filtering, limit
+## Key Logic
+Fetches index and live stats in parallel, applies exact tag filter (if provided), then runs Fuse.js with threshold `0.3` across `name`, `description`, `tags`, and `author.handle` keys. Results beyond `limit` are omitted with a remaining-count hint.

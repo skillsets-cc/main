@@ -1,68 +1,23 @@
 # install.ts
 
-## Overview
-**Purpose**: Install skillset to current directory using degit with conflict detection, MCP server warnings, and checksum verification
+## Purpose
+Installs a skillset to the current directory using degit. Handles conflict detection, optional backup, MCP server and runtime dependency consent prompts, temp-dir checksum verification, and download tracking.
+
+## Public API
+| Export | Type | Description |
+|--------|------|-------------|
+| `install` | function | Install skillset by ID with conflict/consent/checksum flow |
 
 ## Dependencies
-- External: `degit`, `chalk`, `ora`, `@inquirer/prompts`
-- Internal: `lib/filesystem`, `lib/checksum`, `lib/api`, `lib/constants`
-
-## Key Components
-
-### Functions
-| Function | Purpose | Inputs → Output |
-|----------|---------|-----------------|
-| `install` | Download and verify skillset | `skillsetId, InstallOptions` → `void` |
-| `formatMcpWarning` | Format MCP server warning display | `McpServer[], skillsetId` → `string` |
-| `formatDepsWarning` | Format runtime dependencies warning | `RuntimeDependency[], skillsetId` → `string` |
-| `confirmConsent` | Generic consent prompt for MCP/deps | `bypassed, error, warning, prompt, cleanup?` → `Promise<boolean>` |
-
-### Options
-| Option | Type | Default | Purpose |
-|--------|------|---------|---------|
-| `force` | `boolean` | `false` | Overwrite existing files |
-| `backup` | `boolean` | `false` | Backup before install |
-| `acceptMcp` | `boolean` | `false` | Accept MCP servers without prompting |
-| `acceptDeps` | `boolean` | `false` | Accept runtime dependencies without prompting |
-
-## Data Flow
-```
-install(id) → validateId → detectConflicts() → [backupFiles()] → fetchMetadata() → [MCP warning + consent] → [deps warning + consent] → degit.clone(tempDir) → verifyChecksums(tempDir) → cp to cwd → trackDownload
-```
+- Internal: `lib/filesystem.ts` (detectConflicts, backupFiles), `lib/checksum.ts` (verifyChecksums), `lib/api.ts` (fetchSkillsetMetadata), `lib/constants.ts` (REGISTRY_REPO, DOWNLOADS_URL)
+- External: `degit`, `chalk`, `ora`, `@inquirer/prompts` (confirm), `fs/promises`, `os`, `path`
 
 ## Integration Points
-- Called by: `index.ts`
-- Calls: `lib/filesystem`, `lib/checksum`, `lib/api`
+- Used by: `index.ts` (CLI entry point)
 
-## Critical Paths
-**Primary Flow**: Conflict check → Optional backup → Fetch metadata → MCP warning → Runtime deps warning → degit download → Checksum verify
+## Key Logic
+**Install flow**: Validate ID format → detect conflicts → optional backup → fetch metadata → MCP consent → runtime deps consent → degit clone to temp dir → verify checksums → copy verified content to CWD → track download (fire-and-forget).
 
-**MCP Warning Flow**:
-- **Pre-check**: Fetches metadata to check for `mcp_servers`
-  - If MCP servers present: displays warning with server details (grouped by native/docker), prompts user
-  - `--accept-mcp` bypasses prompt (required for non-interactive/CI environments)
-  - `--force` and `--backup` do NOT bypass MCP prompt (they handle file conflicts only)
-  - Non-TTY without `--accept-mcp`: exits with error
-  - If metadata fetch fails, silently skips MCP warning (no fallback post-check)
+**Consent gating**: MCP servers and runtime dependencies require explicit confirmation (`--accept-mcp`, `--accept-deps`) in non-TTY environments. `--force`/`--backup` only govern file conflicts, not consent.
 
-**Runtime Dependencies Warning Flow**:
-- **Pre-check**: Fetches metadata to check for `runtime_dependencies`
-  - If runtime dependencies present: displays warning with package details (manager, packages, install scripts flag, evaluation), prompts user
-  - `--accept-deps` bypasses prompt (required for non-interactive/CI environments)
-  - Non-TTY without `--accept-deps`: exits with error
-
-**Fallbacks**:
-- Conflict: Prompt for --force or --backup
-- Checksum fail: Suggest --force reinstall
-
-## Error Handling
-- Conflicts: Aborts with helpful flags
-- Checksum mismatch: Exit 1 with details
-- MCP rejection: Clean exit with "cancelled" message
-- Runtime deps rejection: Clean exit with "cancelled" message
-- Non-TTY + MCP: Exit 1 with --accept-mcp suggestion
-- Non-TTY + runtime deps: Exit 1 with --accept-deps suggestion
-
-## Testing
-- Test file: `tests_commands/install.test.ts`
-- Key tests: Conflict detection, backup behavior, checksum verification, download tracking, MCP warning/prompt (pre-check), MCP fallback (post-check), --accept-mcp bypass, --force/--backup don't bypass MCP, runtime dependencies warning/prompt, --accept-deps bypass
+**Checksum safety**: Content is cloned to a temp directory, checksums are verified against the search index, and only then copied to CWD. Temp dir is always cleaned up on both success and error.

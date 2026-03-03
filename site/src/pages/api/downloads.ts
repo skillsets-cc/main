@@ -32,10 +32,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
   }
 };
 
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+  const ip = clientAddress;
   if (await isDownloadRateLimited(env.DATA, ip)) {
     return errorResponse('Rate limit exceeded', 429);
   }

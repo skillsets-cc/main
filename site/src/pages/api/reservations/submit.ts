@@ -49,7 +49,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const stub = getReservationStub(env);
   const doRequest = new Request('https://do/submit', {
     method: 'POST',
-    body: JSON.stringify(body),
+    body: JSON.stringify({ batchId, skillsetId }),
   });
 
   try {
