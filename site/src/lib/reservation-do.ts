@@ -24,6 +24,13 @@ function getUnixTimestamp(): number {
   return Math.floor(Date.now() / 1000);
 }
 
+function jsonResponse(data: unknown, status = 200): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 export const BATCH_ID_REGEX = /^\d{1,3}\.\d{1,3}\.\d{3}$/;
 const SKILLSET_ID_REGEX = /^@[A-Za-z0-9_-]+\/[A-Za-z0-9_-]+$/;
 
@@ -142,10 +149,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
       return new Response('Not Found', { status: 404 });
     } catch (error) {
       console.error('[ReservationCoordinator] Error:', error);
-      return new Response(
-        JSON.stringify({ error: 'Internal server error' }),
-        { status: 500, headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'Internal server error' }, 500);
     }
   }
 
@@ -201,15 +205,12 @@ export class ReservationCoordinator extends DurableObject<Env> {
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        slots,
-        totalGhostSlots: config.totalGhostSlots,
-        cohort: config.cohort,
-        userSlot,
-      }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({
+      slots,
+      totalGhostSlots: config.totalGhostSlots,
+      cohort: config.cohort,
+      userSlot,
+    });
   }
 
   /**
@@ -224,59 +225,49 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const body = await request.json() as ReserveRequest;
     const { batchId, userId, githubLogin } = body;
 
-    const config = await this.getConfig();
-    const error = validateBatchId(batchId, config);
-    if (error) {
-      return new Response(
-        JSON.stringify({ error: 'slot_not_found', message: error }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    // blockConcurrencyWhile serializes access — prevents TOCTOU between reads and writes
+    return this.ctx.blockConcurrencyWhile(async () => {
+      const config = await this.getConfig();
+      const error = validateBatchId(batchId, config);
+      if (error) {
+        return jsonResponse({ error: 'slot_not_found', message: error }, 404);
+      }
 
-    // Check if user already has a reservation
-    const existingSlot = await this.ctx.storage.get<string>(`user:${userId}`);
-    if (existingSlot) {
-      // Verify it's not expired
-      const slotData = await this.ctx.storage.get<SlotData>(`batch:${existingSlot}`);
-      if (slotData && slotData.status === 'reserved' && slotData.expiresAt > getUnixTimestamp()) {
-        return new Response(
-          JSON.stringify({
+      // Check if user already has a reservation
+      const existingSlot = await this.ctx.storage.get<string>(`user:${userId}`);
+      if (existingSlot) {
+        // Verify it's not expired
+        const slotData = await this.ctx.storage.get<SlotData>(`batch:${existingSlot}`);
+        if (slotData && slotData.status === 'reserved' && slotData.expiresAt > getUnixTimestamp()) {
+          return jsonResponse({
             error: 'user_has_reservation',
             message: 'User already has a reservation',
             existingSlot,
-          }),
-          { status: 409, headers: { 'Content-Type': 'application/json' } }
-        );
+          }, 409);
+        }
       }
-    }
 
-    // Check if slot is available (not reserved by someone else)
-    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
-    const now = getUnixTimestamp();
-    if (slotData && slotData.status === 'reserved' && slotData.expiresAt > now) {
-      return new Response(
-        JSON.stringify({ error: 'slot_taken', message: 'Slot is already reserved' }),
-        { status: 409, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+      // Check if slot is available (not reserved by someone else)
+      const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
+      const now = getUnixTimestamp();
+      if (slotData && slotData.status === 'reserved' && slotData.expiresAt > now) {
+        return jsonResponse({ error: 'slot_taken', message: 'Slot is already reserved' }, 409);
+      }
 
-    // Reserve the slot — atomic write coalescing
-    const expiresAt = now + config.ttlDays * 86400;
-    const newSlotData: ReservedSlotData = {
-      status: 'reserved',
-      userId,
-      githubLogin,
-      expiresAt,
-    };
+      // Reserve the slot — atomic write coalescing
+      const expiresAt = now + config.ttlDays * 86400;
+      const newSlotData: ReservedSlotData = {
+        status: 'reserved',
+        userId,
+        githubLogin,
+        expiresAt,
+      };
 
-    // Write both keys WITHOUT await between them (atomic transaction)
-    this.ctx.storage.put(`batch:${batchId}`, newSlotData);
-    this.ctx.storage.put(`user:${userId}`, batchId);
+      this.ctx.storage.put(`batch:${batchId}`, newSlotData);
+      this.ctx.storage.put(`user:${userId}`, batchId);
 
-    return new Response(
-      JSON.stringify({ batchId, expiresAt }),
-      { status: 201, headers: { 'Content-Type': 'application/json' } }
-    );
+      return jsonResponse({ batchId, expiresAt }, 201);
+    });
   }
 
   /**
@@ -291,31 +282,23 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const body = await request.json() as ReleaseRequest;
     const { userId } = body;
 
-    const batchId = await this.ctx.storage.get<string>(`user:${userId}`);
-    if (!batchId) {
-      return new Response(
-        JSON.stringify({ error: 'no_reservation', message: 'User has no reservation' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    return this.ctx.blockConcurrencyWhile(async () => {
+      const batchId = await this.ctx.storage.get<string>(`user:${userId}`);
+      if (!batchId) {
+        return jsonResponse({ error: 'no_reservation', message: 'User has no reservation' }, 404);
+      }
 
-    // Guard: submitted slots are terminal — cannot be released
-    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
-    if (slotData?.status === 'submitted') {
-      return new Response(
-        JSON.stringify({ error: 'already_submitted', message: 'Cannot release a submitted slot' }),
-        { status: 409, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+      // Guard: submitted slots are terminal — cannot be released
+      const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
+      if (slotData?.status === 'submitted') {
+        return jsonResponse({ error: 'already_submitted', message: 'Cannot release a submitted slot' }, 409);
+      }
 
-    // Delete both slot and user keys — atomic write coalescing
-    this.ctx.storage.delete(`batch:${batchId}`);
-    this.ctx.storage.delete(`user:${userId}`);
+      this.ctx.storage.delete(`batch:${batchId}`);
+      this.ctx.storage.delete(`user:${userId}`);
 
-    return new Response(
-      JSON.stringify({ released: batchId }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+      return jsonResponse({ released: batchId });
+    });
   }
 
   /**
@@ -333,42 +316,21 @@ export class ReservationCoordinator extends DurableObject<Env> {
     if (body.totalGhostSlots !== undefined &&
         body.totalGhostSlots !== currentConfig.totalGhostSlots &&
         (body.cohort === undefined || body.cohort === currentConfig.cohort)) {
-      return new Response(
-        JSON.stringify({
-          error: 'invalid_config',
-          message: 'Cannot change totalGhostSlots within a cohort. Increment cohort to create a new batch.',
-        }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({
+        error: 'invalid_config',
+        message: 'Cannot change totalGhostSlots within a cohort. Increment cohort to create a new batch.',
+      }, 400);
     }
 
-    // Validate totalGhostSlots
-    if (body.totalGhostSlots !== undefined) {
-      if (typeof body.totalGhostSlots !== 'number' || body.totalGhostSlots < 1 || body.totalGhostSlots > 100) {
-        return new Response(
-          JSON.stringify({ error: 'invalid_config', message: 'totalGhostSlots must be between 1 and 100' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // Validate ttlDays
-    if (body.ttlDays !== undefined) {
-      if (typeof body.ttlDays !== 'number' || body.ttlDays < 1 || body.ttlDays > 30) {
-        return new Response(
-          JSON.stringify({ error: 'invalid_config', message: 'ttlDays must be between 1 and 30' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // Validate cohort if provided
-    if (body.cohort !== undefined) {
-      if (typeof body.cohort !== 'number' || body.cohort < 1 || body.cohort > 999) {
-        return new Response(
-          JSON.stringify({ error: 'invalid_config', message: 'cohort must be between 1 and 999' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } }
-        );
+    // Validate numeric config ranges
+    const rangeChecks: [unknown, string, number, number][] = [
+      [body.totalGhostSlots, 'totalGhostSlots must be between 1 and 100', 1, 100],
+      [body.ttlDays, 'ttlDays must be between 1 and 30', 1, 30],
+      [body.cohort, 'cohort must be between 1 and 999', 1, 999],
+    ];
+    for (const [value, message, min, max] of rangeChecks) {
+      if (value !== undefined && (typeof value !== 'number' || value < min || value > max)) {
+        return jsonResponse({ error: 'invalid_config', message }, 400);
       }
     }
 
@@ -401,10 +363,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
     // Save new config
     await this.ctx.storage.put('config', newConfig);
 
-    return new Response(
-      JSON.stringify(newConfig),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse(newConfig);
   }
 
   /**
@@ -420,34 +379,22 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const userId = url.searchParams.get('userId');
 
     if (!batchId || !BATCH_ID_REGEX.test(batchId)) {
-      return new Response(
-        JSON.stringify({ valid: false, reason: 'invalid_batch_id' }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ valid: false, reason: 'invalid_batch_id' });
     }
 
     const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
     if (!slotData) {
-      return new Response(
-        JSON.stringify({ valid: false, reason: 'not_reserved' }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ valid: false, reason: 'not_reserved' });
     }
 
     // Already-submitted slots cannot be used for a new PR
     if (slotData.status === 'submitted') {
-      return new Response(
-        JSON.stringify({ valid: false, reason: 'already_submitted' }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ valid: false, reason: 'already_submitted' });
     }
 
     // Expired reserved slots fail verification
     if (slotData.expiresAt <= getUnixTimestamp()) {
-      return new Response(
-        JSON.stringify({ valid: false, reason: 'not_reserved' }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ valid: false, reason: 'not_reserved' });
     }
 
     // Match by login OR userId (handles GitHub username renames)
@@ -455,16 +402,10 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const userIdMatch = userId && slotData.userId === userId;
 
     if (!loginMatch && !userIdMatch) {
-      return new Response(
-        JSON.stringify({ valid: false, reason: 'login_mismatch' }),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ valid: false, reason: 'login_mismatch' });
     }
 
-    return new Response(
-      JSON.stringify({ valid: true, batchId }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ valid: true, batchId });
   }
 
   /**
@@ -481,10 +422,7 @@ export class ReservationCoordinator extends DurableObject<Env> {
     try {
       body = await request.json();
     } catch {
-      return new Response(
-        JSON.stringify({ error: 'invalid_body', message: 'Invalid JSON body' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'invalid_body', message: 'Invalid JSON body' }, 400);
     }
 
     const { batchId, skillsetId } = body;
@@ -492,53 +430,39 @@ export class ReservationCoordinator extends DurableObject<Env> {
     // Validate batchId format only — NOT against current config.
     // Maintainer submit is authoritative and must work across cohorts.
     if (!batchId || !BATCH_ID_REGEX.test(batchId)) {
-      return new Response(
-        JSON.stringify({ error: 'invalid_batch_id', message: 'batchId is required and must match format N.N.NNN' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'invalid_batch_id', message: 'batchId is required and must match format N.N.NNN' }, 400);
     }
 
     // Validate skillsetId format
     if (!skillsetId || !SKILLSET_ID_REGEX.test(skillsetId) || skillsetId.length > 200) {
-      return new Response(
-        JSON.stringify({ error: 'invalid_skillset_id', message: 'skillsetId must match @namespace/Name format (max 200 chars)' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      return jsonResponse({ error: 'invalid_skillset_id', message: 'skillsetId must match @namespace/Name format (max 200 chars)' }, 400);
     }
 
-    const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
-    if (!slotData) {
-      return new Response(
-        JSON.stringify({ error: 'not_reserved', message: 'Slot has no reservation' }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+    return this.ctx.blockConcurrencyWhile(async () => {
+      const slotData = await this.ctx.storage.get<SlotData>(`batch:${batchId}`);
+      if (!slotData) {
+        return jsonResponse({ error: 'not_reserved', message: 'Slot has no reservation' }, 404);
+      }
 
-    // Check discriminant — reject if already submitted
-    if (slotData.status === 'submitted') {
-      return new Response(
-        JSON.stringify({ error: 'already_submitted', message: 'Slot is already submitted' }),
-        { status: 409, headers: { 'Content-Type': 'application/json' } }
-      );
-    }
+      // Check discriminant — reject if already submitted
+      if (slotData.status === 'submitted') {
+        return jsonResponse({ error: 'already_submitted', message: 'Slot is already submitted' }, 409);
+      }
 
-    // Note: expiry is NOT checked. Maintainer submit is authoritative.
+      // Note: expiry is NOT checked. Maintainer submit is authoritative.
 
-    // Transition to submitted — replace slot data (atomic write coalescing)
-    const submitted: SubmittedSlotData = {
-      status: 'submitted',
-      userId: slotData.userId,
-      githubLogin: slotData.githubLogin,
-      skillsetId,
-      submittedAt: getUnixTimestamp(),
-    };
-    this.ctx.storage.put(`batch:${batchId}`, submitted);
-    this.ctx.storage.delete(`user:${slotData.userId}`);
+      const submitted: SubmittedSlotData = {
+        status: 'submitted',
+        userId: slotData.userId,
+        githubLogin: slotData.githubLogin,
+        skillsetId,
+        submittedAt: getUnixTimestamp(),
+      };
+      this.ctx.storage.put(`batch:${batchId}`, submitted);
+      this.ctx.storage.delete(`user:${slotData.userId}`);
 
-    return new Response(
-      JSON.stringify({ batchId, status: 'submitted', skillsetId }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+      return jsonResponse({ batchId, status: 'submitted', skillsetId });
+    });
   }
 
   /**
@@ -550,15 +474,12 @@ export class ReservationCoordinator extends DurableObject<Env> {
   private async handleLookup(request: Request): Promise<Response> {
     const url = new URL(request.url);
     const githubId = url.searchParams.get('githubId');
-    const nullResponse = () => new Response(
-      JSON.stringify({ batchId: null }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    const nullResult = () => jsonResponse({ batchId: null });
 
-    if (!githubId) return nullResponse();
+    if (!githubId) return nullResult();
 
     const batchId = await this.ctx.storage.get<string>(`user:${githubId}`);
-    if (!batchId) return nullResponse();
+    if (!batchId) return nullResult();
 
     // Only return batch ID for actively reserved slots.
     // Submitted slots return null — the reservation is fulfilled.
@@ -566,13 +487,10 @@ export class ReservationCoordinator extends DurableObject<Env> {
     const now = getUnixTimestamp();
     if (!slotData || slotData.status === 'submitted' ||
         (slotData.status === 'reserved' && slotData.expiresAt <= now)) {
-      return nullResponse();
+      return nullResult();
     }
 
-    return new Response(
-      JSON.stringify({ batchId }),
-      { headers: { 'Content-Type': 'application/json' } }
-    );
+    return jsonResponse({ batchId });
   }
 
   /**

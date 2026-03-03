@@ -48,14 +48,21 @@ Dynamic skillset detail page displaying full information about a specific skills
 - README fetch failure (404 or network error): display skillset description as markdown
 
 ### Status Indicator
-- Maps status to color: `active` (green), `deprecated` (yellow), `archived` (gray)
-- Displayed as colored dot with status text in header
+- Maps status to color: `active` (green `bg-status-success`), `deprecated` (yellow `bg-status-warning`), unknown statuses (gray `bg-text-tertiary`)
+- Displayed as colored dot with status text in the metadata header
+
+### Sticky Header Behavior
+- An `IntersectionObserver` watches a `#header-sentinel` element (1px div above the sticky header)
+- When sentinel leaves viewport, `data-stuck="true"` is set on `#sticky-header` and `data-header-stuck="true"` on `<html>`
+- Star/download counts (`data-stuck-hide`) are hidden in stuck state via CSS
+- A `ResizeObserver` + `transitionend` listener continuously updates `--header-h` CSS variable with the header's current height
+- Visual viewport offset (`--vv-offset`) is tracked for correct `top` positioning on mobile (handles URL bar show/hide)
 
 ### Page Sections
 
-1. **Sticky Header**: Title, author link, star/download counts, version, status
-2. **Metadata**: Description, tags
-3. **Install Section**: CLI command with copy button and disclaimer
+1. **Sticky Header**: Title, author link — star/download counts hidden when stuck
+2. **Metadata Header**: Version, status dot, description, tags
+3. **Install Section**: Plugin command `/install {name}` with copy button and OSS disclaimer
 4. **ProofGallery**: Production links and audit report (if available)
 5. **README Section**: Rendered markdown content from GitHub
 6. **MCP Servers Section** (conditional): Displayed when `skillset.mcp_servers` exists

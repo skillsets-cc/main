@@ -36,7 +36,9 @@ site/
 │   └── worker.md
 │
 └── src/
+    ├── env.d.ts                   # Cloudflare runtime bindings + App.Locals declaration
     ├── worker.ts                  # Custom worker entry (Astro handler + DO exports)
+    ├── docs_src/                  # Root-level src documentation (env.d.ts, worker.ts)
     │
     ├── components/                # React islands + Astro components
     │   ├── AuthStatus.tsx         # Login/logout link with auth state
@@ -50,21 +52,21 @@ site/
     │   ├── TagFilter.tsx          # Tag-based filtering (fixed bottom bar, portal)
     │   ├── useCountdown.ts        # Countdown timer hook for reservations
     │   ├── docs_components/       # Per-file docs
-    │   └── __tests__/             # Component tests
+    │   └── tests_components/      # Component tests
     │
     ├── lib/                       # Server-side utilities
     │   ├── auth.ts                # GitHub OAuth + PKCE + JWT sessions
     │   ├── data.ts                # Build-time search index access
     │   ├── downloads.ts           # Download count tracking + rate limiting
     │   ├── maintainer.ts          # Maintainer authorization logic
-    │   ├── rate-limit.ts          # Hour-bucketed KV rate limiter
+    │   ├── rate-limit.ts          # Bucketed KV rate limiter (minute + hour)
     │   ├── reservation-do.ts      # Ghost entry reservation Durable Object
     │   ├── responses.ts           # JSON response helpers
     │   ├── sanitize.ts            # XSS protection (js-xss) + URL validation
     │   ├── stars.ts               # Star/unstar with rate limiting
     │   ├── validation.ts          # Input validation (skillset ID format)
     │   ├── docs_lib/              # Per-file docs
-    │   └── __tests__/             # Library tests
+    │   └── tests_lib/             # Library tests
     │
     ├── pages/                     # File-based routing
     │   ├── index.astro            # Homepage with intro + embedded grid (prerendered)
@@ -79,42 +81,46 @@ site/
     │   │   └── [name].astro       # Skillset detail (SSR)
     │   ├── api/
     │   │   ├── star.ts            # GET/POST star operations
-    │   │   ├── downloads.ts       # POST download increment
+    │   │   ├── downloads.ts       # GET count + POST increment
     │   │   ├── me.ts              # GET authenticated user profile
     │   │   ├── reservations.ts    # GET/POST/DELETE slot reservation CRUD
     │   │   ├── stats/
     │   │   │   └── counts.ts      # GET aggregate star + download counts
-    │   │   └── reservations/
-    │   │       ├── config.ts      # POST config updates (maintainer)
-    │   │       ├── verify.ts      # GET batch ID verification (CI)
-    │   │       ├── lookup.ts      # GET user's reservation
-    │   │       └── submit.ts      # POST mark slot submitted (maintainer)
+    │   │   ├── reservations/
+    │   │   │   ├── config.ts      # POST config updates (maintainer)
+    │   │   │   ├── verify.ts      # GET batch ID verification (CI)
+    │   │   │   ├── lookup.ts      # GET user's reservation
+    │   │   │   └── submit.ts      # POST mark slot submitted (maintainer)
+    │   │   ├── docs_api/          # API route documentation
+    │   │   └── tests_api/         # API route tests
     │   └── docs_pages/            # Per-file docs
     │
     ├── types/
-    │   ├── index.ts               # SearchIndex, SearchIndexEntry, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState
+    │   ├── index.ts               # SearchIndex, SearchIndexEntry, CcExtension, RuntimeDependency, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState
     │   ├── docs_types/            # Per-file docs
-    │   └── __tests__/             # Type tests
+    │   └── tests_types/           # Type tests
     │
     ├── layouts/
-    │   ├── BaseLayout.astro       # Global layout (sidebar nav + mobile drawer + slot)
+    │   ├── BaseLayout.astro       # Global layout (expanding sidebar + canvas bg + mobile FABs + View Transitions)
     │   └── docs_layouts/          # Per-file docs
 │
     └── styles/
-        ├── global.css                 # Tailwind layers + typography + scrollbar
-        └── docs_styles/               # Per-file docs
+        ├── global.css             # Tailwind layers + typography + scrollbar + sticky header + glow hover
+        └── docs_styles/           # Per-file docs
 ```
 
 ## Modules
 
 | Module | Purpose | ARC Doc |
 |--------|---------|---------|
+| **src (root)** | Worker entry point (`worker.ts`) + Cloudflare runtime type declarations (`env.d.ts`) | [ARC_src.md](../src/docs_src/ARC_src.md) |
 | **components** | React islands + Astro components for UI (filtering, stars, ghost entries, galleries) | [ARC_components.md](../src/components/docs_components/ARC_components.md) |
-| **lib** | Server-side auth, stars, downloads, reservations, data, sanitization, validation | [ARC_lib.md](../src/lib/docs_lib/ARC_lib.md) |
+| **lib** | Server-side auth, stars, downloads, reservations, data, sanitization, validation, rate limiting | [ARC_lib.md](../src/lib/docs_lib/ARC_lib.md) |
 | **pages** | Routes: static pages, auth endpoints, star/download APIs, reservation APIs | [ARC_pages.md](../src/pages/docs_pages/ARC_pages.md) |
-| **types** | TypeScript interfaces for skillsets, search index, MCP servers, reservations | [ARC_types.md](../src/types/docs_types/ARC_types.md) |
-| **layouts** | Base HTML layout with sidebar navigation and mobile drawer | [ARC_layouts.md](../src/layouts/docs_layouts/ARC_layouts.md) |
-| **styles** | Global CSS: Tailwind integration, typography system, scrollbar | [ARC_styles.md](../src/styles/docs_styles/ARC_styles.md) |
+| **pages/api** | API endpoints: star/download tracking, session introspection, reservation system | [ARC_api.md](../src/pages/api/docs_api/ARC_api.md) |
+| **types** | TypeScript interfaces for skillsets, search index, extensions, MCP servers, reservations | [ARC_types.md](../src/types/docs_types/ARC_types.md) |
+| **layouts** | Base layout with expanding sidebar, canvas hex rain background, mobile FABs, View Transitions | [ARC_layouts.md](../src/layouts/docs_layouts/ARC_layouts.md) |
+| **styles** | Global CSS: Tailwind layers, typography, scrollbar, sticky header condensing, glow hover | [ARC_styles.md](../src/styles/docs_styles/ARC_styles.md) |
 
 ## Routes
 
@@ -146,6 +152,7 @@ site/
 |-------|--------|------|-------------|
 | `/api/star` | GET | No | Star count + user's starred status |
 | `/api/star` | POST | Yes | Toggle star (rate limited: 10/min) |
+| `/api/downloads` | GET | No | Download count for a skillset |
 | `/api/downloads` | POST | No | Increment download count (rate limited: 30/hr per IP) |
 | `/api/stats/counts` | GET | No | Bulk star + download counts |
 | `/api/me` | GET | Yes | Authenticated user's login |
@@ -269,16 +276,17 @@ oauth:{state} → { codeVerifier, returnTo }    (5-min TTL)
 
 ### DATA Namespace
 ```
-stars:{skillsetId}       → "42"                (star count)
-user:{userId}:stars      → ["id1", "id2"]      (user's starred IDs)
-downloads:{skillsetId}   → "123"               (download count)
-ratelimit:{userId}       → "7"                 (star ops count, 60s TTL)
-dl-rate:{ip}             → "12"                (download ops count, 3600s TTL)
+stars:{skillsetId}                  → "42"           (star count)
+user:{userId}:stars                 → ["id1", "id2"] (starred skillset IDs)
+downloads:{skillsetId}              → "123"          (download count)
+ratelimit:star:{userId}:{minute}    → "3"            (star rate limit, 120s TTL)
+ratelimit:dl:{ip}:{hour}            → "7"            (download rate limit, 7200s TTL)
+ratelimit:{prefix}:{id}:{bucket}    → "N"            (generic bucketed rate limit counter)
 ```
 
 ### RESERVATIONS Durable Object Storage
 ```
-slot:{batchId}  → SlotData (discriminated union: reserved or submitted)
+batch:{batchId} → SlotData (discriminated union: reserved or submitted)
 user:{userId}   → string (batch ID user has reserved)
 config          → { totalGhostSlots, ttlDays, cohort }
 ```
@@ -309,21 +317,33 @@ config          → { totalGhostSlots, ttlDays, cohort }
 ## Design System
 
 ### Typography
-- **Serif**: Crimson Pro (headings, descriptions, body text) — 18px base (scaled up from 16px to compensate for smaller x-height)
-- **Mono**: JetBrains Mono at 0.95em (code, metadata, labels — scaled down to visually match serif)
+- **Body**: Outfit sans-serif (applied via `font-sans`)
+- **Mono**: JetBrains Mono at 0.90em / font-weight 500 (scaled for visual balance)
 
 ### Colors
-- **Background**: stone-50 (light warm gray)
-- **Text**: text-ink (near-black), text-secondary, text-tertiary
-- **Accent**: orange-500 (links, stars, highlights)
-- **Borders**: border-ink (black), border-light
-- **Status**: green-500
+- **Background**: `#020202` (near-black)
+- **Text**: `text-text-ink`, `text-text-secondary`, `text-text-tertiary`
+- **Accent**: `accent` orange (links, stars, hover), `accent-highlight` (glow)
+- **Surface**: `surface-paper` (sidebar, scrollbar track), `surface-white`
+- **Borders**: `border-ink` (subtle), `border-strong` (prominent, scrollbar thumb)
 
 ### Component Patterns
-- No border radius (`.btn-primary` uses `rounded-none` for sharp aesthetic)
 - Monospace UI elements (buttons use `font-mono`)
-- Glassmorphism: `bg-white/90 backdrop-blur-sm` for TagFilter bar
+- Dark glassmorphism: `bg-[#020202]/90 backdrop-blur-sm` for TagFilter bar and ProofGallery
 - Stable scrollbar: `scrollbar-gutter: stable` prevents layout shift
+- Sticky header condensing: `#sticky-header` transitions padding/font-size via `data-stuck` attribute
+- Proof gallery condensing: `.proof-pills` shrinks when `:root[data-header-stuck="true"]`
+- Glow hover: `.glow-border-hover` adds orange box-shadow on hover
+
+### Z-index Stack
+| Layer | z-index |
+|-------|---------|
+| Canvas background | 0 |
+| Page content | 10 |
+| Back-to-top FAB | 40 |
+| Mobile toggle FAB | 50 |
+| Overlay | 55 |
+| Sidebar | 60 |
 
 ## Testing
 ```bash

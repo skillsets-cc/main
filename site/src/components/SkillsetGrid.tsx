@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactElement } from 'react';
+import { useState, useEffect, useMemo, type ReactElement } from 'react';
 import type { SearchIndexEntry, ReservationState } from '@/types';
 import TagFilter from './TagFilter.js';
 import GhostCard from './GhostCard.js';
@@ -55,14 +55,17 @@ export default function SkillsetGrid({
   }, []);
 
   // Build submitted slot cross-reference: skillsetId → batchId
-  const submittedMap = new Map<string, string>();
-  if (reservations) {
-    for (const [batchId, slot] of Object.entries(reservations.slots)) {
-      if (slot.status === 'submitted' && slot.skillsetId) {
-        submittedMap.set(slot.skillsetId, batchId);
+  const submittedMap = useMemo(() => {
+    const map = new Map<string, string>();
+    if (reservations) {
+      for (const [batchId, slot] of Object.entries(reservations.slots)) {
+        if (slot.status === 'submitted' && slot.skillsetId) {
+          map.set(slot.skillsetId, batchId);
+        }
       }
     }
-  }
+    return map;
+  }, [reservations]);
 
   const handleSlotReserved = (sid: string, exp: number) => {
     setReservations(prev => prev ? {
@@ -83,11 +86,14 @@ export default function SkillsetGrid({
     } : prev);
   };
 
-  const handleSlotConflict = () => {
-    fetch('/api/reservations', { credentials: 'include' })
-      .then(r => r.json())
-      .then(data => setReservations(data as ReservationState))
-      .catch(() => { });
+  const handleSlotConflict = async () => {
+    try {
+      const response = await fetch('/api/reservations', { credentials: 'include' });
+      const data = await response.json() as ReservationState;
+      setReservations(data);
+    } catch {
+      // Keep current state on conflict refetch failure
+    }
   };
 
   return (

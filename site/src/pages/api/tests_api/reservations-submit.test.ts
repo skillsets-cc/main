@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createAPIContext, createMockStub } from '../../../lib/tests_lib/test-utils';
+import { createAPIContext, createMockStub } from '@/lib/tests_lib/test-utils';
 
 vi.mock('@/lib/auth', () => ({
   getSessionFromRequest: vi.fn(),

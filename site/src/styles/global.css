@@ -10,7 +10,6 @@
   body {
     font-family: 'Outfit', sans-serif;
     scrollbar-gutter: stable;
-    /* Subtle noise overlay or dark canvas effects can be placed here if needed, but for now just basic text setup */
   }
 
   code, pre, kbd, samp, .font-mono {
@@ -51,7 +50,7 @@
       display: none;
     }
   }
-  
+
   /* Utilities for glow effects */
   .glow-border-hover {
     transition: box-shadow 0.3s ease, border-color 0.3s ease;

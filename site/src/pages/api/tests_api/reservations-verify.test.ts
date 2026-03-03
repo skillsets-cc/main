@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createMockEnv, createAPIContext, createMockStub } from '../../../lib/tests_lib/test-utils';
+import { createMockEnv, createAPIContext, createMockStub } from '@/lib/tests_lib/test-utils';
 
 vi.mock('@/lib/reservation-do', () => ({
   getReservationStub: vi.fn(),

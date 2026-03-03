@@ -1,12 +1,12 @@
 # BaseLayout.astro
 
 ## Purpose
-Base HTML layout providing consistent page structure, navigation sidebar, fonts, and global styles. Used by all pages to maintain uniform design and navigation across the site.
+Base HTML layout providing consistent page structure, expanding icon sidebar, fonts, and global styles. Used by all pages to maintain uniform design and navigation across the site.
 
 ## Public API
 | Export | Type | Description |
 |--------|------|-------------|
-| BaseLayout | Astro layout | Wrapper layout with sidebar nav, fonts, and HTML structure |
+| BaseLayout | Astro layout | Wrapper layout with sidebar nav, ambient canvas background, and HTML structure |
 | Props | interface | title (required), description (optional) |
 
 ## Dependencies
@@ -14,13 +14,14 @@ Base HTML layout providing consistent page structure, navigation sidebar, fonts,
   - `@/components/AuthStatus.tsx` (GitHub OAuth login status)
   - `@/styles/global.css` (Tailwind CSS, global styles)
 - **External**:
-  - Google Fonts (Crimson Pro, JetBrains Mono)
+  - Google Fonts (Outfit, JetBrains Mono)
+  - `astro:transitions` (ClientRouter for View Transitions API)
 
 ## Integration Points
 - **Used by**:
   - All pages (index, about, contribute, cli, skillset detail, 404)
 - **Consumes**:
-  - AuthStatus component (client-side GitHub login status)
+  - AuthStatus component (client-side GitHub login status, `client:load`)
 - **Emits**: No events
 
 ## Key Logic
@@ -29,46 +30,44 @@ Base HTML layout providing consistent page structure, navigation sidebar, fonts,
 - Meta tags: charset, viewport, description
 - Dynamic title and description from props
 - Preconnects to Google Fonts for performance
-- Loads two fonts: Crimson Pro (serif body), JetBrains Mono (monospace)
+- Loads two fonts: Outfit (sans-serif body), JetBrains Mono (monospace)
+- `<ClientRouter />` for Astro View Transitions (SPA-like navigation)
 
 ### Layout Structure
-- Flexbox layout: sidebar (fixed width 64 on desktop) + main content (flex-grow)
-- Sidebar: sticky on desktop, slide-out drawer on mobile with overlay
-- Selection styling: orange highlight with ink text
-- Main content has `overflow-x-clip` to prevent horizontal scroll on mobile
+- Flexbox layout: fixed sidebar (icon-only, expands on hover) + main content (flex-grow)
+- Main content: `md:ml-16` left margin to clear collapsed sidebar
+- Selection styling: orange highlight with ink text (`selection:bg-accent-highlight`)
+
+### Expanding Sidebar (Desktop)
+- **Collapsed**: `w-16` (icon only), nav labels hidden (`md:opacity-0`)
+- **Expanded**: `w-64` on group hover (`md:hover:w-64`), labels fade in (`md:group-hover:opacity-100`)
+- `overflow-hidden` + `transition-all duration-300` for smooth width animation
+- Auth status in footer slot of sidebar (always icon, label fades with hover)
 
 ### Mobile Sidebar Behavior
-- **Toggle button**: Fixed bottom-left (z-[70]), hamburger icon
-- **Sidebar drawer**: Slides in from left with `-translate-x-full` transform
-- **Overlay**: Semi-transparent black backdrop (z-[55]) dismisses sidebar on click
-- **Close button**: X icon in top-right of sidebar (visible only on mobile)
-- **Z-index stack**: toggle (70) > sidebar (60) > overlay (55)
+- **Toggle FAB**: Fixed bottom-left (`z-50`), hamburger icon, `md:hidden`
+- **Sidebar drawer**: Slides in from left with `-translate-x-full`, `fixed inset-y-0 left-0 z-[60]`
+- **Overlay**: `fixed inset-0 bg-black/60 backdrop-blur-sm z-[55]`, dismisses sidebar on click
+- **Z-index stack**: sidebar (60) > overlay (55) > toggle (50)
 
-### Sidebar Navigation
-- **Logo**: "Skillsets.cc" + tagline "EST. 2026 • PUBLIC DOMAIN"
-- **Index Menu**: Links to Skillsets, CLI, Contribute, About
-- **Auth Status**: GitHub login widget (AuthStatus component with `client:load`)
-- **Social Links**: GitHub, Reddit, X, Email (icons only)
-- Sticky positioning on desktop (md:sticky md:top-0)
-- Border-right separator (border-border-ink)
+### Sidebar Navigation Links
+- 7 nav links: Registry (/), CLI (/cli), Contribute (/contribute), About (/about), GitHub, Reddit, Email
+- Each link: icon (w-5 h-5) + label (font-mono text-sm, fades on desktop)
+- Hover: `hover:bg-surface-white hover:text-accent`
 
-### Navigation Links
-- Hover effect: orange color + underline
-- Monospace uppercase section headers
-- Serif font for main navigation items
+### Back-to-Top Button
+- Fixed bottom-right on mobile, centered between sidebar and viewport edge on desktop (`md:left-16 md:mx-auto`)
+- Hidden by default (`opacity-0 pointer-events-none`), appears after scrolling one viewport height
+- Uses `requestAnimationFrame` with `ticking` flag for scroll performance
+- Smooth scroll: `window.scrollTo({ top: 0, behavior: 'smooth' })`
 
-### Footer Social Icons
-- SVG icons for GitHub, Reddit, X, Email
-- Centered layout with gap-6 spacing
-- Hover effect: orange color transition
-- External links open in new tab (target="_blank", rel="noopener noreferrer")
+### Ghost Terminal Canvas Background
+- `<canvas id="bg-canvas">` fullscreen, `opacity-30`, positioned behind content (`z-0`)
+- Animated hex digit rain (0-9, A-F) in orange accent color at ~20fps
+- `transition:persist` on wrapper preserves animation across Astro page transitions
+- Width-only resize reinitializes drops; height-only resize (mobile URL bar) preserves state
+- `distFromCenter` gradient: columns near edges slightly brighter than center
 
-### Font Stack
-- **Body (font-sans)**: Crimson Pro (remapped in Tailwind config; headings, body text)
-- **Mono (font-mono)**: JetBrains Mono (code, metadata, labels)
-
-### Interactive Script
-Inline JavaScript handles mobile sidebar:
-- `openSidebar()`: Removes `-translate-x-full`, shows overlay
-- `closeSidebar()`: Adds `-translate-x-full`, hides overlay
-- Event listeners: toggle button opens, close button + overlay close
+### Main Content Area
+- `relative z-10` on content wrapper, above the canvas background
+- Grain overlay: inline SVG noise filter at `opacity-[0.03]` for texture

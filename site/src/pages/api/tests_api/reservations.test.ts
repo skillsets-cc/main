@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createMockKV, createMockEnv, createAPIContext, createMockStub } from '../../../lib/tests_lib/test-utils';
+import { createMockKV, createMockEnv, createAPIContext, createMockStub } from '@/lib/tests_lib/test-utils';
 
 vi.mock('@/lib/auth', () => ({
   getSessionFromRequest: vi.fn(),

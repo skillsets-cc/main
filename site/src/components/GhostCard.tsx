@@ -103,7 +103,7 @@ export default function GhostCard({
     <article
       className={`group border border-dashed py-4 px-4 md:py-6 md:px-6 mb-4 rounded-none transition-all ${status === 'available'
           ? 'border-accent/20 bg-surface-paper hover:bg-surface-white hover:border-text-secondary'
-          : 'border-accent/30 bg-[#0a0f18] glow-border-hover shadow-[0_0_10px_rgba(59,130,246,0.1)]'
+          : 'border-accent/30 bg-surface-paper glow-border-hover'
         }`}
     >
       <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-4">

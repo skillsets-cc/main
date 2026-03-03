@@ -11,7 +11,7 @@ Manages download counters for skillsets using Cloudflare KV storage with IP-base
 | `getDownloadCount` | function | Get current download count for a skillset, return 0 if not found |
 
 ## Dependencies
-- **Internal**: None (standalone library)
+- **Internal**: `rate-limit.ts` (`isHourlyRateLimited`)
 - **External**:
   - Cloudflare KV API (namespace for persistent storage)
 
@@ -26,16 +26,14 @@ Manages download counters for skillsets using Cloudflare KV storage with IP-base
 
 ### KV Storage Schema
 ```
-downloads:{skillsetId}   → "42"  (download count as string)
-dl-rate:{ip}             → "12"  (request count, 3600s TTL)
+downloads:{skillsetId}        → "42"  (download count as string)
+ratelimit:dl:{ip}:{hour}      → "12"  (hour-bucketed request count, 7200s TTL)
 ```
 
 ### Rate Limiting
 - 30 downloads per hour per IP (DL_RATE_LIMIT_MAX)
-- Uses sliding window approximation via KV TTL (3600 seconds = 1 hour)
-- First request from IP sets counter to "1" with 1-hour TTL
-- Subsequent requests increment counter, renew TTL
-- Returns true if count >= 30
+- Delegates to `isHourlyRateLimited` from `rate-limit.ts`
+- Uses hour-bucketed keys to prevent TTL-reset bug on each request
 - IP-based (not user-based) to catch unauthenticated abuse
 
 ### Increment Strategy

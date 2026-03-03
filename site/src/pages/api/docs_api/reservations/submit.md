@@ -13,9 +13,10 @@ Maintainer-only API endpoint for transitioning a reserved slot to submitted stat
 
 - **Internal**:
   - `@/lib/auth` (session validation, Env type)
-  - `@/lib/responses` (jsonResponse, errorResponse helpers)
-  - `@/lib/reservation-do` (getReservationStub for DO access)
+  - `@/lib/responses` (jsonResponse, errorResponse, parseJsonBody)
+  - `@/lib/reservation-do` (getReservationStub, BATCH_ID_REGEX)
   - `@/lib/maintainer` (isMaintainer authorization check)
+  - `@/lib/validation` (isValidSkillsetId)
 - **External**: `astro` (APIRoute type)
 
 ## Integration Points

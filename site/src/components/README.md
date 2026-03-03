@@ -18,7 +18,7 @@ components/
 │   ├── StarButton.md
 │   ├── TagFilter.md
 │   └── useCountdown.md
-├── __tests__/                 # Component tests
+├── tests_components/          # Component tests
 │   ├── fixtures.ts
 │   ├── AuthStatus.test.tsx
 │   ├── CopyCommand.test.tsx

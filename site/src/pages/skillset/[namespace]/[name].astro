@@ -59,11 +59,9 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
       style="top: var(--vv-offset, 0px);"
     >
       <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div>
-          <h1 class="text-4xl font-bold font-serif text-text-ink">
-            {skillset.name} <span class="text-lg font-normal text-text-secondary">by <a href={authorUrl} class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">{skillset.author.handle}</a></span>
-          </h1>
-        </div>
+        <h1 class="text-4xl font-bold font-serif text-text-ink">
+          {skillset.name} <span class="text-lg font-normal text-text-secondary">by <a href={authorUrl} class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">{skillset.author.handle}</a></span>
+        </h1>
 
         <div data-stuck-hide class="flex items-center gap-2">
           <DownloadCount
@@ -101,17 +99,15 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
       </div>
     </header>
 
-    <div class="space-y-6 mb-6">
-      <section>
-        <p class="text-sm text-text-secondary font-serif mb-2">
-          In Claude Code, add the skillset plugin from the skillsets.cc marketplace, and run:
-        </p>
-        <CopyCommand client:load command={installCommand} />
-        <p class="mt-1.5 text-sm text-text-tertiary font-serif italic">
-          Reviewed best-effort with no security guarantees. You are the final quality gate, as with any OSS.
-        </p>
-      </section>
-    </div>
+    <section class="mb-6">
+      <p class="text-sm text-text-secondary font-serif mb-2">
+        In Claude Code, add the skillset plugin from the skillsets.cc marketplace, and run:
+      </p>
+      <CopyCommand client:load command={installCommand} />
+      <p class="mt-1.5 text-sm text-text-tertiary font-serif italic">
+        Reviewed best-effort with no security guarantees. You are the final quality gate, as with any OSS.
+      </p>
+    </section>
 
     <ProofGallery
       productionLinks={skillset.verification.production_links}
@@ -131,40 +127,40 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
             <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">MCP Servers</h2>
             <div class="flex-1 min-w-0">
               <div class="flex flex-wrap gap-x-8 gap-y-2">
-                {skillset.mcp_servers.filter(s => s.type !== 'docker').map(server => (
+                {skillset.mcp_servers.map(server => (
                   <div class="flex items-start gap-2">
                     <div class="w-1 self-stretch bg-accent flex-shrink-0"></div>
                     <div>
-                      <p class="font-bold font-serif text-sm text-text-ink">
-                        {server.name}
-                        <span class="text-text-tertiary font-normal text-xs"> ({server.type})</span>
-                      </p>
-                      {server.command && (
-                        <p class="text-xs text-text-secondary font-mono">
-                          {server.command} {(server.args || []).join(' ')}
-                        </p>
-                      )}
-                      {server.url && (
-                        <p class="text-xs text-text-secondary font-mono">{server.url}</p>
-                      )}
-                      <p class="text-xs text-text-secondary font-serif">
-                        {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {skillset.mcp_servers.filter(s => s.type === 'docker').map(server => (
-                  <div class="flex items-start gap-2">
-                    <div class="w-1 self-stretch bg-accent flex-shrink-0"></div>
-                    <div>
-                      <p class="font-bold font-mono text-sm text-text-ink">{server.image}</p>
-                      <p class="text-xs text-text-secondary font-serif">
-                        {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
-                      </p>
-                      {server.servers && server.servers.length > 0 && (
-                        <p class="text-xs text-text-secondary font-serif">
-                          Runs: {server.servers.map(s => s.name).join(', ')}
-                        </p>
+                      {server.type === 'docker' ? (
+                        <>
+                          <p class="font-bold font-mono text-sm text-text-ink">{server.image}</p>
+                          <p class="text-xs text-text-secondary font-serif">
+                            {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
+                          </p>
+                          {server.servers && server.servers.length > 0 && (
+                            <p class="text-xs text-text-secondary font-serif">
+                              Runs: {server.servers.map(s => s.name).join(', ')}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <p class="font-bold font-serif text-sm text-text-ink">
+                            {server.name}
+                            <span class="text-text-tertiary font-normal text-xs"> ({server.type})</span>
+                          </p>
+                          {server.command && (
+                            <p class="text-xs text-text-secondary font-mono">
+                              {server.command} {(server.args || []).join(' ')}
+                            </p>
+                          )}
+                          {server.url && (
+                            <p class="text-xs text-text-secondary font-mono">{server.url}</p>
+                          )}
+                          <p class="text-xs text-text-secondary font-serif">
+                            {server.mcp_reputation} <span class="italic">({server.researched_at})</span>
+                          </p>
+                        </>
                       )}
                     </div>
                   </div>

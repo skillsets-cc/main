@@ -9,6 +9,7 @@ Provides standardized JSON response helpers for API routes to ensure consistent 
 | `JsonResponseOptions` | interface | Options for response (status code, headers) |
 | `jsonResponse` | function | Create JSON response with Content-Type header and optional status/headers |
 | `errorResponse` | function | Create JSON error response with error field and status code |
+| `parseJsonBody` | function | Parse JSON body from request; returns parsed body or 400 error Response on failure |
 
 ## Dependencies
 - **Internal**: None (standalone library)

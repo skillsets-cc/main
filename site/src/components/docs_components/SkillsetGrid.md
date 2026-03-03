@@ -8,7 +8,6 @@ Displays a filterable grid of skillset cards with live star counts and ghost ent
 |--------|------|-------------|
 | `SkillsetGrid` (default) | component | React component coordinating search, filtering, and grid display |
 | `SkillsetGridProps` | interface | Props: skillsets array |
-| `StarIcon` | function | Helper component rendering filled star SVG icon |
 
 ## Dependencies
 - **Internal**:
@@ -16,7 +15,7 @@ Displays a filterable grid of skillset cards with live star counts and ghost ent
   - `./TagFilter` (tag filtering component)
   - `./GhostCard` (ghost entry slot component)
 - **External**:
-  - `react` (useState, useEffect)
+  - `react` (useState, useEffect, useMemo)
 
 ## Integration Points
 - **Used by**:
@@ -43,9 +42,9 @@ Displays a filterable grid of skillset cards with live star counts and ghost ent
 ### Grid Rendering
 - Each skillset is a clickable article linking to `/skillset/{namespace}/{name}`
 - Displays: name, version, author, description, star count, MCP badge (if applicable), tags, batch ID (if present)
-- MCP badge: orange "MCP" pill with server count tooltip, shown when `mcp_servers` is non-empty
+- MCP badge: accent-colored "MCP" pill (`text-accent border-accent/50`) with server count tooltip, shown when `mcp_servers` is non-empty
 - Batch ID: Shown in tertiary font-mono if `skillset.batch_id` exists or skillset is in submitted slots map
-- Hover effect: light background, orange title color
+- Hover effect: light background (`hover:bg-surface-white`), accent title color (`group-hover:text-accent`)
 - Responsive layout: stacked on mobile, row on desktop
 
 ### Ghost Entry Integration

@@ -33,31 +33,32 @@ export interface AuthState {
   returnTo?: string;
 }
 
-/**
- * Generate cryptographically secure random string for PKCE.
- */
+const encoder = new TextEncoder();
+
 function generateCodeVerifier(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
   return base64UrlEncode(array);
 }
 
-/**
- * Base64 URL encode bytes (RFC 4648).
- */
 function base64UrlEncode(buffer: Uint8Array): string {
   const base64 = btoa(String.fromCharCode(...buffer));
   return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-/**
- * Create SHA-256 code challenge from verifier for PKCE.
- */
 async function createCodeChallenge(verifier: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(verifier);
-  const digest = await crypto.subtle.digest('SHA-256', data);
+  const digest = await crypto.subtle.digest('SHA-256', encoder.encode(verifier));
   return base64UrlEncode(new Uint8Array(digest));
+}
+
+async function importHmacKey(secret: string, usage: 'sign' | 'verify'): Promise<CryptoKey> {
+  return crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    [usage]
+  );
 }
 
 /**
@@ -176,20 +177,8 @@ export async function createSessionToken(
   const payloadB64 = base64UrlEncodeString(JSON.stringify(payload));
   const unsignedToken = `${headerB64}.${payloadB64}`;
 
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(env.JWT_SECRET),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  );
-
-  const signature = await crypto.subtle.sign(
-    'HMAC',
-    key,
-    encoder.encode(unsignedToken)
-  );
+  const key = await importHmacKey(env.JWT_SECRET, 'sign');
+  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(unsignedToken));
 
   const signatureB64 = base64UrlEncode(new Uint8Array(signature));
   return `${unsignedToken}.${signatureB64}`;
@@ -209,21 +198,11 @@ export async function verifySessionToken(
     const [headerB64, payloadB64, signatureB64] = parts;
     const unsignedToken = `${headerB64}.${payloadB64}`;
 
-    // Verify signature
-    const encoder = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      'raw',
-      encoder.encode(env.JWT_SECRET),
-      { name: 'HMAC', hash: 'SHA-256' },
-      false,
-      ['verify']
-    );
-
-    const signatureBytes = base64UrlDecode(signatureB64);
+    const key = await importHmacKey(env.JWT_SECRET, 'verify');
     const valid = await crypto.subtle.verify(
       'HMAC',
       key,
-      signatureBytes as BufferSource,
+      base64UrlDecode(signatureB64),
       encoder.encode(unsignedToken)
     );
 
@@ -279,7 +258,6 @@ export function createLogoutCookie(): string {
 // --- Helper functions ---
 
 function base64UrlEncodeString(str: string): string {
-  const encoder = new TextEncoder();
   return base64UrlEncode(encoder.encode(str));
 }
 

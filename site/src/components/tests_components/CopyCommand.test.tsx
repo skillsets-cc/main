@@ -6,7 +6,6 @@ describe('CopyCommand', () => {
   const originalClipboard = navigator.clipboard;
 
   beforeEach(() => {
-    vi.useRealTimers();
     // Mock clipboard API
     Object.assign(navigator, {
       clipboard: {

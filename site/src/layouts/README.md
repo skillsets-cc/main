@@ -1,7 +1,7 @@
 # Layouts
 
 ## Purpose
-Base HTML layout providing consistent page structure, navigation sidebar, fonts, and global styles for all pages across the site.
+Base HTML layout providing consistent page structure, expanding icon sidebar, ambient canvas background, and global styles for all pages across the site.
 
 ## Architecture
 ```
@@ -17,4 +17,4 @@ layouts/
 | File | Purpose | Documentation |
 |------|---------|---------------|
 | — | Architecture overview | [ARC_layouts.md](./docs_layouts/ARC_layouts.md) |
-| `BaseLayout.astro` | Base HTML layout with responsive sidebar navigation, fonts, and global styles. Used by all pages. | [Docs](./docs_layouts/BaseLayout.md) |
+| `BaseLayout.astro` | Base HTML layout with expanding icon sidebar, ghost terminal canvas background, mobile FABs, and View Transitions. Used by all pages. | [Docs](./docs_layouts/BaseLayout.md) |

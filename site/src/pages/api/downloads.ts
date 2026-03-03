@@ -3,10 +3,10 @@
  * POST /api/downloads - Increment download count for a skillset.
  */
 import type { APIRoute } from 'astro';
-import type { Env } from '../../lib/auth';
-import { incrementDownloads, isDownloadRateLimited, getDownloadCount } from '../../lib/downloads';
-import { jsonResponse, errorResponse, parseJsonBody } from '../../lib/responses';
-import { isValidSkillsetId } from '../../lib/validation';
+import type { Env } from '@/lib/auth';
+import { incrementDownloads, isDownloadRateLimited, getDownloadCount } from '@/lib/downloads';
+import { jsonResponse, errorResponse, parseJsonBody } from '@/lib/responses';
+import { isValidSkillsetId } from '@/lib/validation';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
@@ -32,21 +32,15 @@ export const GET: APIRoute = async ({ request, locals }) => {
   }
 };
 
-interface DownloadRequest {
-  skillset: string;
-}
-
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  // IP-based rate limiting
   const ip = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
-  const rateLimited = await isDownloadRateLimited(env.DATA, ip);
-  if (rateLimited) {
+  if (await isDownloadRateLimited(env.DATA, ip)) {
     return errorResponse('Rate limit exceeded', 429);
   }
 
-  const body = await parseJsonBody<DownloadRequest>(request);
+  const body = await parseJsonBody<{ skillset: string }>(request);
   if (body instanceof Response) return body;
 
   if (!body.skillset) {

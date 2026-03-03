@@ -162,18 +162,5 @@ describe('downloads', () => {
       );
     });
 
-    it('handles missing KV value as zero count', async () => {
-      const kv = createMockKV();
-      // KV returns null for non-existent keys
-
-      const result = await isDownloadRateLimited(kv, '192.168.1.1');
-
-      expect(result).toBe(false);
-      expect(kv.put).toHaveBeenCalledWith(
-        `ratelimit:dl:192.168.1.1:${MOCK_HOUR}`,
-        '1',
-        { expirationTtl: 7200 }
-      );
-    });
   });
 });

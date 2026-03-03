@@ -13,7 +13,7 @@ API endpoint for star/unstar operations on skillsets. Handles authenticated POST
 - **Internal**:
   - `lib/auth` (getSessionFromRequest, Env type)
   - `lib/stars` (toggleStar, isRateLimited, isStarred, getStarCount)
-  - `lib/responses` (jsonResponse, errorResponse)
+  - `lib/responses` (jsonResponse, errorResponse, parseJsonBody)
   - `lib/validation` (isValidSkillsetId)
 - **External**:
   - `astro` (APIRoute type)

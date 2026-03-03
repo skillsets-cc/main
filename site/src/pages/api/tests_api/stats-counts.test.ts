@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createAPIContext, createMockKV } from '../../../lib/tests_lib/test-utils';
+import { createAPIContext, createMockKV } from '@/lib/tests_lib/test-utils';
 import { GET } from '../stats/counts';
 
 describe('GET /api/stats/counts', () => {

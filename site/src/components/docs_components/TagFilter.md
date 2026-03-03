@@ -13,7 +13,8 @@ Provides interactive tag-based filtering for skillsets in a fixed bottom bar. Di
 - **Internal**:
   - `@/types` (SearchIndexEntry interface)
 - **External**:
-  - `react` (`useState`, `useMemo`, `useEffect`, `createPortal`)
+  - `react` (`useState`, `useMemo`, `useEffect`)
+  - `react-dom` (`createPortal`)
 
 ## Integration Points
 - **Used by**: `components/SkillsetGrid.tsx` (embedded in grid component)
@@ -35,14 +36,18 @@ Provides interactive tag-based filtering for skillsets in a fixed bottom bar. Di
 
 ### Portal Rendering
 - Uses `createPortal(bar, document.body)` to render at document root
-- Fixed positioning at bottom with `z-50` (above content)
-- Waits for client mount (`mounted` state) before rendering
-- Returns `null` during SSR/before hydration
+- Fixed positioning at bottom (`fixed bottom-0 left-0 right-0`) with `z-50`
+- Waits for client mount (`mounted` state) before rendering; returns `null` during SSR/before hydration
+
+### Visibility Control
+- Uses `IntersectionObserver` to watch a `#registry` DOM element
+- Bar is visible (`opacity-100 translate-y-0`) only when `#registry` is intersecting (threshold: 0.1)
+- Slides out below viewport when `#registry` is not visible (`opacity-0 translate-y-full pointer-events-none`)
 
 ### UI State
-- **Fixed bar**: Bottom-0, left-64 on desktop (sidebar offset), frosted glass (`bg-surface-white/90 backdrop-blur-sm`)
-- **Active tag**: White background, accent border and text (`border-accent text-accent`)
-- **Inactive tags**: Surface-paper background, gray border, hover effect
+- **Fixed bar**: Dark background (`bg-[#020202]/90`) with `backdrop-blur-sm`; full-width at page bottom
+- **Active tag**: Surface-white background, accent border and text (`border-accent text-accent`) with glow
+- **Inactive tags**: Surface-paper background, muted accent border; hover brightens border and text
 - **All button**: active when no tag selected
 - Horizontal scroll with `scrollbar-hide` for overflow tags
 

@@ -18,19 +18,21 @@ lib/
 │   ├── sanitize.md
 │   ├── stars.md
 │   └── validation.md
-├── __tests__/                 # Library tests
+├── tests_lib/                 # Library tests
 │   ├── test-utils.ts
 │   ├── auth.test.ts
+│   ├── data.test.ts
 │   ├── downloads.test.ts
 │   ├── maintainer.test.ts
 │   ├── reservation-do.test.ts
 │   ├── sanitize.test.ts
+│   ├── stars.test.ts
 │   └── validation.test.ts
 ├── auth.ts                    # GitHub OAuth + JWT session management
 ├── data.ts                    # Search index access (build-time)
 ├── downloads.ts               # Download counting
 ├── maintainer.ts              # Maintainer authorization logic
-├── rate-limit.ts              # Hour-bucketed KV rate limiter
+├── rate-limit.ts              # Bucketed KV rate limiters (minute + hour)
 ├── reservation-do.ts          # Ghost entry reservation Durable Object
 ├── responses.ts               # JSON response helpers
 ├── sanitize.ts                # XSS protection for README content
@@ -47,7 +49,7 @@ lib/
 | `data.ts` | Read-only access to build-time search index, skillset queries | [Docs](./docs_lib/data.md) |
 | `downloads.ts` | Download counter with IP-based rate limiting (30/hr) | [Docs](./docs_lib/downloads.md) |
 | `maintainer.ts` | Check if user is in maintainer allowlist (MAINTAINER_USER_IDS) | [Docs](./docs_lib/maintainer.md) |
-| `rate-limit.ts` | Hour-bucketed KV rate limiter with auto-expiring counters | [Docs](./docs_lib/rate-limit.md) |
+| `rate-limit.ts` | Minute and hour-bucketed KV rate limiters with auto-expiring counters | [Docs](./docs_lib/rate-limit.md) |
 | `reservation-do.ts` | Durable Object for ghost entry slot reservations with atomic operations | [Docs](./docs_lib/reservation-do.md) |
 | `responses.ts` | Standardized JSON response helpers for API routes | [Docs](./docs_lib/responses.md) |
 | `sanitize.ts` | XSS protection via whitelist-based HTML sanitization and URL protocol validation | [Docs](./docs_lib/sanitize.md) |

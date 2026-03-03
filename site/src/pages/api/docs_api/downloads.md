@@ -6,13 +6,14 @@ API endpoint for tracking skillset downloads. Called by the CLI after successful
 ## Public API
 | Export | Type | Description |
 |--------|------|-------------|
+| `GET` | APIRoute | Get download count for a skillset by `?skillsetId=` query param; cached 60s |
 | `POST` | APIRoute | Increment download count for a skillset, return new count |
 
 ## Dependencies
 - **Internal**:
   - `lib/auth` (Env type for KV access)
-  - `lib/downloads` (incrementDownloads, isDownloadRateLimited)
-  - `lib/responses` (jsonResponse, errorResponse)
+  - `lib/downloads` (incrementDownloads, isDownloadRateLimited, getDownloadCount)
+  - `lib/responses` (jsonResponse, errorResponse, parseJsonBody)
   - `lib/validation` (isValidSkillsetId)
 - **External**:
   - `astro` (APIRoute type)
@@ -25,6 +26,11 @@ API endpoint for tracking skillset downloads. Called by the CLI after successful
 - **Emits**: JSON response with new download count
 
 ## Key Logic
+
+### GET /api/downloads?skillsetId=
+1. Validate `skillsetId` query param presence and format
+2. Call `getDownloadCount()` to fetch current count from KV
+3. Return `{ skillsetId, count }` with `Cache-Control: public, max-age=60`
 
 ### POST /api/downloads
 1. Extract IP from `CF-Connecting-IP` or `X-Forwarded-For` headers

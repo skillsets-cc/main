@@ -3,13 +3,8 @@
  * GET /api/stats/counts - Returns all star and download counts.
  */
 import type { APIRoute } from 'astro';
-import type { Env } from '../../../lib/auth';
-import { jsonResponse, errorResponse } from '../../../lib/responses';
-
-interface CountsResponse {
-  stars: Record<string, number>;
-  downloads: Record<string, number>;
-}
+import type { Env } from '@/lib/auth';
+import { jsonResponse, errorResponse } from '@/lib/responses';
 
 /** Build a counts map from KV keys and values. */
 function buildCountsMap(
@@ -17,12 +12,9 @@ function buildCountsMap(
   values: (string | null)[],
   prefix: string,
 ): Record<string, number> {
-  const counts: Record<string, number> = {};
-  keys.forEach((key, i) => {
-    const skillsetId = key.replace(prefix, '');
-    counts[skillsetId] = parseInt(values[i] || '0', 10);
-  });
-  return counts;
+  return Object.fromEntries(
+    keys.map((key, i) => [key.replace(prefix, ''), parseInt(values[i] || '0', 10)])
+  );
 }
 
 export const GET: APIRoute = async ({ locals }) => {
@@ -42,7 +34,7 @@ export const GET: APIRoute = async ({ locals }) => {
       Promise.all(downloadKeys.map((k) => env.DATA.get(k))),
     ]);
 
-    const response: CountsResponse = {
+    const response = {
       stars: buildCountsMap(starKeys, starValues, 'stars:'),
       downloads: buildCountsMap(downloadKeys, downloadValues, 'downloads:'),
     };

@@ -13,8 +13,9 @@ Public API endpoint for CI validation of batch ID reservations. Used by GitHub A
 
 - **Internal**:
   - `@/lib/auth` (Env type)
-  - `@/lib/responses` (jsonResponse, errorResponse helpers)
-  - `@/lib/reservation-do` (getReservationStub for DO access)
+  - `@/lib/responses` (jsonResponse, errorResponse)
+  - `@/lib/reservation-do` (getReservationStub, BATCH_ID_REGEX)
+  - `@/lib/rate-limit` (isHourlyRateLimited)
 - **External**: `astro` (APIRoute type)
 
 ## Integration Points
@@ -24,7 +25,8 @@ Public API endpoint for CI validation of batch ID reservations. Used by GitHub A
 
 ## Key Logic
 
-### Rate Limiting (isVerifyRateLimited)
+### Rate Limiting
+Uses `isHourlyRateLimited` directly (no named wrapper), IP-based via Astro `clientAddress`:
 Hour-bucketed KV keys, IP-based (not userId) since endpoint is public:
 - Key format: `ratelimit:verify:{ip}:{hour}`
 - Limit: 30 requests per hour

@@ -72,11 +72,8 @@ describe('auth', () => {
 
       await expect(
         handleOAuthCallback(env, 'test-code', 'invalid-state')
-      ).rejects.toThrow(AuthError);
-
-      await expect(
-        handleOAuthCallback(env, 'test-code', 'invalid-state')
       ).rejects.toMatchObject({
+        name: 'AuthError',
         statusCode: 403,
         message: 'Invalid or expired OAuth state',
       });

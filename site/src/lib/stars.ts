@@ -96,59 +96,33 @@ const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 100;
 
 /**
- * Read from KV with exponential backoff on 429 errors.
+ * Retry an async operation with exponential backoff on 429 errors.
  */
-async function retryKVRead<T>(
-  kv: KVNamespace,
-  key: string,
-  defaultValue: T
-): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
-      const value = await kv.get(key);
-      if (value === null) return defaultValue;
-
-      // Parse based on expected type
-      if (typeof defaultValue === 'number') {
-        return parseInt(value, 10) as T;
-      }
-      return JSON.parse(value) as T;
+      return await fn();
     } catch (error: unknown) {
-      const err = error as { status?: number };
-      if (err?.status === 429 && attempt < MAX_RETRIES - 1) {
-        await sleep(BASE_DELAY_MS * Math.pow(2, attempt));
+      if ((error as { status?: number })?.status === 429 && attempt < MAX_RETRIES - 1) {
+        await new Promise((r) => setTimeout(r, BASE_DELAY_MS * Math.pow(2, attempt)));
         continue;
       }
       throw error;
     }
   }
-  return defaultValue;
+  throw new Error('withRetry: unreachable');
 }
 
-/**
- * Write to KV with exponential backoff on 429 errors.
- */
-async function retryKVWrite(
-  kv: KVNamespace,
-  key: string,
-  value: string,
-  options?: KVNamespacePutOptions
-): Promise<void> {
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    try {
-      await kv.put(key, value, options);
-      return;
-    } catch (error: unknown) {
-      const err = error as { status?: number };
-      if (err?.status === 429 && attempt < MAX_RETRIES - 1) {
-        await sleep(BASE_DELAY_MS * Math.pow(2, attempt));
-        continue;
-      }
-      throw error;
-    }
-  }
+async function retryKVRead<T>(kv: KVNamespace, key: string, defaultValue: T): Promise<T> {
+  return withRetry(async () => {
+    const value = await kv.get(key);
+    if (value === null) return defaultValue;
+    return typeof defaultValue === 'number'
+      ? parseInt(value, 10) as T
+      : JSON.parse(value) as T;
+  });
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+async function retryKVWrite(kv: KVNamespace, key: string, value: string, options?: KVNamespacePutOptions): Promise<void> {
+  return withRetry(() => kv.put(key, value, options));
 }

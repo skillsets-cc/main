@@ -30,7 +30,7 @@ describe('StarButton', () => {
 
   it('toggles star on click', async () => {
     // Mock fetch before render - component fetches star state on mount
-    globalThis.fetch = vi.fn().mockImplementation((url: string, options?: RequestInit) => {
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, options?: RequestInit) => {
       // GET request for initial star state
       if (!options?.method || options.method === 'GET') {
         return Promise.resolve({

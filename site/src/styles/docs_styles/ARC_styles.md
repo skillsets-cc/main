@@ -29,20 +29,25 @@ styles/
 ## Design System
 
 ### Typography Hierarchy
-- **Base**: 18px (scaled up from Tailwind's 16px to compensate for Crimson Pro's smaller x-height)
-- **Serif**: Crimson Pro (body text, headings)
-- **Mono**: JetBrains Mono at 0.95em (scaled down to visually match serif)
+- **Base**: 16px (Tailwind default)
+- **Body**: Outfit sans-serif (`font-family: 'Outfit', sans-serif`)
+- **Mono**: JetBrains Mono at 0.90em / font-weight 500 (scaled for visual balance)
 
 ### Color System
 All colors reference Tailwind theme tokens (defined in `site/tailwind.config.js`):
-- `colors.bg.paper` - Base background
+- `colors.surface.paper` - Sidebar / scrollbar track background
 - `colors.border.ink` - Subtle borders
-- `colors.border.strong` - Prominent borders
-- `colors.text.tertiary` - Muted text/UI elements
+- `colors.border.strong` - Prominent borders / scrollbar thumb
+- `colors.text.tertiary` - Muted text / scrollbar hover
+- `colors.accent.DEFAULT` - Orange accent
+- `colors.accent.highlight` - Glow highlight
 
 ### Style Patterns
 - **Stable scrollbar**: `scrollbar-gutter: stable` prevents layout shift
-- **Custom scrollbar**: WebKit-only themed scrollbar matching site's color system
+- **Custom scrollbar**: WebKit-only themed scrollbar matching site's color system (desktop only; hidden on mobile)
+- **Sticky header condensing**: `#sticky-header` transitions padding/font-size via `data-stuck` attribute
+- **Proof gallery condensing**: `.proof-pills` shrinks when `:root[data-header-stuck="true"]`
+- **Glow hover**: `.glow-border-hover` adds orange box-shadow on hover
 
 ## Integration Points
 

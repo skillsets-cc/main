@@ -30,7 +30,7 @@ describe('GhostCard', () => {
     expect(screen.getByText('CLAIM_SLOT')).toBeDefined();
     expect(screen.getByText('1.10.001')).toBeDefined();
     const article = screen.getByText('CLAIM_SLOT').closest('article');
-    expect(article?.className).toContain('border-border-ink');
+    expect(article?.className).toContain('border-accent/20');
   });
 
   it('test_renders_reserved_with_batch_id', () => {

@@ -50,7 +50,7 @@ lib/
 | **maintainer.ts** | Maintainer authorization | isMaintainer |
 | **rate-limit.ts** | Bucketed KV rate limiters | isMinuteRateLimited, isHourlyRateLimited |
 | **reservation-do.ts** | Ghost entry reservation coordination (Durable Object) | ReservationCoordinator, getReservationStub |
-| **responses.ts** | Standardized JSON responses | jsonResponse, errorResponse |
+| **responses.ts** | Standardized JSON responses | jsonResponse, errorResponse, parseJsonBody |
 | **sanitize.ts** | XSS protection for HTML and URL validation | sanitizeHtml, sanitizeUrl |
 | **stars.ts** | Star/unstar with rate limiting | toggleStar, isStarred, getStarCount, isRateLimited |
 | **validation.ts** | Input validation for API requests | isValidSkillsetId |
@@ -199,9 +199,9 @@ ratelimit:{prefix}:{id}:{bucket}    → "N" (generic bucketed rate limit counter
 
 ### RESERVATIONS Durable Object Storage
 ```
-slot:{batchId} → SlotData (discriminated union: reserved or submitted)
-user:{userId}  → string (batch ID user has reserved)
-config         → { totalGhostSlots, ttlDays, cohort }
+batch:{batchId} → SlotData (discriminated union: reserved or submitted)
+user:{userId}   → string (batch ID user has reserved)
+config          → { totalGhostSlots, ttlDays, cohort }
 ```
 
 ## Performance Considerations

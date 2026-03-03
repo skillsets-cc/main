@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { getSessionFromRequest, type Env } from '../../lib/auth';
-import { jsonResponse, errorResponse } from '../../lib/responses';
+import { getSessionFromRequest, type Env } from '@/lib/auth';
+import { jsonResponse, errorResponse } from '@/lib/responses';
 
 export const GET: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;

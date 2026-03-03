@@ -29,4 +29,4 @@ Input validation for API endpoints. Prevents KV key injection by validating skil
 - Rejects path traversal (`../`), nested paths (`a/b/c`), spaces, and special characters
 
 ## Testing
-- Test file: `__tests__/validation.test.ts`
+- Test file: `tests_lib/validation.test.ts`

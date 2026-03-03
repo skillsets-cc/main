@@ -9,11 +9,12 @@ Implements a Cloudflare Durable Object for managing ghost entry reservations wit
 |--------|------|-------------|
 | `ReservationCoordinator` | class (extends DurableObject) | Durable Object handling all reservation operations via HTTP-like interface |
 | `getReservationStub` | function | Returns singleton DO stub for reservation operations |
+| `BATCH_ID_REGEX` | const (RegExp) | Regex for batch ID format validation (`/^\d{1,3}\.\d{1,3}\.\d{3}$/`) |
 
 ## Storage Schema
 
 Durable Object storage uses key prefixes for different data types:
-- `slot:{batchId}` → `SlotData` (discriminated union: `ReservedSlotData` or `SubmittedSlotData`)
+- `batch:{batchId}` → `SlotData` (discriminated union: `ReservedSlotData` or `SubmittedSlotData`)
 - `user:{userId}` → `string` (batch ID user has reserved)
 - `config` → `Config` (global settings: totalGhostSlots, ttlDays, cohort)
 
@@ -62,17 +63,12 @@ Validation enforces:
 ### Status Discrimination
 Expired reserved slots appear as "available" in `/status` response BUT their storage entries are preserved. This allows maintainers to use `/submit` to transition expired-but-reserved slots to submitted state (authoritative maintainer action).
 
-### Atomic Write Coalescing
-The Durable Object runtime coalesces multiple `ctx.storage.put()` or `ctx.storage.delete()` calls within the same request into a single transaction. Reserve and release operations explicitly avoid `await` between related writes to ensure atomicity:
-```typescript
-// Reserve (atomic)
-this.ctx.storage.put(`batch:${batchId}`, newSlotData);
-this.ctx.storage.put(`user:${userId}`, batchId);
+### Concurrency Control
+State-mutating handlers (`handleReserve`, `handleRelease`, `handleSubmit`) wrap their read-validate-write sequences in `ctx.blockConcurrencyWhile()`. This prevents TOCTOU races — without it, concurrent requests can interleave at `await` suspension points (storage reads), bypassing slot-taken or one-per-user checks.
 
-// Release (atomic)
-this.ctx.storage.delete(`batch:${batchId}`);
-this.ctx.storage.delete(`user:${userId}`);
-```
+Read-only handlers (`handleStatus`, `handleVerify`, `handleLookup`) do not need `blockConcurrencyWhile` since they don't mutate state.
+
+Within each critical section, unawaited `ctx.storage.put()`/`delete()` calls are coalesced into a single atomic transaction by the DO runtime.
 
 ### Cohort Transitions
 When cohort number changes via `/config`:

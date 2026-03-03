@@ -95,7 +95,7 @@ pages/
 - React components (`/api/star`, `/api/reservations`)
 
 ## Testing
-Tests are located in `api/__tests__/` for API endpoints. Run with:
+Tests are located in `api/tests_api/` for API endpoints. Run with:
 ```bash
 npm test
 ```

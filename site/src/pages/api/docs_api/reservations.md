@@ -16,8 +16,9 @@ Public API endpoint for ghost entry slot reservations. Provides GET (public stat
 
 - **Internal**:
   - `@/lib/auth` (session validation, Env type)
-  - `@/lib/responses` (jsonResponse, errorResponse helpers)
-  - `@/lib/reservation-do` (getReservationStub for DO access)
+  - `@/lib/responses` (jsonResponse, errorResponse, parseJsonBody)
+  - `@/lib/reservation-do` (getReservationStub, BATCH_ID_REGEX)
+  - `@/lib/rate-limit` (isHourlyRateLimited)
 - **External**: `astro` (APIRoute type)
 
 ## Integration Points

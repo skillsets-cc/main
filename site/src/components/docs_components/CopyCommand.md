@@ -11,7 +11,7 @@ Displays a command in a code block with a copy-to-clipboard button. Supports two
 ## Dependencies
 - **Internal**: None
 - **External**:
-  - `react` (`useState`)
+  - `react` (`useState`, `useEffect`, `useRef`)
   - Navigator Clipboard API (`navigator.clipboard.writeText`)
 
 ## Integration Points
@@ -32,9 +32,9 @@ Displays a command in a code block with a copy-to-clipboard button. Supports two
 
 ### Copy Feedback
 - Button text: "Copy" → "✓ Copied!" → "Copy" (after 2s)
-- Uses `setTimeout` to reset state
-- No animation (instant text change)
+- Uses `useRef` to track the timeout ID, preventing duplicate timers on rapid clicks
+- Timeout cleared on unmount via `useEffect` cleanup to avoid state updates on unmounted component
 
 ### UI Layout
-- **Section mode**: Stone-50 background, border, padding; uppercase mono heading with border-bottom; white code block; footer with CLI link and optional disclaimer
-- **Inline mode**: White code block with border only
+- **Section mode**: `bg-surface-paper` with `border-border-ink`; uppercase mono heading; dark code block (`bg-[#0a0a0a]`); footer with CLI link and optional disclaimer
+- **Inline mode**: Dark code block (`bg-[#0a0a0a] border border-accent/20`) only

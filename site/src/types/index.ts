@@ -88,11 +88,7 @@ export interface GhostSlot {
  * Complete state of the reservation system, including all slots and user's reservation.
  */
 export interface ReservationState {
-  slots: Record<string, {
-    status: SlotStatus;
-    expiresAt?: number;
-    skillsetId?: string;
-  }>;
+  slots: Record<string, Omit<GhostSlot, 'batchId'>>;
   totalGhostSlots: number;
   cohort: number;
   userSlot: string | null;

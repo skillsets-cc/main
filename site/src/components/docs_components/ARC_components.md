@@ -18,7 +18,7 @@ components/
 │   ├── StarButton.md
 │   ├── TagFilter.md
 │   └── useCountdown.md
-├── __tests__/                 # Component tests
+├── tests_components/          # Component tests
 │   ├── fixtures.ts
 │   ├── AuthStatus.test.tsx
 │   ├── CopyCommand.test.tsx
@@ -128,7 +128,8 @@ DELETE /api/reservations → onCancelled → update state
 - `@/lib/sanitize` (sanitizeUrl for user-supplied URLs)
 
 ### External Dependencies
-- `react` (hooks: useState, useEffect, useMemo, createPortal)
+- `react` (hooks: useState, useEffect, useMemo)
+- `react-dom` (createPortal — TagFilter)
 
 ### API Endpoints
 - `GET /api/me` (fetch auth state in AuthStatus)
@@ -172,7 +173,7 @@ DELETE /api/reservations → onCancelled → update state
 
 ### Styling
 - Tailwind CSS utility classes
-- Consistent design tokens: accent (orange), surface-paper (bg), border-border-ink, status-success (green)
+- Consistent design tokens: `accent`, `surface-paper`, `surface-white`, `border-border-ink`, `status-success`
 - Responsive: mobile-first with `md:` breakpoints
-- No custom CSS (except global styles)
-- Glassmorphism: `bg-surface-white/90 backdrop-blur-sm` for TagFilter bar
+- No custom CSS in components (except global styles)
+- TagFilter bar: dark glass (`bg-[#020202]/90 backdrop-blur-sm`); ProofGallery: same dark bg

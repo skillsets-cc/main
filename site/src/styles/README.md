@@ -1,7 +1,7 @@
 # Styles Module
 
 ## Purpose
-Global CSS configuration and design system foundation for skillsets.cc. Provides Tailwind integration, typography system (Crimson Pro + JetBrains Mono), custom scrollbar styling, and reusable utility classes.
+Global CSS configuration and design system foundation for skillsets.cc. Provides Tailwind integration, typography system (Outfit + JetBrains Mono), custom scrollbar styling, sticky header condensing, and reusable utility classes.
 
 ## Architecture
 ```
@@ -22,15 +22,18 @@ styles/
 ## Key Concepts
 
 ### Typography System
-- **18px base**: Compensates for Crimson Pro's smaller x-height
-- **Optical balancing**: Monospace scaled to 0.95em to match serif visually
+- **16px base**: Tailwind default
+- **Body**: Outfit sans-serif
+- **Optical balancing**: Monospace (JetBrains Mono) scaled to 0.90em / weight 500
 - **Stable scrollbar**: Prevents layout shift on scroll
 
 ### Design Tokens
 All styles reference Tailwind theme tokens from `site/tailwind.config.js`:
-- Background: `colors.bg.*`
+- Background: `colors.surface.*`
 - Borders: `colors.border.*`
 - Text: `colors.text.*`
+- Accent: `colors.accent.*`
 
 ### Utility Classes
 - `.scrollbar-hide` - Hide scrollbar while maintaining scroll functionality
+- `.glow-border-hover` - Orange glow box-shadow on hover

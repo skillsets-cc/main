@@ -23,7 +23,7 @@ Provides XSS protection for user-contributed markdown content (skillset READMEs)
 ## Key Logic
 
 ### Whitelist Strategy
-- **Headers**: h1-h6 (no attributes)
+- **Headers**: h1-h6 (`id` attribute allowed for anchor links)
 - **Text**: p, br, hr, blockquote, em, strong, del
 - **Lists**: ul, ol, li
 - **Links**: a (href, title, target, rel attributes only)

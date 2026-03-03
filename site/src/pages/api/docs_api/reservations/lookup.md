@@ -13,8 +13,9 @@ Public API endpoint for looking up a user's active reservation by GitHub user ID
 
 - **Internal**:
   - `@/lib/auth` (Env type)
-  - `@/lib/responses` (jsonResponse, errorResponse helpers)
-  - `@/lib/reservation-do` (getReservationStub for DO access)
+  - `@/lib/responses` (jsonResponse, errorResponse)
+  - `@/lib/reservation-do` (getReservationStub)
+  - `@/lib/rate-limit` (isHourlyRateLimited)
 - **External**: `astro` (APIRoute type)
 
 ## Integration Points
@@ -24,8 +25,8 @@ Public API endpoint for looking up a user's active reservation by GitHub user ID
 
 ## Key Logic
 
-### Rate Limiting (isLookupRateLimited)
-Hour-bucketed KV keys, IP-based (not userId) since endpoint is public:
+### Rate Limiting
+Uses `isHourlyRateLimited` directly (no named wrapper), IP-based via Astro `clientAddress`:
 - Key format: `ratelimit:lookup:{ip}:{hour}`
 - Limit: 30 requests per hour
 - TTL: 2 hours (survives hour boundary)
@@ -34,7 +35,7 @@ Hour-bucketed KV keys, IP-based (not userId) since endpoint is public:
 - **Auth**: None required (public endpoint)
 - **Rate Limit**: 30 requests/hour per IP (429 if exceeded)
 - **Query Params**:
-  - `githubId` (required): GitHub numeric user ID
+  - `githubId` (optional): GitHub numeric user ID — returns `{ batchId: null }` if missing
 - **Returns**: `{ batchId: string | null }`
 
 ### Lookup Logic (in DO)

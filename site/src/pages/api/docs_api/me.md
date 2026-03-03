@@ -14,5 +14,5 @@ Session introspection endpoint. Returns the authenticated user's GitHub login or
 ## Key Logic
 1. Read env from `locals.runtime.env` (Cloudflare Workers binding)
 2. Call `getSessionFromRequest(env, request)` — parses session cookie + verifies JWT
-3. No session → `errorResponse('Unauthorized', 401)`
+3. No session → `errorResponse('Authentication required', 401)`
 4. Valid session → `jsonResponse({ login }, { headers: { 'Cache-Control': 'private, no-store' } })`

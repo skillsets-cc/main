@@ -1,7 +1,7 @@
 # ProofGallery.astro
 
 ## Purpose
-Displays verification proofs as a sticky horizontal badge bar at the top of skillset detail pages. Shows production links, audit report status, and schema validation with green status indicators and orange borders.
+Displays verification proofs as a sticky horizontal badge bar at the top of skillset detail pages. Shows production links, audit report status, and schema validation with green status indicators and accent-colored borders.
 
 ## Public API
 | Export | Type | Description |
@@ -32,13 +32,14 @@ Displays verification proofs as a sticky horizontal badge bar at the top of skil
 ## Key Logic
 
 ### Sticky Positioning
-- Sticky at `top-[6.5rem]` with `z-50` (floats above content)
-- White background to prevent content overlap
-- Bottom border (orange, 2px) separates from page content
+- Sticky with `z-50`, top position computed via CSS variables: `calc(var(--header-h, 3rem) + var(--vv-offset, 0px))`
+- Dark background (`bg-[#020202]`) to prevent content bleed-through
+- Bottom border (`border-accent/20`) separates from page content
 
 ### Badge Layout
 - Horizontal flex wrap with gap-2
-- Each badge: white background, orange border, green status dot, mono font
+- Each badge: dark background (`bg-[#020202]`), accent border, green status dot (`bg-status-success`), mono font
+- "shipped" and " complete" text uses `.proof-qualifier` CSS class
 - Opens links in new tab with `noopener noreferrer`
 
 ### Production Links

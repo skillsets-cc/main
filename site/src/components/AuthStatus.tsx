@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 
 const linkStyles = 'block text-base text-text-secondary hover:text-accent hover:underline transition-colors';
 
-export default function AuthStatus() {
+export default function AuthStatus(): ReactElement | null {
   const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -11,7 +11,15 @@ export default function AuthStatus() {
       .catch(() => setLoggedIn(false));
   }, []);
 
-  if (!loggedIn) return null;
+  if (loggedIn === null) return null;
+
+  if (!loggedIn) {
+    return (
+      <a href={`/login?returnTo=${encodeURIComponent(window.location.pathname)}`} className={linkStyles}>
+        Log in
+      </a>
+    );
+  }
 
   return (
     <a href="/logout" className={linkStyles}>

@@ -39,23 +39,23 @@ React component for rendering individual ghost entry slot cards. Displays slot s
 ### Status-Based Rendering
 
 **Submitted slots**:
-- Green dashed border (`border-green-500/30`)
+- Green dashed border (`border-status-success/30`, hover `border-status-success/60`)
 - Displays skillset ID or "Submitted — pending rebuild"
 - Links to skillset page if skillsetId present
-- Batch ID shown in tertiary text
+- Batch ID shown in success-tinted text
 - No actions available (terminal state)
 
 **Reserved slots**:
-- Accent dashed border (`border-accent/30`)
+- Accent dashed border (`border-accent/30`) with glow on hover
 - Shows countdown timer via `useCountdown` hook
-- If `isOwn === true`: Shows "Cancel" button
-- If `isOwn === false`: No actions (other user's reservation)
+- If `isOwn === true`: Shows "Cancel Reservation" button
+- If `isOwn === false`: Countdown shown dimmed (`text-accent/50`); no actions
 - Placeholder bars for skillset name/description (ghost visual)
 
 **Available slots**:
-- Default gray dashed border (`border-border-ink`)
+- Light accent dashed border (`border-accent/20`), brightens to `border-text-secondary` on hover
 - Placeholder bars for skillset name/description (ghost visual)
-- "Claim" button to reserve slot
+- "CLAIM_SLOT" button to reserve slot
 
 ### Reserve Flow
 1. User clicks "Claim" on available slot

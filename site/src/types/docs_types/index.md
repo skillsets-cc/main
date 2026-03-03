@@ -8,6 +8,8 @@ Defines TypeScript interfaces for skillsets, search index, and related data stru
 |--------|------|-------------|
 | `SearchIndex` | interface | Root search index structure (version, generated_at, skillsets array) |
 | `SearchIndexEntry` | interface | Skillset entry in search index (id, name, description, verification, checksum, files, batch_id) |
+| `CcExtension` | interface | Claude Code extension config (name, type: native/plugin, source, cc_reputation, researched_at) |
+| `RuntimeDependency` | interface | Runtime dependency declaration (path, manager, packages, evaluation, researched_at) |
 | `McpServer` | interface | MCP server configuration (stdio/http/docker type, command/args/url/image) |
 | `McpNestedServer` | interface | Nested MCP server config (for aggregator types like docker-compose) |
 | `SlotStatus` | type | Reservation slot status union type ('available' \| 'reserved' \| 'submitted') |

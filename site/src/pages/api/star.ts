@@ -4,14 +4,10 @@
  * GET /api/star?skillsetId=x - Get star status for authenticated user.
  */
 import type { APIRoute } from 'astro';
-import { getSessionFromRequest, type Env } from '../../lib/auth';
-import { toggleStar, isRateLimited, isStarred, getStarCount } from '../../lib/stars';
-import { jsonResponse, errorResponse, parseJsonBody } from '../../lib/responses';
-import { isValidSkillsetId } from '../../lib/validation';
-
-interface StarRequest {
-  skillsetId: string;
-}
+import { getSessionFromRequest, type Env } from '@/lib/auth';
+import { toggleStar, isRateLimited, isStarred, getStarCount } from '@/lib/stars';
+import { jsonResponse, errorResponse, parseJsonBody } from '@/lib/responses';
+import { isValidSkillsetId } from '@/lib/validation';
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
@@ -21,14 +17,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return errorResponse('Authentication required', 401);
   }
 
-  const rateLimited = await isRateLimited(env.DATA, session.userId);
-  if (rateLimited) {
+  if (await isRateLimited(env.DATA, session.userId)) {
     return errorResponse('Rate limit exceeded', 429, {
       message: 'Maximum 10 star operations per minute. Please try again later.',
     });
   }
 
-  const body = await parseJsonBody<StarRequest>(request);
+  const body = await parseJsonBody<{ skillsetId: string }>(request);
   if (body instanceof Response) return body;
 
   if (!body.skillsetId) {

@@ -1,7 +1,7 @@
 # index.astro
 
 ## Purpose
-Static homepage displaying an introduction to skillsets with integrated browse functionality. Features explanatory paragraphs, CLI installation instructions, and an embedded skillset grid for immediate browsing.
+Static homepage introducing skillsets.cc. Features a full-viewport hero with explanatory copy and a plugin marketplace UI mockup, followed by a snap-scrolled registry section with the interactive skillset grid.
 
 ## Public API
 | Export | Type | Description |
@@ -17,33 +17,27 @@ Static homepage displaying an introduction to skillsets with integrated browse f
 
 ## Integration Points
 - **Used by**: Site visitors navigating to `/`
-- **Consumes**: Skillset data via `getSkillsets()`
+- **Consumes**: Skillset data via `getSkillsets()` at build time
 - **Emits**: No events
 
 ## Key Logic
 
-### Content Structure
-- **Intro Section**: 5 paragraphs explaining:
-  - What a skillset is (integrated Claude Code workflow)
-  - What skillsets.cc is (community registry)
-  - Submission requirements (production-verified, author-maintained)
-  - CLI installation command
-  - Call-to-action for contributors (Cohort 001)
-- **Registry Header**: Sticky section with "Registry" label and disclaimer
-- **Skillset Grid**: Interactive component with search, filtering, and sorting
+### Layout
+Two-section snap-scroll container (`snap-y snap-mandatory`, `h-screen overflow-y-auto`):
+1. **Hero section** (`snap-start`, full viewport): explanatory copy + plugin marketplace UI mockup + CTA
+2. **Registry section** (`snap-start`, `id="registry"`): sticky header + `SkillsetGrid`
 
-### Data Loading
-- Calls `getSkillsets()` at build time to load all skillsets
-- Passes skillsets to `SkillsetGrid` component
+### Hero Content
+- Lead paragraph defining what a skillset is
+- Supporting copy describing the registry and submission requirements
+- Plugin marketplace mockup showing the `/plugin` → Marketplaces → `+ Add Marketplace` flow (not a CLI install command)
+- CTA link to `/contribute` (Cohort 001)
+- Animated `↓` anchor linking to `#registry`
 
-### Visual Design
-- Max-width container (7xl) with responsive padding
-- Large serif typography (lg/xl) for intro text
-- Orange accent links for /about and /contribute
-- Sticky registry header with orange bottom border
-- Embedded SkillsetGrid with `client:load` for interactivity
+### Registry Section
+- Sticky header with "Registry" label and disclaimer text
+- `SkillsetGrid` with `client:load` for interactive search/filter/sort
 
 ### Static Rendering
-- `export const prerender = true` - generated at build time with data
-- SkillsetGrid hydrates on client for interactive features
-- Fast initial page load with static HTML
+- `export const prerender = true` — generated at build time with skillset data
+- `SkillsetGrid` hydrates on client for interactivity

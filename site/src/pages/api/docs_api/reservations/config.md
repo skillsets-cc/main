@@ -13,7 +13,7 @@ Maintainer-only API endpoint for updating reservation system configuration (tota
 
 - **Internal**:
   - `@/lib/auth` (session validation, Env type)
-  - `@/lib/responses` (jsonResponse, errorResponse helpers)
+  - `@/lib/responses` (jsonResponse, errorResponse, parseJsonBody)
   - `@/lib/reservation-do` (getReservationStub for DO access)
   - `@/lib/maintainer` (isMaintainer authorization check)
 - **External**: `astro` (APIRoute type)

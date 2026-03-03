@@ -16,7 +16,6 @@ Interactive star button for skillsets. Displays star count, shows starred state 
 
 ## Integration Points
 - **Used by**:
-  - `components/SkillsetGrid.tsx` (display star button in browse grid)
   - `pages/skillset/[namespace]/[name].astro` (display on skillset detail page)
 - **Consumes**:
   - `GET /api/star?skillsetId={id}` (fetch star state on mount)
@@ -43,8 +42,8 @@ Interactive star button for skillsets. Displays star count, shows starred state 
 - No rollback on error (just logs to console)
 
 ### Visual States
-- **Starred**: Orange border, orange text, filled star icon
-- **Unstarred**: Gray border, gray text, outlined star icon, hover effect
+- **Starred**: Accent border (`border-accent`), accent text, filled star icon
+- **Unstarred**: Muted border (`border-border-ink`), secondary text, outlined star icon; hover transitions to accent colors
 - **Loading**: Button disabled (no visual loading indicator)
 
 ### Star Icon

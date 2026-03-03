@@ -8,48 +8,42 @@
  * Keys auto-expire via TTL that survives past the bucket boundary.
  */
 
-/**
- * Minute-bucketed rate limiter.
- * Key format: ratelimit:{prefix}:{id}:{minute}
- * TTL: 120s (survives past minute boundary).
- */
-export async function isMinuteRateLimited(
+async function isBucketedRateLimited(
   kv: KVNamespace,
   prefix: string,
   id: string,
   limit: number,
+  bucketMs: number,
+  ttlSeconds: number,
 ): Promise<boolean> {
-  const minute = Math.floor(Date.now() / 60_000);
-  const key = `ratelimit:${prefix}:${id}:${minute}`;
+  const bucket = Math.floor(Date.now() / bucketMs);
+  const key = `ratelimit:${prefix}:${id}:${bucket}`;
   const current = parseInt((await kv.get(key)) ?? '0', 10);
 
   if (current >= limit) {
     return true;
   }
 
-  await kv.put(key, String(current + 1), { expirationTtl: 120 });
+  await kv.put(key, String(current + 1), { expirationTtl: ttlSeconds });
   return false;
 }
 
-/**
- * Hour-bucketed rate limiter.
- * Key format: ratelimit:{prefix}:{id}:{hour}
- * TTL: 7200s (survives past hour boundary).
- */
-export async function isHourlyRateLimited(
+/** Minute-bucketed rate limiter (TTL: 120s). */
+export function isMinuteRateLimited(
   kv: KVNamespace,
   prefix: string,
   id: string,
   limit: number,
 ): Promise<boolean> {
-  const hour = Math.floor(Date.now() / 3_600_000);
-  const key = `ratelimit:${prefix}:${id}:${hour}`;
-  const current = parseInt((await kv.get(key)) ?? '0', 10);
+  return isBucketedRateLimited(kv, prefix, id, limit, 60_000, 120);
+}
 
-  if (current >= limit) {
-    return true;
-  }
-
-  await kv.put(key, String(current + 1), { expirationTtl: 7200 });
-  return false;
+/** Hour-bucketed rate limiter (TTL: 7200s). */
+export function isHourlyRateLimited(
+  kv: KVNamespace,
+  prefix: string,
+  id: string,
+  limit: number,
+): Promise<boolean> {
+  return isBucketedRateLimited(kv, prefix, id, limit, 3_600_000, 7200);
 }

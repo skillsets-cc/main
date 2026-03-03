@@ -45,7 +45,7 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
 
     {hasAuditReport && (
       <a
-        href={auditReportUrl}
+        href={sanitizeUrl(auditReportUrl)}
         class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none"
         target="_blank"
         rel="noopener noreferrer"

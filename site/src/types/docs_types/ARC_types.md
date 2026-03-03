@@ -9,7 +9,7 @@ types/
 ├── docs_types/
 │   ├── ARC_types.md       # This file - architecture overview
 │   └── index.md           # Per-file documentation for index.ts
-├── __tests__/
+├── tests_types/
 │   └── reservation-types.test.ts
 └── index.ts               # All type exports
 ```
@@ -18,7 +18,7 @@ types/
 
 | Component | Purpose | Key Exports |
 |-----------|---------|-------------|
-| `index.ts` | All type definitions | SearchIndex, SearchIndexEntry, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState |
+| `index.ts` | All type definitions | SearchIndex, SearchIndexEntry, CcExtension, RuntimeDependency, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState |
 
 ## Data Flow
 
@@ -42,11 +42,15 @@ Runtime: KV stores reservation state as ReservationState
 - **SearchIndex**: Root structure (version, generated_at, skillsets array)
 - **SearchIndexEntry**: Full skillset metadata with checksums and verification
 
-### 2. MCP Server Types
+### 2. Extension & Dependency Types
+- **CcExtension**: Claude Code extension (native or plugin type, source, reputation, review timestamp)
+- **RuntimeDependency**: Runtime package declaration (path, manager, packages[], evaluation, review timestamp)
+
+### 3. MCP Server Types
 - **McpServer**: Top-level MCP server config (discriminated by type: stdio/http/docker)
 - **McpNestedServer**: Nested server config for aggregator images (docker-compose)
 
-### 3. Reservation System Types
+### 4. Reservation System Types
 - **SlotStatus**: Union type for slot states ('available' | 'reserved' | 'submitted')
 - **GhostSlot**: Single reservation slot state with SlotStatus enum
 - **ReservationState**: Complete system snapshot (all slots + user's current reservation)

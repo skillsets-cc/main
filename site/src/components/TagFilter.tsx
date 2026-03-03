@@ -48,7 +48,7 @@ export default function TagFilter({
 
   const baseButtonStyles =
     'px-3 py-1 text-sm rounded-sm transition-colors font-mono cursor-pointer';
-  const activeStyles = 'bg-surface-white border border-accent text-accent glow-border-hover shadow-[0_0_10px_rgba(59,130,246,0.1)]';
+  const activeStyles = 'bg-surface-white border border-accent text-accent glow-border-hover';
   const inactiveStyles =
     'bg-surface-paper border border-accent/20 text-text-secondary hover:border-text-secondary hover:text-text-ink';
 
