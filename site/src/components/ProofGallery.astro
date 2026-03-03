@@ -29,8 +29,8 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<section class="sticky top-[6.5rem] z-50 -mx-4 px-4 pb-0 bg-[#020202]">
-  <div class="flex flex-wrap gap-2">
+<section id="proof-gallery" class="sticky z-50 -mx-4 px-4 pb-0 bg-[#020202]" style="top: calc(var(--header-h, 3rem) + var(--vv-offset, 0px));">
+  <div class="proof-pills flex flex-wrap gap-2">
     {productionLinks.map((link) => (
       <a
         href={sanitizeUrl(link.url)}
@@ -39,7 +39,7 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
         rel="noopener noreferrer"
       >
         <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
-        shipped {link.label || getBaseDomain(link.url)}
+        <span class="proof-qualifier">shipped </span>{link.label || getBaseDomain(link.url)}
       </a>
     ))}
 
@@ -51,13 +51,13 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
         rel="noopener noreferrer"
       >
         <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
-        audit complete
+        audit<span class="proof-qualifier"> complete</span>
       </a>
     )}
 
     <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none">
       <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
-      schema valid
+      schema<span class="proof-qualifier"> valid</span>
     </span>
   </div>
   <div class="border-b border-accent/20 mt-4"></div>

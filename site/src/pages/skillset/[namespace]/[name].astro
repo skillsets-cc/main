@@ -51,7 +51,13 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
 
 <BaseLayout title={`${skillset.name} - Skillsets.cc`}>
   <article class="max-w-4xl mx-auto px-4 py-12">
-    <div class="sticky top-0 z-50 -mx-4 px-4 pt-6 pb-4 md:pb-10 bg-[#020202]">
+    <div id="header-sentinel" class="h-px w-full" aria-hidden="true"></div>
+    <div
+      id="sticky-header"
+      data-stuck="false"
+      class="sticky z-50 -mx-4 px-4 bg-[#020202]"
+      style="top: var(--vv-offset, 0px);"
+    >
       <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 class="text-4xl font-bold font-serif text-text-ink">
@@ -59,7 +65,7 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
           </h1>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div data-stuck-hide class="flex items-center gap-2">
           <DownloadCount
             client:load
             skillsetId={skillsetId}
@@ -95,7 +101,7 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
       </div>
     </header>
 
-    <div class="space-y-6">
+    <div class="space-y-6 mb-6">
       <section>
         <p class="text-sm text-text-secondary font-serif mb-2">
           In Claude Code, add the skillset plugin from the skillsets.cc marketplace, and run:
@@ -105,13 +111,15 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
           Reviewed best-effort with no security guarantees. You are the final quality gate, as with any OSS.
         </p>
       </section>
+    </div>
 
-      <ProofGallery
-        productionLinks={skillset.verification.production_links}
-        hasAuditReport={!!skillset.verification.audit_report}
-        skillsetId={skillsetId}
-      />
+    <ProofGallery
+      productionLinks={skillset.verification.production_links}
+      hasAuditReport={!!skillset.verification.audit_report}
+      skillsetId={skillsetId}
+    />
 
+    <div class="space-y-6">
       <section class="p-6 rounded-none">
         <h2 class="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">README</h2>
         <article class="prose max-w-none" set:html={readmeHtml} />
@@ -203,5 +211,51 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
       </a>
     </div>
   </article>
+
+<script>
+  // Stuck detection via IntersectionObserver
+  const sentinel = document.getElementById('header-sentinel');
+  const header = document.getElementById('sticky-header');
+
+  if (sentinel && header) {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const stuck = String(!entry.isIntersecting);
+        header.dataset.stuck = stuck;
+        document.documentElement.dataset.headerStuck = stuck;
+      },
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
+
+    // Continuously track header height through CSS transitions
+    function updateHeaderH() {
+      document.documentElement.style.setProperty(
+        '--header-h',
+        header.getBoundingClientRect().height + 'px'
+      );
+    }
+
+    new ResizeObserver(updateHeaderH).observe(header);
+    // Re-measure after CSS transitions (padding/font-size) complete —
+    // ResizeObserver alone may miss padding-driven height changes
+    header.addEventListener('transitionend', updateHeaderH);
+    updateHeaderH(); // immediate measurement before first RO callback
+  }
+
+  // Visual viewport offset for mobile URL bar
+  function updateVvOffset() {
+    if (window.visualViewport) {
+      const offset = window.visualViewport.offsetTop;
+      document.documentElement.style.setProperty('--vv-offset', offset + 'px');
+    }
+  }
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', updateVvOffset);
+    window.visualViewport.addEventListener('scroll', updateVvOffset);
+    updateVvOffset();
+  }
+</script>
 
 </BaseLayout>

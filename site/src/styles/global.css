@@ -18,25 +18,38 @@
     font-weight: 500;
   }
 
-  /* Custom Scrollbar - Dark Mode */
-  ::-webkit-scrollbar {
-    width: 14px;
-    height: 14px;
+  /* Custom Scrollbar - Dark Mode (desktop only) */
+  @media (min-width: 768px) {
+    ::-webkit-scrollbar {
+      width: 14px;
+      height: 14px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: theme('colors.surface.paper');
+      border-left: 1px solid theme('colors.border.ink');
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: theme('colors.border.strong');
+      border: 3px solid theme('colors.surface.paper');
+      border-radius: 0;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: theme('colors.text.tertiary');
+    }
   }
 
-  ::-webkit-scrollbar-track {
-    background: theme('colors.surface.paper');
-    border-left: 1px solid theme('colors.border.ink');
-  }
+  /* Hide scrollbar on mobile */
+  @media (max-width: 767px) {
+    html {
+      scrollbar-width: none;
+    }
 
-  ::-webkit-scrollbar-thumb {
-    background-color: theme('colors.border.strong');
-    border: 3px solid theme('colors.surface.paper');
-    border-radius: 0;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: theme('colors.text.tertiary');
+    ::-webkit-scrollbar {
+      display: none;
+    }
   }
   
   /* Utilities for glow effects */
@@ -46,6 +59,72 @@
   .glow-border-hover:hover {
     border-color: theme('colors.accent.DEFAULT');
     box-shadow: 0 0 15px theme('colors.accent.highlight');
+  }
+
+  /* Sticky header transitions */
+  #sticky-header {
+    transition: padding 200ms ease, font-size 200ms ease;
+  }
+
+  #sticky-header[data-stuck="false"] {
+    padding-top: 1.5rem;   /* pt-6 */
+    padding-bottom: 1rem;  /* pb-4 */
+  }
+
+  #sticky-header[data-stuck="true"] {
+    padding-top: 0.5rem;   /* py-2 */
+    padding-bottom: 0.5rem;
+  }
+
+  #sticky-header[data-stuck="true"] h1 {
+    font-size: 1.25rem;  /* text-xl, down from text-4xl */
+  }
+
+  /* Bridge the gap between sticky-header and proof-gallery during stuck state.
+     ResizeObserver timing and sub-pixel rounding can leave a visible gap
+     between the two stacked sticky elements. This pseudo-element extends
+     the header's background downward to cover it. */
+  #sticky-header[data-stuck="true"]::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 4px;
+    background: #020202;
+  }
+
+  #sticky-header[data-stuck="true"] [data-stuck-hide] {
+    display: none;
+  }
+
+  /* Proof gallery condenses when header is stuck */
+  .proof-pills a,
+  .proof-pills > span {
+    transition: padding 200ms ease, font-size 200ms ease;
+  }
+
+  .proof-qualifier {
+    transition: opacity 150ms ease, width 150ms ease;
+  }
+
+  :root[data-header-stuck="true"] .proof-pills {
+    gap: 0.25rem;
+  }
+
+  :root[data-header-stuck="true"] .proof-pills a,
+  :root[data-header-stuck="true"] .proof-pills > span {
+    padding: 0.125rem 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  :root[data-header-stuck="true"] .proof-qualifier {
+    display: none;
+  }
+
+  :root[data-header-stuck="true"] #proof-gallery .border-b {
+    margin-top: 0.5rem;
   }
 }
 
