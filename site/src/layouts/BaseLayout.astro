@@ -77,6 +77,37 @@ const { title, description = 'Verified registry of production-ready Claude Code 
       </div>
     </aside>
 
+    <!-- Mobile Sidebar Toggle FAB -->
+    <button
+      id="sidebar-toggle"
+      class="fixed bottom-6 left-4 z-50 md:hidden
+             w-10 h-10 flex items-center justify-center
+             border border-accent/30 bg-[#020202]/80 backdrop-blur-sm
+             text-accent/60 hover:text-accent hover:border-accent/60
+             transition-all duration-200"
+      aria-label="Open navigation"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+
+    <!-- Back to Top Button -->
+    <button
+      id="back-to-top"
+      class="fixed bottom-6 right-4 md:right-0 md:left-16 md:mx-auto z-40
+             w-10 h-10 flex items-center justify-center
+             border border-accent/30 bg-[#020202]/80 backdrop-blur-sm
+             text-accent/60 hover:text-accent hover:border-accent/60
+             transition-all duration-200
+             opacity-0 pointer-events-none"
+      aria-label="Back to top"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
+      </svg>
+    </button>
+
     <!-- Main Content -->
     <main class="flex-1 w-full relative md:ml-16 transition-[margin] duration-300">
       <!-- Background Ambient Glow & Grain & Terminal -->
@@ -105,6 +136,30 @@ const { title, description = 'Verified registry of production-ready Claude Code 
       }
 
       overlay?.addEventListener('click', closeSidebar);
+      document.getElementById('sidebar-toggle')?.addEventListener('click', openSidebar);
+
+      // Back to top button
+      const backToTop = document.getElementById('back-to-top');
+      if (backToTop) {
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+          if (!ticking) {
+            requestAnimationFrame(() => {
+              const show = window.scrollY > window.innerHeight;
+              backToTop.classList.toggle('opacity-0', !show);
+              backToTop.classList.toggle('pointer-events-none', !show);
+              backToTop.classList.toggle('opacity-100', show);
+              backToTop.classList.toggle('pointer-events-auto', show);
+              ticking = false;
+            });
+            ticking = true;
+          }
+        });
+
+        backToTop.addEventListener('click', () => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
 
       // Ghost Terminal Background
       const canvas = document.getElementById('bg-canvas') as HTMLCanvasElement;
@@ -129,7 +184,26 @@ const { title, description = 'Verified registry of production-ready Claude Code 
             initDrops();
           }
 
-          window.addEventListener('resize', resizeCanvas);
+          let lastWidth = window.innerWidth;
+
+          function handleResize() {
+            const newWidth = window.innerWidth;
+
+            if (newWidth !== lastWidth) {
+              // Real resize (orientation change, window resize)
+              lastWidth = newWidth;
+              resizeCanvas(); // full reinit including initDrops()
+            } else {
+              // Height-only change (URL bar collapse) — preserve animation state
+              canvas.height = window.innerHeight;
+            }
+          }
+
+          let resizeTimer: number;
+          window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(handleResize, 100);
+          });
           resizeCanvas();
 
           const chars = '0123456789ABCDEF'.split('');
