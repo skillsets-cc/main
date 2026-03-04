@@ -70,11 +70,11 @@ This validates manifest schema, required files, content structure, file sizes, b
 
 ### Phase 4: Qualitative Review
 
-The agent invokes `/audit-skill` — a project-level skill installed during Phase 1. You provide the path to a reference repo where the skillset was used in production. The review covers:
+The agent invokes `/audit-skill` — bundled with the contribute plugin. You provide the path to a reference repo where the skillset was used in production. The review covers:
 
 - **MCP discovery** — scans `content/` for MCP server declarations, researches each package's reputation online, and writes the `mcp_servers` array to `skillset.yaml`
 - **Runtime dependency discovery** — scans `content/` for dependency manifests (`package.json`, `requirements.txt`, etc.), evaluates each package, and writes `runtime_dependencies` to `skillset.yaml`
-- **Primitive evaluation** — skills, agents, hooks, MCP configs, and CLAUDE.md assessed against [quality criteria](./tools/audit-skill/CRITERIA.md)
+- **Primitive evaluation** — skills, agents, hooks, MCP configs, and CLAUDE.md assessed against [quality criteria](./plugins/contribute/skills/audit-skill/CRITERIA.md)
 - **Safety scan** — checks for prompt injection, exfiltration, and malicious instructions across all primitives
 - **Workflow verification** — searches the reference repo for artifacts (design docs, execution docs, analysis reports) that evidence the claimed workflow
 

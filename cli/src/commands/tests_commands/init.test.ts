@@ -10,11 +10,6 @@ vi.mock('@inquirer/prompts', () => ({
   checkbox: vi.fn(),
 }));
 
-// Mock degit to avoid network calls
-vi.mock('degit', () => ({
-  default: vi.fn(),
-}));
-
 // Mock child_process for gh CLI calls
 vi.mock('child_process', () => ({
   execSync: vi.fn(),
@@ -22,7 +17,6 @@ vi.mock('child_process', () => ({
 
 import { init } from '../init.js';
 import { input, confirm, checkbox } from '@inquirer/prompts';
-import degit from 'degit';
 import { execSync } from 'child_process';
 
 describe('init command', () => {
@@ -67,9 +61,6 @@ describe('init command', () => {
     vi.mocked(confirm).mockResolvedValue(false);
     vi.mocked(checkbox).mockResolvedValue([]);
 
-    // Mock degit clone
-    const mockClone = vi.fn().mockResolvedValue(undefined);
-    vi.mocked(degit).mockReturnValue({ clone: mockClone } as any);
   });
 
   afterEach(() => {
@@ -316,30 +307,6 @@ describe('init command', () => {
     expect(handleCall).toBeDefined();
   });
 
-  it('fetches audit-skill via degit from correct registry path', async () => {
-    await init({});
-
-    expect(degit).toHaveBeenCalledWith(
-      'skillsets-cc/main/tools/audit-skill',
-      expect.objectContaining({
-        cache: false,
-        force: true,
-        verbose: false,
-      })
-    );
-  });
-
-  it('clones audit-skill into .claude/skills/audit-skill', async () => {
-    const mockClone = vi.fn().mockResolvedValue(undefined);
-    vi.mocked(degit).mockReturnValue({ clone: mockClone } as any);
-
-    await init({});
-
-    expect(mockClone).toHaveBeenCalledWith(
-      join(testDir, '.claude', 'skills', 'audit-skill')
-    );
-  });
-
   it('does not overwrite existing content/README.md', async () => {
     mkdirSync(join(testDir, 'content'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README.md'), '# My Custom README');
@@ -442,13 +409,6 @@ describe('init command', () => {
     global.fetch = vi.fn().mockRejectedValue(new Error('Network error'));
 
     await expect(init({})).rejects.toThrow('Failed to look up reservation');
-  });
-
-  it('throws when structure creation fails', async () => {
-    const mockClone = vi.fn().mockRejectedValue(new Error('degit clone failed'));
-    vi.mocked(degit).mockReturnValue({ clone: mockClone } as any);
-
-    await expect(init({})).rejects.toThrow('degit clone failed');
   });
 
   it('validates input callbacks correctly', async () => {

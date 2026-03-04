@@ -3,7 +3,6 @@ import ora from 'ora';
 import { input, confirm, checkbox } from '@inquirer/prompts';
 import { existsSync, mkdirSync, copyFileSync, readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import degit from 'degit';
 import { execSync } from 'child_process';
 import { CDN_BASE_URL } from '../lib/constants.js';
 
@@ -473,16 +472,6 @@ export async function init(options: InitOptions): Promise<void> {
       writeFileSync(join(cwd, 'content', 'INSTALL_NOTES.md'), installNotes);
     }
 
-    // Install audit-skill from registry
-    spinner.text = 'Fetching audit-skill...';
-    const skillDir = join(cwd, '.claude', 'skills', 'audit-skill');
-    const emitter = degit('skillsets-cc/main/tools/audit-skill', {
-      cache: false,
-      force: true,
-      verbose: false,
-    });
-    await emitter.clone(skillDir);
-
     spinner.succeed('Skillset structure created');
 
     // Summary
@@ -497,8 +486,6 @@ export async function init(options: InitOptions): Promise<void> {
     } else {
       console.log('    └── (add your .claude/ and/or CLAUDE.md here)');
     }
-    console.log('  .claude/skills/   - Audit skill installed');
-    console.log('    └── audit-skill/');
 
     console.log(chalk.cyan('\nNext steps:'));
     console.log('  1. Edit content/INSTALL_NOTES.md with install notes');

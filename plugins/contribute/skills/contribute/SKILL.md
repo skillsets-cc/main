@@ -22,7 +22,7 @@ Create ALL tasks and subtasks upfront using `TaskCreate`. Pass the **subject**, 
 
 - **subject**: Initialize skillset submission
 - **activeForm**: Initializing submission
-- **description**: Prerequisites: GitHub CLI (`gh`) installed and authenticated, an existing Claude Code workflow with `.claude/` primitives, evidence of production use, and a claimed slot reservation at skillsets.cc. Ask the user for: skillset name, description (10-200 chars), GitHub handle, production URL, and tags (comma-separated, lowercase). Then run `npx skillsets@latest init --name <name> --description <desc> --handle <handle> --production-url <url> --tags <tags>`. Optionally pass `--author-url <url>` if they want something other than their GitHub profile. The CLI will skip interactive prompts when all flags are provided, auto-detect and copy existing files, and install the `/audit-skill` for qualitative review.
+- **description**: Prerequisites: GitHub CLI (`gh`) installed and authenticated, an existing Claude Code workflow with `.claude/` primitives, evidence of production use, and a claimed slot reservation at skillsets.cc. Ask the user for: skillset name, description (10-200 chars), GitHub handle, production URL, and tags (comma-separated, lowercase). Then run `npx skillsets@latest init --name <name> --description <desc> --handle <handle> --production-url <url> --tags <tags>`. Optionally pass `--author-url <url>` if they want something other than their GitHub profile. The CLI will skip interactive prompts when all flags are provided and auto-detect and copy existing files.
 
 ### Task 2: Prepare content
 
@@ -40,13 +40,13 @@ Create ALL tasks and subtasks upfront using `TaskCreate`. Pass the **subject**, 
 
 - **subject**: Run /audit-skill qualitative review
 - **activeForm**: Running qualitative review
-- **description**: Run `/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]` via the Skill tool. The `/audit-skill` is a project-level skill installed by `npx skillsets init` in Task 1. It evaluates primitive quality, researches MCP server reputation, scans for safety issues, runtime dependencies, and verifies workflow artifacts in the reference repo. It appends findings to `AUDIT_REPORT.md` and `skillset.yaml`. The audit-skill also populates the dependency section of `content/INSTALL_NOTES.md` with researched reputation data. Ask the user for the path to their reference repo before invoking. Iterate on feedback until the verdict is APPROVED.
+- **description**: Run `/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]` via the Skill tool. The `/audit-skill` is bundled with this contribute plugin. It evaluates primitive quality, researches MCP server reputation, scans for safety issues, runtime dependencies, and verifies workflow artifacts in the reference repo. It appends findings to `AUDIT_REPORT.md` and `skillset.yaml`. The audit-skill also populates the dependency section of `content/INSTALL_NOTES.md` with researched reputation data. Ask the user for the path to their reference repo before invoking. Iterate on feedback until the verdict is APPROVED.
 
 ### Task 5: Submit to registry
 
 - **subject**: Submit skillset to registry
 - **activeForm**: Submitting skillset
-- **description**: Run `npx skillsets@latest submit`. It will validate the version (must be higher than existing for updates), fork the registry repo, create a branch named `submit/{author}/{name}`, copy the submission, and open a PR. Interactive prompts (including `gh` auth) pass through to the user. After submission, CI runs `npx skillsets audit --check` to re-validate, and a maintainer reviews production evidence and audit report.
+- **description**: Run `npx skillsets@latest submit`. Do NOT re-run `npx skillsets audit` before submitting — the submit command checks the existing AUDIT_REPORT.md, and CI re-validates after the PR is opened. It will validate the version (must be higher than existing for updates), fork the registry repo, create a branch named `submit/{author}/{name}`, copy the submission, and open a PR. Interactive prompts (including `gh` auth) pass through to the user.
 
 ---
 

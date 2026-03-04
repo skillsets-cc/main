@@ -14,7 +14,7 @@ Contributions are limited to bi-monthly cohorts of 10. Every submission passes t
 
 **Structural audit** validates manifest schema, required files, content structure, file sizes, binary detection, secrets scanning, and README formatting. If the structure isn't clean, the process stops here.
 
-**Qualitative review.** Our review agent evaluates every primitive — skills, agents, hooks, MCP servers, CLAUDE.md — against published [criteria](./tools/audit-skill/CRITERIA.md). Third-party MCP servers and runtime dependencies are researched for provenance and reputation. A safety scan checks all primitives for prompt injection and exfiltration. The reviewer then searches the contributor's reference repo for collaboration artifacts — design docs, execution docs, analysis reports — as evidence the skillset actually shipped software. Findings are appended to the audit report with a verdict.
+**Qualitative review.** Our review agent evaluates every primitive — skills, agents, hooks, MCP servers, CLAUDE.md — against published [criteria](./plugins/contribute/skills/audit-skill/CRITERIA.md). Third-party MCP servers and runtime dependencies are researched for provenance and reputation. A safety scan checks all primitives for prompt injection and exfiltration. The reviewer then searches the contributor's reference repo for collaboration artifacts — design docs, execution docs, analysis reports — as evidence the skillset actually shipped software. Findings are appended to the audit report with a verdict.
 
 **Human approval.** A maintainer reviews the production proof, the documentation, and both audit tiers, then signs off. CI re-runs structural validation on the final PR state.
 
