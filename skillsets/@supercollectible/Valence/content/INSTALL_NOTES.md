@@ -13,6 +13,7 @@ A lot of tooling in this space optimizes for how little you have to do. Valence 
 - **Git.** Commits, branches, rollbacks — your responsibility.
 - **Complexity routing.** When to `/solve` vs `/build`, when to loop back to `/arch` vs patch in place, when to skip the workflow entirely and just ask Claude — that's judgment, not automation. The primitives are modular for a reason.
 - **Decision gates.** Every gate produces a proposal, not a final answer. `/arm` produces a brief for sign-off. `/ar` surfaces critiques for triage. `/breakdown` produces a plan you approve before a single build agent starts.
+- **Style guides.** The frontend and backend style guides are living documents. Update them as your stack evolves — the QA agents and build agent treat them as source of truth.
 - **Supervision.** Agent teams are experimental. Expect small failures — missed messages, stalled tasks. Expect occasional bigger ones. Watch the team while it works.
 
 **On interruption:** In `/arch`, `/solve`, and `/bugfest`, the lead is reasoning actively. If you see it going wrong — stop it. Contradicting mid-stream is cheaper than correcting a finished design doc.
