@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-03-04T21:31:19.459Z",
+  "generated_at": "2026-03-04T21:56:11.795Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -20,7 +20,7 @@
         "url": "https://github.com/supercollectible"
       },
       "stars": 1,
-      "version": "3.2.2",
+      "version": "3.2.3",
       "status": "active",
       "verification": {
         "production_links": [
@@ -42,7 +42,7 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:b9663730f84c2aa94784f47170ee5ff89f92683dc6a32b32d0a24b24ef673460",
+      "checksum": "sha256:5ff8e5d6a5a8567b5cc67d46aa0d21744f8b0dee3f01788f0c50cdabeb144257",
       "files": {
         "AUDIT_REPORT.md": "sha256:885c3424804ab64834953298364c0f92f68a271695a7d91c9f61e13270e93ac8",
         "content/.claude/agents/ar-glm5.md": "sha256:35b2763351269d34f200cbd326117805fed9f64de2d967715d6f74e328101f12",
@@ -80,7 +80,7 @@
         "content/.claude/skills/qf/SKILL.md": "sha256:83b270715810878e2bf3ba0ecec03f6aa6fe77248d3290fb283a37f7ebd2e696",
         "content/.claude/skills/solve/SKILL.md": "sha256:4d0a738252730fcf6efdbf55e901b92a4634b54652880f4f62b6ec9b689974ee",
         "content/CLAUDE.md": "sha256:ae9383353eb34a4afd62a4889f14e6ef504b156c2777ed1a44837c205a3c2f98",
-        "content/INSTALL_NOTES.md": "sha256:2ce6fc64207aa9864fa137952f4f589bb5da4a6ce5186c737481a6774c2255d6",
+        "content/INSTALL_NOTES.md": "sha256:482b873ea22d47ac487d9f84ad95fdeabc02ef72077b3092cc6a105ba4512a61",
         "content/QUICKSTART.md": "sha256:0fd00a04545a522a2548fc29bb233594e75b4be9d443d54d636d51cb2ae77925",
         "content/README.md": "sha256:beba5d31c5528e5079591bbe3d1d829c54778ccae2e0b52818061a0f0232be91",
         "content/Valence_ext/.env.example": "sha256:673017afe843613b7ec06ec219a1cc5274c4bf9e40a039322a8833dcdda29075",
@@ -98,7 +98,7 @@
         "content/Valence_ext/test/fixtures/openrouter-final.json": "sha256:63aec4d503ad630abd8a9a8e2b1eabdf3b6a13af28746bf6658920a53bfd2b24",
         "content/Valence_ext/test/fixtures/openrouter-tool-call.json": "sha256:82ac0d84b9f19aeda2985cb3459d698225aa4d745ebce9c16668189de2363b67",
         "content/Valence_ext/test/normalization.test.mjs": "sha256:9f436f4d104ae873977d94086376a0f5ec5813bba2ba0814b1c9ca84c80ce5a1",
-        "skillset.yaml": "sha256:0e91477d30e097275e800a6c147f9d55cabf12a5a19fb46bb5089beb3f54ab15"
+        "skillset.yaml": "sha256:3783afb3f366fafec6b9c273c67356ea9e608d684277639cf59cdf24ed51fa45"
       },
       "mcp_servers": [
         {
