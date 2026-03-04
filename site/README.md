@@ -64,6 +64,7 @@ site/
 | File | Purpose | Documentation |
 |------|---------|---------------|
 | `scripts/build-index.ts` | Generates `search-index.json` from skillsets/ registry | [Docs](./docs_site/build-index.md) |
+| `scripts/build-plugins.ts` | Generates per-skillset plugins + marketplace.json | [Docs](../plugins/docs_plugins/generated/build-plugins.md) |
 | `src/worker.ts` | Custom worker entry (Astro handler + Durable Object exports) | [Docs](./docs_site/worker.md) |
 
 ### Source Modules

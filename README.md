@@ -1,12 +1,14 @@
 # Skillsets.cc
 
-Claude Code has no trust layer. Skillsets.cc is raising the bar with a high-signal reputation foundry for power-users who ship more than they talk, and low-noise discovery engine for those who want to learn from the best.
+It's hard to trust Claude Code extentions. Skillsets.cc is raising that bar with a high-signal reputation foundry for power-users who ship more than they talk, and low-noise discovery engine for those who want to learn from the best.
 
 This addresses the fundamental weakness with the extension ecosystem, which is growing at an exponential rate with no quality infrastructure. No verification, no integrity checks, little dependency transparency, and no real way to pinpoint the proven production stacks in a jungle of slop. See [PROBLEM_SPACE.md](./PROBLEM_SPACE.md) for the full landscape analysis.
 
 ## What is a Skillset?
 
-A **skillset** is an integrated Claude Code workflow that actually shipped software. Expertly forged combinations of skills, agents, commands, hooks, plugins, MCP servers, and custom support-stacks, in unholy union and at your service. It's the core operating environment, not an add-on. We only accept complete workflows that have shipped real software, with clear documentation and evidence of production use.
+A **skillset** is an integrated Claude Code workflow that met **the bar** and actually shipped software. Expertly forged combinations of primitives, and sometimes custom support-stacks, in unholy union and at your service. It's the core operating environment, not an add-on. 
+
+We only accept complete workflows that have shipped real software, with clear documentation and evidence of production use.
 
 ## The Bar
 
@@ -39,7 +41,7 @@ Visit [skillsets.cc](https://skillsets.cc) to browse the registry, or search fro
 
 ## We All Want To Learn From You
 
-You built a high-dimensional skillset, not a toy. Give it a dedicated repo, spin up Claude Code, and run the following command:
+You built a high-dimensional skillset, not a toy. Give it a dedicated repo, spin up Claude Code, install the marketplace and contribute plugin, and run the following command:
 
     /contribute
 

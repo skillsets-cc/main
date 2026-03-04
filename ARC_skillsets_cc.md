@@ -1,16 +1,19 @@
 # skillsets.cc
 
 ## Purpose
-Curated registry of production-verified Claude Code workflows. Two independent modules: a web application (site) and a CLI tool (cli). The site serves as the public-facing registry with search, authentication, star/download tracking, and a ghost entry reservation system. The CLI provides discovery, installation with checksum verification, and a contributor submission workflow.
+Curated registry of production-verified Claude Code workflows. Three independent modules: a web application (site), a CLI tool (cli), and a plugin system (plugins). The site serves as the public-facing registry with search, authentication, star/download tracking, and a ghost entry reservation system. The CLI provides discovery, installation with checksum verification, and a contributor submission workflow. The plugins bridge skillsets.cc with Claude Code's native plugin system — packaging skills as distributable, namespaced units for both contributors and end users.
 
 ## Architecture
 ```
 skillsets.cc/
 ├── site/                         # Astro 5 SSR on Cloudflare Workers
+│   ├── scripts/
+│   │   ├── build-index.ts        # Generates search-index.json from skillsets/
+│   │   └── build-plugins.ts      # Generates per-skillset plugins + marketplace.json
 │   └── src/
-│       ├── components/           # React islands + Astro components (9 files)
+│       ├── components/           # React islands + Astro components (10 files)
 │       ├── lib/                  # Server-side utilities (10 files)
-│       ├── pages/                # Routes + API endpoints (17 files)
+│       ├── pages/                # Routes + API endpoints (18 files)
 │       ├── types/                # TypeScript interfaces
 │       ├── layouts/              # Base HTML layout + mobile drawer
 │       └── styles/               # Tailwind + typography + scrollbar
@@ -21,18 +24,26 @@ skillsets.cc/
 │       ├── lib/                  # API, checksum, constants, errors, filesystem, templates, validate-deps, validate-mcp, versions
 │       └── types/                # CLI-specific interfaces
 │
+├── plugins/                      # Claude Code plugins
+│   ├── contribute/               # Static: contributor submission + qualitative audit
+│   └── @ns/Name/                 # Generated (prod only): per-skillset install plugins
+│
+├── .claude-plugin/
+│   └── marketplace.json          # Aggregate plugin listing for Claude Code discovery
+│
 ├── schema/                       # JSON Schema for validation
 │   └── skillset.schema.json
 │
-├── skillsets/                    # Registry content (mono-repo)
+├── skillsets/                    # Registry content (mono-repo, prod only)
 │   └── @{namespace}/{name}/
 │       ├── skillset.yaml         # Manifest
-│       ├── AUDIT_REPORT.md       # Structural validation
+│       ├── AUDIT_REPORT.md       # Structural + qualitative validation
 │       └── content/              # Files to install
 │
 └── .github/workflows/            # CI/CD
-    ├── validate-submission.yml   # PR validation
-    └── sync-to-prod.yml          # Deploy to Cloudflare
+    ├── validate-submission.yml   # PR validation (audit + author + reservation)
+    ├── rebuild-index.yml         # Post-merge: rebuild index, plugins, deploy
+    └── sync-to-prod.yml          # Dev-to-prod sync (manual)
 ```
 
 ## Modules
@@ -41,6 +52,7 @@ skillsets.cc/
 |--------|---------|---------|
 | **site** | Astro 5 SSR application — registry UI, auth, APIs, reservation system | [ARC_site.md](site/docs_site/ARC_site.md) |
 | **cli** | Node.js CLI — search, install (degit + checksums), contribute (init, audit, submit) | [ARC_cli.md](cli/docs_cli/ARC_cli.md) |
+| **plugins** | Claude Code plugins — static contribute plugin + generated per-skillset install plugins | [ARC_plugins.md](plugins/docs_plugins/ARC_plugins.md) |
 
 ### Site Sub-Modules
 
@@ -50,8 +62,8 @@ skillsets.cc/
 | **lib** | Auth, stars, downloads, reservations, data, sanitization, validation | [ARC_lib.md](site/src/lib/docs_lib/ARC_lib.md) |
 | **pages** | Static pages, auth endpoints, star/download APIs, reservation APIs | [ARC_pages.md](site/src/pages/_docs_pages/ARC_pages.md) |
 | **types** | SearchIndexEntry, SearchIndex, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState | [ARC_types.md](site/src/types/docs_types/ARC_types.md) |
-| **layouts** | Base layout with sidebar nav and mobile slide-out drawer | [ARC_layouts.md](site/src/layouts/docs_layouts/ARC_layouts.md) |
-| **styles** | Tailwind layers, typography system (Crimson Pro + JetBrains Mono), scrollbar | [ARC_styles.md](site/src/styles/docs_styles/ARC_styles.md) |
+| **layouts** | Base layout with expanding sidebar, canvas hex rain, mobile FABs, View Transitions | [ARC_layouts.md](site/src/layouts/docs_layouts/ARC_layouts.md) |
+| **styles** | Tailwind layers, typography (Outfit + JetBrains Mono), scrollbar, sticky header | [ARC_styles.md](site/src/styles/docs_styles/ARC_styles.md) |
 
 ## System Data Flow
 
@@ -61,35 +73,59 @@ Contributor
   ↓
 npx skillsets init → scaffold skillset.yaml + content/
   ↓
-npx skillsets audit → validate manifest + MCP servers + runtime deps → generate AUDIT_REPORT.md
+npx skillsets audit → validate manifest + MCP + runtime deps → AUDIT_REPORT.md (tier 1)
+  ↓
+/audit-skill → qualitative Opus review → AUDIT_REPORT.md (tier 2) + skillset.yaml updates
   ↓
 npx skillsets submit → fork → branch → open PR via gh CLI
   ↓
 GitHub Actions: validate-submission.yml
-  ├── JSON Schema validation (skillset.yaml)
-  ├── Checksum generation
-  ├── MCP consistency check
+  ├── npx skillsets audit --check (schema, MCP, runtime deps)
+  ├── Author ↔ namespace verification
   └── Reservation batch ID verification (GET /api/reservations/verify)
   ↓
-Maintainer review (production proof + MCP justification)
+Maintainer review (production proof + audit report)
   ↓
-PR merged → sync-to-prod.yml
-  ├── Rebuild search-index.json
+PR merged → rebuild-index.yml
+  ├── Rebuild search-index.json (metadata + checksums + MCP)
+  ├── Generate per-skillset plugins + marketplace.json
+  ├── Commit generated files
   ├── Build Astro site
   └── Deploy to Cloudflare Workers
   ↓
 Consumer
   ├── Web: skillsets.cc (browse, search, star, view detail)
-  └── CLI: npx skillsets search/list/install
+  ├── CLI: npx skillsets search/list/install
+  └── Plugin: claude plugin marketplace add → /skillset:install
+```
+
+### Plugins: Build + Distribution
+```
+DEV REPO (skillsets.cc)                     PROD REPO (skillsets-cc/main)
+
+plugins/contribute/ ── sync-to-prod.yml ──► plugins/contribute/
+marketplace.json    ── merge (not overwrite) ► marketplace.json
+                                            (dev entries update, prod entries preserved)
+
+                                            skillsets/@ns/Name/skillset.yaml
+                                              ↓ rebuild-index.yml
+                                            plugins/@ns/Name/ (generated)
+                                              ├── .claude-plugin/plugin.json
+                                              └── skills/install/SKILL.md
+                                              ↓
+                                            .claude-plugin/marketplace.json (aggregate)
+                                              ↓
+                                            Claude Code discovers via marketplace
 ```
 
 ### Site: Build Time
 ```
 GitHub Registry (skillsets/)
   ↓
-GitHub Action generates search-index.json (metadata + checksums + MCP)
+build-index.ts → search-index.json (metadata + checksums + MCP)
+build-plugins.ts → plugins/@ns/Name/ + marketplace.json
   ↓
-Astro imports at build → embedded in static pages
+Astro imports index at build → embedded in static pages
   ↓
 Deploy to Cloudflare Workers (single worker: static + SSR + API)
 ```
@@ -127,10 +163,40 @@ submit → validate version bump → gh CLI → fork → branch → PR
 | `GET /api/reservations/lookup` | Find user's reservation (init) | `pages/api/reservations/lookup.ts` |
 | `GET /api/reservations/verify` | Validate batch ID (CI) | `pages/api/reservations/verify.ts` |
 
+### Plugins ↔ Site Touchpoints
+| Asset | Plugin Usage | Site Role |
+|-------|-------------|-----------|
+| `build-plugins.ts` | Generates per-skillset plugins + marketplace | Build script lives in site/scripts/ |
+| `search-index.json` | Not consumed by plugins directly | Generated by `build-index.ts` in same pipeline |
+
+### Plugins ↔ CLI Touchpoints
+| Interaction | Direction | Mechanism |
+|-------------|-----------|-----------|
+| `/contribute:contribute` invokes CLI | Plugin → CLI | `Bash(npx skillsets@latest init/audit/submit)` |
+| `/install` invokes CLI | Plugin → CLI | `Bash(npx skillsets@latest install @ns/Name)` |
+| CLI `init` scaffolds skillset | CLI → Plugin input | Scaffold becomes `skillset.yaml` → plugin generation |
+
+### Plugins ↔ Claude Code
+| Interaction | Direction | Mechanism |
+|-------------|-----------|-----------|
+| Marketplace discovery | CC → Plugins | `claude plugin marketplace add skillsets-cc/main` reads `marketplace.json` |
+| Plugin loading | CC → Plugins | Reads `.claude-plugin/plugin.json`, discovers `skills/` directory |
+| Skill invocation | CC → Skills | `/contribute:contribute`, `/contribute:audit-skill`, `/@ns/Name:install` |
+| Namespacing | CC convention | Plugin name becomes skill prefix (e.g., `/contribute:audit-skill`) |
+
 ### Shared via Registry (not code)
-- **skillset.yaml** schema: validated by both CLI (`audit`) and GitHub Actions
-- **search-index.json**: generated by Actions, consumed by both site (build-time) and CLI (CDN fetch)
+- **skillset.yaml** schema: validated by CLI (`audit`), GitHub Actions, and consumed by `build-plugins.ts`
+- **search-index.json**: generated by Actions, consumed by site (build-time) and CLI (CDN fetch)
 - **Checksums**: generated at build time, verified by CLI on install
+- **marketplace.json**: generated by `build-plugins.ts`, consumed by Claude Code
+
+## CI/CD Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `validate-submission.yml` | PR touching `skillsets/**` | Audit + author verification + reservation check |
+| `rebuild-index.yml` | Push to `main` touching `skillsets/**`, or manual | Rebuild index + plugins, commit, deploy |
+| `sync-to-prod.yml` | Manual only | Sync dev code to prod (merges marketplace, preserves skillsets) |
 
 ## Infrastructure
 
@@ -152,39 +218,46 @@ submit → validate version bump → gh CLI → fork → branch → PR
 └──────────────────────────────────────────────┘
 ```
 
-### GitHub (Dual Role)
-- **Repository**: Mono-repo registry of skillset content
-- **Actions**: PR validation + deploy pipeline + search index generation
+### GitHub (Triple Role)
+- **Repository**: Mono-repo registry of skillset content + generated plugins
+- **Actions**: PR validation + index/plugin generation + deploy pipeline
 - **OAuth**: Authentication provider for site
 - **Raw Content API**: README fetching for skillset detail pages
+- **Plugin Marketplace Host**: `marketplace.json` served from repo for Claude Code discovery
 
 ## Security
 
-| Layer | Site | CLI |
-|-------|------|-----|
-| **Auth** | GitHub OAuth (PKCE + CSRF → JWT) | N/A (uses gh CLI auth) |
-| **Sessions** | httpOnly/Secure/SameSite=Lax cookie, 7-day expiry | N/A |
-| **XSS** | js-xss whitelist on README HTML; sanitizeUrl for user URLs | N/A |
-| **Rate Limiting** | Stars: 10/min; Downloads: 30/hr; Reservations: 5/hr | N/A (server-side) |
-| **Input Validation** | Skillset ID format checks (prevent KV key injection) | Manifest + MCP + runtime deps validation |
-| **Checksums** | Generated at build time | SHA-256 verification on install |
-| **Authorization** | Maintainer-only endpoints (config, submit) | N/A |
+| Layer | Site | CLI | Plugins |
+|-------|------|-----|---------|
+| **Auth** | GitHub OAuth (PKCE + CSRF → JWT) | N/A (uses gh CLI auth) | N/A (inherits CC session) |
+| **Sessions** | httpOnly/Secure/SameSite=Lax cookie, 7-day expiry | N/A | N/A |
+| **XSS** | js-xss whitelist on README HTML; sanitizeUrl for user URLs | N/A | N/A |
+| **Rate Limiting** | Stars: 10/min; Downloads: 30/hr; Reservations: 5/hr | N/A (server-side) | N/A |
+| **Input Validation** | Skillset ID format checks (prevent KV key injection) | Manifest + MCP + runtime deps validation | Schema-enforced `unevaluatedProperties: false` |
+| **Checksums** | Generated at build time | SHA-256 verification on install | N/A |
+| **Authorization** | Maintainer-only endpoints (config, submit) | N/A | N/A |
+| **Consent Gating** | N/A | MCP/deps install warnings | Install skill shows INSTALL_NOTES.md before proceeding |
 
 ## Design System
 
 ### Typography
-- **Serif**: Crimson Pro (body text, headings) — 18px base
-- **Mono**: JetBrains Mono at 0.95em (code, metadata, labels, buttons)
+- **Body**: Outfit sans-serif (applied via `font-sans`)
+- **Mono**: JetBrains Mono at 0.90em / font-weight 500 (scaled for visual balance)
 
 ### Colors
-- **Background**: stone-50 | **Text**: text-ink, text-secondary, text-tertiary
-- **Accent**: orange-500 | **Borders**: border-ink, border-light | **Status**: green-500
+- **Background**: `#020202` (near-black)
+- **Text**: `text-text-ink`, `text-text-secondary`, `text-text-tertiary`
+- **Accent**: `accent` orange (links, stars, hover), `accent-highlight` (glow)
+- **Surface**: `surface-paper` (sidebar, scrollbar track), `surface-white`
+- **Borders**: `border-ink` (subtle), `border-strong` (prominent, scrollbar thumb)
 
 ### Patterns
 - Static-first (prerender by default, SSR only for runtime data)
 - Islands architecture (static HTML + selective React hydration)
-- No border radius (sharp geometric aesthetic)
-- Glassmorphism for floating UI (TagFilter bar)
+- Monospace UI elements (buttons use `font-mono`)
+- Dark glassmorphism (`bg-[#020202]/90 backdrop-blur-sm` for floating UI)
+- Sticky header condensing via `data-stuck` attribute
+- Glow hover (`.glow-border-hover` adds orange box-shadow)
 
 ## Testing
 
@@ -197,6 +270,9 @@ cd site && npm run build     # Full build verification
 # CLI
 cd cli && npm test           # Vitest
 cd cli && npm test -- --coverage
+
+# Plugins (build script tests)
+cd site && npm test -- tests_scripts/build-plugins.test.ts
 ```
 
 ## Configuration
@@ -208,6 +284,7 @@ cd cli && npm test -- --coverage
 | `site/wrangler.jsonc` | Site | Worker bindings (KV, DO, secrets) |
 | `cli/package.json` | CLI | `bin: { skillsets }`, dependencies |
 | `schema/skillset.schema.json` | Shared | Manifest validation schema |
+| `.claude-plugin/marketplace.json` | Plugins | Aggregate plugin listing for Claude Code |
 
 ## Related Documentation
 - [CLAUDE.md](CLAUDE.md) — Development protocol and hard constraints
