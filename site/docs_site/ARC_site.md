@@ -91,9 +91,9 @@ site/
     │   │   │   ├── verify.ts      # GET batch ID verification (CI)
     │   │   │   ├── lookup.ts      # GET user's reservation
     │   │   │   └── submit.ts      # POST mark slot submitted (maintainer)
-    │   │   ├── docs_api/          # API route documentation
-    │   │   └── tests_api/         # API route tests
-    │   └── docs_pages/            # Per-file docs
+    │   │   ├── _docs_api/          # API route documentation
+    │   │   └── _tests_api/         # API route tests
+    │   └── _docs_pages/            # Per-file docs
     │
     ├── types/
     │   ├── index.ts               # SearchIndex, SearchIndexEntry, CcExtension, RuntimeDependency, McpServer, McpNestedServer, SlotStatus, GhostSlot, ReservationState
@@ -116,8 +116,8 @@ site/
 | **src (root)** | Worker entry point (`worker.ts`) + Cloudflare runtime type declarations (`env.d.ts`) | [ARC_src.md](../src/docs_src/ARC_src.md) |
 | **components** | React islands + Astro components for UI (filtering, stars, ghost entries, galleries) | [ARC_components.md](../src/components/docs_components/ARC_components.md) |
 | **lib** | Server-side auth, stars, downloads, reservations, data, sanitization, validation, rate limiting | [ARC_lib.md](../src/lib/docs_lib/ARC_lib.md) |
-| **pages** | Routes: static pages, auth endpoints, star/download APIs, reservation APIs | [ARC_pages.md](../src/pages/docs_pages/ARC_pages.md) |
-| **pages/api** | API endpoints: star/download tracking, session introspection, reservation system | [ARC_api.md](../src/pages/api/docs_api/ARC_api.md) |
+| **pages** | Routes: static pages, auth endpoints, star/download APIs, reservation APIs | [ARC_pages.md](../src/pages/_docs_pages/ARC_pages.md) |
+| **pages/api** | API endpoints: star/download tracking, session introspection, reservation system | [ARC_api.md](../src/pages/api/_docs_api/ARC_api.md) |
 | **types** | TypeScript interfaces for skillsets, search index, extensions, MCP servers, reservations | [ARC_types.md](../src/types/docs_types/ARC_types.md) |
 | **layouts** | Base layout with expanding sidebar, canvas hex rain background, mobile FABs, View Transitions | [ARC_layouts.md](../src/layouts/docs_layouts/ARC_layouts.md) |
 | **styles** | Global CSS: Tailwind layers, typography, scrollbar, sticky header condensing, glow hover | [ARC_styles.md](../src/styles/docs_styles/ARC_styles.md) |

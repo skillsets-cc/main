@@ -6,7 +6,7 @@ Astro pages defining routes for the skillsets.cc site. Mix of static prerendered
 ## Directory Structure
 ```
 pages/
-├── docs_pages/                      # Page documentation
+├── _docs_pages/                      # Page documentation
 │   ├── ARC_pages.md                 # This file
 │   ├── index.md
 │   ├── about.md

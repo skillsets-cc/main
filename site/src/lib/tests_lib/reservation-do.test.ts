@@ -49,7 +49,7 @@ function createMockState(): DurableObjectState {
     storage: createMockStorage(),
     id: { toString: () => 'singleton' } as DurableObjectId,
     waitUntil: vi.fn(),
-    blockConcurrencyWhile: vi.fn(),
+    blockConcurrencyWhile: vi.fn(async (cb: () => Promise<unknown>) => cb()),
   } as unknown as DurableObjectState;
 }
 

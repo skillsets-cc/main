@@ -71,7 +71,7 @@ site/
 |--------|---------|--------|-----|
 | **components** | React islands + Astro components (filtering, stars, ghost entries, galleries) | [README](./src/components/README.md) | [ARC](./src/components/docs_components/ARC_components.md) |
 | **lib** | Auth, stars, downloads, rate limiting, reservations, data, sanitization, validation | [README](./src/lib/README.md) | [ARC](./src/lib/docs_lib/ARC_lib.md) |
-| **pages** | Static pages, auth endpoints, star/download APIs, reservation APIs | [README](./src/pages/README.md) | [ARC](./src/pages/docs_pages/ARC_pages.md) |
+| **pages** | Static pages, auth endpoints, star/download APIs, reservation APIs | [README](./src/pages/_README.md) | [ARC](./src/pages/_docs_pages/ARC_pages.md) |
 | **types** | SearchIndexEntry, McpServer, SlotStatus, GhostSlot, ReservationState | [README](./src/types/README.md) | [ARC](./src/types/docs_types/ARC_types.md) |
 | **layouts** | Base layout with sidebar nav and mobile slide-out drawer | [README](./src/layouts/README.md) | [ARC](./src/layouts/docs_layouts/ARC_layouts.md) |
 | **styles** | Tailwind layers, typography system (Crimson Pro + JetBrains Mono), scrollbar | [README](./src/styles/README.md) | [ARC](./src/styles/docs_styles/ARC_styles.md) |

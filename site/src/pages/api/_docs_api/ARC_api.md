@@ -17,8 +17,8 @@ site/src/pages/api/
 │   └── verify.ts           # GET verify reservation for CI validation
 ├── stats/
 │   └── counts.ts           # GET bulk star+download counts (for CLI search/list)
-├── docs_api/               # Documentation
-└── tests_api/              # Vitest test files
+├── _docs_api/               # Documentation
+└── _tests_api/              # Vitest test files
 ```
 
 ## Components
