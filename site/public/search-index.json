@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-03-05T14:07:31.214Z",
+  "generated_at": "2026-03-05T15:49:19.373Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -42,14 +42,14 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:656c52d8834ebf3918987f28f4f30dd5c326d036fbb6b000d961ec06e90d6245",
+      "checksum": "sha256:684223b83e1fe327ae4fecd064863fc068eefe7f0fc6f1c0578bf33b517b61ec",
       "files": {
         "AUDIT_REPORT.md": "sha256:885c3424804ab64834953298364c0f92f68a271695a7d91c9f61e13270e93ac8",
         "content/.claude/agents/ar-glm5.md": "sha256:35b2763351269d34f200cbd326117805fed9f64de2d967715d6f74e328101f12",
-        "content/.claude/agents/ar-k.md": "sha256:a7f794bdef471b486475af44c32985490037bf7494c25bb1ee3d0ca9bc908568",
+        "content/.claude/agents/ar-k.md": "sha256:5fc17098871fa0fc56f963089fdaedafac6279a52e3ab632c40846a095376bc4",
         "content/.claude/agents/ar-o.md": "sha256:b41d1d96677d86ebb36c1e07ff201efd55e58fcc472f961a9e7af483d074c4c8",
         "content/.claude/agents/build.md": "sha256:8db8220cedc9bc2b9405bd6098852899b5d90b6a526146a9a7177f54ad68f29b",
-        "content/.claude/agents/pm-k.md": "sha256:6ac4e6005a541ecf46cd6ece88a555caaa660839616fc34e06d32962c38688ac",
+        "content/.claude/agents/pm-k.md": "sha256:f7942a221f1c9df8e00086cd04a5471152c966732b603f958177dbc86b6d3f74",
         "content/.claude/agents/pm-s.md": "sha256:c144d162f6fa0b945afc8639cacdcac5fd610afb1737cf3c0b16b5d3383c3f2f",
         "content/.claude/agents/qa-b.md": "sha256:ac0925a853560a8041dfd599e5a20218bbffe15bf949a830648a3ff3290515e2",
         "content/.claude/agents/qa-docs.md": "sha256:dec1e914165ea194685c280956213e8ac9cc8ae7708b31da4659b0f3c87a250b",
