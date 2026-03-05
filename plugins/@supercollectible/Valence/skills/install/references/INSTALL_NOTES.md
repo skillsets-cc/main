@@ -2,7 +2,7 @@
 
 Welcome! Valence is a spec-driven Claude Code skillset with adversarial review, QA agents, and orchestrated builds.
 
-A lot of tooling in this space optimizes for how little you have to do. Valence optimizes for the quality of what gets built, and how well you understand the system. That's a deliberate design decision, not a gap. Agency over automation.
+A lot of tooling in this space optimizes for how little you have to do. Valence optimizes for the quality of what gets built, and how well you understand the system. That's a deliberate design decision, not a gap. Agency > automation.
 
 **What the team does:** gruntwork and signal. It handles mechanical execution — implementation, testing, documentation, cleanup. And it surfaces structured data for your decisions: grounding research against real docs, adversarial critiques from models with different blind spots, claim-by-claim validation verdicts, QA findings by severity. It produces proposals and reports, not decisions.
 
