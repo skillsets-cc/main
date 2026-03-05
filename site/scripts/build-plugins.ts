@@ -178,7 +178,7 @@ Create ALL tasks upfront using \`TaskCreate\`. Pass the **subject**, **activeFor
 
 - **subject**: Review install notes and install ${name}
 - **activeForm**: Reviewing install notes
-- **description**: Read \`references/INSTALL_NOTES.md\`. Print: "Before installing **${name}**, review what's included:" followed by the install notes content verbatim.${hasMcpOrRuntimeDeps ? ' Then note: "This skillset declares external dependencies listed above. Proceeding will install them."' : ''}${pluginNote ? ` Then note the external plugin dependencies listed below.` : ''} Ask the user to confirm they want to proceed. If confirmed: run \`npx skillsets@latest install ${id}${acceptFlags}\`. If declined: stop.${pluginNote}
+- **description**: Read \`references/INSTALL_NOTES.md\`. Print: "Before installing **${name}**, review what's included:" followed by the ENTIRE install notes content VERBATIM — every line, every table, every paragraph of prose below the tables. Do NOT summarize, truncate, or omit any content. The prose paragraphs after tables contain critical reputation and context information that users need.${hasMcpOrRuntimeDeps ? ' Then note: "This skillset declares external dependencies listed above. Proceeding will install them."' : ''}${pluginNote ? ` Then note the external plugin dependencies listed below.` : ''} Ask the user to confirm they want to proceed. If confirmed: run \`npx skillsets@latest install ${id}${acceptFlags}\`. If declined: stop.${pluginNote}
 
 ### Task 2: Read QUICKSTART.md
 
