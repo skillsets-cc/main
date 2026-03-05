@@ -119,6 +119,8 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 `/denoise [path]`, `/qf [path]`, `/qb [path]`, `/qd [path]`, `/security-review [path]` The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities. Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
 
+NOTE: /security-review is a CC native skill that defaults to scan for recent changes. If you want to scan full paths, you need to be specific. We're working on a custom solution for this.  
+
 ---
 
 <a id="bugfest"></a>
