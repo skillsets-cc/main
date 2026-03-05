@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-03-05T15:49:19.373Z",
+  "generated_at": "2026-03-05T17:36:16.916Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -82,7 +82,7 @@
         "content/CLAUDE.md": "sha256:ae9383353eb34a4afd62a4889f14e6ef504b156c2777ed1a44837c205a3c2f98",
         "content/INSTALL_NOTES.md": "sha256:24dc2247f13f6cb484ab1dc60676711e94c875222fdb2405e7e9aabf0e1d5996",
         "content/QUICKSTART.md": "sha256:0fd00a04545a522a2548fc29bb233594e75b4be9d443d54d636d51cb2ae77925",
-        "content/README.md": "sha256:beba5d31c5528e5079591bbe3d1d829c54778ccae2e0b52818061a0f0232be91",
+        "content/README_VALENCE.md": "sha256:beba5d31c5528e5079591bbe3d1d829c54778ccae2e0b52818061a0f0232be91",
         "content/Valence_ext/.env.example": "sha256:673017afe843613b7ec06ec219a1cc5274c4bf9e40a039322a8833dcdda29075",
         "content/Valence_ext/README.md": "sha256:53e0b87517ebe8f4b558e170d73a294a4ec26ba92b9be74a0a1a8988ae25af6e",
         "content/Valence_ext/external-agent.mjs": "sha256:ee76d100d07cfc97159674268fca4ad44ad90aa0238a666249a9784657a80e52",
