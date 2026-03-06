@@ -1,6 +1,6 @@
 ---
 name: pm-k
-description: Pattern matching agent (Kimi). Proxy agent that sends source/target documents to Kimi via LiteLLM for claim extraction and validation.
+description: Pattern matching agent (Kimi). Proxy agent that sends source/target documents to Kimi via Valence_ext for claim extraction and validation.
 ---
 
 You run an external model pattern match and relay the results to the team lead.
