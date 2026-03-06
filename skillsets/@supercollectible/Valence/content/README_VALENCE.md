@@ -9,7 +9,6 @@ This workflow is what survived 3k hours of iteration: First Principles + spec-dr
 - [Ideas](#ideas) — Design philosophy
 - [Valence](#the-valence-workflow) — The workflow
 - [State Tracking](#state-tracking) — Artifacts, manifests, decision auditability
-- [Primitives](#primitives) — Command reference
 - [Quality Gates](#quality-gates) — Validation checkpoints
 - [Grounding & Navigation](#grounding--navigation) — Where agents look and what they trust
 - [Meet The Team](#meet-the-team) — Agents, models, infrastructure
@@ -25,7 +24,7 @@ This workflow is what survived 3k hours of iteration: First Principles + spec-dr
 Crystallize the solution architecture before a single line of syntax is written. Stress test all assumptions and swap for custom fits. Never generate implementation from a raw prompt. 
 
 2. **Consensus through Dissensus**
-Your idea is only as good as the number of bulletholes it can withstand. Have distinct models with different training data critique the same design, exposing blind spots that a single perspective would miss. Trust conflict more than agreement.
+Your idea is only as good as the number of bulletholes it can withstand. Have distinct models with divergent alignment and instruct tuning critique the same design — their different evaluative biases surface blind spots a single model's priors would bury. Trust conflict more than agreement.
 
 3. **Cognitive Tiering**
 Intelligence is a finite resource. Route tasks based on cognitive load: high-reasoning models for strategy and design, and high-efficiency models for execution and QA. Optimize the curve between cost, speed, and quality per task.
@@ -37,7 +36,7 @@ Conversation is ephemeral; artifacts are solid. Iterate on the Design Document. 
 Bigger token windows are a trap. Practice Radical Context Hygiene—give agents only the narrow, curated signal they need for their specific phase. Read the docs, not the implementation. Less context means higher IQ.
 
 6. **Grounding, not Guessing**
-Models prioritize plausibility over truth. Force active grounding to invert this. Before recommending a library or pattern, the system must verify it against library documentation, known pitfalls, and project docs. Treat documented reality as a hard constraint that overrides training data.
+Models prioritize plausibility over truth. Force active grounding to invert this. Before recommending a library or pattern, the system must verify it against library documentation, known pitfalls, and project docs. Treat documented reality as a hard constraint that overrides parametric priors.
 
 7. **Deterministic Execution**
 Ambiguity is the enemy of automation. A plan is only valid if a worker can execute it without asking clarifying questions. Test cases are defined with the design, not after the build. Break work into atomic tasks with unambiguous acceptance criteria. If the builder has to guess, the planner failed.
@@ -55,11 +54,11 @@ This system is an exoskeleton, not a replacement. Automation without structure i
 
 <a id="the-valence-workflow"></a>
 
-Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across training paradigms and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is a modular, and standardized for interoperability and coordination through Claude Code's native agent team and task systems.
+Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across evaluative biases and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is a modular, and standardized for interoperability and coordination through Claude Code's native agent team and task systems.
 
 <a id="arm"></a>
 
-### /arm
+### [arm](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md)
 
 `/arm [initial thoughts]` — Opus extracts requirements, constraints, non-goals, style, and key concepts from fuzzy initial thoughts. Conversational QA probes for gaps, then a single structured checkpoint forces remaining decisions. Output is a synthesized brief for user confirmation.
 
@@ -67,7 +66,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 <a id="arch"></a>
 
-### /arch
+### [arch](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arch/SKILL.md)
 
 `/arch [brief]` — Opus decomposes a project into subsystems with contracts, constraints, and build order. First principles analysis classifies each constraint as hard, soft, or assumption, then reconstructs the optimal decomposition from only validated truths. Project docs, style guides, Context7, and web search ground the analysis. Iterative discussion with the human until alignment, then formalized into an architecture spec with a YAML manifest that tracks project state across build phases. Includes a built-in `/ar` pass on the spec before finalizing.
 
@@ -75,7 +74,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 <a id="solve"></a>
 
-### /solve
+### [solve](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/solve/SKILL.md)
 
 `/solve [brief/arch spec/ar report]` — Opus designs solutions for features, subsystems, or complex changes. Works within upstream constraints from `/arch` when they exist, or standalone from an `/arm` brief. First principles deconstruction, grounded research (project docs, Context7, web search), and iterative discussion before formalizing into a design document with rationale, schemas, exact file paths, and integration points. Hands off to `/ar`.
 
@@ -83,7 +82,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 <a id="ar"></a>
 
-### /ar
+### [ar](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md)
 
 `/ar [document]` — Three models critique your design in parallel, each with different bias and blind spots. The signal is where they *disagree*. Opus orchestrates — deduplicates findings, fact-checks each against the codebase, and scores by severity, probability, and remediation cost. Output is a structured report with and recommendation. Loop back to `/solve` to mitigate issues or proceed.
 
@@ -91,7 +90,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 <a id="breakdown"></a>
 
-### /breakdown
+### [breakdown](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/breakdown/SKILL.md)
 
 `/breakdown [design document]` — Opus transforms an approved design into execution breakdowns — one self-contained document per build agent. Tasks are grouped by agent (~5 per agent, no file conflicts between groups) to enable parallel execution. Each task includes exact file paths, code examples showing the patterns, named test cases with setup and assertions, and explicit dependencies. A quality checklist validates completeness before output.
 
@@ -99,7 +98,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 <a id="pmatch"></a>
 
-### /pmatch
+### [pmatch](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md)
 
 `/pmatch [source of truth] [target]` — Two agents independently extract claims from a source and verify each against a target. Works in both directions — spec as source to check if code matches the contract, or code as source to check if docs are up to date. Where both agents agree on a violation, that's high confidence. Output is a claim-by-claim verdict: Matched, Gap, Partial, or Ambiguous.
 
@@ -107,7 +106,7 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 <a id="build"></a>
 
-### /build
+### [build](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md)
 
 `/build [execution dir]` — Opus coordinates, Sonnets build. The lead never writes code — it spawns one agent per execution document, parallel when independent, sequenced when dependent, and monitors for blockers. Each agent works through its tasks: code, test, verify acceptance criteria, cleanup. Manifest status is updated at phase boundaries. When the team finishes, `/pmatch` validates the output against the breakdown.
 
@@ -115,15 +114,15 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 
 <a id="post-build"></a>
 
-### Post-build
+### post-build
 
-`/denoise [path]`, `/qf [path]`, `/qb [path]`, `/qd [path]`, `/security-review [path]` The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities. Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
+[`/denoise`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier), [`/qf`](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-f.md) [`/qb`](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-b.md), [`/qd`](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-docs.md), `/security-review` — The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities. Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
 
 ---
 
 <a id="bugfest"></a>
 
-### /bugfest
+### [bugfest](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/bugfest/SKILL.md)
 
 `/bugfest [bug description or ticket ID]` — Opus debugs through structured triage, root-cause analysis, and verified fixes. Conversational probing establishes the symptom, then systematic code tracing isolates the root cause. Every bug gets a ticket in `PROCESS_DOCS/tickets/` with a YAML manifest tracker. An escalation gate classifies defects — code bugs get fixed in place; design flaws escalate to `/solve`; architectural flaws escalate to `/arch` with manifest updates. Resume any ticket by passing its ID.
 
@@ -217,27 +216,6 @@ Each artifact in the chain references the one before it. To understand why somet
 
 ---
 
-## Primitives
-
-User-invoked entry points into the workflow. Each command loads its protocol and executes the corresponding phase.
-
-| Command | Purpose | Protocol |
-|---------|---------|----------|
-| `/arm [thoughts]` | Crystallize fuzzy ideas — extract reqs, constraints, style, concepts | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arm/SKILL.md) |
-| `/arch [brief]` | Global architecture — subsystem decomposition, contracts, build order | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/arch/SKILL.md) |
-| `/solve [brief or spec]` | Solution design — first principles, research, design doc | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/solve/SKILL.md) |
-| `/ar [doc.md]` | Adversarial review — orchestrates ar agents, cost/benefit for human review | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/ar/SKILL.md) |
-| `/breakdown [design.md]` | Execution breakdown — transform design into agent-scoped task docs | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/breakdown/SKILL.md) |
-| `/build [exec-dir/]` | Implement a plan — spawn build agents, coordinate, validate | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/build/SKILL.md) |
-| `/pmatch [source] [target]` | Validate target against source claims | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/pmatch/SKILL.md) |
-| `/bugfest [bug or ticket]` | Debug — triage, root-cause, fix, ticket tracking | [SKILL.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/skills/bugfest/SKILL.md) |
-| `/denoise [path]` | Post-build cleanup — invokes code-simplifier plugin | [Anthropic plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) |
-| `/qf` `/qb [path]` | QA audit — frontend (design system, a11y) or backend (API patterns, security) | [qa-f.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-f.md), [qa-b.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-b.md) |
-| `/qd [path]` | Docs QA — validates and updates documentation | [qa-docs.md](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-docs.md) |
-| `/security-review` | Security audit — injection, XSS, auth flaws | [Claude Code native](https://www.anthropic.com/news/automate-security-reviews-with-claude-code) |
-
----
-
 ## Quality Gates
 
 Nine checkpoints, each blocking forward progress until validation passes. The sequence matters: requirements solidify before architecture starts, architecture locks before solution design, designs finalize before planning, plans finalize before code. Later gates assume earlier gates passed—QA agents don't re-validate requirements, they trust the design gate caught that.
@@ -321,7 +299,7 @@ Three models, same protocol, different blind spots. The value isn't any single c
 |-------|-------|----------|
 | `ar-o` | Opus | Exhaustive edge cases, deep assumption chains |
 | `ar-k` | Kimi | Broad knowledge base, fast pattern recognition |
-| `ar-glm5` | GLM-5 | Alternative training distribution, cost-effective |
+| `ar-glm5` | GLM-5 | Alternative alignment, divergent priors, cost-effective |
 
 The orchestrator aggregates findings, deduplicates overlapping critiques, and presents cost/benefit recommendations. Human decides which critiques warrant design changes.
 
@@ -435,7 +413,7 @@ Claude Code (Opus orchestrator)
 | Model | Agent | Purpose |
 |-------|-------|---------|
 | `kimi-k2.5` (Moonshot) | ar-k, pm-k | Broad knowledge, fast pattern recognition |
-| `glm-5` (via OpenRouter) | ar-glm5 | Alternative training distribution, cost-effective |
+| `glm-5` (via OpenRouter) | ar-glm5 | Alternative alignment, divergent priors, cost-effective |
 
 **MCP integration**: External agents get the same grounding capabilities as Claude agents via MCP servers:
 - **Context7**: Library documentation via `resolve-library-id` and `query-docs`
