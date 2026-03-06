@@ -67,7 +67,7 @@ After installing via \`npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}\`, custo
 your-project/
 ├── .claude/          # Skills, agents, resources
 ├── CLAUDE.md         # Project config ← START HERE
-└── README.md         # Documentation
+└── README_{{NAME}}.md # Skillset documentation
 \`\`\`
 
 ---

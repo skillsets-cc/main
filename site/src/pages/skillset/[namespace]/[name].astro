@@ -30,7 +30,10 @@ const installCommand = `/install ${skillset.name}`;
 
 // Fetch README from GitHub at runtime
 const encodedPath = encodeURIComponent(namespace) + '/' + encodeURIComponent(name);
-const readmeUrl = `https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/${encodedPath}/content/README.md`;
+const readmeFile = Object.keys(skillset.files).find(f => /^content\/README_[^/]+\.md$/i.test(f));
+const readmeUrl = readmeFile
+  ? `https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/${encodedPath}/${readmeFile}`
+  : `https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/${encodedPath}/content/README.md`;
 
 let readmeContent: string | null = null;
 try {

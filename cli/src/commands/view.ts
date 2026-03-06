@@ -18,7 +18,12 @@ export async function view(skillsetId: string): Promise<void> {
 
   const [namespace, name] = skillsetId.split('/');
   const encodedPath = encodeURIComponent(namespace) + '/' + encodeURIComponent(name);
-  const readmeUrl = `${GITHUB_RAW_BASE}/skillsets/${encodedPath}/content/README.md`;
+  const readmeFile = metadata.files
+    ? Object.keys(metadata.files).find(f => /^content\/README_[^/]+\.md$/i.test(f))
+    : null;
+  const readmeUrl = readmeFile
+    ? `${GITHUB_RAW_BASE}/skillsets/${encodedPath}/${readmeFile}`
+    : `${GITHUB_RAW_BASE}/skillsets/${encodedPath}/content/README.md`;
   const auditUrl = `${GITHUB_RAW_BASE}/skillsets/${encodedPath}/AUDIT_REPORT.md`;
 
   const [readmeResponse, auditResponse] = await Promise.all([

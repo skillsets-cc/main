@@ -80,12 +80,12 @@ describe('init command', () => {
     expect(content).toContain('@testuser');
   });
 
-  it('creates content/README.md', async () => {
+  it('creates content/README_<NAME>.md', async () => {
     await init({});
 
-    expect(existsSync(join(testDir, 'content', 'README.md'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'))).toBe(true);
 
-    const content = readFileSync(join(testDir, 'content', 'README.md'), 'utf-8');
+    const content = readFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), 'utf-8');
     expect(content).toContain('test-skillset');
     expect(content).toContain('npx skillsets install');
   });
@@ -155,18 +155,16 @@ describe('init command', () => {
     expect(existsSync(join(testDir, 'content', 'CLAUDE.md'))).toBe(true);
   });
 
-  it('detects and offers to copy existing README.md', async () => {
-    // Create existing README.md at project root
+  it('does not detect README.md for copy (generates README_<NAME>.md instead)', async () => {
+    // Create existing README.md at project root — should NOT be offered for copy
     writeFileSync(join(testDir, 'README.md'), '# My Project README');
 
-    vi.mocked(checkbox).mockResolvedValue(['README.md']);
+    vi.mocked(checkbox).mockResolvedValue([]);
 
     await init({});
 
-    // Check that README.md was copied to content/
-    expect(existsSync(join(testDir, 'content', 'README.md'))).toBe(true);
-    const content = readFileSync(join(testDir, 'content', 'README.md'), 'utf-8');
-    expect(content).toBe('# My Project README');
+    // README_<NAME>.md should be generated, user's README.md left alone
+    expect(existsSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'))).toBe(true);
   });
 
   it('detects and offers to copy existing .mcp.json', async () => {
@@ -307,13 +305,13 @@ describe('init command', () => {
     expect(handleCall).toBeDefined();
   });
 
-  it('does not overwrite existing content/README.md', async () => {
+  it('does not overwrite existing content/README_<NAME>.md', async () => {
     mkdirSync(join(testDir, 'content'), { recursive: true });
-    writeFileSync(join(testDir, 'content', 'README.md'), '# My Custom README');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# My Custom README');
 
     await init({});
 
-    const content = readFileSync(join(testDir, 'content', 'README.md'), 'utf-8');
+    const content = readFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), 'utf-8');
     expect(content).toBe('# My Custom README');
   });
 

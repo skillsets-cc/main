@@ -78,9 +78,18 @@ function isBinaryFile(filePath: string): boolean {
   }
 }
 
+/** Find the README_<NAME>.md file in content/ */
+function findReadme(cwd: string): string | null {
+  const contentDir = join(cwd, 'content');
+  if (!existsSync(contentDir)) return null;
+  const entries = readdirSync(contentDir);
+  const readme = entries.find(f => /^README_[^/]+\.md$/i.test(f));
+  return readme ? join(contentDir, readme) : null;
+}
+
 function scanReadmeLinks(cwd: string): { line: number; link: string }[] {
-  const readmePath = join(cwd, 'content', 'README.md');
-  if (!existsSync(readmePath)) return [];
+  const readmePath = findReadme(cwd);
+  if (!readmePath) return [];
 
   const relativeLinks: { line: number; link: string }[] = [];
   const content = readFileSync(readmePath, 'utf-8');
@@ -303,7 +312,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   // 2. Required files
   spinner.text = 'Checking required files...';
   const hasContent = existsSync(join(cwd, 'content'));
-  const hasReadme = existsSync(join(cwd, 'content', 'README.md'));
+  const hasReadme = !!findReadme(cwd);
   const hasQuickstart = existsSync(join(cwd, 'content', 'QUICKSTART.md'));
   const hasInstallNotes = existsSync(join(cwd, 'content', 'INSTALL_NOTES.md'));
   const hasSkillsetYaml = existsSync(join(cwd, 'skillset.yaml'));
@@ -311,7 +320,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   const missingFiles: string[] = [];
   if (!hasSkillsetYaml) missingFiles.push('skillset.yaml');
   if (!hasContent) missingFiles.push('content/');
-  if (!hasReadme) missingFiles.push('content/README.md');
+  if (!hasReadme) missingFiles.push('content/README_<NAME>.md');
   if (!hasQuickstart) missingFiles.push('content/QUICKSTART.md');
   if (!hasInstallNotes) missingFiles.push('content/INSTALL_NOTES.md');
 

@@ -259,7 +259,7 @@ Submitted via \`npx skillsets submit\`
 ### Checklist
 
 - [x] \`skillset.yaml\` validated against schema
-- [x] \`README.md\` with installation and usage instructions
+- [x] \`README_${skillset.name.toUpperCase()}.md\` with installation and usage instructions
 - [x] \`content/INSTALL_NOTES.md\` with install notes
 - [x] \`AUDIT_REPORT.md\` generated and passing
 - [x] \`content/\` directory with skillset files

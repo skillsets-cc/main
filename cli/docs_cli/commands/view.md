@@ -14,7 +14,7 @@ Fetches and displays a skillset's README from GitHub raw content, allowing users
 
 ## Key Logic
 1. Verify skillset exists via search index (`fetchSkillsetMetadata`)
-2. Construct raw GitHub URLs with encoded path segments for both `content/README.md` and `AUDIT_REPORT.md`
+2. Resolve README filename from metadata `files` record (matches `content/README_*.md`), fall back to `content/README.md`. Construct raw GitHub URLs for both README and `AUDIT_REPORT.md`
 3. Fetch README and audit report in parallel (`Promise.all`)
 4. Print with bold header, dim separator, and raw README content
 5. If audit report available (HTTP 200), append it with a labeled separator

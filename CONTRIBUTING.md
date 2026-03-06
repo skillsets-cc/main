@@ -54,7 +54,7 @@ Claude helps you populate the submission files:
 
 - **`skillset.yaml`** — version, `compatibility.requirements` (support stack prereqs like docker, node >= 20, etc.), `compatibility.languages`
 - **`content/INSTALL_NOTES.md`** — install-time notes (what the skillset does, what it changes, under 4000 chars)
-- **`content/README.md`** — user-facing documentation: what the skillset does, what's included, how to use it
+- **`content/README_<NAME>.md`** — user-facing documentation (named to avoid clobbering the user's README on install): what the skillset does, what's included, how to use it
 - **`content/QUICKSTART.md`** — post-install customization guide that `/install` guides the end user through
 - **`Generalization`** — replace project-specific details in CLAUDE.md and other primitives with placeholder blanks while preserving structure and logic
 

@@ -55,7 +55,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
 1. Read `AUDIT_REPORT.md` — verify it shows "READY FOR SUBMISSION"
 2. Read [CRITERIA.md](CRITERIA.md) for evaluation rubric
-3. Read `content/README.md` to extract claimed workflow
+3. Read the `content/README_<NAME>.md` file (find the README matching the pattern) to extract claimed workflow
 4. Read `content/QUICKSTART.md` to understand the post-install customization guide
 5. Read `content/INSTALL_NOTES.md` to understand current install notes state
 
@@ -136,7 +136,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 ### Phase 4: Discover and Populate CC Extensions
 
 6. **Discover and populate CC extensions**:
-   - Read `content/` files — SKILL.md files, agent definitions, CLAUDE.md, README.md — and identify references to external Claude Code skills and plugins through contextual understanding
+   - Read `content/` files — SKILL.md files, agent definitions, CLAUDE.md, README_<NAME>.md — and identify references to external Claude Code skills and plugins through contextual understanding
    - For each discovered external extension, classify as `native` (ships with Claude Code) or `plugin` (external)
    - For plugin-type extensions: determine install source using the locked format (`registry:<id>`, `npm:<package>`, `github:<owner>/<repo>`)
    - Research reputation: WebSearch for plugin source, verify native skills exist in current CC version

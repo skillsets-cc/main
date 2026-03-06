@@ -168,7 +168,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await submit();
@@ -206,7 +206,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await expect(submit()).rejects.toThrow('Version must be greater than');
@@ -251,7 +251,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await submit();
@@ -399,7 +399,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await submit();
@@ -438,7 +438,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await submit();
@@ -463,7 +463,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await expect(submit()).rejects.toThrow('Process exit');
@@ -494,7 +494,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await expect(submit()).rejects.toThrow('Process exit');
@@ -525,7 +525,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     writeFileSync(join(testDir, 'AUDIT_REPORT.md'), passingAuditReport);
     mkdirSync(join(testDir, 'content'));
-    writeFileSync(join(testDir, 'content', 'README.md'), '# Test');
+    writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
 
     await expect(submit()).rejects.toThrow('Process exit');

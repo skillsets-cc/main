@@ -108,7 +108,7 @@ After installing via \`npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}\`, custo
 your-project/
 ├── .claude/          # Skills, agents, resources
 ├── CLAUDE.md         # Project config ← START HERE
-└── README.md         # Documentation
+└── README_{{NAME}}.md # Skillset documentation
 \`\`\`
 
 ---
@@ -377,7 +377,7 @@ export async function init(options: InitOptions): Promise<void> {
 
   // Auto-detect existing files — core skillset files and primitives
   const coreFiles = [
-    'CLAUDE.md', 'README.md', 'QUICKSTART.md', 'INSTALL_NOTES.md',
+    'CLAUDE.md', 'QUICKSTART.md', 'INSTALL_NOTES.md',
     '.claude/', '.mcp.json',
   ];
   const detectedCore = coreFiles.filter((f) => {
@@ -446,14 +446,16 @@ export async function init(options: InitOptions): Promise<void> {
 
     writeFileSync(join(cwd, 'skillset.yaml'), skillsetYaml);
 
-    // Generate content/README.md (if not copying existing)
-    if (!existsSync(join(cwd, 'content', 'README.md'))) {
+    // Generate content/README_<NAME>.md (if not copying existing)
+    // Named README avoids clobbering the user's own README.md on install
+    const readmeFilename = `README_${name.toUpperCase()}.md`;
+    if (!existsSync(join(cwd, 'content', readmeFilename))) {
       const readme = README_TEMPLATE
         .replace(/\{\{NAME\}\}/g, name)
         .replace(/\{\{DESCRIPTION\}\}/g, description)
         .replace(/\{\{AUTHOR_HANDLE\}\}/g, authorHandle);
 
-      writeFileSync(join(cwd, 'content', 'README.md'), readme);
+      writeFileSync(join(cwd, 'content', readmeFilename), readme);
     }
 
     // Generate content/QUICKSTART.md (if not copying existing)
@@ -478,7 +480,7 @@ export async function init(options: InitOptions): Promise<void> {
     console.log(chalk.green('\n✓ Initialized skillset submission:\n'));
     console.log('  skillset.yaml     - Manifest (edit as needed)');
     console.log('  content/          - Installable files');
-    console.log('    ├── README.md       - Documentation');
+    console.log(`    ├── ${readmeFilename} - Documentation`);
     console.log('    ├── QUICKSTART.md   - Post-install guide');
     console.log('    ├── INSTALL_NOTES.md - Pre-install notes');
     if (filesToCopy.length > 0) {
