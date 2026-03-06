@@ -1,6 +1,8 @@
 Valence exists at the outer limits of your combining-power. It is an exoskeleton that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. It's what happens when you can finally work at the speed of thought.
 
-This workflow is what survived 3k hours of iteration: First Principles + spec-driven + test-driven + atomic tasks, in a grounded team-based skillset with formalized quality gates, adversarial reviews and auditable handoffs. The Valence team takes you from idea to reviewed, tested, documented code, while you own all key decisions. 
+This workflow is what survived thousands of hours in with Claude: First Principles + spec-driven + test-driven + atomic tasks, in a grounded team-based skillset with formalized quality gates, adversarial reviews and auditable handoffs. The Valence team takes you from idea to reviewed, tested, documented code, while you own all key decisions. The first of its kind to integrate natively with CC agent teams and tasks, it's designed squarely around dev agency and output quality.
+
+Every inference is a negotiation between what you put in and what training burned into the weights — and undertrained context loses that negotiation by default. Valence's phase structure is designed to make that outcome non-competitive: dense, validated, coherent input at each stage so the model's representational geometry has nowhere to go but where you've specified.
 
 ---
 
@@ -53,6 +55,8 @@ This system is an exoskeleton, not a replacement. Automation without structure i
 ---
 
 <a id="the-valence-workflow"></a>
+
+### The Workflow
 
 Valence leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions. By the time agents start building, the idea has been crystallized, the design stress-tested across evaluative biases and grounded deeply, and the plan decomposed into tasks with atomic acceptance criteria. What comes out is bespoke solutions, tested, documented, and traceable. Each skill is a modular, and standardized for interoperability and coordination through Claude Code's native agent team and task systems.
 
@@ -117,6 +121,9 @@ Valence leverages the very best of Claude Code, in a skillset that front-loads t
 ### post-build
 
 [`/denoise`](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier), [`/qf`](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-f.md) [`/qb`](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-b.md), [`/qd`](https://github.com/skillsets-cc/main/blob/main/skillsets/%40supercollectible/Valence/content/.claude/agents/qa-docs.md), `/security-review` — The post-build pipeline is entropy control — dedicated passes that strip dead code, enforce project patterns, update docs, and scan for vulnerabilities. Each step is a standalone primitive. Run them as an ordered pipeline — simplify before auditing, audit before docs — or swarm them in parallel against independent paths. Any combination, any scope.
+
+> **Note**: `/security-review` is a [native Claude Code command](https://www.anthropic.com/news/automate-security-reviews-with-claude-code), not a custom skill. It defaults to reviewing latest changes. To target specific files or directories, pass explicit paths: `/security-review src/auth/ src/api/routes.ts`. We are working on a custom solution for this.
+
 
 ---
 
