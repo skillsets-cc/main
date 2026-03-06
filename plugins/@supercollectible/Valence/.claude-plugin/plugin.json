@@ -1,7 +1,7 @@
 {
   "name": "Valence",
   "description": "Spec-driven Claude Code workflow with adversarial review, QA agents, and orchestrated builds",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "author": {
     "name": "supercollectible",
     "url": "https://github.com/supercollectible"
