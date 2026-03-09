@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-03-06T13:58:23.679Z",
+  "generated_at": "2026-03-09T13:50:53.670Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -20,7 +20,7 @@
         "url": "https://github.com/supercollectible"
       },
       "stars": 1,
-      "version": "3.2.8",
+      "version": "3.2.9",
       "status": "active",
       "verification": {
         "production_links": [
@@ -42,7 +42,7 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:bcf1a2b896d1035c2d2aa28d21ba2f3c515c5ba0921cda681be6a4381e17ff13",
+      "checksum": "sha256:06faa779e774c46d0ead3b9d3d46114d89fbd00be435f1b33e603fb909ba01f0",
       "files": {
         "AUDIT_REPORT.md": "sha256:885c3424804ab64834953298364c0f92f68a271695a7d91c9f61e13270e93ac8",
         "content/.claude/agents/ar-glm5.md": "sha256:35b2763351269d34f200cbd326117805fed9f64de2d967715d6f74e328101f12",
@@ -80,9 +80,9 @@
         "content/.claude/skills/qf/SKILL.md": "sha256:83b270715810878e2bf3ba0ecec03f6aa6fe77248d3290fb283a37f7ebd2e696",
         "content/.claude/skills/solve/SKILL.md": "sha256:4d0a738252730fcf6efdbf55e901b92a4634b54652880f4f62b6ec9b689974ee",
         "content/CLAUDE.md": "sha256:ae9383353eb34a4afd62a4889f14e6ef504b156c2777ed1a44837c205a3c2f98",
-        "content/INSTALL_NOTES.md": "sha256:24dc2247f13f6cb484ab1dc60676711e94c875222fdb2405e7e9aabf0e1d5996",
+        "content/INSTALL_NOTES_VALENCE.md": "sha256:24dc2247f13f6cb484ab1dc60676711e94c875222fdb2405e7e9aabf0e1d5996",
         "content/LICENSE": "sha256:c1d2bbb780fbf63745e6603704919fe9f39b07a710bd930171a96e11eba739f1",
-        "content/QUICKSTART.md": "sha256:0fd00a04545a522a2548fc29bb233594e75b4be9d443d54d636d51cb2ae77925",
+        "content/QUICKSTART_VALENCE.md": "sha256:0fd00a04545a522a2548fc29bb233594e75b4be9d443d54d636d51cb2ae77925",
         "content/README.md": "sha256:368a91f2f559a0b82533cc5fc259c425aa8bee29cbb1bb506a7ec7cf6e9df50c",
         "content/README_VALENCE.md": "sha256:fa3a6aa0ecb6e5bec90a335818b5485f1633066ff3fdb8d64a4ab54b182c0b22",
         "content/Valence_ext/.env.example": "sha256:673017afe843613b7ec06ec219a1cc5274c4bf9e40a039322a8833dcdda29075",
@@ -100,7 +100,7 @@
         "content/Valence_ext/test/fixtures/openrouter-final.json": "sha256:63aec4d503ad630abd8a9a8e2b1eabdf3b6a13af28746bf6658920a53bfd2b24",
         "content/Valence_ext/test/fixtures/openrouter-tool-call.json": "sha256:82ac0d84b9f19aeda2985cb3459d698225aa4d745ebce9c16668189de2363b67",
         "content/Valence_ext/test/normalization.test.mjs": "sha256:9f436f4d104ae873977d94086376a0f5ec5813bba2ba0814b1c9ca84c80ce5a1",
-        "skillset.yaml": "sha256:1196eb50bd7a511691073462a470e46f52d920fee5bc8cf778e90ffd522ecba3"
+        "skillset.yaml": "sha256:ce29a16563217d17d043da4de6ace321347acb3e7d81213ff03d7a6c44d82ee3"
       },
       "mcp_servers": [
         {
