@@ -27,7 +27,7 @@ Every inference is a negotiation between what you put in and what training burne
 A model pointed at the wrong problem solves it with precision. Crystallize the architecture before syntax. Stress-test assumptions, classify constraints, reject averages. The thinking is the product. The code is the residue.
 
 2. **Familiarity is not Evidence**
-Agents don't fail the way humans do. The patterns built for human workflows encode assumptions about where things break — and those assumptions don't transfer. Mapping human-scoped solutions onto a different failure surface doesn't reduce risk; it adds overhead. The new paradigm has its own constraints. Find them. Build for those.
+Agents don't fail the way humans do. The patterns built for human workflows encode assumptions about where things break — and those assumptions don't transfer. Mapping human-scoped solutions onto a different failure surface doesn't reduce risk; it adds overhead. The new paradigm has its own constraints. Find them, check you ego, and adapt. 
 
 4. **Consensus through Dissensus**
 Your design is only as good as the bulletholes it survives. Different models carry different training geometries and different alignment biases. Where they agree, you may have signal. Where they conflict, you have information. A single model critiquing your design is pattern-matching against its own priors. Trust conflict more than agreement.
