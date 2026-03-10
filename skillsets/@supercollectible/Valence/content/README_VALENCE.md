@@ -67,7 +67,7 @@ This system is an exoskeleton, not a replacement. The collaborative primitives a
 
 <img src="https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/%40supercollectible/Valence/assets_VALENCE/workflow-96.png"/>
 
-Each phase produces a concrete artifact that the next phase consumes. Nothing builds until the design has been stress-tested across models with divergent evaluative biases, grounded against library docs and project conventions, and decomposed into tasks with unambiguous acceptance criteria. Multi-agent skills coordinate through Claude Code's native agent teams and task system — Opus leads never write code, Sonnet teammates execute in parallel tmux panes, and shared task lists handle sequencing and dependency tracking. Every skill is standalone — enter the workflow at any phase, skip what you don't need, or use individual skills in isolation.
+Each phase produces a concrete artifact that the next phase consumes. Nothing builds until the design has been stress-tested across models with divergent evaluative biases, grounded against library docs and project conventions, and decomposed into tasks with unambiguous acceptance criteria. Multi-agent skills coordinate through Claude Code's native agent teams and task system — Opus leads never write code, Sonnet teammates execute in parallel tmux panes, and shared task lists handle sequencing and dependency tracking. Every skill is standalone — skip what you don't need, or use individual skills in isolation.
 
 <a id="arm"></a>
 
