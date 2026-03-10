@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-03-10T20:28:42.919Z",
+  "generated_at": "2026-03-10T20:32:38.081Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -42,7 +42,7 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:aed3a0434bae60d607491fe041242e8a36f767a1abd92c95cb879789af931f6e",
+      "checksum": "sha256:e49221e19b87d238e5f1067bf715aaca07a796810ce3d48811478d95c4009bd4",
       "files": {
         "AUDIT_REPORT.md": "sha256:885c3424804ab64834953298364c0f92f68a271695a7d91c9f61e13270e93ac8",
         "assets_VALENCE/ar-flow.png": "sha256:b471abe1436241ad0c94df9bb6e5542d981d1aa48461bb938724fdb9f4945ab0",
@@ -97,7 +97,7 @@
         "content/LICENSE": "sha256:c1d2bbb780fbf63745e6603704919fe9f39b07a710bd930171a96e11eba739f1",
         "content/QUICKSTART_VALENCE.md": "sha256:0fd00a04545a522a2548fc29bb233594e75b4be9d443d54d636d51cb2ae77925",
         "content/README.md": "sha256:368a91f2f559a0b82533cc5fc259c425aa8bee29cbb1bb506a7ec7cf6e9df50c",
-        "content/README_VALENCE.md": "sha256:6cf4fa83552c838b9b6efe2040b81b36cbb3d9fc4822ab29eb3b95d4f161392b",
+        "content/README_VALENCE.md": "sha256:ff3d8f5520508de05952050e33d52ad40c422b9b99654d5d3a3fa9011326d8b8",
         "content/Valence_ext/.env.example": "sha256:673017afe843613b7ec06ec219a1cc5274c4bf9e40a039322a8833dcdda29075",
         "content/Valence_ext/README.md": "sha256:53e0b87517ebe8f4b558e170d73a294a4ec26ba92b9be74a0a1a8988ae25af6e",
         "content/Valence_ext/external-agent.mjs": "sha256:ee76d100d07cfc97159674268fca4ad44ad90aa0238a666249a9784657a80e52",
