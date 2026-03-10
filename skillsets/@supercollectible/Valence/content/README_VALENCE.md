@@ -26,37 +26,37 @@ Every inference is a negotiation between what you put in and what training burne
 1. **Code is a Liability; Judgment is an Asset**
 A model pointed at the wrong problem solves it with precision. Crystallize the architecture before syntax. Stress-test assumptions, classify constraints, reject averages. The thinking is the product. The code is the residue.
 
-2. **Reject Familiarity as Evidence**
-Familiarity masquerades as correctness. A pattern is someone else's solution to a problem you may not have. Start from mechanism. Derive the solution. Recognize the pattern afterward, if it shows up.
+2. **Familiarity is not Evidence**
+Agents don't fail the way humans do. The patterns built for human workflows encode assumptions about where things break — and those assumptions don't transfer. Mapping human-scoped solutions onto a different failure surface doesn't reduce risk; it just obscures it. The new paradigm has its own constraints. Find them. Build for those.
 
-3. **Consensus through Dissensus**
+4. **Consensus through Dissensus**
 Your design is only as good as the bulletholes it survives. Different models carry different training geometries and different alignment biases. Where they agree, you may have signal. Where they conflict, you have information. A single model critiquing your design is pattern-matching against its own priors. Trust conflict more than agreement.
 
-4. **Cognitive Tiering**
+5. **Cognitive Tiering**
 Intelligence is a finite resource. Route tasks by cognitive load: high-reasoning models for strategy and design, high-efficiency models for execution and validation. This is not a cost optimization. Misrouting degrades both quality and speed. Map the curve and hold it.
 
-5. **The Spec is the Source of Truth**
+6. **The Spec is the Source of Truth**
 Conversation is ephemeral; artifacts are durable. Iterate on the design document. Validate against the spec, not the chat. If a requirement isn't in the spec, it doesn't exist.
 
-6. **Context Shapes Preconditions, Not Outputs**
+7. **Context Shapes Preconditions, Not Outputs**
 Context doesn't produce output — it shapes the preconditions for it. Every token in the window is material the model's transformation geometry operates on. Practice radical context hygiene: more context isn't higher IQ, it's more noise competing with signal. The context window is the availability set for everything the agent can attend to. Keep it narrow. Keep it true.
 
-7. **Ontological Saturation**
+8. **Ontological Saturation**
 Models are interpolation engines. Their priors — pathway geometry shaped by everything the training corpus contained — default toward averaged solutions, social performance, and outdated patterns. The fix isn't prompting harder. It's overwhelming those priors with complete, accurate, current evidence until there's no gap left for them to fill. Build the knowledge architecture. Reach the threshold.
 
-8. **Negative Knowledge**
+9. **Negative Knowledge**
 Knowing what's almost-right-but-wrong has asymmetric value. Documented failure modes and known anti-patterns sharpen the constraint space in ways that more examples of correct behavior cannot. Before a library is used, its known misuse patterns are as important as its API. Close off the plausible wrong answers, and the right one has nowhere left to hide.
 
-9. **Deterministic Execution**
+10. **Deterministic Execution**
 Ambiguity is the enemy of automation. A plan is only valid if a worker can execute it without asking clarifying questions. Test cases are defined with the design, not after the build. Atomic tasks, unambiguous acceptance criteria. If the builder guesses, the planner failed.
 
-10. **Audit the Auditor**
+11. **Audit the Auditor**
 The agent that builds the code cannot be trusted to validate it. Execution and validation require separate contexts. Independent agents pattern-match against the design to verify that the implementation matches intent — not just that it runs. Shared context between builder and reviewer is contaminated context.
 
-11. **Entropy Control**
+12. **Entropy Control**
 AI-generated code defaults to verbosity and repetition. The natural state of a codebase is entropy. Treat simplification and QA as distinct post-hoc production phases — dedicated passes to strip dead code, redundancy, and noise before they calcify into technical debt.
 
-12. **Agency > Automation**
+13. **Agency > Automation**
 This system is an exoskeleton, not a replacement. The collaborative primitives are joint processes where you steer, not handoffs where you wait. There is no routing that tells you which one to reach for. That judgment is the work. You own the vision, the quality gates, the source hierarchy, and the final say. Execution scales. Judgment doesn't.
 
 ---
