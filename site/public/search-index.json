@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-03-09T22:49:53.730Z",
+  "generated_at": "2026-03-10T10:34:48.088Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -31,7 +31,7 @@
         "audit_report": "./AUDIT_REPORT.md"
       },
       "compatibility": {
-        "claude_code_version": ">=2.2.58",
+        "claude_code_version": ">=2.2.71",
         "languages": [
           "any"
         ],
@@ -42,7 +42,7 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:c1fb1d9a9cc306ef287e418e4423d4879ee24e07ffb80ce307f0f843cba9b5a3",
+      "checksum": "sha256:f04c2ce6f96e9e921bfb1ef864a8261dbc22e5345503c09d688644a7e6c01eec",
       "files": {
         "AUDIT_REPORT.md": "sha256:885c3424804ab64834953298364c0f92f68a271695a7d91c9f61e13270e93ac8",
         "assets_VALENCE/ar-flow.png": "sha256:b471abe1436241ad0c94df9bb6e5542d981d1aa48461bb938724fdb9f4945ab0",
@@ -113,7 +113,7 @@
         "content/Valence_ext/test/fixtures/openrouter-final.json": "sha256:63aec4d503ad630abd8a9a8e2b1eabdf3b6a13af28746bf6658920a53bfd2b24",
         "content/Valence_ext/test/fixtures/openrouter-tool-call.json": "sha256:82ac0d84b9f19aeda2985cb3459d698225aa4d745ebce9c16668189de2363b67",
         "content/Valence_ext/test/normalization.test.mjs": "sha256:9f436f4d104ae873977d94086376a0f5ec5813bba2ba0814b1c9ca84c80ce5a1",
-        "skillset.yaml": "sha256:c3c7230966bb1f60c166331f3d85794c71605f37fcbd4a8f26972c08dffdda2e"
+        "skillset.yaml": "sha256:1c83d1ee4ea19f63d911bce1582ad53efac45d43090c326e02de3d06efc82c36"
       },
       "mcp_servers": [
         {
