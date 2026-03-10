@@ -39,7 +39,7 @@ Intelligence is a finite resource. Route tasks based on cognitive load: high-rea
 Conversation is ephemeral; artifacts are durable. Iterate on the design document. Validate against the spec, not the chat. If a requirement isn't in the spec, it doesn't exist.
 
 7. **Context Shapes Preconditions, Not Outputs**
-Context doesn't produce output — it shapes the preconditions for it. Every token in the window is material the model's transformation geometry operates on. Practice radical context hygiene: more context isn't higher IQ, it's more noise competing with signal. The context window is the availability set for everything the agent can attend to. Keep it relevant.
+Every token in the window is material the model's transformation geometry operates on. Practice radical context hygiene: more context isn't higher IQ, it's more noise competing with signal. The context window is the availability set for everything the agent can attend to. Keep it relevant.
 
 8. **Ontological Saturation**
 Models are interpolation engines. Their priors — pathway geometry shaped by everything the training corpus contained — default toward averaged solutions, social performance, and outdated patterns. The fix isn't prompting harder. It's overwhelming those priors with complete, accurate, current evidence until there's no gap left for them to fill. This is ontological engineering.
