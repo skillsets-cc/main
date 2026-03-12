@@ -487,12 +487,15 @@ cp .env.example .env  # Add KIMI_API_KEY, OPENROUTER_API_KEY
 source .env           # Linux/macOS — skip on Windows
 ```
 
-> **Windows**: `source .env` is a no-op in native Node environments — env vars are loaded at runtime via `dotenv`. If external agents fail with missing API key errors, confirm `Valence_ext/.env` exists and contains your keys. No shell export needed.
+> **Windows fix**: `external-agent.mjs` uses `import.meta.url.pathname` to locate `.env`, which produces an invalid path on Windows. Apply two changes:
 >
-> **If you're on an older checkout**: `external-agent.mjs` used `import.meta.url.pathname` to locate `.env`, which produces an invalid path on Windows (`/C:/...`). Update lines 12–14:
+> Add to the import block (top of file):
 > ```js
 > import { fileURLToPath } from 'node:url';
 > import { dirname, join } from 'node:path';
+> ```
+> Replace lines 12 and 14:
+> ```js
 > const scriptDir = dirname(fileURLToPath(import.meta.url));
 > const envFile = await readFile(join(scriptDir, '.env'), 'utf8');
 > ```
