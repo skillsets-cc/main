@@ -116,7 +116,6 @@ skillsets-cc/
 
 - [skillsets.cc](https://skillsets.cc) — Browse registry
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — Submission guide
-- [MAINTAINER_CHECKLIST.md](./MAINTAINER_CHECKLIST.md) — Review process
 - [DEPLOYMENT.md](./DEPLOYMENT.md) — CI/CD and Cloudflare Workers
 - Module docs: [Site](./site/README.md) | [CLI](./cli/README.md) | [Plugin](./plugin/README.md) | [System ARC](./ARC_skillsets_cc.md)
 
