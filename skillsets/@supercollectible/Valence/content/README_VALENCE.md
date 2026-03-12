@@ -479,13 +479,23 @@ Claude Code (Opus orchestrator)
 
 Tool access is narrowed per-agent via `toolOverrides` in the profile. Environment is allowlisted to prevent API key leakage to MCP server processes.
 
+
 **Setup**:
 ```bash
 cd Valence_ext && npm install
 cp .env.example .env  # Add KIMI_API_KEY, OPENROUTER_API_KEY
-source .env
+source .env           # Linux/macOS — skip on Windows
 ```
 
+> **Windows**: `source .env` is a no-op in native Node environments — env vars are loaded at runtime via `dotenv`. If external agents fail with missing API key errors, confirm `Valence_ext/.env` exists and contains your keys. No shell export needed.
+>
+> **If you're on an older checkout**: `external-agent.mjs` used `import.meta.url.pathname` to locate `.env`, which produces an invalid path on Windows (`/C:/...`). Update lines 12–14:
+> ```js
+> import { fileURLToPath } from 'node:url';
+> import { dirname, join } from 'node:path';
+> const scriptDir = dirname(fileURLToPath(import.meta.url));
+> const envFile = await readFile(join(scriptDir, '.env'), 'utf8');
+> ```
 ---
 
 ## Filetree
