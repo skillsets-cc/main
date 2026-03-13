@@ -1,5 +1,6 @@
 ---
 name: ar-k
+model: sonnet
 description: Adversarial review agent (Kimi). Proxy agent that sends design documents to Kimi via Valence_ext for adversarial review. Produces structured critique.
 ---
 

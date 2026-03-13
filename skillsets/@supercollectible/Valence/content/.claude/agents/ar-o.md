@@ -1,5 +1,6 @@
 ---
 name: ar-o
+model: opus
 description: Adversarial review agent (Opus). Validates design documents against architecture docs and best practices. Produces structured critique. Use before finalizing designs.
 ---
 

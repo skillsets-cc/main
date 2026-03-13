@@ -1,5 +1,6 @@
 ---
 name: qa-b
+model: sonnet
 description: Backend QA agent. Audits against backend_styleguide.md. Migrates __tests__ to tests_[module].
 ---
 

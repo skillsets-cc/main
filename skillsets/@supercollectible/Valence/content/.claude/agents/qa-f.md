@@ -1,5 +1,6 @@
 ---
 name: qa-f
+model: sonnet
 description: Frontend QA agent. Audits against frontend_styleguide.md. Migrates __tests__ to tests_[module].
 ---
 

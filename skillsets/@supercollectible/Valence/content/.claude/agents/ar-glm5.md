@@ -1,5 +1,6 @@
 ---
 name: ar-glm5
+model: sonnet
 description: Adversarial review agent (GLM5). Runs GLM5 via external agent runner with MCP tool access. Produces structured critique.
 ---
 

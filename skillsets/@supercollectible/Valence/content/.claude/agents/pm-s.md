@@ -1,5 +1,6 @@
 ---
 name: pm-s
+model: sonnet
 description: Pattern matching agent (Sonnet). Extracts claims from source document and validates against target. Use with /pmatch for alignment checking.
 ---
 
