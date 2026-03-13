@@ -1,5 +1,6 @@
 ---
 name: qa-docs
+model: sonnet
 description: QA agent for documentation freshness. Maps module structure, processes each implementation/doc pair iteratively, updates ARC and README files. Use after implementation changes to ensure docs match code.
 ---
 

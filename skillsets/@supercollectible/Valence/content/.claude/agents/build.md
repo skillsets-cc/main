@@ -1,5 +1,6 @@
 ---
 name: build
+model: sonnet
 description: Sonnet build agent that implements execution chunks. Spawned by /build orchestrator to implement ~5 tasks from an execution doc.
 ---
 

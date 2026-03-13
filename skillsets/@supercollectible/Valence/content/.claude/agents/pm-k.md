@@ -1,5 +1,6 @@
 ---
 name: pm-k
+model: haiku
 description: Pattern matching agent (Kimi). Proxy agent that sends source/target documents to Kimi via Valence_ext for claim extraction and validation.
 ---
 
