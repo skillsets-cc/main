@@ -1,6 +1,6 @@
 Valence exists at the outer limits of your combining-power. It is an exoskeleton that **preserves intent and agency** against the grain of automated gaslighting and cognitive offloading. It leverages the very best of Claude Code, in a skillset that front-loads the thinking and actively flags your broken assumptions.
 
-This methodology is what survived thousands of hours in with Claude: First Principles + spec-driven + test-driven + atomic tasks, in a grounded team-based skillset with formalized quality gates, adversarial reviews and auditable handoffs. The Valence team takes you from idea to reviewed, tested, documented code, while you own all key decisions. The first of its kind to integrate natively with CC's new agent teams and tasks, it's a metacognitive harness designed squarely around dev agency and output quality.
+This methodology is what survived thousands of hours in with Claude: First Principles + spec-driven + test-driven + atomic tasks, in a grounded team-based skillset with formalized quality gates, adversarial reviews and auditable handoffs. The Valence team takes you from idea to reviewed, tested, documented code, while you own all key decisions. The first of its kind to integrate natively with CC agent teams and tasks, it's a metacognitive harness designed squarely around dev agency and output quality.
 
 Every inference is a negotiation between what you put in and what training burned into the weights — and undertrained context loses that negotiation by default. Valence's phase structure is designed to make that outcome non-competitive: dense, validated, coherent input at each stage so the model's representational geometry has nowhere to go but where you've specified.
 
@@ -26,37 +26,37 @@ Every inference is a negotiation between what you put in and what training burne
 1. **Code is a Liability; Judgment is an Asset**
 A model pointed at the wrong problem solves it with precision. Crystallize the architecture before syntax. Stress-test assumptions, classify constraints, reject averages. The thinking is the product. The code is the residue.
 
-2. **Familiarity is not Evidence**
-Agents don't fail the same ways humans do. The patterns built for human constraints encode assumptions about where things break — and those assumptions don't transfer neatly. Mapping human-scoped solutions onto an agentic failure surface doesn't reduce risk; it adds overhead. The new paradigm has its own constraints. Find them, check you ego, and adapt. 
+2. **Reject Familiarity as Evidence**
+Familiarity masquerades as correctness. A pattern is someone else's solution to a problem you may not have. Start from mechanism. Derive the solution. Recognize the pattern afterward, if it shows up.
 
-4. **Consensus through Dissensus**
-Your idea is only as good as the number of bulletholes it can withstand. Have distinct models with divergent alignment and instruct tuning critique the same design — their different evaluative biases surface blind spots a single model's priors would bury. Trust conflict more than agreement. A single model critiquing your design is pattern-matching against its own priors. Trust conflict more than agreement.
+3. **Consensus through Dissensus**
+Your design is only as good as the bulletholes it survives. Different models carry different training geometries and different alignment biases. Where they agree, you may have signal. Where they conflict, you have information. A single model critiquing your design is pattern-matching against its own priors. Trust conflict more than agreement.
 
-5. **Cognitive Tiering**
-Intelligence is a finite resource. Route tasks based on cognitive load: high-reasoning models for strategy and design, and high-efficiency models for execution and QA. Optimize the curve between cost, speed, and quality per task.
+4. **Cognitive Tiering**
+Intelligence is a finite resource. Route tasks by cognitive load: high-reasoning models for strategy and design, high-efficiency models for execution and validation. This is not a cost optimization. Misrouting degrades both quality and speed. Map the curve and hold it.
 
-6. **The Spec is the Source of Truth**
+5. **The Spec is the Source of Truth**
 Conversation is ephemeral; artifacts are durable. Iterate on the design document. Validate against the spec, not the chat. If a requirement isn't in the spec, it doesn't exist.
 
-7. **Context Shapes Preconditions, Not Outputs**
-Every token in the window is material the model's transformation geometry operates on. Practice radical context hygiene: more context isn't higher IQ, it's more noise competing with signal. The context window is the availability set for everything the agent can attend to. Keep it relevant.
+6. **Context Shapes Preconditions, Not Outputs**
+Context doesn't produce output — it shapes the preconditions for it. Every token in the window is material the model's transformation geometry operates on. Practice radical context hygiene: more context isn't higher IQ, it's more noise competing with signal. The context window is the availability set for everything the agent can attend to. Keep it narrow. Keep it true.
 
-8. **Ontological Saturation**
-Models are interpolation engines. Their priors — pathway geometry shaped by everything the training corpus contained — default toward averaged solutions, social performance, and outdated patterns. The fix isn't prompting harder. It's overwhelming those priors with complete, accurate, current evidence until there's no gap left for them to fill. This is ontological engineering.
+7. **Ontological Saturation**
+Models are interpolation engines. Their priors — pathway geometry shaped by everything the training corpus contained — default toward averaged solutions, social performance, and outdated patterns. The fix isn't prompting harder. It's overwhelming those priors with complete, accurate, current evidence until there's no gap left for them to fill. Build the knowledge architecture. Reach the threshold.
 
-10. **Negative Knowledge**
-Knowing what's almost-right-but-wrong has asymmetric value. Documented failure modes and known anti-patterns sharpen the constraint space in ways that more examples of correct behavior cannot. Before reaching for a library, its known failure modes matter as much as its documentation. Close off the plausible wrong answers, and the right one has nowhere left to hide.
+8. **Negative Knowledge**
+Knowing what's almost-right-but-wrong has asymmetric value. Documented failure modes and known anti-patterns sharpen the constraint space in ways that more examples of correct behavior cannot. Before a library is used, its known misuse patterns are as important as its API. Close off the plausible wrong answers, and the right one has nowhere left to hide.
 
-11. **Deterministic Execution**
+9. **Deterministic Execution**
 Ambiguity is the enemy of automation. A plan is only valid if a worker can execute it without asking clarifying questions. Test cases are defined with the design, not after the build. Atomic tasks, unambiguous acceptance criteria. If the builder guesses, the planner failed.
 
-12. **Audit the Auditor**
+10. **Audit the Auditor**
 The agent that builds the code cannot be trusted to validate it. Execution and validation require separate contexts. Independent agents pattern-match against the design to verify that the implementation matches intent — not just that it runs. Shared context between builder and reviewer is contaminated context.
 
-13. **Entropy Control**
+11. **Entropy Control**
 AI-generated code defaults to verbosity and repetition. The natural state of a codebase is entropy. Treat simplification and QA as distinct post-hoc production phases — dedicated passes to strip dead code, redundancy, and noise before they calcify into technical debt.
 
-14. **Agency > Automation**
+12. **Agency > Automation**
 This system is an exoskeleton, not a replacement. The collaborative primitives are joint processes where you steer, not handoffs where you wait. There is no routing that tells you which one to reach for. That judgment is the work. You own the vision, the quality gates, the source hierarchy, and the final say. Execution scales. Judgment doesn't.
 
 ---
@@ -67,7 +67,7 @@ This system is an exoskeleton, not a replacement. The collaborative primitives a
 
 <img src="https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/%40supercollectible/Valence/assets_VALENCE/workflow-96.png"/>
 
-Each phase produces a concrete artifact that the next phase consumes. Nothing builds until the design has been stress-tested across models with divergent evaluative biases, grounded against library docs and project conventions, and decomposed into tasks with unambiguous acceptance criteria. Multi-agent skills coordinate through Claude Code's native agent teams and task system — Opus leads never write code, Sonnet teammates execute in parallel tmux panes, and shared task lists handle sequencing and dependency tracking. Every skill is standalone — skip what you don't need, or use individual skills in isolation.
+Each phase produces a concrete artifact that the next phase consumes. Nothing builds until the design has been stress-tested across models with divergent evaluative biases, grounded against library docs and project conventions, and decomposed into tasks with unambiguous acceptance criteria. Multi-agent skills coordinate through Claude Code's native agent teams and task system — Opus leads never write code, Sonnet teammates execute in parallel tmux panes, and shared task lists handle sequencing and dependency tracking. Every skill is standalone — enter the workflow at any phase, skip what you don't need, or use individual skills in isolation.
 
 <a id="arm"></a>
 
@@ -85,7 +85,7 @@ Each phase produces a concrete artifact that the next phase consumes. Nothing bu
 
 <img src="https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/%40supercollectible/Valence/assets_VALENCE/arch-flow.png"/>
 
-`/arch [brief/escalated ticket]` — Run this for greenfield projects or major restructuring. Opus defines the architecture up until the contract boundaries, and decomposes your system into subsystems with contracts, constraints, and phased build order — Phase 0 is youre feasabillity tests. Each constraint is classified as hard, soft, or assumption — soft constraints get challenged, assumptions get validated. Research grounds the decomposition against documented reality. You iterate on the architecture conversationally until alignment, then Opus formalizes it into a living spec and build manifest in `PROCESS_DOCS/arch/`. A built-in `/ar` pass stress-tests the spec before finalizing. Downstream, `/solve` designs each subsystem's internals against these contracts. Also the entry point for `/bugfest` tickets escalated as architectural flaws.
+`/arch [brief]` — Run this for greenfield projects or major restructuring. Opus decomposes your system into subsystems with contracts, constraints, and build order — but stops at the contract boundary. It defines what the subsystems are and how they relate, not how each one works internally. Each constraint is classified as hard, soft, or assumption — soft constraints get challenged, assumptions get validated. Research grounds the decomposition against project docs, library docs (Context7), and known failure modes (web search). You iterate on the architecture conversationally until alignment, then Opus formalizes it into a living spec and build manifest in `PROCESS_DOCS/arch/`. A built-in `/ar` pass stress-tests the spec before finalizing. Also the entry point for `/bugfest` tickets escalated as architectural flaws. Downstream, `/solve` designs each subsystem's internals against these contracts.
 
 ---
 
@@ -95,7 +95,7 @@ Each phase produces a concrete artifact that the next phase consumes. Nothing bu
 
 <img src="https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/%40supercollectible/Valence/assets_VALENCE/solve-flow.png"/>
 
-`/solve [brief/arch spec/ar report/escalated ticket]` — Run this to design a subsystem or complex changes. Where `/arch` stops at contracts, `/solve` goes internal — data models, schemas, file structure, integration points, and implementation details. Works within upstream constraints from `/arch` when they exist, standalone from an `/arm` brief, or from a `/bugfest` ticket escalated as a subsystem design flaw. First principles deconstruction challenges assumptions, grounded research (project docs, Context7, web search) validates technical choices, and you iterate conversationally until alignment. Output is a design document in `PROCESS_DOCS/solutions/` with decision tables that record rationale and rejected alternatives. Hands off to `/ar` for stress-testing, then `/breakdown` for execution planning.
+`/solve [brief/arch spec/ar report/escalated ticket]` — Run this to design a subsystem, feature, or complex change. Where `/arch` stops at contracts, `/solve` goes internal — data models, schemas, file structure, integration points, and implementation details. Works within upstream constraints from `/arch` when they exist, standalone from an `/arm` brief, or from a `/bugfest` ticket escalated as a subsystem design flaw. First principles deconstruction challenges assumptions, grounded research (project docs, Context7, web search) validates technical choices, and you iterate conversationally until alignment. Output is a design document in `PROCESS_DOCS/solutions/` with decision tables that record rationale and rejected alternatives. Hands off to `/ar` for stress-testing, then `/breakdown` for execution planning.
 
 ---
 
@@ -105,7 +105,7 @@ Each phase produces a concrete artifact that the next phase consumes. Nothing bu
 
 <img src="https://raw.githubusercontent.com/skillsets-cc/main/main/skillsets/%40supercollectible/Valence/assets_VALENCE/ar-flow.png"/>
 
-`/ar [document]` — Run this before `/breakdown` to validate a design under adversarial pressure. A single model can't see its own blind spots — `/ar` compensates by running three models with divergent evaluative biases in parallel. Where they disagree is where your assumptions are weakest. Opus filters noise from signal, validates each finding against the codebase, and delivers a REVISE or PROCEED recommendation. Report lands in `PROCESS_DOCS/reviews/`. Loop back to `/solve` on critical findings, or move to `/breakdown` if you deem the solution ready. Ships with Kimi and GLM-5 alongside Opus — add other providers through the [external runner](#multi-model-infrastructure).
+`/ar [document]` — Run this before `/breakdown` to validate a design under adversarial pressure. A single model can't see its own blind spots — `/ar` compensates by running three models with divergent evaluative biases in parallel. Where they disagree is where your assumptions are weakest. Opus filters noise from signal, validates each finding against the codebase, and delivers a REVISE or PROCEED recommendation. Report lands in `PROCESS_DOCS/reviews/`. Loop back to `/solve` on critical findings, or move to `/breakdown`. Ships with Kimi and GLM-5 alongside Opus — add other providers through the [external runner](#multi-model-infrastructure).
 
 ---
 
@@ -479,26 +479,13 @@ Claude Code (Opus orchestrator)
 
 Tool access is narrowed per-agent via `toolOverrides` in the profile. Environment is allowlisted to prevent API key leakage to MCP server processes.
 
-
 **Setup**:
 ```bash
 cd Valence_ext && npm install
 cp .env.example .env  # Add KIMI_API_KEY, OPENROUTER_API_KEY
-source .env           # Linux/macOS — skip on Windows
+source .env
 ```
 
-> **Windows fix**: `external-agent.mjs` uses `import.meta.url.pathname` to locate `.env`, which produces an invalid path on Windows. Apply two changes:
->
-> Add to the import block (top of file):
-> ```js
-> import { fileURLToPath } from 'node:url';
-> import { dirname, join } from 'node:path';
-> ```
-> Replace lines 12 and 14:
-> ```js
-> const scriptDir = dirname(fileURLToPath(import.meta.url));
-> const envFile = await readFile(join(scriptDir, '.env'), 'utf8');
-> ```
 ---
 
 ## Filetree
