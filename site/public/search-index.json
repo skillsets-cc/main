@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "generated_at": "2026-03-12T10:56:56.324Z",
+  "generated_at": "2026-03-13T15:07:37.719Z",
   "skillsets": [
     {
       "id": "@supercollectible/Valence",
@@ -20,7 +20,7 @@
         "url": "https://github.com/supercollectible"
       },
       "stars": 2,
-      "version": "3.2.12",
+      "version": "3.2.15",
       "status": "active",
       "verification": {
         "production_links": [
@@ -42,7 +42,7 @@
         ]
       },
       "entry_point": "./content/CLAUDE.md",
-      "checksum": "sha256:61d311926e79913d30c66158d2d591448939611c5763b63640da89659fa09346",
+      "checksum": "sha256:d4227cdf3f3b699ed5b7137346281207e4712f8b4ad5443176ec5488b2d97d6d",
       "files": {
         "AUDIT_REPORT.md": "sha256:885c3424804ab64834953298364c0f92f68a271695a7d91c9f61e13270e93ac8",
         "assets_VALENCE/ar-flow.png": "sha256:b471abe1436241ad0c94df9bb6e5542d981d1aa48461bb938724fdb9f4945ab0",
@@ -58,15 +58,15 @@
         "assets_VALENCE/solve-flow.png": "sha256:fbffcda53240e73018a7591984d0fd97c2c87c865cc158c7bd847e1fdb84ae28",
         "assets_VALENCE/workflow-96.png": "sha256:fa16c366a5266b69bb583b755a5961600ed4f2727594c4d76e5b21674a1f14b5",
         "assets_VALENCE/workflow.png": "sha256:fa16c366a5266b69bb583b755a5961600ed4f2727594c4d76e5b21674a1f14b5",
-        "content/.claude/agents/ar-glm5.md": "sha256:35b2763351269d34f200cbd326117805fed9f64de2d967715d6f74e328101f12",
-        "content/.claude/agents/ar-k.md": "sha256:5fc17098871fa0fc56f963089fdaedafac6279a52e3ab632c40846a095376bc4",
-        "content/.claude/agents/ar-o.md": "sha256:b41d1d96677d86ebb36c1e07ff201efd55e58fcc472f961a9e7af483d074c4c8",
-        "content/.claude/agents/build.md": "sha256:8db8220cedc9bc2b9405bd6098852899b5d90b6a526146a9a7177f54ad68f29b",
-        "content/.claude/agents/pm-k.md": "sha256:f7942a221f1c9df8e00086cd04a5471152c966732b603f958177dbc86b6d3f74",
-        "content/.claude/agents/pm-s.md": "sha256:c144d162f6fa0b945afc8639cacdcac5fd610afb1737cf3c0b16b5d3383c3f2f",
-        "content/.claude/agents/qa-b.md": "sha256:ac0925a853560a8041dfd599e5a20218bbffe15bf949a830648a3ff3290515e2",
-        "content/.claude/agents/qa-docs.md": "sha256:dec1e914165ea194685c280956213e8ac9cc8ae7708b31da4659b0f3c87a250b",
-        "content/.claude/agents/qa-f.md": "sha256:38830c28f2eb2e702446527e9ddab91082848d3aa17248c776e477ec0de3be81",
+        "content/.claude/agents/ar-glm5.md": "sha256:6184b10f497e6d9d1c2d5e4dc010c21b43bd9c4c4666b99b6fe02d37e0fabe56",
+        "content/.claude/agents/ar-k.md": "sha256:db5d4a4eb05e97a99052f30ca8fa9d1d2b2e1339136c9074cb014be97e721e74",
+        "content/.claude/agents/ar-o.md": "sha256:6b7e26496d6dc9d894e9b94af10afe71030da734d23e742df572e24e1408369c",
+        "content/.claude/agents/build.md": "sha256:f332fb16fe7b13d8e2715e7fb6044285b115d7b1d7f2c11b6d7019e1edff10a3",
+        "content/.claude/agents/pm-k.md": "sha256:dfae362d47284ded7bc82c38c6d933b1801b68f75c57385e0a7197c3e3aec8b0",
+        "content/.claude/agents/pm-s.md": "sha256:d2c6d7da845818c1670f075cb039c6eb824f132dcef48b870bbd2ae0e9113b74",
+        "content/.claude/agents/qa-b.md": "sha256:96bb02728c4465de9cde8b1f666e79901eb00414a87f70e6106ec107528f602c",
+        "content/.claude/agents/qa-docs.md": "sha256:9f8e244e6aea5f7b7b66aaef9d4cd283f193deb13c23890d8cfd5c45afd1365a",
+        "content/.claude/agents/qa-f.md": "sha256:da93024db9b2e110022c9f506f42d4fe4d35f8fdf1ab871c37118cba865b999e",
         "content/.claude/resources/ARC_doc_template.md": "sha256:e522b34c737aea16d0e2d7a108ec725c4b89e6a2237e4b0909db856de9fbe86e",
         "content/.claude/resources/README_module_template.md": "sha256:a1f638e49c1a60ae709bbb0a24df9660f5a924044c5a57b12facee5ce9b416d7",
         "content/.claude/resources/ar_report_template.md": "sha256:f30d26f4a4cfc593f14a88a2af5e4a3dedd0e2ee61c9640ad94a7ff0d97504e0",
@@ -113,7 +113,7 @@
         "content/Valence_ext/test/fixtures/openrouter-final.json": "sha256:63aec4d503ad630abd8a9a8e2b1eabdf3b6a13af28746bf6658920a53bfd2b24",
         "content/Valence_ext/test/fixtures/openrouter-tool-call.json": "sha256:82ac0d84b9f19aeda2985cb3459d698225aa4d745ebce9c16668189de2363b67",
         "content/Valence_ext/test/normalization.test.mjs": "sha256:9f436f4d104ae873977d94086376a0f5ec5813bba2ba0814b1c9ca84c80ce5a1",
-        "skillset.yaml": "sha256:1c83d1ee4ea19f63d911bce1582ad53efac45d43090c326e02de3d06efc82c36"
+        "skillset.yaml": "sha256:c1f358e251f7f1644a8f2a14a266d042a47c39f6a38457075b6a0a3c3d92bdba"
       },
       "mcp_servers": [
         {
