@@ -26,7 +26,7 @@ tags:
   - "first-principles"
 
 compatibility:
-  claude_code_version: ">=2.2.58"
+  claude_code_version: ">=2.2.71"
   languages:
     - "any"
   requirements:
