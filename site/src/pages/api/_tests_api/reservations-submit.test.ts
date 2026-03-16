@@ -42,7 +42,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(403);
     expect(data.error).toBe('Forbidden');
@@ -64,7 +64,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.batchId).toBe('5.10.001');
@@ -85,7 +85,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(404);
     expect(data.error).toBe('not_reserved');
@@ -104,7 +104,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(409);
     expect(data.error).toBe('already_submitted');
@@ -122,7 +122,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid JSON body');
@@ -139,7 +139,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid batch ID');
@@ -156,7 +156,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid batch ID');
@@ -173,7 +173,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid skillset ID');
@@ -190,7 +190,7 @@ describe('POST /api/reservations/submit', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid skillset ID');

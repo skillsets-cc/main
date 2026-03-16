@@ -94,12 +94,12 @@ describe('build-plugins', () => {
 
       // Check 3-task structure
       expect(result).toContain('### Task 1: Review install notes and install');
-      expect(result).toContain('### Task 2: Read QUICKSTART.md');
+      expect(result).toContain('### Task 2: Read QUICKSTART_VALENCE.md');
       expect(result).toContain('### Task 3: Walk through customization');
       expect(result).not.toContain('### Task 4:');
 
       // Check references
-      expect(result).toContain('references/INSTALL_NOTES.md');
+      expect(result).toContain('references/INSTALL_NOTES_VALENCE.md');
 
       // Check title
       expect(result).toContain('# Install Valence');
@@ -485,7 +485,7 @@ entry_point: "./content/CLAUDE.md"
       expect(skillContent).toContain('# Install Example');
       expect(skillContent).toContain('npx skillsets@latest install @test/Example');
       expect(skillContent).toContain('### Task 1: Review install notes and install');
-      expect(skillContent).toContain('references/INSTALL_NOTES.md');
+      expect(skillContent).toContain('references/INSTALL_NOTES_EXAMPLE.md');
 
       // Verify marketplace.json
       expect(existsSync(config.marketplaceFile)).toBe(true);
@@ -496,7 +496,7 @@ entry_point: "./content/CLAUDE.md"
       expect(marketplace.plugins[1].name).toBe('Example');
     });
 
-    it('copies INSTALL_NOTES.md to skill references', () => {
+    it('copies INSTALL_NOTES_<NAME>.md to skill references', () => {
       // Set up test skillset with content/INSTALL_NOTES.md
       const skillsetDir = join(config.skillsetsDir, '@test', 'Example');
       mkdirSync(join(skillsetDir, 'content'), { recursive: true });
@@ -519,7 +519,7 @@ entry_point: "./content/CLAUDE.md"
 `;
 
       writeFileSync(join(skillsetDir, 'skillset.yaml'), manifest);
-      writeFileSync(join(skillsetDir, 'content', 'INSTALL_NOTES.md'), '# Example\n\nInstall notes here.');
+      writeFileSync(join(skillsetDir, 'content', 'INSTALL_NOTES_EXAMPLE.md'), '# Example\n\nInstall notes here.');
 
       // Set up static contribute plugin
       const contributePluginDir = join(config.pluginsDir, 'contribute', '.claude-plugin');
@@ -534,9 +534,9 @@ entry_point: "./content/CLAUDE.md"
 
       buildPlugins(config);
 
-      // Verify INSTALL_NOTES.md was copied
+      // Verify INSTALL_NOTES_EXAMPLE.md was copied
       const referencesPath = join(
-        config.pluginsDir, '@test', 'Example', 'skills', 'install', 'references', 'INSTALL_NOTES.md'
+        config.pluginsDir, '@test', 'Example', 'skills', 'install', 'references', 'INSTALL_NOTES_EXAMPLE.md'
       );
       expect(existsSync(referencesPath)).toBe(true);
       const content = readFileSync(referencesPath, 'utf-8');
@@ -544,7 +544,7 @@ entry_point: "./content/CLAUDE.md"
       expect(content).toContain('Install notes here.');
     });
 
-    it('skips references directory when INSTALL_NOTES.md is missing', () => {
+    it('skips references directory when INSTALL_NOTES_<NAME>.md is missing', () => {
       // Set up test skillset WITHOUT content/INSTALL_NOTES.md
       const skillsetDir = join(config.skillsetsDir, '@test', 'Example');
       mkdirSync(skillsetDir, { recursive: true });

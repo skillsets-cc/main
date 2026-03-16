@@ -19,7 +19,7 @@ Base HTML layout providing consistent page structure, expanding icon sidebar, fo
 
 ## Integration Points
 - **Used by**:
-  - All pages (index, about, contribute, cli, skillset detail, 404)
+  - All pages (index, about, contribute, cli, privacy, skillset detail, 404)
 - **Consumes**:
   - AuthStatus component (client-side GitHub login status, `client:load`)
 - **Emits**: No events
@@ -51,7 +51,7 @@ Base HTML layout providing consistent page structure, expanding icon sidebar, fo
 - **Z-index stack**: sidebar (60) > overlay (55) > toggle (50)
 
 ### Sidebar Navigation Links
-- 7 nav links: Registry (/), CLI (/cli), Contribute (/contribute), About (/about), GitHub, Reddit, Email
+- 8 nav links: Registry (/), CLI (/cli), Contribute (/contribute), About (/about), Privacy (/privacy), GitHub, Reddit, Email
 - Each link: icon (w-5 h-5) + label (font-mono text-sm, fades on desktop)
 - Hover: `hover:bg-surface-white hover:text-accent`
 

@@ -4,7 +4,9 @@ import {
   handleOAuthCallback,
   createSessionToken,
   verifySessionToken,
+  revokeSessionToken,
   getSessionFromRequest,
+  getTokenFromRequest,
   createSessionCookie,
   createLogoutCookie,
   AuthError,
@@ -325,6 +327,73 @@ describe('auth', () => {
     });
   });
 
+  describe('revokeSessionToken', () => {
+    const mockUser: GitHubUser = {
+      id: 12345,
+      login: 'testuser',
+      avatar_url: 'https://github.com/testuser.png',
+    };
+
+    it('writes revocation entry to KV with remaining TTL', async () => {
+      const env = createMockEnv();
+      const token = await createSessionToken(env, mockUser);
+
+      await revokeSessionToken(env, token);
+
+      // Should have written a revoked:{jti} entry
+      const putCalls = (env.AUTH.put as ReturnType<typeof vi.fn>).mock.calls;
+      const revocationCall = putCalls.find((c: unknown[]) => (c[0] as string).startsWith('revoked:'));
+      expect(revocationCall).toBeTruthy();
+      expect(revocationCall![1]).toBe('1');
+      // TTL should be close to 7 days (604800 seconds)
+      const ttl = revocationCall![2].expirationTtl;
+      expect(ttl).toBeGreaterThan(604700);
+      expect(ttl).toBeLessThanOrEqual(604800);
+    });
+
+    it('revoked token is rejected by verifySessionToken', async () => {
+      const env = createMockEnv();
+      const token = await createSessionToken(env, mockUser);
+
+      // Verify it works before revocation
+      const before = await verifySessionToken(env, token);
+      expect(before).not.toBeNull();
+
+      // Revoke it
+      await revokeSessionToken(env, token);
+
+      // Now it should be rejected
+      const after = await verifySessionToken(env, token);
+      expect(after).toBeNull();
+    });
+
+    it('skips revocation for expired tokens', async () => {
+      const env = createMockEnv();
+
+      // Create an already-expired token
+      const originalNow = Date.now;
+      Date.now = vi.fn(() => originalNow() - 8 * 24 * 60 * 60 * 1000);
+      const token = await createSessionToken(env, mockUser);
+      Date.now = originalNow;
+
+      await revokeSessionToken(env, token);
+
+      // Should not have written a revocation entry (token already expired)
+      const putCalls = (env.AUTH.put as ReturnType<typeof vi.fn>).mock.calls;
+      const revocationCall = putCalls.find((c: unknown[]) => (c[0] as string).startsWith('revoked:'));
+      expect(revocationCall).toBeUndefined();
+    });
+
+    it('handles malformed tokens gracefully', async () => {
+      const env = createMockEnv();
+
+      // Should not throw
+      await revokeSessionToken(env, 'not-a-jwt');
+      await revokeSessionToken(env, '');
+      await revokeSessionToken(env, 'only.two');
+    });
+  });
+
   describe('getSessionFromRequest', () => {
     it('returns null when no cookie header', async () => {
       const env = createMockEnv();
@@ -420,6 +489,34 @@ describe('auth', () => {
       expect(error.message).toBe('Test error');
       expect(error.statusCode).toBe(401);
       expect(error.name).toBe('AuthError');
+    });
+  });
+
+  describe('getTokenFromRequest', () => {
+    it('returns token from valid session cookie', () => {
+      const request = new Request('https://skillsets.cc/api/me', {
+        headers: { Cookie: 'session=abc123' },
+      });
+      expect(getTokenFromRequest(request)).toBe('abc123');
+    });
+
+    it('returns null when no cookie header', () => {
+      const request = new Request('https://skillsets.cc/api/me');
+      expect(getTokenFromRequest(request)).toBeNull();
+    });
+
+    it('returns null when no session cookie', () => {
+      const request = new Request('https://skillsets.cc/api/me', {
+        headers: { Cookie: 'other=value' },
+      });
+      expect(getTokenFromRequest(request)).toBeNull();
+    });
+
+    it('handles session cookie with dots in value', () => {
+      const request = new Request('https://skillsets.cc/api/me', {
+        headers: { Cookie: 'session=a.b.c' },
+      });
+      expect(getTokenFromRequest(request)).toBe('a.b.c');
     });
   });
 });

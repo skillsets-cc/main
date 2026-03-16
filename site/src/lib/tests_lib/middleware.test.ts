@@ -9,8 +9,17 @@ const SECURITY_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-  'Content-Security-Policy':
-    "frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://github.com",
+  'Content-Security-Policy': [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' https: data:",
+    "connect-src 'self'",
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self' https://github.com",
+  ].join('; '),
 };
 
 /**
@@ -34,7 +43,16 @@ describe('middleware security headers', () => {
     expect(result.headers.get('X-Content-Type-Options')).toBe('nosniff');
     expect(result.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
     expect(result.headers.get('Permissions-Policy')).toBe('camera=(), microphone=(), geolocation=()');
-    expect(result.headers.get('Content-Security-Policy')).toContain("frame-ancestors 'self'");
+    const csp = result.headers.get('Content-Security-Policy')!;
+    expect(csp).toContain("default-src 'self'");
+    expect(csp).toContain("script-src 'self' 'unsafe-inline'");
+    expect(csp).toContain("style-src 'self' 'unsafe-inline' https://fonts.googleapis.com");
+    expect(csp).toContain("font-src 'self' https://fonts.gstatic.com");
+    expect(csp).toContain("img-src 'self' https: data:");
+    expect(csp).toContain("connect-src 'self'");
+    expect(csp).toContain("frame-ancestors 'self'");
+    expect(csp).toContain("base-uri 'self'");
+    expect(csp).toContain("form-action 'self' https://github.com");
   });
 
   it('preserves the original status code', () => {

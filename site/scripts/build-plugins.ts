@@ -178,19 +178,19 @@ Create ALL tasks upfront using \`TaskCreate\`. Pass the **subject**, **activeFor
 
 - **subject**: Review install notes and install ${name}
 - **activeForm**: Reviewing install notes
-- **description**: Read \`references/INSTALL_NOTES.md\`. Print: "Before installing **${name}**, review what's included:" followed by the ENTIRE install notes content VERBATIM — every line, every table, every paragraph of prose below the tables. Do NOT summarize, truncate, or omit any content. The prose paragraphs after tables contain critical reputation and context information that users need.${hasMcpOrRuntimeDeps ? ' Then note: "This skillset declares external dependencies listed above. Proceeding will install them."' : ''}${pluginNote ? ` Then note the external plugin dependencies listed below.` : ''} Ask the user to confirm they want to proceed. If confirmed: run \`npx skillsets@latest install ${id}${acceptFlags}\`. If declined: stop.${pluginNote}
+- **description**: Read \`references/INSTALL_NOTES_${name.toUpperCase()}.md\`. Print: "Before installing **${name}**, review what's included:" followed by the ENTIRE install notes content VERBATIM — every line, every table, every paragraph of prose below the tables. Do NOT summarize, truncate, or omit any content. The prose paragraphs after tables contain critical reputation and context information that users need.${hasMcpOrRuntimeDeps ? ' Then note: "This skillset declares external dependencies listed above. Proceeding will install them."' : ''}${pluginNote ? ` Then note the external plugin dependencies listed below.` : ''} Ask the user to confirm they want to proceed. If confirmed: run \`npx skillsets@latest install ${id}${acceptFlags}\`. If declined: stop.${pluginNote}
 
-### Task 2: Read QUICKSTART.md
+### Task 2: Read QUICKSTART_${name.toUpperCase()}.md
 
-- **subject**: Read QUICKSTART.md
+- **subject**: Read QUICKSTART_${name.toUpperCase()}.md
 - **activeForm**: Reading quickstart guide
-- **description**: Read the installed \`QUICKSTART.md\` — every skillset ships one. Identify each section that needs interactive walkthrough with the user. Sections vary by skillset but typically cover project configuration, style guides, agent tuning, templates, and infrastructure setup.
+- **description**: Read the installed \`QUICKSTART_${name.toUpperCase()}.md\` — every skillset ships one. Identify each section that needs interactive walkthrough with the user. Sections vary by skillset but typically cover project configuration, style guides, agent tuning, templates, and infrastructure setup.
 
 ### Task 3: Walk through customization
 
 - **subject**: Walk through customization with user
 - **activeForm**: Walking through customization
-- **description**: First, ask the user whether they want a guided walkthrough or prefer to customize on their own. If they skip, mark this task completed. Otherwise, walk through each QUICKSTART.md section using \`AskUserQuestion\` — explain what needs customizing, present the options, and let the user decide. Only apply changes the user explicitly chooses. Never edit files autonomously — the user drives, you guide.
+- **description**: First, ask the user whether they want a guided walkthrough or prefer to customize on their own. If they skip, mark this task completed. Otherwise, walk through each QUICKSTART_${name.toUpperCase()}.md section using \`AskUserQuestion\` — explain what needs customizing, present the options, and let the user decide. Only apply changes the user explicitly chooses. Never edit files autonomously — the user drives, you guide.
 
 ---
 
@@ -313,14 +313,18 @@ export function generateSkillsetPlugin(
   mkdirSync(skillDir, { recursive: true });
   writeFileSync(join(skillDir, 'SKILL.md'), generateInstallSkillMd(manifest, id));
 
-  // Copy INSTALL_NOTES.md to skill references
+  // Copy INSTALL_NOTES_<NAME>.md to skill references
   const referencesDir = join(skillDir, 'references');
-  const installNotesSource = join(
-    config.skillsetsDir, id, 'content', 'INSTALL_NOTES.md'
-  );
-  if (existsSync(installNotesSource)) {
+  const contentDir = join(config.skillsetsDir, id, 'content');
+  const installNotesFile = existsSync(contentDir)
+    ? readdirSync(contentDir).find(f => /^INSTALL_NOTES_[^/]+\.md$/i.test(f))
+    : undefined;
+  if (installNotesFile) {
     mkdirSync(referencesDir, { recursive: true });
-    copyFileSync(installNotesSource, join(referencesDir, 'INSTALL_NOTES.md'));
+    copyFileSync(
+      join(contentDir, installNotesFile),
+      join(referencesDir, installNotesFile),
+    );
   }
 
   // Return marketplace entry

@@ -166,6 +166,7 @@ export async function createSessionToken(
 ): Promise<string> {
   const header = { alg: 'HS256', typ: 'JWT' };
   const payload = {
+    jti: crypto.randomUUID(),
     sub: user.id.toString(),
     login: user.login,
     avatar: user.avatar_url,
@@ -199,19 +200,24 @@ export async function verifySessionToken(
     const unsignedToken = `${headerB64}.${payloadB64}`;
 
     const key = await importHmacKey(env.JWT_SECRET, 'verify');
+    const signatureBytes = base64UrlDecode(signatureB64);
     const valid = await crypto.subtle.verify(
       'HMAC',
       key,
-      base64UrlDecode(signatureB64),
+      signatureBytes.buffer as ArrayBuffer,
       encoder.encode(unsignedToken)
     );
 
     if (!valid) return null;
 
-    // Decode and check expiration
-    const payload = JSON.parse(base64UrlDecodeString(payloadB64));
-    if (payload.exp < Math.floor(Date.now() / 1000)) {
-      return null; // Expired
+    const payload = decodeTokenPayload(token);
+    if (!payload) return null;
+
+    if (payload.exp < Math.floor(Date.now() / 1000)) return null;
+
+    if (payload.jti) {
+      const revoked = await env.AUTH.get(`revoked:${payload.jti}`);
+      if (revoked !== null) return null;
     }
 
     return {
@@ -221,6 +227,29 @@ export async function verifySessionToken(
     };
   } catch {
     return null;
+  }
+}
+
+/**
+ * Revoke a JWT session token by adding its JTI to the KV blocklist.
+ * TTL matches the token's remaining lifetime so entries auto-expire.
+ */
+export async function revokeSessionToken(
+  env: Env,
+  token: string
+): Promise<void> {
+  try {
+    const payload = decodeTokenPayload(token);
+    if (!payload?.jti) return;
+
+    const remainingTtl = payload.exp - Math.floor(Date.now() / 1000);
+    if (remainingTtl <= 0) return;
+
+    await env.AUTH.put(`revoked:${payload.jti}`, '1', {
+      expirationTtl: remainingTtl,
+    });
+  } catch {
+    // Best-effort revocation — don't block logout on failure
   }
 }
 
@@ -255,7 +284,28 @@ export function createLogoutCookie(): string {
   return 'session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0';
 }
 
+/**
+ * Extract raw session token string from request cookies.
+ * Used by logout and account deletion to get the token for revocation.
+ */
+export function getTokenFromRequest(request: Request): string | null {
+  const cookieHeader = request.headers.get('Cookie');
+  if (!cookieHeader) return null;
+  const cookies = parseCookies(cookieHeader);
+  return cookies['session'] || null;
+}
+
 // --- Helper functions ---
+
+function decodeTokenPayload(token: string): Record<string, any> | null {
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  try {
+    return JSON.parse(base64UrlDecodeString(parts[1]));
+  } catch {
+    return null;
+  }
+}
 
 function base64UrlEncodeString(str: string): string {
   return base64UrlEncode(encoder.encode(str));

@@ -361,10 +361,14 @@ describe('install command', () => {
 
   it('copies verified content from temp dir to cwd', async () => {
     const fsPromises = await import('fs/promises');
-    vi.mocked(fsPromises.readdir).mockResolvedValueOnce([
+    const entries = [
       { name: 'CLAUDE.md', isDirectory: () => false },
       { name: '.claude', isDirectory: () => true },
-    ] as any);
+    ] as any;
+    // First call: README strip check (returns filenames), second: copy loop (returns dirents)
+    vi.mocked(fsPromises.readdir)
+      .mockResolvedValueOnce(['CLAUDE.md', '.claude'])
+      .mockResolvedValueOnce(entries);
 
     await install('@user/test-skillset', {});
 

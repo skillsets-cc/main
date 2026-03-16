@@ -26,7 +26,7 @@ describe('GET /api/reservations', () => {
 
     const ctx = createAPIContext(new Request('https://skillsets.cc/api/reservations'));
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(response.headers.get('Cache-Control')).toBe('public, max-age=10');
@@ -58,7 +58,7 @@ describe('POST /api/reservations', () => {
       })
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(401);
     expect(data.error).toBe('Authentication required');
@@ -77,7 +77,7 @@ describe('POST /api/reservations', () => {
       })
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(201);
     expect(data.batchId).toBe('1.10.001');
@@ -104,7 +104,7 @@ describe('POST /api/reservations', () => {
       })
     );
     const response1 = await POST(ctx1);
-    const data1 = await response1.json();
+    const data1 = await response1.json() as any;
     expect(response1.status).toBe(400);
     expect(data1.error).toBe('Invalid slot ID');
 
@@ -116,7 +116,7 @@ describe('POST /api/reservations', () => {
       })
     );
     const response2 = await POST(ctx2);
-    const data2 = await response2.json();
+    const data2 = await response2.json() as any;
     expect(response2.status).toBe(400);
     expect(data2.error).toBe('Invalid slot ID');
   });
@@ -168,7 +168,7 @@ describe('POST /api/reservations', () => {
       })
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(409);
     expect(data.error).toBe('slot_taken');
@@ -195,7 +195,7 @@ describe('DELETE /api/reservations', () => {
       new Request('https://skillsets.cc/api/reservations', { method: 'DELETE' })
     );
     const response = await DELETE(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.released).toBe('3.10.001');

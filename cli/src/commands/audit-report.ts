@@ -20,6 +20,7 @@ export interface AuditResults {
   mcpServers: AuditResult;
   runtimeDeps: AuditResult;
   installNotes: AuditResult;
+  license: AuditResult;
   ccExtensions: AuditResult;
   skillsetName?: string;
   skillsetVersion?: string;
@@ -50,6 +51,7 @@ export function isAuditPassing(results: AuditResults, enforceMcp: boolean): bool
     (enforceMcp ? results.mcpServers.status === 'PASS' : true) &&
     (enforceMcp ? results.runtimeDeps.status === 'PASS' : true) &&
     results.installNotes.status === 'PASS' &&
+    results.license.status === 'PASS' &&
     (enforceMcp ? results.ccExtensions.status === 'PASS' : true);
 }
 
@@ -70,7 +72,7 @@ export function hasWarnings(results: AuditResults): boolean {
     results.manifest, results.requiredFiles, results.contentStructure,
     results.fileSize, results.binary, results.secrets, results.readmeLinks,
     results.versionCheck, results.mcpServers, results.runtimeDeps,
-    results.installNotes, results.ccExtensions,
+    results.installNotes, results.license, results.ccExtensions,
   ];
   return checks.some(c => c.status === 'WARNING');
 }
@@ -108,6 +110,7 @@ export function generateReport(results: AuditResults, enforceMcp: boolean = fals
 | MCP Servers | ${statusIcon(results.mcpServers.status)} | ${results.mcpServers.details} |
 | Runtime Dependencies | ${statusIcon(results.runtimeDeps.status)} | ${results.runtimeDeps.details} |
 | Install Notes | ${statusIcon(results.installNotes.status)} | ${results.installNotes.details} |
+| License | ${statusIcon(results.license.status)} | ${results.license.details} |
 | CC Extensions | ${statusIcon(results.ccExtensions.status)} | ${results.ccExtensions.details} |
 
 ---
@@ -165,7 +168,11 @@ ${results.runtimeDeps.findings || 'Runtime dependency declarations are consisten
 
 ${results.installNotes.findings || 'Install notes present and valid.'}
 
-### 11. CC Extensions
+### 11. License
+
+${results.license.findings || 'License file present and populated.'}
+
+### 12. CC Extensions
 
 ${results.ccExtensions.findings || 'CC extension declarations are consistent with manifest.'}
 

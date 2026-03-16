@@ -47,7 +47,7 @@ cli/src/
 | `commands/search.ts` | Fuzzy search against CDN index | [Docs](./commands/search.md) |
 | `commands/view.ts` | View skillset README from GitHub raw content | [Docs](./commands/view.md) |
 | `commands/install.ts` | Install skillset via degit + MCP/deps warnings + verify checksums | [Docs](./commands/install.md) |
-| `commands/init.ts` | Scaffold skillset submission with QUICKSTART.md | [Docs](./commands/init.md) |
+| `commands/init.ts` | Scaffold skillset submission with QUICKSTART_<NAME>.md | [Docs](./commands/init.md) |
 | `commands/audit.ts` | Validate + MCP check + runtime deps check + generate report | [Docs](./commands/audit.md) |
 | `commands/audit-report.ts` | Audit report types and markdown generation | [Docs](./commands/audit-report.md) |
 | `commands/submit.ts` | Open PR via gh CLI | [Docs](./commands/submit.md) |
@@ -84,7 +84,7 @@ view → api.ts → fetchSkillsetMetadata → GitHub raw content → Print to te
 install → Fetch metadata → MCP warning (if any) → Runtime deps warning (if any) → degit → Extract content/ → checksum.ts → Verify → Track download
 
 Contributor Flow:
-init → Interactive prompts → Generate scaffold (skillset.yaml, README.md, QUICKSTART.md, INSTALL_NOTES.md) → Install audit-skill
+init → Interactive prompts → Generate scaffold (skillset.yaml, README_<NAME>.md, QUICKSTART_<NAME>.md, INSTALL_NOTES_<NAME>.md) → Install audit-skill
 audit → Validate manifest + files → MCP validation → Runtime deps validation → Check registry (update detection) → audit-report.ts → Generate AUDIT_REPORT.md
 submit → Check registry (update detection) → Validate version bump → gh CLI → Fork → Branch → PR
 ```

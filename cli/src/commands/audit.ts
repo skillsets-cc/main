@@ -61,10 +61,14 @@ function getAllFiles(dir: string, baseDir: string = dir): { path: string; size: 
   return files;
 }
 
+const TEXT_BASENAMES = new Set(['LICENSE', 'LICENCE', 'Makefile', 'Dockerfile', 'Gemfile']);
+
 function isBinaryFile(filePath: string): boolean {
   const ext = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
   if (TEXT_EXTENSIONS.has(ext)) return false;
   if (filePath.endsWith('.example')) return false;
+  const basename = filePath.substring(filePath.lastIndexOf('/') + 1);
+  if (TEXT_BASENAMES.has(basename)) return false;
 
   // Check for null bytes in first 512 bytes
   try {
@@ -78,17 +82,18 @@ function isBinaryFile(filePath: string): boolean {
   }
 }
 
-/** Find the README_<NAME>.md file in content/ */
-function findReadme(cwd: string): string | null {
+/** Find a content file matching <PREFIX>_<NAME>.md pattern */
+function findContentFile(cwd: string, prefix: string): string | null {
   const contentDir = join(cwd, 'content');
   if (!existsSync(contentDir)) return null;
   const entries = readdirSync(contentDir);
-  const readme = entries.find(f => /^README_[^/]+\.md$/i.test(f));
-  return readme ? join(contentDir, readme) : null;
+  const pattern = new RegExp(`^${prefix}_[^/]+\\.md$`, 'i');
+  const match = entries.find(f => pattern.test(f));
+  return match ? join(contentDir, match) : null;
 }
 
 function scanReadmeLinks(cwd: string): { line: number; link: string }[] {
-  const readmePath = findReadme(cwd);
+  const readmePath = findContentFile(cwd, 'README');
   if (!readmePath) return [];
 
   const relativeLinks: { line: number; link: string }[] = [];
@@ -284,6 +289,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     mcpServers: { status: 'PASS', details: '' },
     runtimeDeps: { status: 'PASS', details: '' },
     installNotes: { status: 'PASS', details: '' },
+    license: { status: 'PASS', details: '' },
     ccExtensions: { status: 'PASS', details: '' },
     isUpdate: false,
     files: [],
@@ -312,17 +318,19 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   // 2. Required files
   spinner.text = 'Checking required files...';
   const hasContent = existsSync(join(cwd, 'content'));
-  const hasReadme = !!findReadme(cwd);
-  const hasQuickstart = existsSync(join(cwd, 'content', 'QUICKSTART.md'));
-  const hasInstallNotes = existsSync(join(cwd, 'content', 'INSTALL_NOTES.md'));
+  const hasReadme = !!findContentFile(cwd, 'README');
+  const hasQuickstart = !!findContentFile(cwd, 'QUICKSTART');
+  const hasInstallNotes = !!findContentFile(cwd, 'INSTALL_NOTES');
+  const hasLicense = existsSync(join(cwd, 'content', 'LICENSE'));
   const hasSkillsetYaml = existsSync(join(cwd, 'skillset.yaml'));
 
   const missingFiles: string[] = [];
   if (!hasSkillsetYaml) missingFiles.push('skillset.yaml');
   if (!hasContent) missingFiles.push('content/');
   if (!hasReadme) missingFiles.push('content/README_<NAME>.md');
-  if (!hasQuickstart) missingFiles.push('content/QUICKSTART.md');
-  if (!hasInstallNotes) missingFiles.push('content/INSTALL_NOTES.md');
+  if (!hasQuickstart) missingFiles.push('content/QUICKSTART_<NAME>.md');
+  if (!hasInstallNotes) missingFiles.push('content/INSTALL_NOTES_<NAME>.md');
+  if (!hasLicense) missingFiles.push('content/LICENSE');
 
   if (missingFiles.length === 0) {
     results.requiredFiles = { status: 'PASS', details: 'All present' };
@@ -337,7 +345,8 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
   // 2b. Install notes validation
   spinner.text = 'Validating install notes...';
   if (hasInstallNotes) {
-    const installNotesContent = readFileSync(join(cwd, 'content', 'INSTALL_NOTES.md'), 'utf-8');
+    const installNotesPath = findContentFile(cwd, 'INSTALL_NOTES');
+    const installNotesContent = readFileSync(installNotesPath!, 'utf-8');
 
     if (installNotesContent.length > 4000) {
       results.installNotes = {
@@ -356,6 +365,23 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     }
   } else {
     results.installNotes = { status: 'FAIL', details: 'Missing' };
+  }
+
+  // 2c. License validation
+  spinner.text = 'Validating license...';
+  if (hasLicense) {
+    const licenseContent = readFileSync(join(cwd, 'content', 'LICENSE'), 'utf-8').trim();
+    if (licenseContent.length === 0) {
+      results.license = {
+        status: 'FAIL',
+        details: 'Empty LICENSE file',
+        findings: 'content/LICENSE must contain a valid license. Populate it before submitting.',
+      };
+    } else {
+      results.license = { status: 'PASS', details: 'Valid' };
+    }
+  } else {
+    results.license = { status: 'FAIL', details: 'Missing' };
   }
 
   // 3. Content structure
@@ -514,6 +540,7 @@ export async function audit(options: AuditOptions = {}): Promise<void> {
     [results.mcpServers, 'MCP Servers'],
     [results.runtimeDeps, 'Runtime Deps'],
     [results.installNotes, 'Install Notes'],
+    [results.license, 'License'],
     [results.ccExtensions, 'CC Extensions'],
   ];
 

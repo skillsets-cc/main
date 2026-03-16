@@ -51,7 +51,7 @@ cli/
 | `search.ts` | Fuzzy search by name, description, tags | [Docs](./docs_cli/commands/search.md) |
 | `view.ts` | View a skillset README before installing | [Docs](./docs_cli/commands/view.md) |
 | `install.ts` | Install skillset via degit + MCP/deps warnings + verify checksums | [Docs](./docs_cli/commands/install.md) |
-| `init.ts` | Scaffold new skillset with QUICKSTART.md | [Docs](./docs_cli/commands/init.md) |
+| `init.ts` | Scaffold new skillset with QUICKSTART_<NAME>.md | [Docs](./docs_cli/commands/init.md) |
 | `audit.ts` | Validate skillset + MCP + runtime deps before submission | [Docs](./docs_cli/commands/audit.md) |
 | `audit-report.ts` | Audit report generation utilities | [Docs](./docs_cli/commands/audit-report.md) |
 | `submit.ts` | Open PR to registry | [Docs](./docs_cli/commands/submit.md) |

@@ -20,7 +20,7 @@ describe('GET /api/reservations/verify', () => {
       new Request('https://skillsets.cc/api/reservations/verify?batchId=5.10.001&login=testuser')
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.valid).toBe(true);
@@ -32,7 +32,7 @@ describe('GET /api/reservations/verify', () => {
       new Request('https://skillsets.cc/api/reservations/verify?batchId=bad')
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.valid).toBe(false);
@@ -44,7 +44,7 @@ describe('GET /api/reservations/verify', () => {
       new Request('https://skillsets.cc/api/reservations/verify')
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.valid).toBe(false);

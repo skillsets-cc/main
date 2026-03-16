@@ -41,7 +41,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123,456' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(403);
     expect(data.error).toBe('Forbidden');
@@ -60,7 +60,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123,456' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.totalGhostSlots).toBe(20);
@@ -79,7 +79,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123,456' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.totalGhostSlots).toBe(20);
@@ -97,7 +97,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('totalGhostSlots must be a number');
@@ -114,7 +114,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('ttlDays must be a number');
@@ -132,7 +132,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid JSON body');
@@ -166,7 +166,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('cohort must be a number');
@@ -185,7 +185,7 @@ describe('POST /api/reservations/config', () => {
       { MAINTAINER_USER_IDS: '123' }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.cohort).toBe(2);

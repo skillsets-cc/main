@@ -16,7 +16,7 @@ describe('GET /api/downloads', () => {
       { DATA: mockKV }
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data).toEqual({ skillsetId: 'test/skillset', count: 42 });
@@ -28,7 +28,7 @@ describe('GET /api/downloads', () => {
       new Request('https://skillsets.cc/api/downloads?skillsetId=new/skillset')
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data).toEqual({ skillsetId: 'new/skillset', count: 0 });
@@ -69,7 +69,7 @@ describe('POST /api/downloads', () => {
       { DATA: mockKV }
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.skillset).toBe('test/skillset');
@@ -105,7 +105,7 @@ describe('POST /api/downloads', () => {
       })
     );
     const response = await POST(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(400);
     expect(data.error).toBe('Invalid JSON body');

@@ -49,3 +49,11 @@ The `sanitizeUrl` function provides an additional layer of protection for URLs:
 - Rejects dangerous schemes: `javascript:`, `data:`, `vbscript:`, `file:`, etc.
 - Returns `#` (safe hash link) for invalid URLs or malicious protocols
 - Handles malformed URLs gracefully (returns `#` on parse error)
+
+### Defense-in-Depth: CSP
+This library is the **primary** XSS defense. A comprehensive Content-Security-Policy in `src/middleware.ts` (added via SEC-005) provides **secondary** defense-in-depth:
+- Blocks external script loading (`script-src 'self' 'unsafe-inline'`)
+- Blocks data exfiltration via fetch/XHR (`connect-src 'self'`)
+- Blocks unlisted resource types (`default-src 'self'`)
+
+**Limitation**: `script-src 'unsafe-inline'` is required because Astro 5 emits inline scripts with no nonce mechanism. Inline script injection (the most common XSS vector) still relies on js-xss as primary defense.

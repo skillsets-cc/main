@@ -48,13 +48,14 @@ status: "active"
 entry_point: "./content/CLAUDE.md"
 `;
 
-  /** Create the minimum valid content structure: content/.claude/, content/CLAUDE.md, content/README_<NAME>.md, content/QUICKSTART.md, content/INSTALL_NOTES.md */
+  /** Create the minimum valid content structure */
   function createValidContent() {
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test\n\nDescription');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-    writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart\n\nGet started here.');
-    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test Skillset\n\nThis skillset provides testing capabilities.\n\n## Dependencies\n\nNo external dependencies required.');
+    writeFileSync(join(testDir, 'content', 'QUICKSTART_TEST-SKILLSET.md'), '# Quickstart\n\nGet started here.');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test Skillset\n\nThis skillset provides testing capabilities.\n\n## Dependencies\n\nNo external dependencies required.');
+    writeFileSync(join(testDir, 'content', 'LICENSE'), 'MIT License\n\nCopyright (c) 2026 Test');
   }
 
   function readReport(): string {
@@ -88,7 +89,7 @@ entry_point: "./content/CLAUDE.md"
     writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -102,13 +103,13 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
     const report = readReport();
     expect(report).toContain('NOT READY');
-    expect(report).toContain('QUICKSTART.md');
+    expect(report).toContain('QUICKSTART_<NAME>.md');
   });
 
   it('fails without content directory', async () => {
@@ -126,7 +127,7 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content'));
     writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'other.txt'), 'something');
-    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -140,7 +141,7 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
     writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', '.claude', 'settings.json'), '{}');
-    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -154,7 +155,7 @@ entry_point: "./content/CLAUDE.md"
     mkdirSync(join(testDir, 'content'));
     writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
     writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
     await audit();
 
@@ -486,8 +487,9 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test\n\n[External](https://example.com)\n[Other](./other.md)');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART_TEST-SKILLSET.md'), '# Quickstart');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
+      writeFileSync(join(testDir, 'content', 'LICENSE'), 'MIT');
 
       await audit();
 
@@ -504,7 +506,7 @@ version: "not-semver"
         '# Test\n\n[Skill](content/.claude/skills/my-skill/SKILL.md)\n[Agent](./content/.claude/agents/my-agent.md)'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -524,8 +526,9 @@ version: "not-semver"
         '# Test\n\n[Skill](https://github.com/skillsets-cc/main/blob/main/skillsets/%40testuser/test-skillset/content/.claude/skills/my-skill/SKILL.md)'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART_TEST-SKILLSET.md'), '# Quickstart');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
+      writeFileSync(join(testDir, 'content', 'LICENSE'), 'MIT');
 
       await audit();
 
@@ -542,7 +545,7 @@ version: "not-semver"
         '# Test\n\n| [One](content/.claude/a.md) | [Two](content/.claude/b.md) |'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -559,7 +562,7 @@ version: "not-semver"
         '# Test\n\nFirst paragraph.\n\n[Link](content/.claude/test.md)\n\nMore text.'
       );
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# Test\n\nValid install notes content here.');
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# Test\n\nValid install notes content here.');
 
       await audit();
 
@@ -679,13 +682,13 @@ version: "not-semver"
       mkdirSync(join(testDir, 'content', '.claude'), { recursive: true });
       writeFileSync(join(testDir, 'content', 'README_TEST-SKILLSET.md'), '# Test');
       writeFileSync(join(testDir, 'content', 'CLAUDE.md'), '# Instructions');
-      writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# Quickstart');
+      writeFileSync(join(testDir, 'content', 'QUICKSTART_TEST-SKILLSET.md'), '# Quickstart');
 
       await audit();
 
       const report = readReport();
       expect(report).toContain('NOT READY');
-      expect(report).toContain('INSTALL_NOTES.md');
+      expect(report).toContain('INSTALL_NOTES_<NAME>.md');
     });
 
     it('passes with valid INSTALL_NOTES.md', async () => {
@@ -702,7 +705,7 @@ version: "not-semver"
     it('fails when INSTALL_NOTES.md exceeds 4000 chars', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
       createValidContent();
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), 'x'.repeat(4001));
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), 'x'.repeat(4001));
 
       await audit();
 
@@ -714,7 +717,7 @@ version: "not-semver"
     it('fails placeholder INSTALL_NOTES.md in --check mode', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
       createValidContent();
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'),
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'),
         '# Test\n\n## Dependencies\n\n<!-- Populated automatically by /audit-skill -->');
 
       const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
@@ -727,7 +730,7 @@ version: "not-semver"
     it('passes placeholder INSTALL_NOTES.md in normal mode', async () => {
       writeFileSync(join(testDir, 'skillset.yaml'), validSkillsetYaml);
       createValidContent();
-      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'),
+      writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'),
         '# Test\n\n## Dependencies\n\n<!-- Populated automatically by /audit-skill -->');
 
       await audit();

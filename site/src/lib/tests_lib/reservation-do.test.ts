@@ -389,7 +389,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.released).toBe('3.10.001');
 
       // Verify storage was cleared
@@ -419,7 +419,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(409);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.error).toBe('already_submitted');
     });
 
@@ -432,7 +432,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(404);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.error).toBe('no_reservation');
     });
   });
@@ -447,7 +447,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.totalGhostSlots).toBe(10);
       expect(data.ttlDays).toBe(14);
       expect(data.cohort).toBe(1);
@@ -463,7 +463,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(400);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.message).toContain('Cannot change totalGhostSlots within a cohort');
     });
 
@@ -588,7 +588,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.valid).toBe(true);
       expect(data.batchId).toBe('5.10.001');
     });
@@ -610,7 +610,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.valid).toBe(true);
     });
 
@@ -632,7 +632,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.valid).toBe(false);
       expect(data.reason).toBe('login_mismatch');
     });
@@ -642,7 +642,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.valid).toBe(false);
       expect(data.reason).toBe('not_reserved');
     });
@@ -662,7 +662,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.valid).toBe(false);
       expect(data.reason).toBe('already_submitted');
     });
@@ -682,7 +682,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.valid).toBe(false);
       expect(data.reason).toBe('not_reserved');
     });
@@ -692,7 +692,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.valid).toBe(false);
       expect(data.reason).toBe('invalid_batch_id');
     });
@@ -724,7 +724,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(200);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.batchId).toBe('5.10.001');
       expect(data.status).toBe('submitted');
       expect(data.skillsetId).toBe('@user/Skill');
@@ -751,7 +751,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(404);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.error).toBe('not_reserved');
     });
 
@@ -777,7 +777,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(409);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.error).toBe('already_submitted');
     });
 
@@ -864,7 +864,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
       expect(response.status).toBe(400);
 
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.error).toBe('invalid_body');
     });
   });
@@ -887,7 +887,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.batchId).toBe('5.10.001');
     });
 
@@ -896,7 +896,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.batchId).toBeNull();
     });
 
@@ -916,7 +916,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.batchId).toBeNull();
     });
 
@@ -936,7 +936,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.batchId).toBeNull();
     });
 
@@ -945,7 +945,7 @@ describe('ReservationCoordinator', () => {
       const response = await coordinator.fetch(request);
 
       expect(response.status).toBe(200);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.batchId).toBeNull();
     });
   });

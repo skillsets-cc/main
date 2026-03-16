@@ -45,7 +45,7 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 | 5 | Evaluate primitives against criteria | Evaluating primitives |
 | 6 | Run safety scan | Scanning for safety issues |
 | 7 | Verify workflow artifacts in reference repo | Verifying workflow artifacts |
-| 8 | Append qualitative review and populate INSTALL_NOTES.md | Writing qualitative review |
+| 8 | Append qualitative review and populate INSTALL_NOTES_<NAME>.md | Writing qualitative review |
 
 ## Process
 
@@ -56,8 +56,8 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 1. Read `AUDIT_REPORT.md` — verify it shows "READY FOR SUBMISSION"
 2. Read [CRITERIA.md](CRITERIA.md) for evaluation rubric
 3. Read the `content/README_<NAME>.md` file (find the README matching the pattern) to extract claimed workflow
-4. Read `content/QUICKSTART.md` to understand the post-install customization guide
-5. Read `content/INSTALL_NOTES.md` to understand current install notes state
+4. Read `content/QUICKSTART_<NAME>.md` (find the file matching the pattern) to understand the post-install customization guide
+5. Read `content/INSTALL_NOTES_<NAME>.md` (find the file matching the pattern) to understand current install notes state
 
 ### Phase 2: Discover and Populate MCP Servers
 
@@ -185,17 +185,17 @@ Before any work, create all phase tasks upfront using `TaskCreate`. Then progres
 
 9. Search for workflow artifacts matching the claimed workflow, e.g.: design and execution docs, analysis reports, etc. evaluate the relationship between these docs and the implemented code, as evidence for the claimed workflow.
 
-### Phase 8: Append Qualitative Review and Populate INSTALL_NOTES.md
+### Phase 8: Append Qualitative Review and Populate INSTALL_NOTES_<NAME>.md
 
 10. Append findings to `AUDIT_REPORT.md`
 
-11. **Populate INSTALL_NOTES.md dependency section**: Write the `## Dependencies` section of `content/INSTALL_NOTES.md` with three subsections:
+11. **Populate INSTALL_NOTES_<NAME>.md dependency section**: Write the `## Dependencies` section of `content/INSTALL_NOTES_<NAME>.md` (find the file matching the pattern) with three subsections:
 
     - **MCP Servers** — structured markdown table + prose reputation summary
     - **Runtime Dependencies** — structured markdown table + prose reputation summary
     - **Claude Code Extensions** — structured markdown table + prose reputation summary
 
-    All reputation data comes from the WebSearch/WebFetch research done in earlier phases. If `INSTALL_NOTES.md` already has a `## Dependencies` section (from a previous audit run), replace it. Preserve everything above the `## Dependencies` heading (author's prose).
+    All reputation data comes from the WebSearch/WebFetch research done in earlier phases. If `INSTALL_NOTES_<NAME>.md` already has a `## Dependencies` section (from a previous audit run), replace it. Preserve everything above the `## Dependencies` heading (author's prose).
 
     Example dependency section format:
     ```markdown
@@ -272,7 +272,7 @@ Append this section to `AUDIT_REPORT.md`:
 
 **[APPROVED / NEEDS REVISION]**
 
-[If revision needed: prioritized list of required fixes, including any issues with INSTALL_NOTES.md quality or completeness]
+[If revision needed: prioritized list of required fixes, including any issues with INSTALL_NOTES_<NAME>.md quality or completeness]
 ```
 
 ## Acceptance Criteria

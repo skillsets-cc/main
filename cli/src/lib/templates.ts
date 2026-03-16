@@ -50,9 +50,6 @@ npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}
 
 [List the key files and their purposes]
 
-## License
-
-[Your license]
 `;
 
 export const QUICKSTART_TEMPLATE = `# Quickstart
@@ -67,6 +64,7 @@ After installing via \`npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}\`, custo
 your-project/
 ├── .claude/          # Skills, agents, resources
 ├── CLAUDE.md         # Project config ← START HERE
+├── QUICKSTART_{{NAME}}.md # Post-install guide
 └── README_{{NAME}}.md # Skillset documentation
 \`\`\`
 

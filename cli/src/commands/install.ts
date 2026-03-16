@@ -198,6 +198,13 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
       throw new Error('Checksum verification failed - files may be corrupted');
     }
 
+    // Strip redirect README.md if a README_*.md exists (avoid clobbering user's README)
+    const tempEntries = await readdir(tempDir);
+    const hasNamedReadme = tempEntries.some(f => /^README_[^/]+\.md$/i.test(f));
+    if (hasNamedReadme && tempEntries.includes('README.md')) {
+      await rm(join(tempDir, 'README.md'));
+    }
+
     // Checksums valid — move verified content to cwd
     spinner.text = 'Installing verified content...';
     const entries = await readdir(tempDir, { withFileTypes: true });
@@ -227,6 +234,7 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
   console.log(chalk.green('\n✓ Installation complete!'));
   console.log(chalk.gray('\nNext steps:'));
   console.log('  1. Ask Opus to verify the skillset matches its claims');
-  console.log('  2. Read QUICKSTART.md to customize for your project');
+  const skillsetName = skillsetId.split('/')[1];
+  console.log(`  2. Read QUICKSTART_${skillsetName.toUpperCase()}.md to customize for your project`);
   console.log('  3. Run: claude');
 }

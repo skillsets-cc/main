@@ -91,9 +91,6 @@ npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}
 
 [List the key files and their purposes]
 
-## License
-
-[Your license]
 `;
 
 const QUICKSTART_TEMPLATE = `# Quickstart
@@ -108,6 +105,7 @@ After installing via \`npx skillsets install {{AUTHOR_HANDLE}}/{{NAME}}\`, custo
 your-project/
 ├── .claude/          # Skills, agents, resources
 ├── CLAUDE.md         # Project config ← START HERE
+├── QUICKSTART_{{NAME}}.md # Post-install guide
 └── README_{{NAME}}.md # Skillset documentation
 \`\`\`
 
@@ -377,8 +375,7 @@ export async function init(options: InitOptions): Promise<void> {
 
   // Auto-detect existing files — core skillset files and primitives
   const coreFiles = [
-    'CLAUDE.md', 'QUICKSTART.md', 'INSTALL_NOTES.md',
-    '.claude/', '.mcp.json',
+    'CLAUDE.md', '.claude/', '.mcp.json',
   ];
   const detectedCore = coreFiles.filter((f) => {
     const checkPath = f.endsWith('/') ? f.slice(0, -1) : f;
@@ -458,20 +455,27 @@ export async function init(options: InitOptions): Promise<void> {
       writeFileSync(join(cwd, 'content', readmeFilename), readme);
     }
 
-    // Generate content/QUICKSTART.md (if not copying existing)
-    if (!existsSync(join(cwd, 'content', 'QUICKSTART.md'))) {
+    // Generate content/QUICKSTART_<NAME>.md (if not already present)
+    const quickstartFilename = `QUICKSTART_${name.toUpperCase()}.md`;
+    if (!existsSync(join(cwd, 'content', quickstartFilename))) {
       const quickstart = QUICKSTART_TEMPLATE
         .replace(/\{\{NAME\}\}/g, name)
         .replace(/\{\{AUTHOR_HANDLE\}\}/g, authorHandle);
 
-      writeFileSync(join(cwd, 'content', 'QUICKSTART.md'), quickstart);
+      writeFileSync(join(cwd, 'content', quickstartFilename), quickstart);
     }
 
-    // Generate content/INSTALL_NOTES.md (if not copying existing)
-    if (!existsSync(join(cwd, 'content', 'INSTALL_NOTES.md'))) {
+    // Generate content/INSTALL_NOTES_<NAME>.md (if not already present)
+    const installNotesFilename = `INSTALL_NOTES_${name.toUpperCase()}.md`;
+    if (!existsSync(join(cwd, 'content', installNotesFilename))) {
       const installNotes = INSTALL_NOTES_TEMPLATE
         .replace(/\{\{NAME\}\}/g, name);
-      writeFileSync(join(cwd, 'content', 'INSTALL_NOTES.md'), installNotes);
+      writeFileSync(join(cwd, 'content', installNotesFilename), installNotes);
+    }
+
+    // Generate empty content/LICENSE (if not copying existing)
+    if (!existsSync(join(cwd, 'content', 'LICENSE'))) {
+      writeFileSync(join(cwd, 'content', 'LICENSE'), '');
     }
 
     spinner.succeed('Skillset structure created');
@@ -481,8 +485,9 @@ export async function init(options: InitOptions): Promise<void> {
     console.log('  skillset.yaml     - Manifest (edit as needed)');
     console.log('  content/          - Installable files');
     console.log(`    ├── ${readmeFilename} - Documentation`);
-    console.log('    ├── QUICKSTART.md   - Post-install guide');
-    console.log('    ├── INSTALL_NOTES.md - Pre-install notes');
+    console.log(`    ├── ${quickstartFilename} - Post-install guide`);
+    console.log(`    ├── ${installNotesFilename} - Pre-install notes`);
+    console.log('    ├── LICENSE         - License (populate before audit)');
     if (filesToCopy.length > 0) {
       filesToCopy.forEach((f) => console.log(`    └── ${f}`));
     } else {
@@ -490,7 +495,7 @@ export async function init(options: InitOptions): Promise<void> {
     }
 
     console.log(chalk.cyan('\nNext steps:'));
-    console.log('  1. Edit content/INSTALL_NOTES.md with install notes');
+    console.log(`  1. Edit content/${installNotesFilename} with install notes`);
     console.log('  2. Ensure content/ has your skillset files');
     console.log('  3. Run: npx skillsets audit');
     console.log('  4. Run: /audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]');

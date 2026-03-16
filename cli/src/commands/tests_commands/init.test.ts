@@ -96,23 +96,23 @@ describe('init command', () => {
     expect(existsSync(join(testDir, 'PROOF.md'))).toBe(false);
   });
 
-  it('creates content/INSTALL_NOTES.md', async () => {
+  it('creates content/INSTALL_NOTES_<NAME>.md', async () => {
     await init({});
 
-    expect(existsSync(join(testDir, 'content', 'INSTALL_NOTES.md'))).toBe(true);
+    expect(existsSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'))).toBe(true);
 
-    const content = readFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), 'utf-8');
+    const content = readFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), 'utf-8');
     expect(content).toContain('# test-skillset');
     expect(content).toContain('## Dependencies');
   });
 
-  it('does not overwrite existing content/INSTALL_NOTES.md', async () => {
+  it('does not overwrite existing content/INSTALL_NOTES_<NAME>.md', async () => {
     mkdirSync(join(testDir, 'content'), { recursive: true });
-    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), '# My Custom Install Notes');
+    writeFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), '# My Custom Install Notes');
 
     await init({});
 
-    const content = readFileSync(join(testDir, 'content', 'INSTALL_NOTES.md'), 'utf-8');
+    const content = readFileSync(join(testDir, 'content', 'INSTALL_NOTES_TEST-SKILLSET.md'), 'utf-8');
     expect(content).toBe('# My Custom Install Notes');
   });
 
@@ -446,13 +446,13 @@ describe('init command', () => {
     expect(tagsValidate('INVALID')).toContain('lowercase');
   });
 
-  it('does not overwrite existing content/QUICKSTART.md', async () => {
+  it('does not overwrite existing content/QUICKSTART_<NAME>.md', async () => {
     mkdirSync(join(testDir, 'content'), { recursive: true });
-    writeFileSync(join(testDir, 'content', 'QUICKSTART.md'), '# My Custom Quickstart');
+    writeFileSync(join(testDir, 'content', 'QUICKSTART_TEST-SKILLSET.md'), '# My Custom Quickstart');
 
     await init({});
 
-    const content = readFileSync(join(testDir, 'content', 'QUICKSTART.md'), 'utf-8');
+    const content = readFileSync(join(testDir, 'content', 'QUICKSTART_TEST-SKILLSET.md'), 'utf-8');
     expect(content).toBe('# My Custom Quickstart');
   });
 });

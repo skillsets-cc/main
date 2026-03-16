@@ -11,11 +11,13 @@ Provides GitHub OAuth 2.0 authentication with PKCE (Proof Key for Code Exchange)
 | `AuthState` | interface | OAuth state stored in KV (codeVerifier, returnTo) |
 | `initiateOAuth` | function | Start OAuth flow, generate state + PKCE, return GitHub auth URL |
 | `handleOAuthCallback` | function | Validate state, exchange code for token, return user profile |
-| `createSessionToken` | function | Generate signed JWT session token (7-day expiry) |
-| `verifySessionToken` | function | Verify JWT signature and expiration, return user session |
+| `createSessionToken` | function | Generate signed JWT session token (7-day expiry, includes JTI) |
+| `verifySessionToken` | function | Verify JWT signature, expiration, and revocation status, return user session |
+| `revokeSessionToken` | function | Revoke a JWT by adding its JTI to KV blocklist with remaining-lifetime TTL |
 | `getSessionFromRequest` | function | Extract and verify session token from request cookies |
 | `createSessionCookie` | function | Generate secure session cookie string (HttpOnly, Secure, SameSite=Lax) |
 | `createLogoutCookie` | function | Generate logout cookie (Max-Age=0) |
+| `getTokenFromRequest` | function | Extract raw session token string from request cookies (for revocation) |
 | `AuthError` | class | Custom error with statusCode property for HTTP responses |
 
 ## Dependencies
@@ -29,7 +31,8 @@ Provides GitHub OAuth 2.0 authentication with PKCE (Proof Key for Code Exchange)
 - **Used by**:
   - `pages/login.ts` (initiate OAuth flow)
   - `pages/callback.ts` (handle OAuth callback)
-  - `pages/logout.ts` (clear session)
+  - `pages/logout.ts` (clear session, revoke token)
+  - `pages/api/me.ts` (get session, revoke token on account deletion)
   - `pages/api/star.ts` (verify user session for star operations)
 - **Consumes**:
   - GitHub OAuth API (`/login/oauth/authorize`, `/login/oauth/access_token`, `/user`)
@@ -51,8 +54,9 @@ Provides GitHub OAuth 2.0 authentication with PKCE (Proof Key for Code Exchange)
 ### JWT Session Management
 - HS256 (HMAC-SHA256) signature using `JWT_SECRET`
 - 7-day expiration (configurable via `createSessionCookie` maxAge)
-- Payload includes userId (sub), login, avatar, iat, exp
+- Payload includes jti (unique token ID), userId (sub), login, avatar, iat, exp
 - Stored in httpOnly, Secure, SameSite=Lax cookie (XSS protection)
+- Revocation: `revokeSessionToken` writes `revoked:{jti}` to AUTH KV with TTL = remaining token lifetime; `verifySessionToken` checks this blocklist before accepting a token
 
 ### Base64URL Encoding
 Uses RFC 4648 base64url encoding (replaces `+` with `-`, `/` with `_`, strips padding `=`) for PKCE verifier, challenge, and JWT segments.

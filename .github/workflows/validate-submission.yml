@@ -16,14 +16,20 @@ jobs:
 
       - name: Install yq for YAML parsing
         run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          YQ_VERSION="v4.44.1"
+          YQ_SHA256="a2c097180dd884a8d50c956ee16a9cec070f30a7947cf4ebf87571b8f868571f"
+          wget -qO yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
+          echo "${YQ_SHA256}  yq" | sha256sum -c --strict
+          sudo mv yq /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
       - name: Find changed skillsets
         id: changed
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           # Get list of changed directories in skillsets/
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD)
+          CHANGED_FILES=$(git diff --name-only "$BASE_SHA" HEAD)
           DIRS=$(echo "$CHANGED_FILES" | grep '^skillsets/' | cut -d'/' -f1-3 | sort -u)
 
           if [ -z "$DIRS" ]; then
@@ -45,15 +51,21 @@ jobs:
 
       - name: Run skillsets audit
         if: steps.changed.outputs.dirs != ''
+        env:
+          CHANGED_DIRS: ${{ steps.changed.outputs.dirs }}
         run: |
           EXIT_CODE=0
-          for dir in ${{ steps.changed.outputs.dirs }}; do
+          for dir in $CHANGED_DIRS; do
+            if [[ ! "$dir" =~ ^skillsets/@?[A-Za-z0-9_-]+/[A-Za-z0-9_-]+$ ]]; then
+              echo "::error::Invalid directory format: $dir"
+              exit 1
+            fi
             echo "=========================================="
             echo "Running audit on $dir"
             echo "=========================================="
 
             cd "$dir"
-            npx skillsets@latest audit --check || EXIT_CODE=1
+            npx skillsets@0.9.4 audit --check || EXIT_CODE=1
             cd "$GITHUB_WORKSPACE"
           done
 
@@ -61,9 +73,13 @@ jobs:
 
       - name: Verify author matches GitHub handle
         if: steps.changed.outputs.dirs != ''
+        env:
+          CHANGED_DIRS: ${{ steps.changed.outputs.dirs }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           EXIT_CODE=0
-          for dir in ${{ steps.changed.outputs.dirs }}; do
+          for dir in $CHANGED_DIRS; do
             echo "=========================================="
             echo "Verifying author in $dir"
             echo "=========================================="
@@ -80,15 +96,12 @@ jobs:
             # Extract author handle from skillset.yaml
             AUTHOR_HANDLE=$(yq eval '.author.handle' "$dir/skillset.yaml" | sed 's/@//')
 
-            # Get PR author
-            PR_AUTHOR="${{ github.event.pull_request.user.login }}"
-
             echo "Namespace: $NAMESPACE"
             echo "Author handle: $AUTHOR_HANDLE"
             echo "PR author: $PR_AUTHOR"
 
             # Check if this is a modification to existing skillset (skillset.yaml exists in base)
-            if git cat-file -e ${{ github.event.pull_request.base.sha }}:"$dir/skillset.yaml" 2>/dev/null; then
+            if git cat-file -e "${BASE_SHA}:${dir}/skillset.yaml" 2>/dev/null; then
               echo "Existing skillset - verifying author can modify"
               if [ "$AUTHOR_HANDLE" != "$PR_AUTHOR" ]; then
                 echo "❌ ERROR: Only the original author (@$AUTHOR_HANDLE) can modify this skillset"
@@ -115,9 +128,14 @@ jobs:
 
       - name: Verify batch ID reservation
         if: steps.changed.outputs.dirs != ''
+        env:
+          CHANGED_DIRS: ${{ steps.changed.outputs.dirs }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          PR_AUTHOR_ID: ${{ github.event.pull_request.user.id }}
         run: |
           EXIT_CODE=0
-          for dir in ${{ steps.changed.outputs.dirs }}; do
+          for dir in $CHANGED_DIRS; do
             echo "=========================================="
             echo "Verifying reservation in $dir"
             echo "=========================================="
@@ -127,14 +145,12 @@ jobs:
             fi
 
             # Skip reservation check for updates to existing skillsets
-            if git cat-file -e ${{ github.event.pull_request.base.sha }}:"$dir/skillset.yaml" 2>/dev/null; then
+            if git cat-file -e "${BASE_SHA}:${dir}/skillset.yaml" 2>/dev/null; then
               echo "✅ Existing skillset — reservation check skipped"
               continue
             fi
 
             BATCH_ID=$(yq eval '.batch_id' "$dir/skillset.yaml")
-            PR_AUTHOR="${{ github.event.pull_request.user.login }}"
-            PR_AUTHOR_ID="${{ github.event.pull_request.user.id }}"
 
             if [ "$BATCH_ID" = "null" ] || [ -z "$BATCH_ID" ]; then
               echo "::error::Missing batch_id in $dir/skillset.yaml"
@@ -166,14 +182,17 @@ jobs:
 
       - name: Summary
         if: always()
+        env:
+          CHANGED_DIRS: ${{ steps.changed.outputs.dirs }}
+          JOB_STATUS: ${{ job.status }}
         run: |
           echo "=========================================="
           echo "Validation Summary"
           echo "=========================================="
           echo ""
-          echo "Changed skillsets: ${{ steps.changed.outputs.dirs }}"
+          echo "Changed skillsets: $CHANGED_DIRS"
           echo ""
-          if [ "${{ job.status }}" = "success" ]; then
+          if [ "$JOB_STATUS" = "success" ]; then
             echo "✅ All validation checks passed!"
             echo ""
             echo "Next steps:"

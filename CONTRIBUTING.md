@@ -12,7 +12,7 @@ Plugins are great for adding capabilities to Claude's core toolkit. Skillsets ar
 
 ## Whats in it for you?
 
-You built a high-dimensional skillset, not a toy — but there's no high-signal channel for it. Publishing through skillsets.cc gives your workflow a home where it doesn't drown in noise, clean versioning, and CC integrated distribution. When someone installs your skillset, Claude reads your QUICKSTART.md and walks them through customization interactively — project config, style guides, agent tuning, infra setup — so they land in a working environment, not a pile of extracted files. Submission happens in bimonthly cohorts of 10. Each gets a merge announcement, a live stream demo and a deep dive post.
+You built a high-dimensional skillset, not a toy — but there's no high-signal channel for it. Publishing through skillsets.cc gives your workflow a home where it doesn't drown in noise, clean versioning, and CC integrated distribution. When someone installs your skillset, Claude reads your QUICKSTART_<NAME>.md and walks them through customization interactively — project config, style guides, agent tuning, infra setup — so they land in a working environment, not a pile of extracted files. Submission happens in bimonthly cohorts of 10. Each gets a merge announcement, a live stream demo and a deep dive post.
 
 ### Prerequisites
 
@@ -53,9 +53,10 @@ This scaffolds the submission structure, auto-detects existing skillset and supp
 Claude helps you populate the submission files:
 
 - **`skillset.yaml`** — version, `compatibility.requirements` (support stack prereqs like docker, node >= 20, etc.), `compatibility.languages`
-- **`content/INSTALL_NOTES.md`** — install-time notes (what the skillset does, what it changes, under 4000 chars)
+- **`content/INSTALL_NOTES_<NAME>.md`** — install-time notes (what the skillset does, what it changes, under 4000 chars)
 - **`content/README_<NAME>.md`** — user-facing documentation (named to avoid clobbering the user's README on install): what the skillset does, what's included, how to use it
-- **`content/QUICKSTART.md`** — post-install customization guide that `/install` guides the end user through
+- **`content/QUICKSTART_<NAME>.md`** — post-install customization guide that `/install` guides the end user through
+- **`content/LICENSE`** — license file (scaffolded empty by init, must be populated before audit)
 - **`Generalization`** — replace project-specific details in CLAUDE.md and other primitives with placeholder blanks while preserving structure and logic
 
 ### Phase 3: Structural Audit
@@ -110,7 +111,7 @@ The tier 1 audit (`npx skillsets audit`) will flag relative links that should us
 
 ## Install Notes
 
-Your `content/INSTALL_NOTES.md` should help users understand what they're getting before install:
+Your `content/INSTALL_NOTES_<NAME>.md` should help users understand what they're getting before install:
 - What the skillset does and what it changes about their workflow
 - References to full documentation
 - Keep under 4000 characters

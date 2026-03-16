@@ -19,7 +19,7 @@ describe('GET /api/reservations/lookup', () => {
       new Request('https://skillsets.cc/api/reservations/lookup?githubId=123')
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.batchId).toBe('5.10.001');
@@ -33,7 +33,7 @@ describe('GET /api/reservations/lookup', () => {
       new Request('https://skillsets.cc/api/reservations/lookup?githubId=999')
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.batchId).toBeNull();
@@ -44,7 +44,7 @@ describe('GET /api/reservations/lookup', () => {
       new Request('https://skillsets.cc/api/reservations/lookup')
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.batchId).toBeNull();

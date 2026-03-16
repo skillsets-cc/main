@@ -178,6 +178,10 @@ export async function submit(): Promise<void> {
     // Copy files
     spinner.text = 'Copying skillset files...';
     const filesToCopy = ['skillset.yaml', 'AUDIT_REPORT.md', 'content'];
+    const assetsDir = `assets_${skillset.name.toUpperCase()}`;
+    if (existsSync(join(cwd, assetsDir))) {
+      filesToCopy.push(assetsDir);
+    }
     for (const file of filesToCopy) {
       const src = join(cwd, file);
       const dest = join(skillsetDir, file);
@@ -260,7 +264,8 @@ Submitted via \`npx skillsets submit\`
 
 - [x] \`skillset.yaml\` validated against schema
 - [x] \`README_${skillset.name.toUpperCase()}.md\` with installation and usage instructions
-- [x] \`content/INSTALL_NOTES.md\` with install notes
+- [x] \`content/INSTALL_NOTES_${skillset.name.toUpperCase()}.md\` with install notes
+- [x] \`content/LICENSE\` populated
 - [x] \`AUDIT_REPORT.md\` generated and passing
 - [x] \`content/\` directory with skillset files
 

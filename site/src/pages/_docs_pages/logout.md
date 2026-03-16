@@ -10,7 +10,7 @@ Logout endpoint that clears the user's session by setting a logout cookie (Max-A
 
 ## Dependencies
 - **Internal**:
-  - `lib/auth` (createLogoutCookie, Env type)
+  - `lib/auth` (createLogoutCookie, getTokenFromRequest, revokeSessionToken, Env type)
 - **External**:
   - `astro` (APIRoute type)
 
@@ -23,9 +23,11 @@ Logout endpoint that clears the user's session by setting a logout cookie (Max-A
 ## Key Logic
 
 ### GET /logout
-1. Generate logout cookie: `session=; Max-Age=0; HttpOnly; Secure; SameSite=Lax`
-2. Redirect to `SITE_URL` (or `/` if env var not set)
-3. Browser deletes session cookie immediately
+1. Extract session token from request cookie
+2. If token exists, revoke it server-side via `revokeSessionToken()` (writes `revoked:{jti}` to AUTH KV with remaining-lifetime TTL)
+3. Generate logout cookie: `session=; Max-Age=0; HttpOnly; Secure; SameSite=Lax`
+4. Redirect to `SITE_URL` (or `/` if env var not set)
+5. Browser deletes session cookie immediately
 
 ### Cookie Attributes
 - **Max-Age=0**: Tells browser to delete cookie immediately
@@ -34,12 +36,12 @@ Logout endpoint that clears the user's session by setting a logout cookie (Max-A
 - **Secure**: Only sent over HTTPS (consistent with login cookie)
 - **SameSite=Lax**: CSRF protection (consistent with login cookie)
 
-### No Server-Side State
-- No KV cleanup required (JWT is stateless)
-- Session is invalidated client-side by cookie deletion
-- Expired JWTs are rejected by `verifySessionToken()` (no need to revoke)
+### Server-Side Revocation
+- Token's JTI is added to AUTH KV blocklist (`revoked:{jti}`) with TTL matching remaining token lifetime
+- `verifySessionToken()` checks this blocklist — revoked tokens are rejected even if cryptographically valid
+- Revocation entries auto-expire via KV TTL when the token would have expired anyway
+- Revocation is best-effort — if KV write fails, logout still clears the cookie (defense in depth)
 
 ### Simplicity
-- Single redirect operation
-- No error handling (always succeeds)
-- No authentication check (anyone can call /logout)
+- No authentication check required (anyone can call /logout)
+- Revocation failure does not block the redirect

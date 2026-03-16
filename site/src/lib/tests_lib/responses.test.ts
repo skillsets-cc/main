@@ -72,7 +72,7 @@ describe('responses', () => {
       expect(result).toBeInstanceOf(Response);
       const res = result as Response;
       expect(res.status).toBe(400);
-      const body = await res.json();
+      const body = await res.json() as any;
       expect(body.error).toBe('Invalid JSON body');
     });
   });

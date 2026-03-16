@@ -170,7 +170,7 @@ describe('stars', () => {
       kv._store.set('stars:test/skillset', '42');
 
       let attemptCount = 0;
-      kv.get = vi.fn(async (key: string) => {
+      (kv as any).get = vi.fn(async (key: string) => {
         attemptCount++;
         if (attemptCount === 1) {
           const error = new Error('Rate limited') as any;
@@ -189,7 +189,7 @@ describe('stars', () => {
     it('retries up to MAX_RETRIES times on 429 errors (read)', async () => {
       const kv = createMockKV();
 
-      kv.get = vi.fn(async () => {
+      (kv as any).get = vi.fn(async () => {
         const error = new Error('Rate limited') as any;
         error.status = 429;
         throw error;
@@ -202,7 +202,7 @@ describe('stars', () => {
     it('throws immediately on non-429 errors (read)', async () => {
       const kv = createMockKV();
 
-      kv.get = vi.fn(async () => {
+      (kv as any).get = vi.fn(async () => {
         throw new Error('Network error');
       });
 
@@ -235,7 +235,7 @@ describe('stars', () => {
       const kv = createMockKV();
 
       // Mock get to work normally
-      kv.get = vi.fn(async (key: string) => kv._store.get(key) ?? null);
+      (kv as any).get = vi.fn(async (key: string) => kv._store.get(key) ?? null);
 
       // Mock put to always fail with 429
       kv.put = vi.fn(async () => {
@@ -256,7 +256,7 @@ describe('stars', () => {
       const kv = createMockKV();
 
       // Mock get to work normally
-      kv.get = vi.fn(async (key: string) => kv._store.get(key) ?? null);
+      (kv as any).get = vi.fn(async (key: string) => kv._store.get(key) ?? null);
 
       // Mock put to fail with non-429 error
       kv.put = vi.fn(async () => {
@@ -276,7 +276,7 @@ describe('stars', () => {
       const kv = createMockKV();
 
       let attemptCount = 0;
-      kv.get = vi.fn(async () => {
+      (kv as any).get = vi.fn(async () => {
         attemptCount++;
         if (attemptCount <= 2) {
           const error = new Error('Rate limited') as any;
@@ -309,7 +309,7 @@ describe('stars', () => {
       const kv = createMockKV();
 
       // Mock get to work normally
-      kv.get = vi.fn(async (key: string) => kv._store.get(key) ?? null);
+      (kv as any).get = vi.fn(async (key: string) => kv._store.get(key) ?? null);
 
       let attemptCount = 0;
       kv.put = vi.fn(async (key: string, value: string) => {

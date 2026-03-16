@@ -37,8 +37,9 @@ site/
 │
 └── src/
     ├── env.d.ts                   # Cloudflare runtime bindings + App.Locals declaration
+    ├── middleware.ts               # Security headers + CSP (defense-in-depth for XSS)
     ├── worker.ts                  # Custom worker entry (Astro handler + DO exports)
-    ├── docs_src/                  # Root-level src documentation (env.d.ts, worker.ts)
+    ├── docs_src/                  # Root-level src documentation (env.d.ts, middleware.ts, worker.ts)
     │
     ├── components/                # React islands + Astro components
     │   ├── AuthStatus.tsx         # Login/logout link with auth state
@@ -271,7 +272,8 @@ Return { batchId, status: "reserved" } → optimistic UI update
 
 ### AUTH Namespace
 ```
-oauth:{state} → { codeVerifier, returnTo }    (5-min TTL)
+oauth:{state}    → { codeVerifier, returnTo }    (5-min TTL)
+revoked:{jti}    → "1"                           (remaining token lifetime TTL)
 ```
 
 ### DATA Namespace
@@ -306,10 +308,11 @@ config          → { totalGhostSlots, ttlDays, cohort }
 
 | Layer | Implementation |
 |-------|----------------|
-| **XSS** | js-xss whitelist sanitization on README HTML; `sanitizeUrl` protocol allowlist for user-supplied URLs |
+| **XSS** | js-xss whitelist sanitization on README HTML; `sanitizeUrl` protocol allowlist for user-supplied URLs; CSP defense-in-depth via `middleware.ts` (blocks external scripts, fetch exfiltration, unlisted resource types) |
+| **CSP** | 9-directive Content-Security-Policy: `default-src 'self'`, `script-src 'self' 'unsafe-inline'` (Astro 5 limitation), `connect-src 'self'`, `img-src 'self' https: data:`, restricted style/font sources. See `middleware.ts` |
 | **CSRF** | Random state param with 5-min KV TTL |
 | **PKCE** | SHA-256 code_challenge prevents code interception |
-| **Sessions** | JWT in httpOnly/Secure/SameSite=Lax cookie (7-day expiry) |
+| **Sessions** | JWT in httpOnly/Secure/SameSite=Lax cookie (7-day expiry, JTI-based revocation on logout via KV blocklist) |
 | **Rate Limiting** | Stars: 10/min per user; Downloads: 30/hr per IP; Reservations: 5/hr per user; Verify/Lookup: 30/hr per IP |
 | **Input Validation** | Skillset ID format checks prevent KV key injection |
 | **Authorization** | Maintainer-only endpoints (config, submit) via allowlist |

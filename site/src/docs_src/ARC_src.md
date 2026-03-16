@@ -9,8 +9,10 @@ src/
 ├── docs_src/
 │   ├── ARC_src.md          # This file
 │   ├── env.d.ts.md         # env.d.ts documentation
+│   ├── middleware.ts.md     # middleware.ts documentation
 │   └── worker.ts.md        # worker.ts documentation
 ├── env.d.ts                # Cloudflare runtime bindings + App.Locals declaration
+├── middleware.ts            # Security headers + CSP (defense-in-depth for XSS)
 └── worker.ts               # Custom Worker entry point (required for Durable Objects)
 ```
 
@@ -19,6 +21,7 @@ src/
 | Component | Purpose | Key Exports |
 |-----------|---------|-------------|
 | `env.d.ts` | Runtime binding types + Astro namespace augmentation | `CloudflareEnv` interface |
+| `middleware.ts` | Security headers + comprehensive CSP on all responses | `onRequest` middleware |
 | `worker.ts` | Custom Worker entry for Durable Object export | `createExports` function |
 
 ## Data Flow

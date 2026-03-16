@@ -25,7 +25,7 @@ describe('GET /api/stats/counts', () => {
       { DATA: mockKV }
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.stars['test/skillset']).toBe(5);
@@ -43,7 +43,7 @@ describe('GET /api/stats/counts', () => {
       { DATA: mockKV }
     );
     const response = await GET(ctx);
-    const data = await response.json();
+    const data = await response.json() as any;
 
     expect(response.status).toBe(200);
     expect(data.stars).toEqual({});
