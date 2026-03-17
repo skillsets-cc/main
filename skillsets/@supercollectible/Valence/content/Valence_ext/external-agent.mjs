@@ -9,9 +9,8 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { getProvider } from './providers/index.mjs';
 
 // Load .env from script directory (no dotenv dependency)
-const scriptDir = new URL('.', import.meta.url).pathname;
 try {
-  const envFile = await readFile(`${scriptDir}.env`, 'utf8');
+  const envFile = await readFile(new URL('.env', import.meta.url), 'utf8');
   for (const line of envFile.split('\n')) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
