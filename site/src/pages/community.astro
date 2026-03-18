@@ -5,29 +5,33 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Community - Skillsets.cc">
-  <main class="max-w-4xl mx-auto px-4 py-12">
+  <main class="max-w-4xl mx-auto px-4 py-12 text-center">
     <header class="mb-8 border-b border-border-ink pb-6">
       <h1 class="text-4xl font-medium font-serif text-text-ink">Community</h1>
     </header>
 
     <div class="space-y-6 text-lg font-serif text-text-secondary leading-relaxed">
       <p>
-        We run a <strong class="text-text-ink">Matrix homeserver</strong> at <code class="text-sm font-mono text-accent">skillsets.cc</code> — open registration, federated, no tracking. If you have a Matrix account on any server, you can join our rooms directly.
+        <strong class="text-text-ink">The back channel for people pushing Claude Code past the defaults.</strong> Share what you're building, compare workflows, get answers from people who've already solved it, or talk shop with skillset authors.
       </p>
 
       <p>
-        If you don't have one yet, create an account on our homeserver and you'll be <code class="text-sm font-mono text-text-ink">@you:skillsets.cc</code>.
+        We're on <a href="https://matrix.org" class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">Matrix</a> instead of Discord. Matrix is an open, federated chat protocol — think email but for real-time messaging. No single company owns it, your data stays on the server you choose, and it doesn't serve ads or harvest your conversations for training data. We don't love where Discord is heading, and we'd rather build on something we control.
+      </p>
+
+      <p>
+        The web app works instantly in your browser — no install, no account migration. Create an account and you're <code class="text-sm font-mono text-text-ink">@you:skillsets.cc</code>. If you already use Matrix on another server, you can join our rooms from there too — that's the federated part.
       </p>
     </div>
 
-    <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:gap-6">
+    <div class="mt-10 flex justify-center">
       <a
         href="https://element.skillsets.cc"
         target="_blank"
         rel="noopener noreferrer"
         class="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-mono border border-accent text-accent hover:bg-accent hover:text-surface-paper transition-colors"
       >
-        Open Element Web
+        Join the chat
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
           <polyline points="15 3 21 3 21 9" />
@@ -36,7 +40,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
       </a>
     </div>
 
-    <div class="mt-12 border border-border-ink bg-surface-white p-6">
+    <div class="mt-12 border border-border-ink bg-surface-white p-6 text-left">
       <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider mb-4">Details</h2>
       <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm font-mono">
         <dt class="text-text-tertiary">Homeserver</dt>
