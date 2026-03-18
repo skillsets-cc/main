@@ -52,7 +52,7 @@ describe('DownloadCount', () => {
 
     await waitFor(() => {
       expect(globalThis.fetch).toHaveBeenCalledWith(
-        '/api/downloads?skillsetId=test%2Fskillset'
+        '/api/downloads/start?skillsetId=test%2Fskillset'
       );
     });
   });

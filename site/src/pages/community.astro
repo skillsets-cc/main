@@ -1,0 +1,66 @@
+---
+export const prerender = true;
+
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Community - Skillsets.cc">
+  <main class="max-w-4xl mx-auto px-4 py-12">
+    <header class="mb-8 border-b border-border-ink pb-6">
+      <h1 class="text-4xl font-medium font-serif text-text-ink">Community</h1>
+    </header>
+
+    <div class="space-y-6 text-lg font-serif text-text-secondary leading-relaxed">
+      <p>
+        We run a <strong class="text-text-ink">Matrix homeserver</strong> at <code class="text-sm font-mono text-accent">skillsets.cc</code> — open registration, federated, no tracking. If you have a Matrix account on any server, you can join our rooms directly.
+      </p>
+
+      <p>
+        If you don't have one yet, create an account on our homeserver and you'll be <code class="text-sm font-mono text-text-ink">@you:skillsets.cc</code>.
+      </p>
+    </div>
+
+    <div class="mt-10 flex flex-col gap-4 sm:flex-row sm:gap-6">
+      <a
+        href="https://element.skillsets.cc"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-mono border border-accent text-accent hover:bg-accent hover:text-surface-paper transition-colors"
+      >
+        Open Element Web
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <polyline points="15 3 21 3 21 9" />
+          <line x1="10" y1="14" x2="21" y2="3" />
+        </svg>
+      </a>
+    </div>
+
+    <div class="mt-12 border border-border-ink bg-surface-white p-6">
+      <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider mb-4">Details</h2>
+      <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm font-mono">
+        <dt class="text-text-tertiary">Homeserver</dt>
+        <dd class="text-text-ink">matrix.skillsets.cc</dd>
+
+        <dt class="text-text-tertiary">Web client</dt>
+        <dd><a href="https://element.skillsets.cc" class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">element.skillsets.cc</a></dd>
+
+        <dt class="text-text-tertiary">User format</dt>
+        <dd class="text-text-ink">@username:skillsets.cc</dd>
+
+        <dt class="text-text-tertiary">Registration</dt>
+        <dd class="text-text-ink">Open</dd>
+
+        <dt class="text-text-tertiary">Voice / video</dt>
+        <dd class="text-text-ink">Element Call (Matrix RTC)</dd>
+
+        <dt class="text-text-tertiary">Federation</dt>
+        <dd class="text-text-ink">Enabled</dd>
+      </dl>
+    </div>
+
+    <p class="mt-8 text-sm font-serif text-text-tertiary italic">
+      Powered by <a href="https://matrix.org" class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">Matrix</a>, managed by <a href="https://etke.cc" class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">etke.cc</a>.
+    </p>
+  </main>
+</BaseLayout>

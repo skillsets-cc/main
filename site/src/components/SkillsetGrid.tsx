@@ -19,7 +19,28 @@ export default function SkillsetGrid({
   skillsets,
 }: SkillsetGridProps): ReactElement {
   const [tagResults, setTagResults] = useState<SearchIndexEntry[]>(skillsets);
+  const [starCounts, setStarCounts] = useState<Record<string, number>>({});
   const [reservations, setReservations] = useState<ReservationState | null>(null);
+
+  // Fetch live star counts
+  useEffect(() => {
+    async function fetchStars(): Promise<void> {
+      const counts: Record<string, number> = {};
+      await Promise.all(
+        skillsets.map(async (s) => {
+          try {
+            const res = await fetch(`/api/star?skillsetId=${encodeURIComponent(s.id)}`);
+            if (res.ok) {
+              const data = (await res.json()) as { count: number };
+              counts[s.id] = data.count;
+            }
+          } catch { /* use build-time fallback */ }
+        }),
+      );
+      setStarCounts(counts);
+    }
+    fetchStars();
+  }, [skillsets]);
 
   // Fetch reservation state
   useEffect(() => {
@@ -107,7 +128,7 @@ export default function SkillsetGrid({
                 <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pt-2 border-t border-border-ink/50 group-hover:border-accent/30 transition-colors">
                   <span className="flex items-center gap-1 text-xs font-mono text-text-tertiary">
                     <StarIcon />
-                    {skillset.stars}
+                    {starCounts[skillset.id] ?? skillset.stars}
                   </span>
 
                   {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
