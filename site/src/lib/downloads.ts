@@ -1,23 +1,41 @@
 /**
- * Download tracking with KV storage.
+ * Download tracking with nonce-based verification.
  *
  * Storage schema:
  * - downloads:{skillsetId}           → download count (number as string)
- * - ratelimit:dl:{ip}:{hour}         → request count (hour-bucketed, 7200s TTL)
+ * - nonce:{uuid}                     → JSON {skillset, ipHash, ts} (600s TTL)
  */
-import { isHourlyRateLimited } from './rate-limit';
+import { hashIp } from './rate-limit';
 
-const DL_RATE_LIMIT_MAX = 30; // Max downloads per hour per IP
+const NONCE_TTL_SECONDS = 600; // 10 minutes
 
-/**
- * Check if an IP has exceeded the download rate limit.
- * Uses hour-bucketed pattern to prevent TTL-reset bug.
- */
-export async function isDownloadRateLimited(
-  kv: KVNamespace,
-  ip: string
+/** Issue a download nonce. Called before degit install. */
+export async function createDownloadNonce(
+  kv: KVNamespace, skillsetId: string, ip: string
+): Promise<string> {
+  const nonce = crypto.randomUUID();
+  const ipHash = await hashIp(ip);
+  await kv.put(`nonce:${nonce}`, JSON.stringify({
+    skillset: skillsetId,
+    ipHash,
+    ts: Date.now(),
+  }), { expirationTtl: NONCE_TTL_SECONDS });
+  return nonce;
+}
+
+/** Validate and consume a download nonce. Returns true if valid. */
+export async function consumeDownloadNonce(
+  kv: KVNamespace, nonce: string, skillsetId: string, ip: string
 ): Promise<boolean> {
-  return isHourlyRateLimited(kv, 'dl', ip, DL_RATE_LIMIT_MAX);
+  const raw = await kv.get(`nonce:${nonce}`);
+  if (!raw) return false;
+
+  const data = JSON.parse(raw);
+  const ipHash = await hashIp(ip);
+  if (data.skillset !== skillsetId || data.ipHash !== ipHash) return false;
+
+  await kv.delete(`nonce:${nonce}`);
+  return true;
 }
 
 /**

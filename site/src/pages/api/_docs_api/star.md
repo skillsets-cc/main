@@ -11,9 +11,10 @@ API endpoint for star/unstar operations on skillsets. Handles authenticated POST
 
 ## Dependencies
 - **Internal**:
-  - `lib/auth` (getSessionFromRequest, Env type)
-  - `lib/stars` (toggleStar, isRateLimited, isStarred, getStarCount)
-  - `lib/responses` (jsonResponse, errorResponse, parseJsonBody)
+  - `lib/auth` (getSessionFromRequest)
+  - `lib/stars` (toggleStar, isStarred, getStarCount)
+  - `lib/rate-limit` (checkRateLimit)
+  - `lib/responses` (jsonResponse, errorResponse, parseJsonBody, getEnv)
   - `lib/validation` (isValidSkillsetId)
 - **External**:
   - `astro` (APIRoute type)
@@ -31,9 +32,9 @@ API endpoint for star/unstar operations on skillsets. Handles authenticated POST
 
 ### POST /api/star
 1. Check session authentication (401 if missing)
-2. Check rate limit: 10 ops/min per user (429 if exceeded)
+2. Check rate limit: 10 ops/day per user via `checkRateLimit` (breach threshold: 3; 429 + freeze if exceeded)
 3. Validate request body: `{ skillsetId: string }`
-4. Validate skillsetId format: `/^@?[\w-]+\/[\w-]+$/` (prevent KV injection)
+4. Validate skillsetId format (prevent KV injection)
 5. Call `toggleStar()` to flip state and update counts
 6. Return `{ starred: boolean, count: number }`
 
@@ -53,5 +54,5 @@ API endpoint for star/unstar operations on skillsets. Handles authenticated POST
 ### Error Responses
 - 400: Missing or invalid skillsetId
 - 401: Unauthorized (POST only, authentication required)
-- 429: Rate limit exceeded (10 ops/min)
+- 429: Rate limit exceeded (10 ops/day)
 - 500: Internal server error (KV failures)

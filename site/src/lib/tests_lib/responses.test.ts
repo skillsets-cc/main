@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { jsonResponse, errorResponse, parseJsonBody } from '../responses';
+import { jsonResponse, errorResponse, parseJsonBody, frozenResponse } from '../responses';
 
 describe('responses', () => {
   describe('jsonResponse', () => {
@@ -74,6 +74,26 @@ describe('responses', () => {
       expect(res.status).toBe(400);
       const body = await res.json() as any;
       expect(body.error).toBe('Invalid JSON body');
+    });
+  });
+
+  describe('frozenResponse', () => {
+    it('test_frozenResponse_returns_403', () => {
+      expect(frozenResponse().status).toBe(403);
+    });
+
+    it('test_frozenResponse_body_has_frozen_true', async () => {
+      const body = await frozenResponse().json() as any;
+      expect(body.frozen).toBe(true);
+    });
+
+    it('test_frozenResponse_body_has_contact', async () => {
+      const body = await frozenResponse().json() as any;
+      expect(body.contact).toBe('security@skillsets.cc');
+    });
+
+    it('test_frozenResponse_content_type_json', () => {
+      expect(frozenResponse().headers.get('Content-Type')).toBe('application/json');
     });
   });
 });

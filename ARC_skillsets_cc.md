@@ -1,7 +1,7 @@
 # skillsets.cc
 
 ## Purpose
-Curated registry of production-verified Claude Code workflows. Three independent modules: a web application (site), a CLI tool (cli), and a plugin system (plugins). The site serves as the public-facing registry with search, authentication, star/download tracking, and a ghost entry reservation system. The CLI provides discovery, installation with checksum verification, and a contributor submission workflow. The plugins bridge skillsets.cc with Claude Code's native plugin system — packaging skills as distributable, namespaced units for both contributors and end users.
+Curated registry of production-verified Claude Code workflows. Three independent modules: a web application (site), a CLI tool (cli), and a plugin system (plugins). The site serves as the public-facing registry with search, authentication, star/download tracking, and a ghost entry reservation system. The CLI provides installation with checksum verification and a contributor submission workflow. The plugins bridge skillsets.cc with Claude Code's native plugin system — packaging skills as distributable, namespaced units for both contributors and end users.
 
 ## Architecture
 ```
@@ -20,7 +20,7 @@ skillsets.cc/
 │
 ├── cli/                          # Node.js CLI (npx skillsets)
 │   └── src/
-│       ├── commands/             # search, list, view, install, init, audit, audit-report, submit
+│       ├── commands/             # install, init, audit, audit-report, submit
 │       ├── lib/                  # API, checksum, constants, errors, filesystem, templates, validate-deps, validate-mcp, versions
 │       └── types/                # CLI-specific interfaces
 │
@@ -51,7 +51,7 @@ skillsets.cc/
 | Module | Purpose | ARC Doc |
 |--------|---------|---------|
 | **site** | Astro 5 SSR application — registry UI, auth, APIs, reservation system | [ARC_site.md](site/docs_site/ARC_site.md) |
-| **cli** | Node.js CLI — search, install (degit + checksums), contribute (init, audit, submit) | [ARC_cli.md](cli/docs_cli/ARC_cli.md) |
+| **cli** | Node.js CLI — install (degit + checksums), contribute (init, audit, submit) | [ARC_cli.md](cli/docs_cli/ARC_cli.md) |
 | **plugins** | Claude Code plugins — static contribute plugin + generated per-skillset install plugins | [ARC_plugins.md](plugins/docs_plugins/ARC_plugins.md) |
 
 ### Site Sub-Modules
@@ -94,8 +94,8 @@ PR merged → rebuild-index.yml
   └── Deploy to Cloudflare Workers
   ↓
 Consumer
-  ├── Web: skillsets.cc (browse, search, star, view detail)
-  ├── CLI: npx skillsets search/list/install
+  ├── Web: skillsets.cc (browse, star, view detail)
+  ├── CLI: npx skillsets install
   └── Plugin: claude plugin marketplace add → /skillset:install
 ```
 
@@ -140,9 +140,7 @@ Auth → GitHub OAuth (PKCE + CSRF → JWT in httpOnly cookie)
 
 ### CLI: Consumer Flow
 ```
-list/search → CDN index + live stats from API → Fuse.js/sort → terminal
-view → GitHub raw content → terminal
-install → MCP/deps warnings → degit extract → checksum verify → POST /api/downloads
+install → CDN index → metadata lookup → MCP/deps warnings → degit extract → checksum verify → POST /api/downloads
 ```
 
 ### CLI: Contributor Flow
@@ -157,8 +155,7 @@ submit → validate version bump → gh CLI → fork → branch → PR
 ### Site ↔ CLI Touchpoints
 | Endpoint | CLI Usage | Site Handler |
 |----------|-----------|--------------|
-| `GET /search-index.json` | Index for search/list | Static asset (build-time) |
-| `GET /api/stats/counts` | Live star/download counts for list | `pages/api/stats/counts.ts` |
+| `GET /search-index.json` | Index for install/audit | Static asset (build-time) |
 | `POST /api/downloads` | Track install count | `pages/api/downloads.ts` |
 | `GET /api/reservations/lookup` | Find user's reservation (init) | `pages/api/reservations/lookup.ts` |
 | `GET /api/reservations/verify` | Validate batch ID (CI) | `pages/api/reservations/verify.ts` |
@@ -205,7 +202,7 @@ submit → validate version bump → gh CLI → fork → branch → PR
 ┌──────────────────────────────────────────────┐
 │              Astro SSR Worker                │
 │                                              │
-│  Static pages (/, /about, /contribute, /cli) │
+│  Static pages (/, /about, /contribute)        │
 │  SSR pages (/skillset/[ns]/[name])           │
 │  Auth routes (/login, /callback, /logout)    │
 │  API routes (/api/star, /api/downloads, ...) │

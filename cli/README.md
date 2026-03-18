@@ -1,7 +1,7 @@
 # Skillsets CLI
 
 ## Purpose
-Command-line tool for discovering, installing, and contributing verified Claude Code skillsets.
+Command-line tool for installing and contributing verified Claude Code skillsets.
 
 ## Architecture
 ```
@@ -9,9 +9,6 @@ cli/
 ├── src/
 │   ├── index.ts           # CLI entry point
 │   ├── commands/          # Command implementations
-│   │   ├── list.ts
-│   │   ├── search.ts
-│   │   ├── view.ts
 │   │   ├── install.ts
 │   │   ├── init.ts
 │   │   ├── audit.ts
@@ -47,9 +44,6 @@ cli/
 ### Commands
 | File | Purpose | Documentation |
 |------|---------|---------------|
-| `list.ts` | Browse all skillsets with live stats | [Docs](./docs_cli/commands/list.md) |
-| `search.ts` | Fuzzy search by name, description, tags | [Docs](./docs_cli/commands/search.md) |
-| `view.ts` | View a skillset README before installing | [Docs](./docs_cli/commands/view.md) |
 | `install.ts` | Install skillset via degit + MCP/deps warnings + verify checksums | [Docs](./docs_cli/commands/install.md) |
 | `init.ts` | Scaffold new skillset with QUICKSTART_<NAME>.md | [Docs](./docs_cli/commands/init.md) |
 | `audit.ts` | Validate skillset + MCP + runtime deps before submission | [Docs](./docs_cli/commands/audit.md) |

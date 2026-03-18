@@ -1,17 +1,18 @@
 import type { APIRoute } from 'astro';
-import { getSessionFromRequest, getTokenFromRequest, createLogoutCookie, revokeSessionToken, type Env } from '@/lib/auth';
-import { isHourlyRateLimited } from '@/lib/rate-limit';
-import { jsonResponse, errorResponse } from '@/lib/responses';
+import { getSessionFromRequest, getTokenFromRequest, createLogoutCookie, revokeSessionToken } from '@/lib/auth';
+import { checkDailyLimit, recordBreach, PREFIX_REGISTRY } from '@/lib/rate-limit';
+import { jsonResponse, errorResponse, getEnv } from '@/lib/responses';
+
+const DAY_MS = 86_400_000;
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  const env = (locals as { runtime: { env: Env } }).runtime.env;
+  const env = getEnv(locals);
   const session = await getSessionFromRequest(env, request);
 
   if (!session) {
     return errorResponse('Authentication required', 401);
   }
 
-  // Fetch user's starred skillsets for GDPR data export
   const starsJson = await env.DATA.get(`user:${session.userId}:stars`);
   const stars: string[] = starsJson ? JSON.parse(starsJson) : [];
 
@@ -21,30 +22,49 @@ export const GET: APIRoute = async ({ request, locals }) => {
 };
 
 export const DELETE: APIRoute = async ({ request, locals }) => {
-  const env = (locals as { runtime: { env: Env } }).runtime.env;
-  const session = await getSessionFromRequest(env, request);
+  const env = getEnv(locals);
 
+  const session = await getSessionFromRequest(env, request);
   if (!session) {
     return errorResponse('Authentication required', 401);
   }
 
-  // Rate limit: 5 deletion attempts per hour per user
-  if (await isHourlyRateLimited(env.DATA, 'delete', session.userId, 5)) {
-    return errorResponse('Rate limit exceeded', 429);
+  // No freeze gate — GDPR Art. 17 right to erasure cannot be blocked.
+  // Daily limit (1/day) + immediate freeze on breach.
+  try {
+    const { limited } = await checkDailyLimit(env.DATA, 'delete', session.userId, 1);
+    if (limited) {
+      await recordBreach(env.DATA, 'delete', session.userId, {
+        threshold: 0,
+        bucketType: 'day',
+      });
+      return errorResponse('Deletion limit exceeded. Try again tomorrow.', 429);
+    }
+  } catch (err) {
+    console.error('[RateLimit] KV error on deletion limit check, allowing through', err);
   }
 
-  // Delete user's starred skillsets list from KV
-  await env.DATA.delete(`user:${session.userId}:stars`);
+  // Purge user data (breach trackers, daily counters, stars)
+  const currentDay = Math.floor(Date.now() / DAY_MS);
+  const deleteOps: Promise<void>[] = [
+    env.DATA.delete(`user:${session.userId}:stars`),
+  ];
 
-  console.log('[GDPR] User data deleted', { userId: session.userId });
+  for (const entry of PREFIX_REGISTRY) {
+    if (entry.identity !== 'userId') continue;
+    deleteOps.push(env.DATA.delete(`breaches:${entry.prefix}:${session.userId}`));
+    deleteOps.push(env.DATA.delete(`ratelimit:${entry.prefix}:${session.userId}:${currentDay}`));
+    // NOTE: freeze keys are intentionally NOT deleted (Art. 17(3))
+  }
 
-  // Revoke the current JWT
+  await Promise.all(deleteOps);
+  console.log('[GDPR] User data deleted, freeze flags preserved', { userId: session.userId });
+
   const token = getTokenFromRequest(request);
   if (token) {
     await revokeSessionToken(env, token);
   }
 
-  // Return success with logout cookie
   return jsonResponse({ deleted: true }, {
     headers: {
       'Set-Cookie': createLogoutCookie(),

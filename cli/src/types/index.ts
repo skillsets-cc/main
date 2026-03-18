@@ -87,11 +87,6 @@ export interface SearchIndexEntry {
   cc_extensions?: CcExtension[];
 }
 
-export interface StatsResponse {
-  stars: Record<string, number>;
-  downloads: Record<string, number>;
-}
-
 // Manifest type (parsed from skillset.yaml)
 
 export interface Skillset {

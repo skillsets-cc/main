@@ -1,7 +1,7 @@
 # SkillsetGrid
 
 ## Purpose
-Displays a filterable grid of skillset cards with live star counts and ghost entry integration. Fetches reservation state and renders GhostCard components for available, reserved, and pending submitted slots. Supports tag filtering, MCP badges, and batch ID display.
+Displays a filterable grid of skillset cards with build-time star counts and ghost entry integration. Fetches reservation state and renders GhostCard components for available, reserved, and pending submitted slots. Supports tag filtering, MCP badges, and batch ID display.
 
 ## Public API
 | Export | Type | Description |
@@ -19,9 +19,8 @@ Displays a filterable grid of skillset cards with live star counts and ghost ent
 
 ## Integration Points
 - **Used by**:
-  - `pages/browse.astro`, `pages/index.astro` (client:load island for interactive grid)
+  - `pages/index.astro` (client:load island for interactive grid)
 - **Consumes**:
-  - `GET /api/stats/counts` (fetch all star counts in single batch request)
   - `GET /api/reservations` (fetch reservation state with credentials)
 - **Emits**: No events
 
@@ -29,15 +28,13 @@ Displays a filterable grid of skillset cards with live star counts and ghost ent
 
 ### Tag Filtering
 - Maintains `tagResults` state from TagFilter component
-- `finalResults = tagResults` (no search bar, filtering only by tags)
+- Filtering only by tags (no search bar)
 - "All" tags = all skillsets displayed
 
-### Live Star Count Fetching
-- On mount, fetches all star counts in a single request to `/api/stats/counts`
-- Response includes all skillsets' star counts in a single object
-- Updates `liveStars` record with entire response
-- Falls back to build-time `skillset.stars` value on error
-- Progressive hydration: grid renders with build-time values, updates when API call completes
+### Star Count Display
+- Uses build-time `skillset.stars` values (embedded in static HTML at deploy time)
+- No client-side star count fetching (per-card StarButton on detail pages handles live stars)
+- Accurate at deploy time; frequent deploys keep counts near real-time
 
 ### Grid Rendering
 - Each skillset is a clickable article linking to `/skillset/{namespace}/{name}`
@@ -64,10 +61,10 @@ Displays a filterable grid of skillset cards with live star counts and ghost ent
   - `onConflict`: Re-fetches reservation state from API
 
 ### Empty State
-- Displays message when `finalResults.length === 0`
+- Displays message when `tagResults.length === 0`
 - Occurs when tag filters match nothing
 
 ## Performance Considerations
-- Two parallel useEffect calls: stars and reservations (concurrent, no blocking)
+- Single useEffect for reservations fetch
 - No virtualization (assumes small dataset, < 100 skillsets + ghost entries)
 - Optimistic UI updates for reserve/cancel actions (no full page reload)

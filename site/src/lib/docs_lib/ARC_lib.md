@@ -32,11 +32,11 @@ lib/
 ├── data.ts                    # Search index access (build-time)
 ├── downloads.ts               # Download counting
 ├── maintainer.ts              # Maintainer authorization logic
-├── rate-limit.ts              # Bucketed KV rate limiters (minute + hour)
+├── rate-limit.ts              # Trust-gate rate limiting (daily buckets, freeze, breach escalation)
 ├── reservation-do.ts          # Ghost entry reservation Durable Object
 ├── responses.ts               # JSON response helpers
 ├── sanitize.ts                # XSS protection for README content
-├── stars.ts                   # Star/unstar with rate limiting
+├── stars.ts                   # Star/unstar with KV retry logic
 └── validation.ts              # Input validation (skillset ID format)
 ```
 
@@ -46,13 +46,13 @@ lib/
 |---------|---------|-------------|
 | **auth.ts** | GitHub OAuth with PKCE, JWT sessions | initiateOAuth, handleOAuthCallback, createSessionToken, verifySessionToken |
 | **data.ts** | Read-only search index access | getSkillsets, getSkillsetById, getAllTags |
-| **downloads.ts** | Download count tracking | incrementDownloads, getDownloadCount, isDownloadRateLimited |
+| **downloads.ts** | Nonce-based download count tracking | createDownloadNonce, consumeDownloadNonce, incrementDownloads, getDownloadCount |
 | **maintainer.ts** | Maintainer authorization | isMaintainer |
-| **rate-limit.ts** | Bucketed KV rate limiters | isMinuteRateLimited, isHourlyRateLimited |
+| **rate-limit.ts** | Trust-gate rate limiting (daily buckets, freeze, breach escalation) | checkRateLimit, hashIp, isFrozen, freeze, checkDailyLimit, recordBreach, PREFIX_REGISTRY |
 | **reservation-do.ts** | Ghost entry reservation coordination (Durable Object) | ReservationCoordinator, getReservationStub |
-| **responses.ts** | Standardized JSON responses | jsonResponse, errorResponse, parseJsonBody |
+| **responses.ts** | Standardized JSON responses | getEnv, jsonResponse, errorResponse, parseJsonBody, frozenResponse |
 | **sanitize.ts** | XSS protection for HTML and URL validation | sanitizeHtml, sanitizeUrl |
-| **stars.ts** | Star/unstar with rate limiting | toggleStar, isStarred, getStarCount, isRateLimited |
+| **stars.ts** | Star/unstar with KV retry logic | toggleStar, isStarred, getStarCount |
 | **validation.ts** | Input validation for API requests | isValidSkillsetId |
 
 ## Data Flow
@@ -80,7 +80,7 @@ POST /api/star
   ↓
 getSessionFromRequest() → Verify JWT
   ↓
-isRateLimited() → Check 10 ops/min limit
+checkRateLimit(prefix:'star', id:userId) → freeze check → daily limit → breach tracking
   ↓
 toggleStar() → Read user stars + count → Update both in KV
   ↓
@@ -89,13 +89,23 @@ Return { starred, count }
 
 ### Download Flow
 ```
-POST /api/downloads
+POST /api/downloads/start
   ↓
-isDownloadRateLimited() → Check 30 downloads/hr per IP
+checkRateLimit(prefix:'dl', id:ipHash) → freeze check → daily limit → breach tracking
+  ↓
+createDownloadNonce() → Store {skillset, ipHash, ts} with 10-min TTL
+  ↓
+Return { nonce }
+
+  [CLI runs degit install]
+
+POST /api/downloads/complete
+  ↓
+consumeDownloadNonce() → Validate skillset + IP match → Delete nonce
   ↓
 incrementDownloads() → Read count → Increment → Write
   ↓
-Return new count
+Return { count }
 ```
 
 ### Reservation Flow
@@ -144,7 +154,7 @@ Pages use build-time data (no runtime GitHub API calls)
 ### Used By
 - `pages/login.ts`, `pages/callback.ts`, `pages/logout.ts` (auth flow)
 - `pages/api/star.ts` (star operations)
-- `pages/api/downloads.ts` (download tracking)
+- `pages/api/downloads/start.ts`, `pages/api/downloads/complete.ts` (download tracking)
 - `pages/api/stats/counts.ts` (bulk stats)
 - `pages/api/reservations.ts`, `pages/api/reservations/config.ts`, `pages/api/reservations/verify.ts`, `pages/api/reservations/submit.ts`, `pages/api/reservations/lookup.ts` (reservation operations)
 - `pages/index.astro`, `pages/browse.astro`, `pages/skillset/[namespace]/[name].astro` (data access)
@@ -169,7 +179,7 @@ Pages use build-time data (no runtime GitHub API calls)
 ### Security
 - CSRF protection (cryptographically random state)
 - PKCE for OAuth (prevents code interception)
-- Rate limiting (10 ops/min for stars per user, 30 downloads/hr per IP)
+- Trust-gate rate limiting with daily buckets, consecutive breach tracking, and account freeze (stars, downloads, reservations)
 - JWT with HMAC-SHA256 (7-day expiry, JTI-based revocation on logout)
 - XSS protection (whitelist-based HTML filtering via js-xss + CSP defense-in-depth via `src/middleware.ts`)
 - Input validation (skillset ID format checks prevent KV key injection)
@@ -189,12 +199,13 @@ oauth:{state} → { codeVerifier, returnTo } (5-min TTL)
 
 ### DATA Namespace
 ```
-stars:{skillsetId}                  → "42" (star count)
-user:{userId}:stars                 → ["id1", "id2"] (starred skillset IDs)
-downloads:{skillsetId}              → "123" (download count)
-ratelimit:star:{userId}:{minute}    → "3" (star rate limit, 120s TTL)
-ratelimit:dl:{ip}:{hour}            → "7" (download rate limit, 7200s TTL)
-ratelimit:{prefix}:{id}:{bucket}    → "N" (generic bucketed rate limit counter)
+stars:{skillsetId}                      → "42"                          (star count)
+user:{userId}:stars                     → ["id1", "id2"]                (starred skillset IDs)
+downloads:{skillsetId}                  → "123"                         (download count)
+nonce:{uuid}                            → JSON {skillset, ipHash, ts}   (600s TTL)
+freeze:{prefix}:{id}                    → "1"                           (permanent or 3-month TTL)
+ratelimit:{prefix}:{id}:{dayBucket}     → "N"                           (daily rate limit counter, 25h TTL)
+breaches:{prefix}:{id}                  → JSON {count, lastBucket}      (permanent or TTL)
 ```
 
 ### RESERVATIONS Durable Object Storage

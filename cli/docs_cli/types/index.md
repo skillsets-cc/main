@@ -1,7 +1,7 @@
 # types/index.ts
 
 ## Purpose
-Shared TypeScript type definitions used across all CLI commands and lib modules. Covers the skillset manifest (`Skillset`), the CDN search index (`SearchIndex`, `SearchIndexEntry`), MCP server declarations, CC extension declarations, runtime dependency declarations, and live API stats.
+Shared TypeScript type definitions used across all CLI commands and lib modules. Covers the skillset manifest (`Skillset`), the CDN search index (`SearchIndex`, `SearchIndexEntry`), MCP server declarations, CC extension declarations, and runtime dependency declarations.
 
 ## Public API
 | Export | Type | Description |
@@ -15,7 +15,6 @@ Shared TypeScript type definitions used across all CLI commands and lib modules.
 | `RuntimeDependency` | interface | Runtime package dependency with evaluation metadata |
 | `SearchIndex` | interface | Top-level CDN index (`search-index.json`) |
 | `SearchIndexEntry` | interface | One skillset row in the search index |
-| `StatsResponse` | interface | Live stars/downloads counts from `/api/stats/counts` |
 | `Skillset` | interface | Parsed `skillset.yaml` manifest |
 
 ## Dependencies

@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactElement } from 'react';
+import { useState, useEffect } from 'react';
 
 interface StarButtonProps {
   skillsetId: string;
@@ -6,15 +6,15 @@ interface StarButtonProps {
 }
 
 const BASE_STYLES =
-  'flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-mono font-bold transition-all border';
-const STARRED_STYLES = 'bg-surface-paper border-accent text-accent';
+  'flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-mono font-bold transition-all border bg-surface-paper';
+const STARRED_STYLES = 'border-accent text-accent';
 const UNSTARRED_STYLES =
-  'bg-surface-paper border-border-ink text-text-secondary hover:border-accent hover:text-accent';
+  'border-border-ink text-text-secondary hover:border-accent hover:text-accent';
 
 export default function StarButton({
   skillsetId,
   initialStars = 0,
-}: StarButtonProps): ReactElement {
+}: StarButtonProps) {
   const [stars, setStars] = useState(initialStars);
   const [starred, setStarred] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -23,9 +23,7 @@ export default function StarButton({
   useEffect(() => {
     async function fetchStarState(): Promise<void> {
       try {
-        const response = await fetch(`/api/star?skillsetId=${encodeURIComponent(skillsetId)}`, {
-          credentials: 'include',
-        });
+        const response = await fetch(`/api/star?skillsetId=${encodeURIComponent(skillsetId)}`);
         if (response.ok) {
           const data = (await response.json()) as { count: number; starred: boolean };
           setStars(data.count);
@@ -54,6 +52,14 @@ export default function StarButton({
         return;
       }
 
+      if (response.status === 403) {
+        const data = await response.json() as { frozen?: boolean; message?: string; contact?: string };
+        if (data.frozen) {
+          window.alert(`${data.message}\n\nContact: ${data.contact}`);
+          return;
+        }
+      }
+
       if (!response.ok) {
         throw new Error('Failed to toggle star');
       }
@@ -69,15 +75,15 @@ export default function StarButton({
     }
   }
 
-  const buttonStyles = starred ? STARRED_STYLES : UNSTARRED_STYLES;
-
   return (
     <button
       onClick={handleToggleStar}
       disabled={loading}
-      className={`${BASE_STYLES} ${buttonStyles}`}
+      aria-label={starred ? 'Unstar skillset' : 'Star skillset'}
+      className={`${BASE_STYLES} ${starred ? STARRED_STYLES : UNSTARRED_STYLES}`}
     >
       <svg
+        aria-hidden="true"
         className={`w-5 h-5 ${starred ? 'fill-current' : 'stroke-current fill-none'}`}
         viewBox="0 0 24 24"
         strokeWidth="2"

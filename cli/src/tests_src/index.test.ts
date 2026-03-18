@@ -14,9 +14,6 @@ vi.mock('commander', () => {
   return { program: chain };
 });
 
-vi.mock('../commands/search.js', () => ({ search: vi.fn() }));
-vi.mock('../commands/list.js', () => ({ list: vi.fn() }));
-vi.mock('../commands/view.js', () => ({ view: vi.fn() }));
 vi.mock('../commands/install.js', () => ({ install: vi.fn() }));
 vi.mock('../commands/init.js', () => ({ init: vi.fn() }));
 vi.mock('../commands/audit.js', () => ({ audit: vi.fn() }));
@@ -28,30 +25,30 @@ describe('CLI entry point', () => {
     await import('../index.js');
   });
 
-  it('registers all 7 commands', () => {
-    expect(actions.size).toBe(7);
-    for (const cmd of ['list', 'search', 'view', 'install', 'init', 'audit', 'submit']) {
+  it('registers all 4 commands', () => {
+    expect(actions.size).toBe(4);
+    for (const cmd of ['install', 'init', 'audit', 'submit']) {
       expect(actions.has(cmd)).toBe(true);
     }
   });
 
   it('run wrapper calls underlying command', async () => {
-    const { list } = await import('../commands/list.js');
-    vi.mocked(list).mockResolvedValue(undefined);
+    const { install } = await import('../commands/install.js');
+    vi.mocked(install).mockResolvedValue(undefined);
 
-    await actions.get('list')!({});
+    await actions.get('install')!('@user/test', {});
 
-    expect(list).toHaveBeenCalled();
+    expect(install).toHaveBeenCalled();
   });
 
   it('run wrapper catches errors and delegates to handleError', async () => {
-    const { search } = await import('../commands/search.js');
+    const { install } = await import('../commands/install.js');
     const { handleError } = await import('../lib/errors.js');
 
     const error = new Error('test error');
-    vi.mocked(search).mockRejectedValue(error);
+    vi.mocked(install).mockRejectedValue(error);
 
-    await actions.get('search')!('query', {});
+    await actions.get('install')!('@user/test', {});
 
     expect(handleError).toHaveBeenCalledWith(error);
   });

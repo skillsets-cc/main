@@ -11,7 +11,6 @@ pages/
 │   ├── index.md
 │   ├── about.md
 │   ├── contribute.md
-│   ├── cli.md
 │   ├── 404.md
 │   ├── skillset-[namespace]-[name].md
 │   ├── login.md
@@ -22,8 +21,6 @@ pages/
 │       ├── downloads.md
 │       ├── me.md
 │       ├── reservations.md
-│       ├── stats/
-│       │   └── counts.md
 │       └── reservations/
 │           ├── config.md
 │           ├── verify.md
@@ -34,8 +31,6 @@ pages/
 │   ├── downloads.ts                 # Download tracking
 │   ├── me.ts                        # User profile
 │   ├── reservations.ts              # Slot reservation CRUD
-│   ├── stats/
-│   │   └── counts.ts                # Bulk stats
 │   └── reservations/
 │       ├── config.ts                # Config updates (maintainer)
 │       ├── verify.ts                # Batch ID verification (CI)
@@ -50,7 +45,6 @@ pages/
 ├── index.astro                      # Homepage with embedded grid (static)
 ├── about.astro                      # About page (static)
 ├── contribute.astro                 # Contribution guide (static)
-├── cli.astro                        # CLI reference (static)
 └── 404.astro                        # 404 error page (static)
 ```
 
@@ -62,7 +56,6 @@ pages/
 | `/` | Homepage with intro + embedded skillset grid | Yes |
 | `/about` | About page explaining skillsets.cc | Yes |
 | `/contribute` | Submission guide with cohort claiming flow | Yes |
-| `/cli` | CLI reference | Yes |
 | `/404` | Error page | Yes |
 
 ### Dynamic Pages (SSR)
@@ -86,7 +79,6 @@ pages/
 | `/api/star` | POST | Toggle star for skillset |
 | `/api/downloads` | GET | Get download count for a skillset |
 | `/api/downloads` | POST | Increment download count |
-| `/api/stats/counts` | GET | Get all star and download counts |
 | `/api/me` | GET | Get authenticated user's login |
 
 #### Reservation System
@@ -201,8 +193,8 @@ Return { batchId, status: "reserved" }
 
 ### Used By
 - Site visitors (all pages)
-- CLI tool (`/api/downloads` on install, `/api/stats/counts` for list, `/api/reservations/lookup` for init)
-- React components (`/api/star`, `/api/stats/counts`, `/api/downloads` for live data)
+- CLI tool (`/api/downloads` on install, `/api/reservations/lookup` for init)
+- React components (`/api/star`, `/api/downloads` for live data)
 - GitHub Actions CI (`/api/reservations/verify` for PR validation)
 
 ## Design Patterns
@@ -242,7 +234,6 @@ Return { batchId, status: "reserved" }
 | Homepage | Yes | Static content + embedded data, client-side filtering |
 | About | Yes | Static content |
 | Contribute | Yes | Static content |
-| CLI | Yes | Static documentation |
 | 404 | Yes | Static error page |
 | Skillset Detail | No (SSR) | Fetches README from GitHub at runtime, sanitizes user content |
 | Login/Callback/Logout | N/A | Endpoints, not pages |
@@ -251,6 +242,5 @@ Return { batchId, status: "reserved" }
 ## Performance Considerations
 - Static pages served from CDN (fast)
 - Skillset detail page cached on Cloudflare edge (after first request)
-- Bulk stats API reduces client API calls (single request for all counts)
 - Build-time search index (no runtime GitHub API queries)
 - Durable Objects for atomic reservation state (no race conditions)

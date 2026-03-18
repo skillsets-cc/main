@@ -112,11 +112,11 @@ describe('POST /api/star', () => {
     expect(data.count).toBe(1);
   });
 
-  it('test_returns_429_when_rate_limited', async () => {
+  it('test_POST_returns_429_when_daily_limit_exceeded', async () => {
     mockGetSession.mockResolvedValue({ userId: '42', login: 'tester', avatar: '' });
     const mockKV = createMockKV();
-    const minute = Math.floor(Date.now() / 60_000);
-    mockKV._store.set(`ratelimit:star:42:${minute}`, '10');
+    const day = Math.floor(Date.now() / 86_400_000);
+    mockKV._store.set(`ratelimit:star:42:${day}`, '10');
 
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/star', {
@@ -129,6 +129,26 @@ describe('POST /api/star', () => {
     const response = await POST(ctx);
 
     expect(response.status).toBe(429);
+  });
+
+  it('test_POST_returns_403_when_frozen', async () => {
+    mockGetSession.mockResolvedValue({ userId: '42', login: 'tester', avatar: '' });
+    const mockKV = createMockKV();
+    mockKV._store.set('freeze:star:42', '1');
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/star', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ skillsetId: 'test/skillset' }),
+      }),
+      { DATA: mockKV }
+    );
+    const response = await POST(ctx);
+    const data = await response.json() as any;
+
+    expect(response.status).toBe(403);
+    expect(data.frozen).toBe(true);
   });
 
   it('test_returns_400_for_missing_skillsetId', async () => {

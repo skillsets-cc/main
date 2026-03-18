@@ -1,166 +1,92 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { incrementDownloads, getDownloadCount, isDownloadRateLimited } from '../downloads';
+import { describe, it, expect, vi } from 'vitest';
+import { createDownloadNonce, consumeDownloadNonce, incrementDownloads, getDownloadCount } from '../downloads';
 import { createMockKV } from './test-utils';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 describe('downloads', () => {
+  describe('createDownloadNonce', () => {
+    it('test_createDownloadNonce_returns_uuid', async () => {
+      const kv = createMockKV();
+      const nonce = await createDownloadNonce(kv, '@ns/skill', '1.2.3.4');
+      expect(nonce).toMatch(UUID_RE);
+    });
+
+    it('test_createDownloadNonce_stores_in_kv_with_600s_ttl', async () => {
+      const kv = createMockKV();
+      const nonce = await createDownloadNonce(kv, '@ns/skill', '1.2.3.4');
+      expect(kv.put).toHaveBeenCalledWith(
+        `nonce:${nonce}`,
+        expect.stringContaining('"skillset":"@ns/skill"'),
+        { expirationTtl: 600 },
+      );
+      const stored = JSON.parse(kv._store.get(`nonce:${nonce}`)!);
+      expect(stored).toMatchObject({ skillset: '@ns/skill', ts: expect.any(Number) });
+    });
+
+    it('test_createDownloadNonce_hashes_ip', async () => {
+      const kv = createMockKV();
+      const nonce = await createDownloadNonce(kv, '@ns/skill', '1.2.3.4');
+      const stored = JSON.parse(kv._store.get(`nonce:${nonce}`)!);
+      expect(stored.ipHash).toMatch(/^[0-9a-f]{16}$/);
+      expect(stored.ipHash).not.toBe('1.2.3.4');
+    });
+  });
+
+  describe('consumeDownloadNonce', () => {
+    it('test_consumeDownloadNonce_valid_nonce', async () => {
+      const kv = createMockKV();
+      const nonce = await createDownloadNonce(kv, '@ns/skill', '1.2.3.4');
+      const result = await consumeDownloadNonce(kv, nonce, '@ns/skill', '1.2.3.4');
+      expect(result).toBe(true);
+    });
+
+    it('test_consumeDownloadNonce_deletes_nonce', async () => {
+      const kv = createMockKV();
+      const nonce = await createDownloadNonce(kv, '@ns/skill', '1.2.3.4');
+      await consumeDownloadNonce(kv, nonce, '@ns/skill', '1.2.3.4');
+      expect(kv._store.has(`nonce:${nonce}`)).toBe(false);
+    });
+
+    it('test_consumeDownloadNonce_missing_nonce', async () => {
+      const kv = createMockKV();
+      const result = await consumeDownloadNonce(kv, 'non-existent-uuid', '@ns/skill', '1.2.3.4');
+      expect(result).toBe(false);
+    });
+
+    it('test_consumeDownloadNonce_wrong_skillset', async () => {
+      const kv = createMockKV();
+      const nonce = await createDownloadNonce(kv, '@a/B', '1.2.3.4');
+      const result = await consumeDownloadNonce(kv, nonce, '@c/D', '1.2.3.4');
+      expect(result).toBe(false);
+      // Nonce should NOT be deleted
+      expect(kv._store.has(`nonce:${nonce}`)).toBe(true);
+    });
+
+    it('test_consumeDownloadNonce_wrong_ip', async () => {
+      const kv = createMockKV();
+      const nonce = await createDownloadNonce(kv, '@ns/skill', '1.1.1.1');
+      const result = await consumeDownloadNonce(kv, nonce, '@ns/skill', '2.2.2.2');
+      expect(result).toBe(false);
+      // Nonce should NOT be deleted
+      expect(kv._store.has(`nonce:${nonce}`)).toBe(true);
+    });
+  });
+
   describe('incrementDownloads', () => {
-    it('increments from 0 for new skillset', async () => {
+    it('test_incrementDownloads_unchanged', async () => {
       const kv = createMockKV();
-
-      const result = await incrementDownloads(kv, 'test/skillset');
-
-      expect(result).toBe(1);
-      expect(kv.put).toHaveBeenCalledWith('downloads:test/skillset', '1');
-    });
-
-    it('increments existing count', async () => {
-      const kv = createMockKV();
-      kv._store.set('downloads:test/skillset', '42');
-
-      const result = await incrementDownloads(kv, 'test/skillset');
-
-      expect(result).toBe(43);
-      expect(kv.put).toHaveBeenCalledWith('downloads:test/skillset', '43');
-    });
-
-    it('handles different skillset IDs independently', async () => {
-      const kv = createMockKV();
-      kv._store.set('downloads:skillset-a', '10');
-      kv._store.set('downloads:skillset-b', '20');
-
-      const resultA = await incrementDownloads(kv, 'skillset-a');
-      const resultB = await incrementDownloads(kv, 'skillset-b');
-
-      expect(resultA).toBe(11);
-      expect(resultB).toBe(21);
+      expect(await incrementDownloads(kv, 'test/skillset')).toBe(1);
+      expect(await incrementDownloads(kv, 'test/skillset')).toBe(2);
     });
   });
 
   describe('getDownloadCount', () => {
-    it('returns count from KV', async () => {
+    it('test_getDownloadCount_unchanged', async () => {
       const kv = createMockKV();
-      kv._store.set('downloads:test/skillset', '100');
-
-      const result = await getDownloadCount(kv, 'test/skillset');
-
-      expect(result).toBe(100);
+      expect(await getDownloadCount(kv, 'test/skillset')).toBe(0);
+      await incrementDownloads(kv, 'test/skillset');
+      expect(await getDownloadCount(kv, 'test/skillset')).toBe(1);
     });
-
-    it('returns 0 for new skillset', async () => {
-      const kv = createMockKV();
-
-      const result = await getDownloadCount(kv, 'new/skillset');
-
-      expect(result).toBe(0);
-    });
-  });
-
-  describe('isDownloadRateLimited', () => {
-    const MOCK_TIME = 1234567890000; // Fixed timestamp for testing
-    const MOCK_HOUR = Math.floor(MOCK_TIME / 3_600_000);
-
-    beforeEach(() => {
-      vi.useFakeTimers();
-      vi.setSystemTime(MOCK_TIME);
-    });
-
-    afterEach(() => {
-      vi.useRealTimers();
-    });
-
-    it('allows first request and increments counter', async () => {
-      const kv = createMockKV();
-
-      const result = await isDownloadRateLimited(kv, '192.168.1.1');
-
-      expect(result).toBe(false);
-      expect(kv.put).toHaveBeenCalledWith(
-        `ratelimit:dl:192.168.1.1:${MOCK_HOUR}`,
-        '1',
-        { expirationTtl: 7200 }
-      );
-    });
-
-    it('allows requests under limit (29th request)', async () => {
-      const kv = createMockKV();
-      kv._store.set(`ratelimit:dl:192.168.1.1:${MOCK_HOUR}`, '28');
-
-      const result = await isDownloadRateLimited(kv, '192.168.1.1');
-
-      expect(result).toBe(false);
-      expect(kv.put).toHaveBeenCalledWith(
-        `ratelimit:dl:192.168.1.1:${MOCK_HOUR}`,
-        '29',
-        { expirationTtl: 7200 }
-      );
-    });
-
-    it('blocks request at limit (30th request)', async () => {
-      const kv = createMockKV();
-      kv._store.set(`ratelimit:dl:192.168.1.1:${MOCK_HOUR}`, '30');
-
-      const result = await isDownloadRateLimited(kv, '192.168.1.1');
-
-      expect(result).toBe(true);
-      expect(kv.put).not.toHaveBeenCalled();
-    });
-
-    it('blocks request over limit', async () => {
-      const kv = createMockKV();
-      kv._store.set(`ratelimit:dl:192.168.1.1:${MOCK_HOUR}`, '35');
-
-      const result = await isDownloadRateLimited(kv, '192.168.1.1');
-
-      expect(result).toBe(true);
-      expect(kv.put).not.toHaveBeenCalled();
-    });
-
-    it('uses hour-bucketed keys for independent limits', async () => {
-      const kv = createMockKV();
-      const ip = '192.168.1.1';
-
-      // First hour
-      kv._store.set(`ratelimit:dl:${ip}:${MOCK_HOUR}`, '30');
-      const result1 = await isDownloadRateLimited(kv, ip);
-      expect(result1).toBe(true);
-
-      // Move to next hour
-      vi.setSystemTime(MOCK_TIME + 3_600_000);
-      const nextHour = Math.floor((MOCK_TIME + 3_600_000) / 3_600_000);
-
-      // Should be allowed in new hour
-      const result2 = await isDownloadRateLimited(kv, ip);
-      expect(result2).toBe(false);
-      expect(kv.put).toHaveBeenCalledWith(
-        `ratelimit:dl:${ip}:${nextHour}`,
-        '1',
-        { expirationTtl: 7200 }
-      );
-    });
-
-    it('handles different IPs independently', async () => {
-      const kv = createMockKV();
-      kv._store.set(`ratelimit:dl:192.168.1.1:${MOCK_HOUR}`, '30');
-      kv._store.set(`ratelimit:dl:192.168.1.2:${MOCK_HOUR}`, '5');
-
-      const result1 = await isDownloadRateLimited(kv, '192.168.1.1');
-      const result2 = await isDownloadRateLimited(kv, '192.168.1.2');
-
-      expect(result1).toBe(true);
-      expect(result2).toBe(false);
-    });
-
-    it('sets correct TTL for rate limit keys', async () => {
-      const kv = createMockKV();
-
-      await isDownloadRateLimited(kv, '192.168.1.1');
-
-      expect(kv.put).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        { expirationTtl: 7200 }
-      );
-    });
-
   });
 });

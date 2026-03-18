@@ -94,16 +94,101 @@ describe('install command', () => {
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Installation complete'));
   });
 
-  it('tracks download after successful install', async () => {
+  it('requests nonce before install', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/start')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ nonce: 'abc123' }) });
+      }
+      return Promise.resolve({ ok: true, catch: () => {} });
+    });
+
     await install('@user/test-skillset', {});
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/downloads'),
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ skillset: '@user/test-skillset' }),
-      })
-    );
+    const startCall = mockFetch.mock.calls.find(([url]: [string]) => url.includes('/start'));
+    expect(startCall).toBeDefined();
+    expect(JSON.parse(startCall![1].body)).toEqual({ skillset: '@user/test-skillset' });
+  });
+
+  it('completes nonce after successful install', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/start')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ nonce: 'abc123' }) });
+      }
+      return Promise.resolve({ ok: true, catch: () => {} });
+    });
+
+    await install('@user/test-skillset', {});
+
+    const completeCall = mockFetch.mock.calls.find(([url]: [string]) => url.includes('/complete'));
+    expect(completeCall).toBeDefined();
+    expect(JSON.parse(completeCall![1].body)).toEqual({ skillset: '@user/test-skillset', nonce: 'abc123' });
+  });
+
+  it('skips complete when no nonce returned', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/start')) {
+        return Promise.resolve({ ok: false, status: 500 });
+      }
+      return Promise.resolve({ ok: true, catch: () => {} });
+    });
+
+    await install('@user/test-skillset', {});
+
+    const completeCall = mockFetch.mock.calls.find(([url]: [string]) => url.includes('/complete'));
+    expect(completeCall).toBeUndefined();
+  });
+
+  it('continues install when start fetch throws', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/start')) {
+        return Promise.reject(new Error('Network error'));
+      }
+      return Promise.resolve({ ok: true, catch: () => {} });
+    });
+
+    await install('@user/test-skillset', {});
+
+    expect(degit).toHaveBeenCalled();
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Installation complete'));
+  });
+
+  it('prints warning on frozen response from start', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/start')) {
+        return Promise.resolve({
+          ok: false,
+          status: 403,
+          json: async () => ({ frozen: true, message: 'Suspended', contact: 'x@y' }),
+        });
+      }
+      return Promise.resolve({ ok: true, catch: () => {} });
+    });
+
+    await install('@user/test-skillset', {});
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Suspended'));
+    expect(degit).toHaveBeenCalled();
+  });
+
+  it('silently handles complete fetch rejection', async () => {
+    let completeFetchReject: (e: Error) => void;
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/start')) {
+        return Promise.resolve({ ok: true, status: 200, json: async () => ({ nonce: 'abc' }) });
+      }
+      if (url.includes('/complete')) {
+        return Promise.resolve({
+          ok: false,
+          catch: (fn: (e: Error) => void) => { completeFetchReject = fn; },
+        });
+      }
+      return Promise.resolve({ ok: true, catch: () => {} });
+    });
+
+    // Should not throw — install is fire-and-forget
+    await install('@user/test-skillset', {});
+
+    expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Installation complete'));
   });
 
   it('aborts when conflicts detected without flags', async () => {
@@ -152,10 +237,10 @@ describe('install command', () => {
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('checksum mismatch'));
   });
 
-  it('silently handles download tracking failure', async () => {
+  it('silently handles start fetch failure', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    // Should not throw
+    // Should not throw — tracking is best-effort
     await install('@user/test-skillset', {});
 
     expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Installation complete'));
@@ -361,14 +446,10 @@ describe('install command', () => {
 
   it('copies verified content from temp dir to cwd', async () => {
     const fsPromises = await import('fs/promises');
-    const entries = [
-      { name: 'CLAUDE.md', isDirectory: () => false },
-      { name: '.claude', isDirectory: () => true },
-    ] as any;
-    // First call: README strip check (returns filenames), second: copy loop (returns dirents)
+    // Both readdir calls return string arrays (no withFileTypes)
     vi.mocked(fsPromises.readdir)
       .mockResolvedValueOnce(['CLAUDE.md', '.claude'])
-      .mockResolvedValueOnce(entries);
+      .mockResolvedValueOnce(['CLAUDE.md', '.claude']);
 
     await install('@user/test-skillset', {});
 

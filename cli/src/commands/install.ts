@@ -5,7 +5,7 @@ import { confirm } from '@inquirer/prompts';
 import { detectConflicts, backupFiles } from '../lib/filesystem.js';
 import { verifyChecksums } from '../lib/checksum.js';
 import { fetchSkillsetMetadata } from '../lib/api.js';
-import { REGISTRY_REPO, DOWNLOADS_URL } from '../lib/constants.js';
+import { REGISTRY_REPO, DOWNLOADS_START_URL, DOWNLOADS_COMPLETE_URL, GITHUB_BROWSE_BASE } from '../lib/constants.js';
 import { mkdtemp, rm, cp, readdir } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -47,7 +47,7 @@ function formatMcpWarning(mcpServers: McpServer[], skillsetId: string): string {
   }
 
   output += chalk.gray('\n  MCP packages are fetched at runtime and may have changed since audit.\n');
-  output += chalk.cyan(`\n  Review before installing:\n    https://github.com/skillsets-cc/main/tree/main/skillsets/${skillsetId}/content\n`);
+  output += chalk.cyan(`\n  Review before installing:\n    ${GITHUB_BROWSE_BASE}/${skillsetId}/content\n`);
 
   return output;
 }
@@ -103,7 +103,7 @@ function formatDepsWarning(deps: RuntimeDependency[], skillsetId: string): strin
   }
 
   output += chalk.gray('\n  Dependencies may have changed since audit.\n');
-  output += chalk.cyan(`\n  Review before installing:\n    https://github.com/skillsets-cc/main/tree/main/skillsets/${skillsetId}/content\n`);
+  output += chalk.cyan(`\n  Review before installing:\n    ${GITHUB_BROWSE_BASE}/${skillsetId}/content\n`);
 
   return output;
 }
@@ -169,9 +169,29 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
     spinner.start('Downloading skillset...');
   }
 
+  // Request download nonce (best-effort, silent fail)
+  let nonce: string | undefined;
+  try {
+    const res = await fetch(DOWNLOADS_START_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ skillset: skillsetId }),
+    });
+    if (res.ok) {
+      const data = await res.json() as { nonce: string };
+      nonce = data.nonce;
+    } else if (res.status === 403) {
+      const data = await res.json() as { frozen?: boolean; message?: string; contact?: string };
+      if (data.frozen) {
+        console.log(chalk.yellow(`\n⚠ ${data.message}\nContact: ${data.contact}`));
+      }
+    }
+  } catch { /* silent — tracking is best-effort */ }
+
   // Install to temp directory first (verify before writing to cwd)
   spinner.text = 'Downloading skillset...';
   const tempDir = await mkdtemp(join(tmpdir(), 'skillsets-'));
+  const cleanupTemp = () => rm(tempDir, { recursive: true, force: true }).catch(() => {});
 
   try {
     const emitter = degit(`${REGISTRY_REPO}/skillsets/${skillsetId}/content`, {
@@ -194,41 +214,37 @@ export async function install(skillsetId: string, options: InstallOptions): Prom
       console.log('  - Tampering with the downloaded content');
       console.log(chalk.cyan('\nTo retry:'));
       console.log(`  npx skillsets install ${skillsetId} --force`);
-      await rm(tempDir, { recursive: true, force: true });
       throw new Error('Checksum verification failed - files may be corrupted');
     }
 
     // Strip redirect README.md if a README_*.md exists (avoid clobbering user's README)
-    const tempEntries = await readdir(tempDir);
-    const hasNamedReadme = tempEntries.some(f => /^README_[^/]+\.md$/i.test(f));
-    if (hasNamedReadme && tempEntries.includes('README.md')) {
+    const entries = await readdir(tempDir);
+    if (entries.some(f => /^README_[^/]+\.md$/i.test(f)) && entries.includes('README.md')) {
       await rm(join(tempDir, 'README.md'));
     }
 
-    // Checksums valid — move verified content to cwd
+    // Checksums valid — copy verified content to cwd
     spinner.text = 'Installing verified content...';
-    const entries = await readdir(tempDir, { withFileTypes: true });
-    for (const entry of entries) {
-      await cp(join(tempDir, entry.name), join(process.cwd(), entry.name), {
+    for (const name of await readdir(tempDir)) {
+      await cp(join(tempDir, name), join(process.cwd(), name), {
         recursive: true,
         force: true,
       });
     }
-
-    await rm(tempDir, { recursive: true, force: true });
-  } catch (error) {
-    await rm(tempDir, { recursive: true, force: true }).catch(() => {});
-    throw error;
+  } finally {
+    await cleanupTemp();
   }
 
   spinner.succeed(`Successfully installed ${skillsetId}`);
 
-  // Track download (non-blocking, silent fail)
-  fetch(DOWNLOADS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ skillset: skillsetId }),
-  }).catch(() => {});
+  // Complete download tracking (fire-and-forget)
+  if (nonce) {
+    fetch(DOWNLOADS_COMPLETE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ skillset: skillsetId, nonce }),
+    }).catch(() => {});
+  }
 
   // Print next steps
   console.log(chalk.green('\n✓ Installation complete!'));

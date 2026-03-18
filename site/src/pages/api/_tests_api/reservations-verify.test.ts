@@ -54,9 +54,9 @@ describe('GET /api/reservations/verify', () => {
   it('test_verify_rate_limited', async () => {
     // Pre-fill rate limit counter
     const env = createMockEnv();
-    const hour = Math.floor(Date.now() / 3_600_000);
-    const key = `ratelimit:verify:127.0.0.1:${hour}`;
-    (env.DATA as any)._store.set(key, '30');
+    const day = Math.floor(Date.now() / 86_400_000);
+    const key = `ratelimit:verify:127.0.0.1:${day}`;
+    (env.DATA as any)._store.set(key, '720');
 
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations/verify?batchId=5.10.001')

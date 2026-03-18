@@ -1,45 +1,38 @@
 # downloads.ts
 
 ## Purpose
-Manages download counters for skillsets using Cloudflare KV storage with IP-based rate limiting (30 downloads per hour per IP). Tracks how many times each skillset has been installed via the CLI and prevents abuse.
+Download tracking for skillsets using nonce-based verification and Cloudflare KV storage. Issues a one-time nonce before install (via `downloads/start`), then validates and consumes it on completion (via `downloads/complete`) before incrementing the counter. The nonce ties a download to both the skillset and the issuing IP, preventing counter manipulation.
 
 ## Public API
 | Export | Type | Description |
 |--------|------|-------------|
-| `isDownloadRateLimited` | function | Check if IP exceeded 30 downloads/hr, update counter |
-| `incrementDownloads` | function | Increment download count for a skillset, return new count |
-| `getDownloadCount` | function | Get current download count for a skillset, return 0 if not found |
+| `createDownloadNonce` | function | Issue a UUID nonce bound to skillsetId + IP hash; stored with 600s TTL |
+| `consumeDownloadNonce` | function | Validate and delete a nonce; returns `true` if valid (skillset + IP match) |
+| `incrementDownloads` | function | Increment download count for a skillset; returns new count |
+| `getDownloadCount` | function | Get current download count for a skillset; returns 0 if not found |
 
 ## Dependencies
-- **Internal**: `rate-limit.ts` (`isHourlyRateLimited`)
-- **External**:
-  - Cloudflare KV API (namespace for persistent storage)
+- **Internal**: `rate-limit.ts` (`hashIp`)
+- **External**: Web Crypto API (`crypto.randomUUID`), `KVNamespace` (Cloudflare Workers runtime)
 
 ## Integration Points
 - **Used by**:
-  - `pages/api/downloads.ts` (API endpoint called by CLI on install)
-  - `components/DownloadCount.tsx` (display download count on UI)
-- **Consumes**: No external services
-- **Emits**: No events
+  - `pages/api/downloads/start.ts` — issues nonce, rate-limit checked there
+  - `pages/api/downloads/complete.ts` — consumes nonce, increments counter
 
 ## Key Logic
 
 ### KV Storage Schema
 ```
-downloads:{skillsetId}        → "42"  (download count as string)
-ratelimit:dl:{ip}:{hour}      → "12"  (hour-bucketed request count, 7200s TTL)
+downloads:{skillsetId}   → "42"                          (download count as string, no TTL)
+nonce:{uuid}             → JSON {skillset, ipHash, ts}   (600s TTL, auto-expires)
 ```
 
-### Rate Limiting
-- 30 downloads per hour per IP (DL_RATE_LIMIT_MAX)
-- Delegates to `isHourlyRateLimited` from `rate-limit.ts`
-- Uses hour-bucketed keys to prevent TTL-reset bug on each request
-- IP-based (not user-based) to catch unauthenticated abuse
+### Nonce Flow
+1. CLI calls `downloads/start` → `createDownloadNonce` stores `{skillset, ipHash, ts}` under a UUID nonce (10-min TTL)
+2. After degit install, CLI calls `downloads/complete` with the nonce → `consumeDownloadNonce` validates skillset + IP hash, deletes the nonce, returns true
+3. On valid nonce, `incrementDownloads` is called to record the install
 
 ### Increment Strategy
-- Read current count from `downloads:{skillsetId}`
-- Parse as integer, default to 0 if key doesn't exist
-- Increment by 1
-- Write new count back to KV
-- Return new count
-- No atomic operation (potential race condition on concurrent installs)
+- Read-increment-write (no atomic KV operation); potential race on concurrent installs is accepted
+- No TTL on download counters — permanent storage

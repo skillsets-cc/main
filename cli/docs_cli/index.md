@@ -10,7 +10,7 @@ Internal helpers:
 - `run<T>` — wraps an async command handler with `.catch(handleError)` for unified error reporting
 
 ## Dependencies
-- Internal: `commands/search`, `commands/list`, `commands/view`, `commands/install`, `commands/init`, `commands/audit`, `commands/submit`, `lib/errors`
+- Internal: `commands/install`, `commands/init`, `commands/audit`, `commands/submit`, `lib/errors`
 - External: `commander`
 
 ## Integration Points
@@ -23,9 +23,6 @@ Internal helpers:
 
 | Command | Handler | Arguments | Options |
 |---------|---------|-----------|---------|
-| `list` | `list()` | — | `--limit`, `--sort`, `--json` |
-| `search` | `search()` | `<query>` | `--tags`, `--limit` |
-| `view` | `view()` | `<skillsetId>` | — |
 | `install` | `install()` | `<skillsetId>` | `--force`, `--backup`, `--accept-mcp`, `--accept-deps` |
 | `init` | `init()` | — | `--yes`, `--name`, `--description`, `--handle`, `--author-url`, `--production-url`, `--tags` |
 | `audit` | `audit()` | — | `--check` |

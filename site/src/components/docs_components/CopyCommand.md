@@ -36,5 +36,5 @@ Displays a command in a code block with a copy-to-clipboard button. Supports two
 - Timeout cleared on unmount via `useEffect` cleanup to avoid state updates on unmounted component
 
 ### UI Layout
-- **Section mode**: `bg-surface-paper` with `border-border-ink`; uppercase mono heading; dark code block (`bg-[#0a0a0a]`); footer with CLI link and optional disclaimer
+- **Section mode**: `bg-surface-paper` with `border-border-ink`; uppercase mono heading; dark code block (`bg-[#0a0a0a]`); footer with link to CLI source on GitHub and optional disclaimer
 - **Inline mode**: Dark code block (`bg-[#0a0a0a] border border-accent/20`) only

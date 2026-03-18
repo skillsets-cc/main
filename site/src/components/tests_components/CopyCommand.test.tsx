@@ -105,12 +105,12 @@ describe('CopyCommand', () => {
     expect(screen.getByText('Install')).toBeDefined();
   });
 
-  it('renders link to CLI docs when heading provided', () => {
+  it('renders link to CLI source when heading provided', () => {
     render(<CopyCommand command="npx skillsets install test/skillset" heading="Install" />);
 
-    const link = screen.getByText('More CLI commands');
+    const link = screen.getByText('CLI source');
     expect(link).toBeDefined();
-    expect(link.getAttribute('href')).toBe('/cli');
+    expect(link.getAttribute('href')).toBe('https://github.com/skillsets-cc/skillsets.cc/tree/master/cli');
   });
 
   it('renders inline mode without heading', () => {

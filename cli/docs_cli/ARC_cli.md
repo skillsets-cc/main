@@ -1,16 +1,13 @@
 # CLI Module
 
 ## Purpose
-Command-line tool for discovering, installing, and contributing verified Claude Code skillsets. Provides both consumer workflow (search, install) and contributor workflow (init, audit, submit).
+Command-line tool for installing and contributing verified Claude Code skillsets. Provides both consumer workflow (install) and contributor workflow (init, audit, submit).
 
 ## Architecture
 ```
 cli/src/
 ├── index.ts              # Entry point, Commander.js setup
 ├── commands/
-│   ├── list.ts           # Browse all skillsets
-│   ├── search.ts         # Fuzzy search with Fuse.js
-│   ├── view.ts           # View skillset README
 │   ├── install.ts        # degit + checksum verification
 │   ├── init.ts           # Scaffold new skillset
 │   ├── audit.ts          # Validate before submission
@@ -18,7 +15,7 @@ cli/src/
 │   ├── submit.ts         # PR submission via gh CLI
 │   └── tests_commands/   # Command tests
 ├── lib/
-│   ├── api.ts            # CDN index fetching + live stats
+│   ├── api.ts            # CDN index fetching
 │   ├── checksum.ts       # SHA-256 utilities
 │   ├── filesystem.ts     # File operations
 │   ├── errors.ts         # Error handling
@@ -43,9 +40,6 @@ cli/src/
 ### Commands
 | File | Purpose | Documentation |
 |------|---------|---------------|
-| `commands/list.ts` | Browse all available skillsets | [Docs](./commands/list.md) |
-| `commands/search.ts` | Fuzzy search against CDN index | [Docs](./commands/search.md) |
-| `commands/view.ts` | View skillset README from GitHub raw content | [Docs](./commands/view.md) |
 | `commands/install.ts` | Install skillset via degit + MCP/deps warnings + verify checksums | [Docs](./commands/install.md) |
 | `commands/init.ts` | Scaffold skillset submission with QUICKSTART_<NAME>.md | [Docs](./commands/init.md) |
 | `commands/audit.ts` | Validate + MCP check + runtime deps check + generate report | [Docs](./commands/audit.md) |
@@ -72,16 +66,14 @@ cli/src/
 | `types/degit.d.ts` | TypeScript declarations for degit package | [Docs](./types/degit.d.md) |
 
 ## Dependencies
-- **External**: commander, fuse.js, degit, chalk, ora, js-yaml, @inquirer/prompts
+- **External**: commander, degit, chalk, ora, js-yaml, @inquirer/prompts
 - **Internal**: None (standalone module)
 - **Services**: CDN (search-index.json), GitHub API (via gh CLI)
 
 ## Data Flow
 ```
 Consumer Flow:
-list/search → api.ts → CDN index + Live stats → Merge → Fuse.js/Sort → Terminal output
-view → api.ts → fetchSkillsetMetadata → GitHub raw content → Print to terminal
-install → Fetch metadata → MCP warning (if any) → Runtime deps warning (if any) → degit → Extract content/ → checksum.ts → Verify → Track download
+install → api.ts → CDN index → Fetch metadata → MCP warning (if any) → Runtime deps warning (if any) → Request nonce (downloads/start) → degit → Extract content/ → checksum.ts → Verify → Complete download (downloads/complete)
 
 Contributor Flow:
 init → Interactive prompts → Generate scaffold (skillset.yaml, README_<NAME>.md, QUICKSTART_<NAME>.md, INSTALL_NOTES_<NAME>.md) → Install audit-skill
@@ -91,8 +83,6 @@ submit → Check registry (update detection) → Validate version bump → gh CL
 
 ## Key Patterns
 - **CDN-First**: Search index fetched from CDN, not GitHub API (avoids rate limits)
-- **Live Stats**: Star/download counts fetched from API and merged with index
-- **Dual Caching**: 1-hour cache for index, 1-minute cache for stats
 - **degit Extraction**: Subfolder extraction without .git folder
 - **Checksum Verification**: SHA-256 integrity validation against registry
 - **Conflict Detection**: Prevents accidental file overwrites during install
@@ -105,12 +95,11 @@ submit → Check registry (update detection) → Validate version bump → gh CL
 |----------|-------|---------|
 | `CDN_BASE_URL` | `https://skillsets.cc` | CDN host |
 | `SEARCH_INDEX_URL` | `${CDN_BASE_URL}/search-index.json` | Index endpoint |
-| `STATS_URL` | `${CDN_BASE_URL}/api/stats/counts` | Live stats endpoint |
-| `DOWNLOADS_URL` | `${CDN_BASE_URL}/api/downloads` | Download tracking endpoint |
+| `DOWNLOADS_START_URL` | `${CDN_BASE_URL}/api/downloads/start` | Request download nonce |
+| `DOWNLOADS_COMPLETE_URL` | `${CDN_BASE_URL}/api/downloads/complete` | Confirm download with nonce |
+| `GITHUB_BROWSE_BASE` | `https://github.com/${REGISTRY_REPO}/tree/main/skillsets` | Human-browsable skillset URL |
 | `REGISTRY_REPO` | `skillsets-cc/main` | GitHub repo |
 | `CACHE_TTL_MS` | `3600000` (1 hour) | Index cache duration |
-| `STATS_CACHE_TTL_MS` | `60000` (1 minute) | Stats cache duration |
-| `DEFAULT_SEARCH_LIMIT` | `10` | Default search results |
 
 ## Testing
 ```bash

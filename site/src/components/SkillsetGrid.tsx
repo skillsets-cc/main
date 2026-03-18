@@ -19,24 +19,7 @@ export default function SkillsetGrid({
   skillsets,
 }: SkillsetGridProps): ReactElement {
   const [tagResults, setTagResults] = useState<SearchIndexEntry[]>(skillsets);
-  const [liveStars, setLiveStars] = useState<Record<string, number>>({});
   const [reservations, setReservations] = useState<ReservationState | null>(null);
-
-  // Fetch all live star counts in a single request
-  useEffect(() => {
-    async function fetchStars(): Promise<void> {
-      try {
-        const response = await fetch('/api/stats/counts');
-        if (response.ok) {
-          const data = (await response.json()) as { stars: Record<string, number> };
-          setLiveStars(data.stars);
-        }
-      } catch {
-        // Keep build-time values on error
-      }
-    }
-    fetchStars();
-  }, [skillsets]);
 
   // Fetch reservation state
   useEffect(() => {
@@ -124,7 +107,7 @@ export default function SkillsetGrid({
                 <div className="flex items-center gap-2 md:gap-4 overflow-x-auto pt-2 border-t border-border-ink/50 group-hover:border-accent/30 transition-colors">
                   <span className="flex items-center gap-1 text-xs font-mono text-text-tertiary">
                     <StarIcon />
-                    {liveStars[skillset.id] ?? skillset.stars}
+                    {skillset.stars}
                   </span>
 
                   {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (

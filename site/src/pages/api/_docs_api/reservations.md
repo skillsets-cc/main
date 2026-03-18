@@ -1,59 +1,57 @@
 # reservations.ts
 
 ## Purpose
-Public API endpoint for ghost entry slot reservations. Provides GET (public status), POST (reserve), and DELETE (release) operations. Proxies requests to the ReservationCoordinator Durable Object with rate limiting and authentication enforcement.
+Public API endpoint for ghost entry slot reservations. Provides GET (public status), POST (reserve), and DELETE (release) operations. Proxies all state changes to the `ReservationCoordinator` Durable Object with rate limiting and authentication enforcement.
 
 ## Public API
 
 | Export | Type | Description |
 |--------|------|-------------|
 | `GET` | APIRoute | Get all slot states + config (public, caches 10s) |
-| `POST` | APIRoute | Reserve a slot (authenticated, rate-limited to 5/hour) |
-| `DELETE` | APIRoute | Release user's reservation (authenticated, rate-limited to 5/hour) |
-| `isReservationRateLimited` | function | Hour-bucketed KV-based rate limiting (5 ops/hour) |
+| `POST` | APIRoute | Reserve a slot (authenticated, rate-limited 2/day) |
+| `DELETE` | APIRoute | Release user's reservation (authenticated, rate-limited 2/day) |
 
 ## Dependencies
 
 - **Internal**:
-  - `@/lib/auth` (session validation, Env type)
-  - `@/lib/responses` (jsonResponse, errorResponse, parseJsonBody)
-  - `@/lib/reservation-do` (getReservationStub, BATCH_ID_REGEX)
-  - `@/lib/rate-limit` (isHourlyRateLimited)
+  - `@/lib/auth` (`getSessionFromRequest`, `Env` type)
+  - `@/lib/responses` (`jsonResponse`, `errorResponse`, `parseJsonBody`, `getEnv`)
+  - `@/lib/reservation-do` (`getReservationStub`, `BATCH_ID_REGEX`)
+  - `@/lib/rate-limit` (`checkRateLimit`, `BreachPolicy`)
 - **External**: `astro` (APIRoute type)
 
 ## Integration Points
 
 - **Used by**:
-  - Frontend reservation UI (fetch calls from Astro pages)
-  - `GhostCard.tsx` component (reserve/release actions)
+  - Frontend reservation UI / `GhostCard.tsx` (reserve/release actions)
 - **Calls**: `ReservationCoordinator` Durable Object (via stub.fetch)
 
 ## Key Logic
 
-### Rate Limiting (isReservationRateLimited)
-Hour-bucketed KV keys prevent TTL-reset bug where incrementing a key also resets its expiration.
-- Key format: `ratelimit:reserve:{userId}:{hour}` (hour = Unix timestamp / 3,600,000)
-- Limit: 5 operations per hour
-- TTL: 2 hours (survives hour boundary, prevents premature expiration)
+### Rate Limiting
+`RESERVATION_POLICY = { threshold: 0, bucketType: 'day' }` — 2 ops/day per user.
+Threshold 0 means the breach is recorded (and freeze triggered) on the very first over-limit attempt.
+
+### Breach Warning Injection
+If `gate.warning` is set (user is on their last allowed op before a freeze), the warning string is merged into the DO response JSON before returning to the client:
+> "You have reached your daily reservation limit (2/day). Any further attempt today will result in a permanent suspension."
 
 ### GET /api/reservations
 - No authentication required (public data)
-- Passes session userId to DO if available (DO returns userSlot only for authenticated users)
-- Cache-Control varies by session:
-  - Private (session exists): `private, max-age=10`
-  - Public (no session): `public, max-age=10`
+- Passes session userId in `X-User-Id` header to DO if authenticated (DO returns `userSlot` only for known users)
+- Cache-Control: `private, max-age=10` if session present; `public, max-age=10` otherwise
 
 ### POST /api/reservations
 - **Auth**: Required (401 if missing)
-- **Rate Limit**: 5 operations/hour (429 if exceeded)
-- **Validation**: batchId must match format `N.N.NNN`
+- **Rate Limit**: 2 ops/day per user (429 + optional warning/freeze if exceeded)
+- **Validation**: `batchId` must match `BATCH_ID_REGEX`
 - **Body**: `{ batchId: string }`
-- **Forwards to DO**: `/reserve` endpoint with batchId, userId, githubLogin
+- **Forwards to DO**: `/reserve` with `{ batchId, userId, githubLogin }`
 
 ### DELETE /api/reservations
 - **Auth**: Required (401 if missing)
-- **Rate Limit**: 5 operations/hour (429 if exceeded)
-- **No body required**: userId from session
-- **Forwards to DO**: `/release` endpoint with userId
+- **Rate Limit**: 2 ops/day per user (shared counter with POST)
+- **No body**: userId taken from session
+- **Forwards to DO**: `/release` with `{ userId }`
 
-All DO responses are proxied back to client with original status code.
+All DO responses are proxied back with the original HTTP status code.

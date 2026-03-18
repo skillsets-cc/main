@@ -12,6 +12,7 @@ describe('StarButton', () => {
       value: originalLocation,
       writable: true,
     });
+    vi.restoreAllMocks();
   });
 
   it('renders with initial star count', async () => {
@@ -73,7 +74,7 @@ describe('StarButton', () => {
         });
       }
       // POST request - fail
-      return Promise.resolve({ ok: false });
+      return Promise.resolve({ ok: false, status: 500 });
     }) as typeof fetch;
 
     render(<StarButton skillsetId="test" initialStars={10} />);
@@ -94,5 +95,164 @@ describe('StarButton', () => {
     });
 
     consoleSpy.mockRestore();
+  });
+
+  it('shows alert on frozen response', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, options?: RequestInit) => {
+      if (!options?.method || options.method === 'GET') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ count: 5, starred: false }),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 403,
+        json: async () => ({ frozen: true, message: 'Suspended', contact: 'security@skillsets.cc' }),
+      });
+    }) as typeof fetch;
+
+    render(<StarButton skillsetId="@test/pkg" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('5')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('Suspended'));
+    });
+    expect(alertSpy).toHaveBeenCalledWith(expect.stringContaining('security@skillsets.cc'));
+  });
+
+  it('re-enables button after frozen response', async () => {
+    vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, options?: RequestInit) => {
+      if (!options?.method || options.method === 'GET') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ count: 5, starred: false }),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 403,
+        json: async () => ({ frozen: true, message: 'Suspended', contact: 'security@skillsets.cc' }),
+      });
+    }) as typeof fetch;
+
+    render(<StarButton skillsetId="@test/pkg" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('5')).toBeDefined();
+    });
+
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(button.hasAttribute('disabled')).toBe(false);
+    });
+  });
+
+  it('does not show alert on non-frozen 403', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, options?: RequestInit) => {
+      if (!options?.method || options.method === 'GET') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ count: 5, starred: false }),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 403,
+        json: async () => ({ frozen: false, message: 'Rate limited' }),
+      });
+    }) as typeof fetch;
+
+    render(<StarButton skillsetId="@test/pkg" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('5')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('[StarButton] Error:', expect.any(Error));
+    });
+
+    expect(alertSpy).not.toHaveBeenCalled();
+  });
+
+  it('normal toggle unchanged', async () => {
+    const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, options?: RequestInit) => {
+      if (!options?.method || options.method === 'GET') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ count: 10, starred: false }),
+        });
+      }
+      return Promise.resolve({
+        ok: true,
+        json: async () => ({ starred: true, count: 11 }),
+      });
+    }) as typeof fetch;
+
+    render(<StarButton skillsetId="@test/pkg" initialStars={10} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('10')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(screen.getByText('11')).toBeDefined();
+    });
+
+    expect(alertSpy).not.toHaveBeenCalled();
+  });
+
+  it('auth redirect unchanged on 401', async () => {
+    Object.defineProperty(window, 'location', {
+      value: { href: '', pathname: '/skillset/@test/pkg' },
+      writable: true,
+    });
+
+    globalThis.fetch = vi.fn().mockImplementation((_url: string, options?: RequestInit) => {
+      if (!options?.method || options.method === 'GET') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({ count: 5, starred: false }),
+        });
+      }
+      return Promise.resolve({
+        ok: false,
+        status: 401,
+        json: async () => ({}),
+      });
+    }) as typeof fetch;
+
+    render(<StarButton skillsetId="@test/pkg" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('5')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(window.location.href).toContain('/login');
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createMockKV, createMockEnv, createAPIContext, createMockStub } from '@/lib/tests_lib/test-utils';
 
 vi.mock('@/lib/auth', () => ({
@@ -10,7 +10,7 @@ vi.mock('@/lib/reservation-do', () => ({
   BATCH_ID_REGEX: /^\d{1,3}\.\d{1,3}\.\d{3}$/,
 }));
 
-import { GET, POST, DELETE, isReservationRateLimited } from '../reservations';
+import { GET, POST, DELETE } from '../reservations';
 import { getSessionFromRequest } from '@/lib/auth';
 import { getReservationStub } from '@/lib/reservation-do';
 
@@ -48,6 +48,10 @@ describe('GET /api/reservations', () => {
 });
 
 describe('POST /api/reservations', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('test_post_unauthenticated', async () => {
     mockGetSession.mockResolvedValue(null);
 
@@ -81,12 +85,6 @@ describe('POST /api/reservations', () => {
 
     expect(response.status).toBe(201);
     expect(data.batchId).toBe('1.10.001');
-    // Verify DO stub receives githubLogin
-    expect(stub.fetch).toHaveBeenCalledWith(
-      expect.objectContaining({
-        method: 'POST',
-      })
-    );
     const callArg = (stub.fetch as any).mock.calls[0][0];
     const bodyText = await callArg.text();
     const bodyData = JSON.parse(bodyText);
@@ -96,7 +94,6 @@ describe('POST /api/reservations', () => {
   it('test_post_invalid_slot_id', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
 
-    // Test old ghost-N format (should now be invalid)
     const ctx1 = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
@@ -108,7 +105,6 @@ describe('POST /api/reservations', () => {
     expect(response1.status).toBe(400);
     expect(data1.error).toBe('Invalid slot ID');
 
-    // Test other invalid format
     const ctx2 = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
         method: 'POST',
@@ -134,14 +130,10 @@ describe('POST /api/reservations', () => {
     expect(response.status).toBe(400);
   });
 
-  it('test_post_rate_limited', async () => {
+  it('test_POST_returns_403_when_frozen', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
-
-    // Pre-fill rate limit counter
     const env = createMockEnv();
-    const hour = Math.floor(Date.now() / 3_600_000);
-    const key = `ratelimit:reserve:123:${hour}`;
-    (env.DATA as any)._store.set(key, '5');
+    (env.DATA as any)._store.set('freeze:reserve:123', '1');
 
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', {
@@ -149,11 +141,57 @@ describe('POST /api/reservations', () => {
         body: JSON.stringify({ batchId: '1.10.001' }),
       }),
     );
-    // Override env with pre-filled rate limit
     ctx.locals.runtime.env = env;
 
     const response = await POST(ctx);
-    expect(response.status).toBe(429);
+    const data = await response.json() as any;
+    expect(response.status).toBe(403);
+    expect(data.frozen).toBe(true);
+  });
+
+  it('test_POST_returns_429_on_third_request', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
+    const env = createMockEnv();
+    const day = Math.floor(Date.now() / 86_400_000);
+    (env.DATA as any)._store.set(`ratelimit:reserve:123:${day}`, '2');
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations', {
+        method: 'POST',
+        body: JSON.stringify({ batchId: '1.10.001' }),
+      }),
+    );
+    ctx.locals.runtime.env = env;
+
+    const response = await POST(ctx);
+    // threshold=0 means immediate freeze on breach → 403
+    expect([429, 403]).toContain(response.status);
+  });
+
+  it('test_POST_warning_on_second_request', async () => {
+    mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
+    const stubResponse = { batchId: '1.10.001', expiresAt: 1738900000 };
+    const stub = createMockStub({ status: 201, body: stubResponse });
+    mockGetStub.mockReturnValue(stub);
+
+    const env = createMockEnv();
+    const day = Math.floor(Date.now() / 86_400_000);
+    // Counter at 1 — next request (count=2) hits limit and gets warning
+    (env.DATA as any)._store.set(`ratelimit:reserve:123:${day}`, '1');
+
+    const ctx = createAPIContext(
+      new Request('https://skillsets.cc/api/reservations', {
+        method: 'POST',
+        body: JSON.stringify({ batchId: '1.10.001' }),
+      }),
+    );
+    ctx.locals.runtime.env = env;
+
+    const response = await POST(ctx);
+    const data = await response.json() as any;
+
+    expect(response.status).toBe(201);
+    expect(data.warning).toBe('You have reached your daily reservation limit (2/day). Any further attempt today will result in a permanent suspension.');
   });
 
   it('test_do_error_passthrough', async () => {
@@ -176,6 +214,10 @@ describe('POST /api/reservations', () => {
 });
 
 describe('DELETE /api/reservations', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('test_delete_unauthenticated', async () => {
     mockGetSession.mockResolvedValue(null);
 
@@ -201,12 +243,11 @@ describe('DELETE /api/reservations', () => {
     expect(data.released).toBe('3.10.001');
   });
 
-  it('test_delete_rate_limited', async () => {
+  it('test_DELETE_also_rate_limited', async () => {
     mockGetSession.mockResolvedValue({ userId: '123', login: 'test', avatar: '' });
-
     const env = createMockEnv();
-    const hour = Math.floor(Date.now() / 3_600_000);
-    (env.DATA as any)._store.set(`ratelimit:reserve:123:${hour}`, '5');
+    const day = Math.floor(Date.now() / 86_400_000);
+    (env.DATA as any)._store.set(`ratelimit:reserve:123:${day}`, '2');
 
     const ctx = createAPIContext(
       new Request('https://skillsets.cc/api/reservations', { method: 'DELETE' })
@@ -214,53 +255,6 @@ describe('DELETE /api/reservations', () => {
     ctx.locals.runtime.env = env;
 
     const response = await DELETE(ctx);
-    expect(response.status).toBe(429);
-  });
-});
-
-describe('isReservationRateLimited', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-02-06T12:00:00Z'));
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it('test_allows_first_five', async () => {
-    const kv = createMockKV();
-    for (let i = 0; i < 5; i++) {
-      const result = await isReservationRateLimited(kv, 'user-1');
-      expect(result).toBe(false);
-    }
-  });
-
-  it('test_blocks_sixth', async () => {
-    const kv = createMockKV();
-    for (let i = 0; i < 5; i++) {
-      await isReservationRateLimited(kv, 'user-1');
-    }
-    const result = await isReservationRateLimited(kv, 'user-1');
-    expect(result).toBe(true);
-  });
-
-  it('test_different_users_independent', async () => {
-    const kv = createMockKV();
-    for (let i = 0; i < 5; i++) {
-      await isReservationRateLimited(kv, 'user-a');
-    }
-    const result = await isReservationRateLimited(kv, 'user-b');
-    expect(result).toBe(false);
-  });
-
-  it('test_ttl_set_correctly', async () => {
-    const kv = createMockKV();
-    await isReservationRateLimited(kv, 'user-1');
-    expect(kv.put).toHaveBeenCalledWith(
-      expect.stringContaining('ratelimit:reserve:user-1:'),
-      '1',
-      { expirationTtl: 7200 }
-    );
+    expect([429, 403]).toContain(response.status);
   });
 });

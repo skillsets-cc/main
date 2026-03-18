@@ -6,47 +6,69 @@ import DataControls from '@/components/DataControls.tsx';
 <BaseLayout title="Privacy - Skillsets.cc">
   <main class="max-w-4xl mx-auto px-4 py-12">
     <header class="mb-8 border-b border-border-ink pb-6">
-      <h1 class="text-4xl font-medium font-serif text-text-ink">Privacy</h1>
+      <h1 class="text-4xl font-medium font-sans text-text-ink">Privacy</h1>
     </header>
 
-    <div class="space-y-8 text-lg font-serif text-text-secondary leading-relaxed">
+    <div class="space-y-8 text-lg font-sans text-text-secondary leading-relaxed">
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">What we collect</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">What we collect</h2>
         <p>When you log in with GitHub, we receive your GitHub user ID, login name, and avatar URL. If you star a skillset, we store the skillset ID in a list keyed to your user ID.</p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">How we use it</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">How we use it</h2>
         <p>Your login name is used to display your authentication status. Your starred skillset list powers the star feature — that's it.</p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">Cookies</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">Cookies</h2>
         <p>We set a single <code class="text-accent font-mono text-base">session</code> cookie — httpOnly, secure, SameSite=Lax, 7-day expiry. It contains a JWT with your GitHub ID, login, and avatar URL. No tracking cookies, no analytics cookies.</p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">Data retention</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">Data retention</h2>
         <p>Your starred skillsets persist until you delete your account. Rate limit entries and session revocation records auto-expire. Download counts are keyed by IP address, not user ID.</p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">Your rights</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">Your rights</h2>
         <p>You can view, export, and delete your data using the controls below (visible when logged in). Exported data is returned as JSON per GDPR Article 20. You also have the right to lodge a complaint with your local data protection authority.</p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">Contributors</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">Contributors</h2>
         <p>Skillset submissions are public git history. To request removal of a published skillset, open an issue or email us. We'll remove the listing from the registry. Git history retention is GitHub's responsibility.</p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">GitHub authorization</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">GitHub authorization</h2>
         <p>Deleting your account on skillsets.cc removes your data from our systems. The OAuth app authorization on your GitHub account persists — revoke it at Settings &gt; Applications &gt; Authorized OAuth Apps.</p>
       </section>
 
       <section>
-        <h2 class="text-2xl font-medium font-serif text-text-ink mb-3">Contact</h2>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">Rate Limiting &amp; Abuse Prevention</h2>
+        <p>To prevent abuse and protect the integrity of our platform metrics, we implement rate limiting on certain actions (stars, downloads, reservations, account deletion).</p>
+
+        <h3 class="text-xl font-medium font-sans text-text-ink mt-4 mb-2">IP Address Processing</h3>
+        <p>For download-related rate limiting, we hash your IP address using SHA-256 and store the hash (not your raw IP address) in our systems. This is pseudonymous data processed under our legitimate interest in abuse prevention (GDPR Art. 6(1)(f)).</p>
+
+        <h3 class="text-xl font-medium font-sans text-text-ink mt-4 mb-2">Data Retention</h3>
+        <ul class="list-disc list-inside space-y-1 mt-2">
+          <li><strong>IP-based rate limit data</strong> (hashed): automatically deleted after 3 months</li>
+          <li><strong>Daily action counters</strong>: automatically deleted after 25 hours</li>
+          <li><strong>Download verification tokens</strong>: automatically deleted after 10 minutes</li>
+        </ul>
+
+        <h3 class="text-xl font-medium font-sans text-text-ink mt-4 mb-2">Account Suspension</h3>
+        <p>Accounts that repeatedly exceed usage limits may be suspended. Suspension flags are retained after account deletion under GDPR Art. 17(3) (legitimate interest in security) to prevent abuse through account cycling. These flags contain only your user ID and a boolean value — no other personal data.</p>
+        <p class="mt-2">If your account has been suspended, you will be notified via a 403 response. To request a review, contact <a href="mailto:security@skillsets.cc" class="text-accent hover:underline">security@skillsets.cc</a>.</p>
+
+        <h3 class="text-xl font-medium font-sans text-text-ink mt-4 mb-2">IP-Based Data &amp; Account Deletion</h3>
+        <p>IP-based rate limiting data is stored using hashed identifiers that are not linked to your user account. This data cannot be included in account deletion requests but automatically expires within 3 months.</p>
+      </section>
+
+      <section>
+        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">Contact</h2>
         <p>Questions or requests: <a href="mailto:hello@skillsets.cc" class="text-accent hover:underline">hello@skillsets.cc</a></p>
       </section>
     </div>

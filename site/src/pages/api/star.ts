@@ -4,24 +4,25 @@
  * GET /api/star?skillsetId=x - Get star status for authenticated user.
  */
 import type { APIRoute } from 'astro';
-import { getSessionFromRequest, type Env } from '@/lib/auth';
-import { toggleStar, isRateLimited, isStarred, getStarCount } from '@/lib/stars';
-import { jsonResponse, errorResponse, parseJsonBody } from '@/lib/responses';
+import { getSessionFromRequest } from '@/lib/auth';
+import { toggleStar, isStarred, getStarCount } from '@/lib/stars';
+import { jsonResponse, errorResponse, parseJsonBody, getEnv } from '@/lib/responses';
 import { isValidSkillsetId } from '@/lib/validation';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export const POST: APIRoute = async ({ request, locals }) => {
-  const env = (locals as { runtime: { env: Env } }).runtime.env;
+  const env = getEnv(locals);
 
   const session = await getSessionFromRequest(env, request);
   if (!session) {
     return errorResponse('Authentication required', 401);
   }
 
-  if (await isRateLimited(env.DATA, session.userId)) {
-    return errorResponse('Rate limit exceeded', 429, {
-      message: 'Maximum 10 star operations per minute. Please try again later.',
-    });
-  }
+  const gate = await checkRateLimit(env.DATA, 'star', session.userId, 10, {
+    threshold: 3,
+    bucketType: 'day',
+  });
+  if (!gate.allowed) return gate.response!;
 
   const body = await parseJsonBody<{ skillsetId: string }>(request);
   if (body instanceof Response) return body;
@@ -44,7 +45,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 };
 
 export const GET: APIRoute = async ({ request, locals }) => {
-  const env = (locals as { runtime: { env: Env } }).runtime.env;
+  const env = getEnv(locals);
   const url = new URL(request.url);
   const skillsetId = url.searchParams.get('skillsetId');
 

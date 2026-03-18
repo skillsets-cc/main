@@ -5,12 +5,12 @@ const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 // Import after mocking
-import { fetchSearchIndex, fetchSkillsetMetadata, fetchStats, mergeStats } from '../api.js';
+import { fetchSearchIndex, fetchSkillsetMetadata } from '../api.js';
 
 describe('api utilities', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset module cache to clear cached index/stats between tests
+    // Reset module cache to clear cached index between tests
     vi.resetModules();
   });
 
@@ -103,120 +103,6 @@ describe('api utilities', () => {
       const result = await freshFetch('@user/nonexistent');
 
       expect(result).toBeUndefined();
-    });
-  });
-
-  describe('fetchStats', () => {
-    it('fetches stats from API', async () => {
-      const mockStats = {
-        stars: { '@user/test': 10 },
-        downloads: { '@user/test': 100 },
-      };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockStats),
-      });
-
-      const { fetchStats: freshFetch } = await import('../api.js');
-      const result = await freshFetch();
-
-      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/api/stats/counts'));
-      expect(result).toEqual(mockStats);
-    });
-
-    it('returns empty stats on fetch failure', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        statusText: 'Server Error',
-      });
-
-      const { fetchStats: freshFetch } = await import('../api.js');
-      const result = await freshFetch();
-
-      expect(result).toEqual({ stars: {}, downloads: {} });
-    });
-
-    it('returns empty stats on network error', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      const { fetchStats: freshFetch } = await import('../api.js');
-      const result = await freshFetch();
-
-      expect(result).toEqual({ stars: {}, downloads: {} });
-    });
-
-    it('uses cached stats within TTL', async () => {
-      const mockStats = {
-        stars: { '@user/test': 10 },
-        downloads: { '@user/test': 100 },
-      };
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: () => Promise.resolve(mockStats),
-      });
-
-      const { fetchStats: freshFetch } = await import('../api.js');
-      const result1 = await freshFetch();
-      const result2 = await freshFetch();
-
-      expect(result1).toEqual(mockStats);
-      expect(result2).toEqual(mockStats);
-      expect(mockFetch).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('mergeStats', () => {
-    it('merges live stats into skillsets', () => {
-      const skillsets = [
-        { id: '@user/a', stars: 5, downloads: 0 },
-        { id: '@user/b', stars: 10, downloads: 0 },
-      ] as any[];
-
-      const stats = {
-        stars: { '@user/a': 15 },
-        downloads: { '@user/a': 50, '@user/b': 100 },
-      };
-
-      const result = mergeStats(skillsets, stats);
-
-      expect(result[0].stars).toBe(15);
-      expect(result[0].downloads).toBe(50);
-      expect(result[1].stars).toBe(10); // Unchanged, not in stats
-      expect(result[1].downloads).toBe(100);
-    });
-
-    it('uses original values when stats missing', () => {
-      const skillsets = [{ id: '@user/a', stars: 5 }] as any[];
-      const stats = { stars: {}, downloads: {} };
-
-      const result = mergeStats(skillsets, stats);
-
-      expect(result[0].stars).toBe(5);
-      expect(result[0].downloads).toBe(0);
-    });
-
-    it('preserves all other skillset fields', () => {
-      const skillsets = [
-        {
-          id: '@user/a',
-          name: 'Test',
-          description: 'Desc',
-          tags: ['tag1'],
-          author: { handle: '@user' },
-          stars: 5,
-          version: '1.0.0',
-        },
-      ] as any[];
-
-      const stats = { stars: { '@user/a': 10 }, downloads: {} };
-
-      const result = mergeStats(skillsets, stats);
-
-      expect(result[0].name).toBe('Test');
-      expect(result[0].description).toBe('Desc');
-      expect(result[0].tags).toEqual(['tag1']);
-      expect(result[0].author).toEqual({ handle: '@user' });
-      expect(result[0].version).toBe('1.0.0');
     });
   });
 });

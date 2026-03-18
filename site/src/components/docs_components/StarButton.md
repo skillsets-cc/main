@@ -31,10 +31,11 @@ Interactive star button for skillsets. Displays star count, shows starred state 
 
 ### Toggle Behavior
 1. Set loading state (disables button)
-2. POST to `/api/star` with skillsetId
-3. If 401 (unauthenticated): redirect to `/login`
-4. If 200 (success): update starred state and count locally
-5. Clear loading state
+2. POST to `/api/star` with skillsetId, credentials: include
+3. If 401 (unauthenticated): redirect to `/login?returnTo={currentPath}`
+4. If 403 with `frozen: true`: show alert with suspension message and contact address
+5. If 200 (success): update starred state and count from server response
+6. Clear loading state
 
 ### Optimistic UI (sort of)
 - Waits for server response before updating UI (not fully optimistic)

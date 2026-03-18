@@ -62,7 +62,7 @@ export default function CopyCommand({ command, heading, disclaimer }: CopyComman
       <h2 className="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">{heading}</h2>
       {inner}
       <p className="mt-3 text-xs text-text-tertiary font-mono">
-        <a href="/cli" className="text-accent hover:underline">More CLI commands</a> — search, list
+        <a href="https://github.com/skillsets-cc/skillsets.cc/tree/master/cli" className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">CLI source</a> — install, audit, submit
       </p>
       {disclaimer && (
         <p className="mt-2 text-lg text-text-tertiary font-serif italic">

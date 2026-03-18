@@ -7,7 +7,7 @@ import type { APIRoute } from 'astro';
 import type { Env } from '@/lib/auth';
 import { jsonResponse, errorResponse } from '@/lib/responses';
 import { getReservationStub, BATCH_ID_REGEX } from '@/lib/reservation-do';
-import { isHourlyRateLimited } from '@/lib/rate-limit';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 /**
  * GET /api/reservations/verify
@@ -25,8 +25,13 @@ import { isHourlyRateLimited } from '@/lib/rate-limit';
 export const GET: APIRoute = async ({ request, locals, clientAddress }) => {
   const env = (locals as { runtime: { env: Env } }).runtime.env;
 
-  if (await isHourlyRateLimited(env.DATA, 'verify', clientAddress, 30)) {
-    return errorResponse('Too many requests', 429);
+  // Trust gate: 720/day per IP (≈ 30/hour), freeze after 7 consecutive days of abuse
+  const gate = await checkRateLimit(env.DATA, 'verify', clientAddress, 720, {
+    threshold: 7,
+    bucketType: 'day',
+  });
+  if (!gate.allowed) {
+    return errorResponse('Too many requests', gate.response?.status === 403 ? 403 : 429);
   }
 
   const url = new URL(request.url);

@@ -83,19 +83,17 @@ Update local state (starred, count)
 UI update reflects server response
 ```
 
-### Download/Star Count Fetching
+### Star Count Display
 ```
 SkillsetGrid mounts
-  ↓
-GET /api/stats/counts (fetch all star counts in single batch)
-  ↓
-Update liveStars record
-  ↓
+  |
+  +--> Renders build-time skillset.stars values (no client fetch)
+
 Individual DownloadCount components mount
-  ↓
-GET /api/downloads?skillsetId=X (fetch download count)
-  ↓
-Display count (fallback to initialCount on error)
+  |
+  +--> GET /api/downloads?skillsetId=X (fetch download count)
+  |
+  +--> Display count (fallback to initialCount on error)
 ```
 
 ### Ghost Entry Flow
@@ -135,7 +133,6 @@ DELETE /api/reservations → onCancelled → update state
 - `GET /api/me` (fetch auth state in AuthStatus)
 - `GET /api/star?skillsetId={id}` (fetch star state)
 - `POST /api/star` (toggle star)
-- `GET /api/stats/counts` (fetch all star counts for grid)
 - `GET /api/downloads?skillsetId=X` (fetch individual download count)
 - `GET /api/reservations` (fetch reservation state)
 - `POST /api/reservations` (claim slot)
@@ -162,7 +159,7 @@ DELETE /api/reservations → onCancelled → update state
 
 ### Performance
 - Memoization with `useMemo` for expensive computations (tag list, filtered results)
-- Single API call in SkillsetGrid fetches all star counts (batch operation)
+- SkillsetGrid uses build-time star counts (no client fetch)
 - No virtualization (assumes small dataset < 100 skillsets + ghost entries)
 - Portal rendering for TagFilter (fixed bottom bar)
 

@@ -30,13 +30,8 @@ describe('SkillsetGrid', () => {
   });
 
   function mockFetch(
-    starOverrides: Record<string, number> = {},
     reservationOverrides: { slots?: Record<string, { status: string; expiresAt?: number; skillsetId?: string }>; totalGhostSlots?: number; cohort?: number; userSlot?: string | null } = {}
   ) {
-    const stars: Record<string, number> = {};
-    for (const s of mockSkillsets) {
-      stars[s.id] = starOverrides[s.id] ?? s.stars;
-    }
     const defaultReservations = {
       slots: {},
       totalGhostSlots: 0,
@@ -46,12 +41,6 @@ describe('SkillsetGrid', () => {
     };
     globalThis.fetch = vi.fn().mockImplementation((url: string | URL) => {
       const urlStr = typeof url === 'string' ? url : url.toString();
-      if (urlStr.includes('/api/stats/counts')) {
-        return Promise.resolve({
-          ok: true,
-          json: async () => ({ stars, downloads: {} }),
-        });
-      }
       if (urlStr.includes('/api/reservations')) {
         return Promise.resolve({
           ok: true,
@@ -62,32 +51,27 @@ describe('SkillsetGrid', () => {
     }) as typeof fetch;
   }
 
-  // Helper to render and wait for stats + reservations fetches to complete
-  async function renderAndWaitForStars() {
+  // Helper to render and wait for reservations fetch to complete
+  async function renderAndWait() {
     mockFetch();
 
     await act(async () => {
       render(<SkillsetGrid skillsets={mockSkillsets} />);
     });
 
-    // Wait for both fetches to complete
+    // Wait for reservations fetch to complete
     await waitFor(() => {
       const fetchCalls = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls;
-      const statsCalls = fetchCalls.filter((call) => {
-        const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
-        return url.includes('/api/stats/counts');
-      });
       const reservationCalls = fetchCalls.filter((call) => {
         const url = typeof call[0] === 'string' ? call[0] : call[0].toString();
         return url.includes('/api/reservations');
       });
-      expect(statsCalls.length).toBe(1);
       expect(reservationCalls.length).toBe(1);
     });
   }
 
   it('renders all skillsets', async () => {
-    await renderAndWaitForStars();
+    await renderAndWait();
 
     expect(screen.getByText('Valence')).toBeDefined();
     expect(screen.getByText('Code Review Assistant')).toBeDefined();
@@ -95,27 +79,27 @@ describe('SkillsetGrid', () => {
   });
 
   it('renders skillset descriptions', async () => {
-    await renderAndWaitForStars();
+    await renderAndWait();
 
     expect(screen.getByText(/Spec-driven SDLC/)).toBeDefined();
     expect(screen.getByText(/Automated code review/)).toBeDefined();
   });
 
   it('renders skillset metadata', async () => {
-    await renderAndWaitForStars();
+    await renderAndWait();
 
     expect(screen.getByText(/v1.0.0/)).toBeDefined();
     expect(screen.getByText(/@supercollectible/)).toBeDefined();
   });
 
   it('renders tag filter', async () => {
-    await renderAndWaitForStars();
+    await renderAndWait();
 
     expect(screen.getByText('All')).toBeDefined();
   });
 
   it('filters by tag', async () => {
-    await renderAndWaitForStars();
+    await renderAndWait();
 
     fireEvent.click(screen.getByText('sdlc'));
 
@@ -126,44 +110,21 @@ describe('SkillsetGrid', () => {
   });
 
   it('links to skillset detail page', async () => {
-    await renderAndWaitForStars();
+    await renderAndWait();
 
     const link = screen.getByText('Valence').closest('a');
     expect(link?.getAttribute('href')).toBe('/skillset/supercollectible/Valence');
   });
 
-  it('fetches live star counts on mount', async () => {
-    await renderAndWaitForStars();
-
-    // Verify bulk stats API was called once
-    const fetchCalls = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls;
-    const statsCalls = fetchCalls.filter((call) =>
-      call[0].includes('/api/stats/counts')
-    );
-    expect(statsCalls.length).toBe(1);
-  });
-
-  it('displays live star counts when available', async () => {
-    mockFetch({ 'supercollectible/Valence': 999 });
-
-    await act(async () => {
-      render(<SkillsetGrid skillsets={mockSkillsets} />);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('999')).toBeDefined();
-    });
-  });
-
   it('renders tags as chips', async () => {
-    await renderAndWaitForStars();
+    await renderAndWait();
 
     expect(screen.getByText('#sdlc')).toBeDefined();
     expect(screen.getByText('#planning')).toBeDefined();
   });
 
   it('test_ghost_cards_show_batch_id', async () => {
-    mockFetch({}, {
+    mockFetch({
       slots: { '5.10.001': { status: 'available' } },
       totalGhostSlots: 10,
       cohort: 1,
@@ -179,7 +140,7 @@ describe('SkillsetGrid', () => {
   });
 
   it('test_submitted_slot_with_matching_skillset', async () => {
-    mockFetch({}, {
+    mockFetch({
       slots: { '5.10.001': { status: 'submitted', skillsetId: 'supercollectible/Valence' } },
       totalGhostSlots: 10,
       cohort: 1,
@@ -200,7 +161,7 @@ describe('SkillsetGrid', () => {
   });
 
   it('test_submitted_slot_without_matching_skillset', async () => {
-    mockFetch({}, {
+    mockFetch({
       slots: { '5.10.001': { status: 'submitted', skillsetId: '@user/NonExistent' } },
       totalGhostSlots: 10,
       cohort: 1,
@@ -225,7 +186,7 @@ describe('SkillsetGrid', () => {
       ...mockSkillsets.slice(1),
     ];
 
-    mockFetch({}, {
+    mockFetch({
       slots: { '5.10.001': { status: 'available' } },
       totalGhostSlots: 10,
       cohort: 1,
@@ -246,7 +207,7 @@ describe('SkillsetGrid', () => {
 
   it('test_onReserved_callback_updates_reservation_state', async () => {
     // Test L144-149: onReserved callback
-    mockFetch({}, {
+    mockFetch({
       slots: { '5.10.001': { status: 'available' } },
       totalGhostSlots: 10,
       cohort: 1,
@@ -276,7 +237,7 @@ describe('SkillsetGrid', () => {
 
   it('test_onCancelled_callback_clears_user_slot', async () => {
     // Test L150-159: onCancelled callback
-    mockFetch({}, {
+    mockFetch({
       slots: { '5.10.001': { status: 'reserved', expiresAt: Date.now() + 3600000 } },
       totalGhostSlots: 10,
       cohort: 1,
@@ -308,7 +269,7 @@ describe('SkillsetGrid', () => {
 
   it('test_onConflict_callback_refetches_reservations', async () => {
     // Test L160-165: onConflict callback
-    mockFetch({}, {
+    mockFetch({
       slots: { '5.10.001': { status: 'available' } },
       totalGhostSlots: 10,
       cohort: 1,

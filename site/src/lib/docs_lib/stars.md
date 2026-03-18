@@ -1,20 +1,19 @@
 # stars.ts
 
 ## Purpose
-Implements star/unstar functionality for skillsets with KV-based rate limiting (10 operations per minute per user). Manages both per-skillset star counts and per-user starred lists with atomic toggle operations and exponential backoff retry logic.
+Implements star/unstar functionality for skillsets. Manages both per-skillset star counts and per-user starred lists with atomic toggle operations and exponential backoff retry logic. Rate limiting is handled upstream in the API route via `checkRateLimit` from `rate-limit.ts`.
 
 ## Public API
 | Export | Type | Description |
 |--------|------|-------------|
-| `isRateLimited` | function | Check if user exceeded 10 ops/min rate limit, update counter |
 | `toggleStar` | function | Star or unstar a skillset, return new state and count |
 | `isStarred` | function | Check if user has starred a specific skillset |
 | `getStarCount` | function | Get total star count for a skillset |
 
 ## Dependencies
-- **Internal**: `rate-limit.ts` (`isMinuteRateLimited`)
+- **Internal**: None (rate limiting delegated to API route)
 - **External**:
-  - Cloudflare KV API (DATA namespace for persistent storage)
+  - Cloudflare KV API (`KVNamespace`)
 
 ## Integration Points
 - **Used by**:
@@ -27,14 +26,7 @@ Implements star/unstar functionality for skillsets with KV-based rate limiting (
 ```
 stars:{skillsetId}             → "42"              (star count as string)
 user:{userId}:stars            → ["id1", "id2"]    (JSON array of starred IDs)
-ratelimit:star:{userId}:{min}  → "7"               (minute-bucketed, 120s TTL)
 ```
-
-### Rate Limiting
-- 10 operations per minute per user (RATE_LIMIT_MAX)
-- Delegates to `isMinuteRateLimited` from `rate-limit.ts`
-- Uses minute-bucketed keys to prevent TTL-reset drift
-- Returns true if count >= 10
 
 ### Toggle Logic
 1. Read user's starred list from `user:{userId}:stars`

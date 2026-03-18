@@ -14,8 +14,6 @@ pages/
 │   ├── downloads.ts
 │   ├── me.ts
 │   ├── reservations.ts
-│   ├── stats/
-│   │   └── counts.ts
 │   └── reservations/
 │       ├── config.ts
 │       ├── verify.ts
@@ -37,7 +35,6 @@ pages/
 | `about.astro` | About page (static) | [Docs](./_docs_pages/about.md) |
 | `index.astro` | Homepage with embedded skillset grid (static) | [Docs](./_docs_pages/index.md) |
 | `contribute.astro` | Contribution guide with cohort claiming flow (static) | [Docs](./_docs_pages/contribute.md) |
-| `cli.astro` | CLI reference (static) | [Docs](./_docs_pages/cli.md) |
 | `skillset/[namespace]/[name].astro` | Dynamic skillset detail page (SSR) | [Docs](./_docs_pages/skillset-[namespace]-[name].md) |
 | `login.ts` | OAuth login initiation endpoint | [Docs](./_docs_pages/login.md) |
 | `callback.ts` | OAuth callback endpoint | [Docs](./_docs_pages/callback.md) |
@@ -45,7 +42,6 @@ pages/
 | `api/star.ts` | Star/unstar operations API | [Docs](./_docs_pages/api/star.md) |
 | `api/downloads.ts` | Download tracking API | [Docs](./_docs_pages/api/downloads.md) |
 | `api/me.ts` | User profile API | [Docs](./_docs_pages/api/me.md) |
-| `api/stats/counts.ts` | Bulk stats API | [Docs](./_docs_pages/api/stats/counts.md) |
 | `api/reservations.ts` | Reservation CRUD API | [Docs](./_docs_pages/api/reservations.md) |
 | `api/reservations/config.ts` | Config updates (maintainer) | [Docs](./_docs_pages/api/reservations/config.md) |
 | `api/reservations/verify.ts` | Batch ID verification (CI) | [Docs](./_docs_pages/api/reservations/verify.md) |
@@ -90,7 +86,7 @@ pages/
 
 **Used by:**
 - Site visitors (all pages)
-- CLI (`/api/downloads`, `/api/stats/counts`, `/api/reservations/lookup`)
+- CLI (`/api/downloads`, `/api/reservations/lookup`)
 - GitHub Actions CI (`/api/reservations/verify`)
 - React components (`/api/star`, `/api/reservations`)
 

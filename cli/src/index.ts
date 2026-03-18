@@ -2,9 +2,6 @@
 
 import { createRequire } from 'node:module';
 import { program } from 'commander';
-import { search } from './commands/search.js';
-import { list } from './commands/list.js';
-import { view } from './commands/view.js';
 import { install } from './commands/install.js';
 import { init } from './commands/init.js';
 import { audit } from './commands/audit.js';
@@ -21,32 +18,8 @@ function run<T extends unknown[]>(fn: (...args: T) => Promise<void>) {
 
 program
   .name('skillsets')
-  .description('CLI tool for discovering and installing verified skillsets')
+  .description('CLI tool for installing and contributing skillsets')
   .version(version);
-
-// === Discovery Commands ===
-
-program
-  .command('list')
-  .description('List all available skillsets')
-  .option('-l, --limit <number>', 'Limit results')
-  .option('-s, --sort <field>', 'Sort by: name, stars, downloads (default: name)')
-  .option('--json', 'Output as JSON')
-  .action(run(list));
-
-program
-  .command('search')
-  .description('Search for skillsets by name, description, or tags')
-  .argument('<query>', 'Search query')
-  .option('-t, --tags <tags...>', 'Filter by tags')
-  .option('-l, --limit <number>', 'Limit results (default: 10)', '10')
-  .action(run(search));
-
-program
-  .command('view')
-  .description('View a skillset README before installing')
-  .argument('<skillsetId>', 'Skillset ID (e.g., @user/skillset-name)')
-  .action(run(view));
 
 program
   .command('install')
