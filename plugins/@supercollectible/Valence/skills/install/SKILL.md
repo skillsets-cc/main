@@ -18,23 +18,23 @@ Create ALL tasks upfront using `TaskCreate`. Pass the **subject**, **activeForm*
 
 - **subject**: Review install notes and install Valence
 - **activeForm**: Reviewing install notes
-- **description**: Read `references/INSTALL_NOTES.md`. Print: "Before installing **Valence**, review what's included:" followed by the ENTIRE install notes content VERBATIM — every line, every table, every paragraph of prose below the tables. Do NOT summarize, truncate, or omit any content. The prose paragraphs after tables contain critical reputation and context information that users need. Then note: "This skillset declares external dependencies listed above. Proceeding will install them." Then note the external plugin dependencies listed below. Ask the user to confirm they want to proceed. If confirmed: run `npx skillsets@latest install @supercollectible/Valence --accept-mcp --accept-deps`. If declined: stop.
+- **description**: Read `references/INSTALL_NOTES_VALENCE.md`. Print: "Before installing **Valence**, review what's included:" followed by the ENTIRE install notes content VERBATIM — every line, every table, every paragraph of prose below the tables. Do NOT summarize, truncate, or omit any content. The prose paragraphs after tables contain critical reputation and context information that users need. Then note: "This skillset declares external dependencies listed above. Proceeding will install them." Then note the external plugin dependencies listed below. Ask the user to confirm they want to proceed. If confirmed: run `npx skillsets@latest install @supercollectible/Valence --accept-mcp --accept-deps`. If declined: stop.
 
 This skillset also uses external Claude Code plugins that are not bundled:
   - **code-simplifier** (registry:code-simplifier)
 Install them separately if not already available.
 
-### Task 2: Read QUICKSTART.md
+### Task 2: Read QUICKSTART_VALENCE.md
 
-- **subject**: Read QUICKSTART.md
+- **subject**: Read QUICKSTART_VALENCE.md
 - **activeForm**: Reading quickstart guide
-- **description**: Read the installed `QUICKSTART.md` — every skillset ships one. Identify each section that needs interactive walkthrough with the user. Sections vary by skillset but typically cover project configuration, style guides, agent tuning, templates, and infrastructure setup.
+- **description**: Read the installed `QUICKSTART_VALENCE.md` — every skillset ships one. Identify each section that needs interactive walkthrough with the user. Sections vary by skillset but typically cover project configuration, style guides, agent tuning, templates, and infrastructure setup.
 
 ### Task 3: Walk through customization
 
 - **subject**: Walk through customization with user
 - **activeForm**: Walking through customization
-- **description**: First, ask the user whether they want a guided walkthrough or prefer to customize on their own. If they skip, mark this task completed. Otherwise, walk through each QUICKSTART.md section using `AskUserQuestion` — explain what needs customizing, present the options, and let the user decide. Only apply changes the user explicitly chooses. Never edit files autonomously — the user drives, you guide.
+- **description**: First, ask the user whether they want a guided walkthrough or prefer to customize on their own. If they skip, mark this task completed. Otherwise, walk through each QUICKSTART_VALENCE.md section using `AskUserQuestion` — explain what needs customizing, present the options, and let the user decide. Only apply changes the user explicitly chooses. Never edit files autonomously — the user drives, you guide.
 
 ---
 
