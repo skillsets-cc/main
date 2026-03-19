@@ -19,8 +19,11 @@ jobs:
           YQ_VERSION="v4.44.1"
           wget -qO yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
           wget -qO checksums "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/checksums"
-          # Extract the SHA-256 hash for yq_linux_amd64 (64-char hex field on the yq_linux_amd64 line)
-          EXPECTED=$(grep '^yq_linux_amd64 ' checksums | grep -oP '\b[0-9a-f]{64}\b' | head -1)
+          wget -qO checksums_hashes_order "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/checksums_hashes_order"
+          # Find SHA-256 field position dynamically (field 1 is filename, hashes start at field 2)
+          SHA256_LINE=$(grep -n '^SHA-256$' checksums_hashes_order | cut -d: -f1)
+          SHA256_FIELD=$((SHA256_LINE + 1))
+          EXPECTED=$(grep '^yq_linux_amd64 ' checksums | awk "{print \$$SHA256_FIELD}")
           ACTUAL=$(sha256sum yq | awk '{print $1}')
           if [ "$EXPECTED" != "$ACTUAL" ]; then
             echo "::error::yq checksum mismatch: expected $EXPECTED, got $ACTUAL"
