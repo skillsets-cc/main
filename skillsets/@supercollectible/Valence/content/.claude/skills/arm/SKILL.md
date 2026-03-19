@@ -2,7 +2,7 @@
 name: arm
 description: Crystallize fuzzy thoughts into a solid brief. Extracts requirements, constraints, style, key concepts. Use before /design when starting from vague ideas.
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, AskUserQuestion, Write
+allowed-tools: Read, Glob, Grep, Write
 argument-hint: "[feature or problem description]"
 ---
 

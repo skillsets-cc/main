@@ -44,7 +44,7 @@ After creating the team, create ALL tasks in full detail using `TaskCreate`. Pas
 ### Task 3: Spawn build teammates
 
 - **activeForm**: Spawning build teammates
-- **description**: Send a single message with one `Task` tool call per agent doc. Use `subagent_type`, `model`, and `mode` from the `agents` field in this skill's frontmatter.
+- **description**: Send a single message with one `Task` tool call per agent doc. **Each teammate must use `subagent_type: build`, `model: sonnet`, and `mode: bypassPermissions`.**
 
   **CRITICAL: Pass the doc path, not the content.** The teammate reads its agent doc itself. Do NOT summarize, paraphrase, or re-encode any doc content into the spawn prompt. The docs contain exact code blocks, exact acceptance criteria, and exact file paths that must be read verbatim.
 

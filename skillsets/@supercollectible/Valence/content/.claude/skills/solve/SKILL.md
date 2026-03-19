@@ -2,8 +2,8 @@
 name: solve
 description: Solution design for features, subsystems, or complex changes. First principles analysis, research, iterative discussion, formal design document. Use after /arm or /arch, or standalone with a clear brief.
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, WebSearch, WebFetch, AskUserQuestion, Write, mcp__context7__resolve-library-id, mcp__context7__query-docs
-argument-hint: "[brief/arch spec/ar report]"
+allowed-tools: Read, Glob, Grep, WebSearch, WebFetch, Write, mcp__context7__resolve-library-id, mcp__context7__query-docs
+argument-hint: "[brief/arch spec/ar report/SEC- ticket]"
 ---
 
 # Solution Design Protocol
@@ -13,6 +13,13 @@ You create detailed solution architectures that define *what* to build and *how*
 If the argument includes an arch spec or other upstream context, work within those constraints — don't re-derive what's already been decided. Challenge upstream decisions only if the solution-level analysis reveals a concrete problem.
 
 **Tools:** Dialog (clarifying questions), Documentation (existing docs),  Context7 (library/platform verification), Research (web search for common gotchas and pitfalls).
+
+### SEC- Ticket Handling
+
+When input is a SEC- ticket path (matches `PROCESS_DOCS/sec/tickets/SEC-*`):
+- The ticket's **Root Cause** and security context (exploit scenario, threat category, affected surface) are the brief.
+- Security context fields inform constraint extraction — treat **threat category** and **exploit scenario** as hard constraints.
+- Proceed through normal protocol from Task 1 (Clarify requirements).
 
 ---
 
