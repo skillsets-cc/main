@@ -68,9 +68,7 @@ You have a single assigned task on the team task list. Find it via `TaskList` (l
   │
   ├── 4. WRITE/EDIT doc if needed
   │
-  ├── 5. OUTPUT: "[N/M] filename.ts → [created|updated|unchanged]"
-  │
-  └── 6. CLEAR working context, proceed to next
+  └── 5. OUTPUT: "[N/M] filename.ts → [created|updated|unchanged]"
   LOOP END
   ```
 
@@ -180,4 +178,3 @@ You have a single assigned task on the team task list. Find it via `TaskList` (l
 - **Minimal docs**: Public API and integration, not implementation details
 - **WHY over WHAT**: Document decisions, not obvious code
 - **Accurate over complete**: Sparse accurate > comprehensive stale
-- **Clear context**: Explicitly forget previous file details before next iteration

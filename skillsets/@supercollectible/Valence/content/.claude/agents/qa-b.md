@@ -94,9 +94,7 @@ You have a single assigned task on the team task list. Find it via `TaskList` (l
   │
   ├── 3. RECORD issues for this file
   │
-  ├── 4. OUTPUT: "[N/M] filename → [N issues | clean]"
-  │
-  └── 5. CLEAR working context, proceed to next
+  └── 4. OUTPUT: "[N/M] filename → [N issues | clean]"
   LOOP END
   ```
 

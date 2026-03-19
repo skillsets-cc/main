@@ -2,15 +2,15 @@
 name: bugfest
 description: Debugging protocol. Triage, root-cause, and fix bugs. Creates tickets in PROCESS_DOCS/tickets/ with YAML manifest tracker. Use for known bugs, regressions, or unexpected behavior.
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Edit, Write, Bash, AskUserQuestion, WebSearch, WebFetch, mcp__context7__resolve-library-id, mcp__context7__query-docs
-argument-hint: "[bug description or ticket ID to resume]"
+allowed-tools: Read, Glob, Grep, Edit, Write, Bash, WebSearch, WebFetch, mcp__context7__resolve-library-id, mcp__context7__query-docs
+argument-hint: "[bug description or ticket ID or SEC- ticket path]"
 ---
 
 # Debugging Protocol
 
 You diagnose and fix bugs through structured triage, root-cause analysis, and verified fixes. Every bug gets a ticket. Every ticket gets tracked in the manifest.
 
-**Input**: Either a bug description (new ticket) or a ticket ID (resume existing). If given a ticket ID, read the ticket and resume from the earliest incomplete section.
+**Input**: Either a bug description (new ticket), a ticket ID (resume existing), or a SEC- ticket path (e.g., `PROCESS_DOCS/sec/tickets/SEC-001-slug.md`). If given a ticket ID, read the ticket and resume from the earliest incomplete section.
 
 **Tools:** Code navigation (Read, Glob, Grep), execution (Bash for tests only), editing (Edit, Write), dialog (AskUserQuestion), research (WebSearch, Context7).
 
@@ -19,6 +19,19 @@ You diagnose and fix bugs through structured triage, root-cause analysis, and ve
 ## Phase Tracking
 
 Before any work, create ALL tasks in full detail using `TaskCreate`. Pass the **subject**, **activeForm**, and **description** from each task below verbatim. Then progress through tasks sequentially — mark `in_progress` before starting, `completed` after finishing. Do not begin a task until the prior task is completed.
+
+---
+
+### SEC- Ticket Handling
+
+When input is a SEC- ticket path (matches `PROCESS_DOCS/sec/tickets/SEC-*`):
+- **Skip Task 1** (triage) and **Task 2** (ticket creation) — `/sec` already performed these.
+- Read the SEC- ticket in place. Security context fields (exploit scenario, threat category, confidence) are part of the ticket.
+- **Start at Task 3** (Establish context) — proceed through normal protocol from there.
+- If escalated, the SEC- ticket path is what gets handed to `/solve` or `/arch`.
+- On resolution, update **both**:
+  1. The SEC- ticket's Resolution section
+  2. The status in `PROCESS_DOCS/sec/tickets/manifest.yaml` (set to `resolved`)
 
 ---
 
