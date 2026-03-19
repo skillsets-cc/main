@@ -17,9 +17,15 @@ jobs:
       - name: Install yq for YAML parsing
         run: |
           YQ_VERSION="v4.44.1"
-          YQ_SHA256="a2c097180dd884a8d50c956ee16a9cec070f30a7947cf4ebf87571b8f868571f"
           wget -qO yq "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64"
-          echo "${YQ_SHA256}  yq" | sha256sum -c --strict
+          wget -qO checksums "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/checksums"
+          # Extract the SHA-256 hash for yq_linux_amd64 (64-char hex field on the yq_linux_amd64 line)
+          EXPECTED=$(grep '^yq_linux_amd64 ' checksums | grep -oP '\b[0-9a-f]{64}\b' | head -1)
+          ACTUAL=$(sha256sum yq | awk '{print $1}')
+          if [ "$EXPECTED" != "$ACTUAL" ]; then
+            echo "::error::yq checksum mismatch: expected $EXPECTED, got $ACTUAL"
+            exit 1
+          fi
           sudo mv yq /usr/local/bin/yq
           sudo chmod +x /usr/local/bin/yq
 
