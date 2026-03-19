@@ -60,7 +60,14 @@ Before any work, create ALL tasks in full detail using `TaskCreate`. Pass the **
 - **activeForm**: Spawning matchers
 - **description**: All agents have their own built-in protocols and establish their own context. You just point them at the documents.
 
-  Use `TeamCreate` with a descriptive name (e.g., `pmatch-[feature]`). Create one task per matcher using `TaskCreate`. Send a **single message** with two `Task` tool calls. Use `subagent_type`, `model`, and `mode` from the `agents` field in this skill's frontmatter.
+  Use `TeamCreate` with a descriptive name (e.g., `pmatch-[feature]`). Create one task per matcher using `TaskCreate`. Send a **single message** with two `Task` tool calls.
+
+  **Spawn each teammate with these exact parameters:**
+
+  | Teammate | `subagent_type` | `model` | `mode` |
+  |----------|-----------------|---------|--------|
+  | pm-s | pm-s | sonnet | bypassPermissions |
+  | pm-k | pm-k | haiku | bypassPermissions |
 
   **Spawn prompt template:**
   ```

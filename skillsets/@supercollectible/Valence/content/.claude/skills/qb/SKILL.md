@@ -19,12 +19,20 @@ Before any work, create ALL tasks in full detail using `TaskCreate`. Pass the **
 - **activeForm**: Evaluating scope
 - **description**: Determine what needs auditing and how to split the work.
 
-  If `$ARGUMENTS` is a directory, Glob for all implementation files under it (exclude `*.test.*`, `tests_*/`, `docs_*/`, `__tests__/`, `mocks/`). If it's a single file, audit that file only (one teammate, skip splitting). For directories, split by immediate parent directory — one teammate per directory. Directories with only 1-2 files can be merged with a sibling. List each group with its files before proceeding.
+  If `$ARGUMENTS` is a directory, Glob for all implementation files under it (exclude `*.test.*`, `tests_*/`, `docs_*/`, `__tests__/`, `mocks/`). If it's a single file, audit that file only (one teammate, skip splitting).
+
+  **Grouping rules** (apply in order):
+  1. Group files by immediate parent directory.
+  2. If a group has **more than 5 files**, split it into subgroups of ~5 files each.
+  3. If a group has **1-2 files**, merge it with a sibling group (prefer the smallest sibling, but never exceed 5).
+  4. Target: each teammate gets **3-5 files**.
+
+  List each group with its files before proceeding.
 
 ### Task 2: Create team and spawn auditors
 
 - **activeForm**: Spawning auditors
-- **description**: Use `TeamCreate` with name `qb`. Create one task per teammate using `TaskCreate`, listing its assigned files in the task description. Spawn teammates using `Task` with `subagent_type: qa-b`, `model: sonnet`, and `mode: bypassPermissions`.
+- **description**: Use `TeamCreate` with name `qb`. Create one task per teammate using `TaskCreate`, listing its assigned files in the task description. **Each teammate must use `subagent_type: qa-b`, `model: sonnet`, and `mode: bypassPermissions`.**
 
   **Spawn prompt template:**
   ```

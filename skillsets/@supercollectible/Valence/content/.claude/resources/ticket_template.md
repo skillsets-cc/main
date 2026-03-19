@@ -12,6 +12,15 @@
 
 [critical | high | medium | low]
 
+## Security Context
+
+[Populated by /sec for SEC- tickets — leave empty for regular bug tickets]
+
+- **Exploit scenario**:
+- **Threat category**:
+- **Confidence**: [1-10]
+- **Vuln ref**: [GHSA-xxxx or CVE-xxxx]
+
 ## Affected Surface
 
 [Filled during context establishment — leave empty on creation]

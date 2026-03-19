@@ -42,7 +42,17 @@ After creating the team, create ALL tasks in full detail using `TaskCreate`. Pas
 ### Task 3: Spawn reviewer teammates
 
 - **activeForm**: Spawning reviewers
-- **description**: Send a single message with three `Task` tool calls. Use `subagent_type`, `model`, and `mode` from the `agents` field in this skill's frontmatter. Pass the document path from the `/ar` argument. Prompt: "Review the design document at [PATH]. When done, mark your task as completed and message the lead with your critique."
+- **description**: Send a single message with three `Task` tool calls. Pass the document path from the `/ar` argument.
+
+  **Spawn each teammate with these exact parameters:**
+
+  | Teammate | `subagent_type` | `model` | `mode` |
+  |----------|-----------------|---------|--------|
+  | ar-o | ar-o | opus | bypassPermissions |
+  | ar-k | ar-k | sonnet | bypassPermissions |
+  | ar-glm5 | ar-glm5 | sonnet | bypassPermissions |
+
+  **Spawn prompt:** "Review the design document at [PATH]. When done, mark your task as completed and message the lead with your critique."
 
 ### Task 4: Deduplicate findings
 
