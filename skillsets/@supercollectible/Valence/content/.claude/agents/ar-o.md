@@ -77,7 +77,7 @@ You have a single assigned task on the team task list. Find it via `TaskList` (l
 - **description**: Stress test the design:
   - **Failure modes**: What happens when [service] is down?
   - **Scale**: What breaks at 10x? 100x?
-  - **Security**: Injection, escalation, exfiltration vectors?
+  - **Security**: Query Context7 for `/owasp/top10` to validate against OWASP Top 10:2025 categories. Check injection, escalation, exfiltration, access control, and supply chain vectors.
   - **Edge cases**: What inputs break the happy path?
 
 ### Phase 6: Specification completeness

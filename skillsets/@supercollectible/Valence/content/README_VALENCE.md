@@ -487,18 +487,8 @@ cp .env.example .env  # Add KIMI_API_KEY, OPENROUTER_API_KEY
 source .env           # Linux/macOS — skip on Windows
 ```
 
-> **Windows fix**: `external-agent.mjs` uses `import.meta.url.pathname` to locate `.env`, which produces an invalid path on Windows. Apply two changes:
->
-> Add to the import block (top of file):
-> ```js
-> import { fileURLToPath } from 'node:url';
-> import { dirname, join } from 'node:path';
-> ```
-> Replace lines 12 and 14:
-> ```js
-> const scriptDir = dirname(fileURLToPath(import.meta.url));
-> const envFile = await readFile(join(scriptDir, '.env'), 'utf8');
-> ```
+The runner auto-loads `.env` from its own directory on all platforms — `source .env` is a convenience for Linux/macOS shells, not a requirement. On Windows, skip it; the runner handles `.env` loading natively.
+
 ---
 
 ## Filetree

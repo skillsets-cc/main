@@ -164,10 +164,12 @@ cd Valence_ext && npm install
 # Copy .env.example and fill in your keys
 cp .env.example .env
 # Edit .env with your API keys, then:
-source .env
+source .env           # Linux/macOS — skip on Windows
 ```
 
-The runner reads API keys from `process.env` (no dotenv). Either `source .env` before running, use [direnv](https://direnv.net/), or export the vars in your shell profile. The `.env` file is gitignored; `.env.example` documents the required keys.
+The runner auto-loads `.env` from its own directory on all platforms (no dotenv dependency). On Linux/macOS you can also `source .env` or use [direnv](https://direnv.net/) to export the vars into your shell. On Windows, skip `source .env` — the runner handles it natively. The `.env` file is gitignored; `.env.example` documents the required keys.
+
+> **Windows note**: The runner uses `new URL('.env', import.meta.url)` to locate `.env` relative to the script, which Node.js resolves correctly on all platforms. If you're on an older version of Valence where the runner uses `import.meta.url.pathname` instead, that produces an invalid path on Windows (`/C:/path/...`). Either update to the current version or apply the fix manually — pass `new URL('.env', import.meta.url)` directly to `readFile` instead of extracting `.pathname`.
 
 ## Testing
 

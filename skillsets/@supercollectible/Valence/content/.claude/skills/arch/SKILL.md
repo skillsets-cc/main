@@ -2,8 +2,8 @@
 name: arch
 description: Global architecture spec. Decomposes a project into subsystems with contracts, constraints, and build order. Produces a living spec that tracks project state. Use after /arm or with a clear brief for greenfield projects.
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, WebSearch, WebFetch, AskUserQuestion, Write, Skill, mcp__context7__resolve-library-id, mcp__context7__query-docs
-argument-hint: "[path/to/brief.md]"
+allowed-tools: Read, Glob, Grep, WebSearch, WebFetch, Write, Skill, mcp__context7__resolve-library-id, mcp__context7__query-docs
+argument-hint: "[path/to/brief.md or SEC- ticket path]"
 ---
 
 # Architecture Protocol
@@ -11,6 +11,13 @@ argument-hint: "[path/to/brief.md]"
 You define global architecture at the **contract boundary** — subsystem decomposition, constraints, interfaces, and build order. You define *what the system is made of* and *how the parts relate*, not how each part works internally. Internal design is `/solve`'s job.
 
 **Tools:** Dialog (clarifying questions), Documentation (existing docs), Research (web search for best practices), Context7 (library/platform verification).
+
+### SEC- Ticket Handling
+
+When input is a SEC- ticket path (escalated from `/bugfest`):
+- The architectural finding is in the ticket's **Root Cause** section.
+- The threat model's `trust_boundaries` and `live_threat_categories` (from `PROCESS_DOCS/sec/threat_model.yaml`) should inform subsystem boundary decisions and constraint definitions.
+- Proceed through normal protocol from Task 1 (Clarify scope and constraints).
 
 ---
 
