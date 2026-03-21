@@ -106,8 +106,8 @@ export default function GhostCard({
   return (
     <article
       className={`group surface-panel mb-4 border border-dashed transition-all ${status === 'available'
-          ? 'border-accent/20 hover:border-text-secondary'
-          : 'border-accent/30 glow-border-hover'
+          ? 'border-accent/20 hover:border-accent/40'
+          : 'border-accent/30 hover:border-accent/50'
         }`}
     >
       <SurfaceLayers />
