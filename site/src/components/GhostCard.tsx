@@ -1,5 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { useCountdown } from './useCountdown.js';
+import SurfaceLayers from './SurfaceLayers.js';
 
 interface GhostCardProps {
   batchId: string;
@@ -81,9 +82,8 @@ export default function GhostCard({
       : undefined;
 
     const content = (
-      <article className="group surface-panel specular-border-dashed mb-4 border border-dashed border-status-success/30 hover:border-status-success/60 transition-colors">
-        <div className="surface-speckle" />
-        <div className="surface-gloss" />
+      <article className="group surface-panel mb-4 border border-dashed border-status-success/30 hover:border-status-success/60 transition-colors">
+        <SurfaceLayers />
         <div className="relative z-10 py-4 px-4 md:py-6 md:px-6">
           <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 mb-2">
             <span className="text-text-secondary font-mono text-sm">
@@ -105,7 +105,7 @@ export default function GhostCard({
 
   return (
     <article
-      className={`group surface-panel specular-border-dashed mb-4 border border-dashed transition-all ${status === 'available'
+      className={`group surface-panel mb-4 border border-dashed transition-all ${status === 'available'
           ? 'border-accent/20 hover:border-text-secondary'
           : 'border-accent/30 glow-border-hover'
         }`}
