@@ -15,8 +15,8 @@ const skillsets = getSkillsets();
   <div class="h-screen overflow-y-auto snap-y snap-mandatory">
 
     <!-- Hero section — full viewport -->
-    <section class="snap-start min-h-screen flex flex-col justify-center relative md:pr-16">
-      <div class="max-w-3xl mx-auto px-4">
+    <section class="snap-start h-screen flex flex-col justify-start relative md:pr-16 overflow-hidden">
+      <div class="max-w-3xl mx-auto px-4 pt-[18vh]">
 
         <!-- Hook -->
         <h1 class="text-5xl md:text-6xl text-text-ink font-serif font-extrabold leading-tight mb-8">
@@ -34,7 +34,7 @@ const skillsets = getSkillsets();
         </p>
 
         <!-- Install -->
-        <p class="text-lg text-text-secondary font-serif leading-relaxed mb-12">
+        <p class="text-lg text-text-secondary font-serif leading-relaxed mb-6">
           Install our plugin.
         </p>
         <TerminalDemo />
@@ -85,4 +85,9 @@ const skillsets = getSkillsets();
       });
     }
   </script>
+
+  <style is:global>
+    /* Index page: snap container handles all scrolling, prevent outer body scroll */
+    html, body { height: 100vh; overflow: hidden; }
+  </style>
 </BaseLayout>

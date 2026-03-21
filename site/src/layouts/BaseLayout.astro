@@ -32,7 +32,7 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
 
-  <body class="min-h-screen bg-black text-text-ink selection:bg-accent-highlight selection:text-text-ink font-sans flex text-base">
+  <body class="min-h-screen bg-black text-text-ink selection:bg-accent-highlight selection:text-text-ink font-sans flex flex-col text-base">
     
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] hidden md:hidden"></div>
 
@@ -89,25 +89,14 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
 
     <button
       id="sidebar-toggle"
-      class="fixed bottom-6 left-4 z-50 md:hidden relative
-             w-10 h-10 flex items-center justify-center overflow-hidden rounded-md
-             border border-black bg-black/80 shadow-[0_8px_30px_0_rgba(0,0,0,0.9),_0_2px_15px_rgba(249,115,22,0.05)]
-             text-accent/60 hover:text-accent
-             transition-all duration-200"
+      class="hidden"
       aria-label="Open navigation"
     >
-      <div class="surface-speckle"></div>
-      <div class="surface-gloss"></div>
-      <div class="specular-edge-top-sm"></div>
-
-      <svg class="w-4 h-4 relative z-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-      </svg>
     </button>
 
     <button
       id="back-to-top"
-      class="fixed bottom-6 right-4 md:right-0 md:left-16 md:mx-auto z-40 relative
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 relative
              w-10 h-10 flex items-center justify-center overflow-hidden rounded-md
              border border-black bg-black/80 shadow-[0_8px_30px_0_rgba(0,0,0,0.9),_0_2px_15px_rgba(249,115,22,0.05)]
              text-accent/60 hover:text-accent
@@ -132,7 +121,7 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
         <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=\"0 0 200 200\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cfilter id=\"noiseFilter\"%3E%3CfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.65\" numOctaves=\"3\" stitchTiles=\"stitch\"/%3E%3C/filter%3E%3Crect width=\"100%25\" height=\"100%25\" filter=\"url(%23noiseFilter)\"/%3E%3C/svg%3E');"></div>
       </div>
       
-      <div class="relative z-10 w-full min-h-screen">
+      <div class="relative z-10 w-full">
         <slot />
       </div>
     </main>
@@ -160,14 +149,42 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
       overlay?.addEventListener('click', closeSidebar);
       document.getElementById('sidebar-toggle')?.addEventListener('click', openSidebar);
 
-      // Back to top button
+      // Swipe gestures for mobile sidebar
+      let touchStartX = 0;
+      let touchStartY = 0;
+      const SWIPE_THRESHOLD = 50;
+      const EDGE_ZONE = 30; // px from left edge to start open swipe
+
+      document.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dy) > Math.abs(dx)) return; // vertical scroll, ignore
+
+        const isOpen = !sidebar?.classList.contains('-translate-x-full');
+        if (!isOpen && dx > SWIPE_THRESHOLD && touchStartX < EDGE_ZONE) {
+          openSidebar();
+        } else if (isOpen && dx < -SWIPE_THRESHOLD) {
+          closeSidebar();
+        }
+      }, { passive: true });
+
+      // Back to top button — works with both window scroll and snap containers
       const backToTop = document.getElementById('back-to-top');
       if (backToTop) {
+        const snapContainer = document.querySelector('.snap-y') as HTMLElement | null;
+        const scrollTarget = snapContainer || window;
+
         let ticking = false;
-        window.addEventListener('scroll', () => {
+        scrollTarget.addEventListener('scroll', () => {
           if (!ticking) {
             requestAnimationFrame(() => {
-              const show = window.scrollY > window.innerHeight;
+              const scrollY = snapContainer ? snapContainer.scrollTop : window.scrollY;
+              const show = scrollY > window.innerHeight * 0.5;
               backToTop.classList.toggle('opacity-0', !show);
               backToTop.classList.toggle('pointer-events-none', !show);
               backToTop.classList.toggle('opacity-100', show);
@@ -179,7 +196,11 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
         });
 
         backToTop.addEventListener('click', () => {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (snapContainer) {
+            snapContainer.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
         });
       }
 
