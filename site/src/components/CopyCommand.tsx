@@ -38,8 +38,8 @@ export default function CopyCommand({ command, heading, disclaimer }: CopyComman
   const isSection = !!heading;
 
   const inner = (
-    <div className="bg-[#0a0a0a] border border-accent/20 p-4 rounded-none">
-      <div className="flex items-center gap-2">
+    <div className="surface-panel specular-border border border-accent/20 p-4">
+      <div className="relative z-10 flex items-center gap-2">
         <pre className="flex-1 overflow-x-auto">
           <code>{command}</code>
         </pre>
@@ -58,7 +58,7 @@ export default function CopyCommand({ command, heading, disclaimer }: CopyComman
   }
 
   return (
-    <section className="border border-border-ink bg-surface-paper p-6 rounded-none">
+    <section className="surface-panel specular-border border border-accent/20 p-6">
       <h2 className="text-sm font-bold font-mono mb-4 text-text-ink uppercase tracking-wider border-b border-border-ink pb-2 inline-block">{heading}</h2>
       {inner}
       <p className="mt-3 text-xs text-text-tertiary font-mono">

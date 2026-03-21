@@ -1,0 +1,11 @@
+---
+// Surface treatment layers for Astro templates (speckle, gloss, specular edge).
+// For React components, use SurfaceLayers.tsx instead.
+---
+
+<div class="surface-speckle"></div>
+<div class="surface-gloss"></div>
+<!-- Glowing orange specular edge (Cursor Responsive) -->
+<div class="absolute inset-0 rounded-sm pointer-events-none mix-blend-screen"
+     style="padding: 1px; background: radial-gradient(400px circle at var(--cursor-x, 50%) var(--cursor-y, 50%), rgba(249,115,22, 0.4), transparent) fixed; -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude;">
+</div>

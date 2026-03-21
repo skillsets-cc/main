@@ -3,6 +3,8 @@ export const prerender = true;
 
 import BaseLayout from '@layouts/BaseLayout.astro';
 import SkillsetGrid from '@components/SkillsetGrid';
+import TerminalDemo from '@components/TerminalDemo.astro';
+import SurfaceLayers from '@components/SurfaceLayers.astro';
 import { getSkillsets } from '@/lib/data';
 
 const skillsets = getSkillsets();
@@ -13,71 +15,56 @@ const skillsets = getSkillsets();
   <div class="h-screen overflow-y-auto snap-y snap-mandatory">
 
     <!-- Hero section — full viewport -->
-    <section class="snap-start min-h-screen flex flex-col justify-center relative">
+    <section class="snap-start min-h-screen flex flex-col justify-center relative md:pr-16">
       <div class="max-w-3xl mx-auto px-4">
 
-        <!-- Lead — large, prominent -->
-        <p class="text-2xl md:text-3xl text-text-ink font-serif leading-snug mb-4">
-          A <span class="font-bold">skillset</span> is an integrated workflow built on tightly coupled Claude Code primitives—skills, agents, hooks, plugins, and MCP.
+        <!-- Hook -->
+        <h1 class="text-5xl md:text-6xl text-text-ink font-serif font-extrabold leading-tight mb-8">
+          The short list.
+        </h1>
+
+        <!-- Definition -->
+        <p class="text-lg text-text-secondary font-serif leading-relaxed mb-3">
+          A <strong class="text-text-ink">skillset</strong> is an integrated stack of Claude Code primitives and custom support stacks — <a href="/about" class="text-accent hover:underline">audited</a>, verified, and maintained by the author.
         </p>
 
-        <!-- Supporting copy — smaller, secondary -->
-        <div class="space-y-3 text-base md:text-lg text-text-secondary font-serif leading-relaxed mb-3">
-          <p>
-            <span class="font-bold text-text-ink">Skillsets.cc</span> is a community-driven <a href="/about" class="text-accent hover:underline">registry</a> of these consolidated workflows.
-          </p>
-          <p>
-            We list limited, high-friction submissions that actually shipped, maintained by the authors.
-          </p>
-        </div>
-
-        <!-- Quickstart -->
-        <p class="text-base md:text-lg text-text-secondary font-serif mb-10">Add <span class="text-accent font-mono">skillsets-cc/main</span> to plugin marketplaces and install skillsets from there.</p>
-        <div class="bg-[#0a0a0a] border border-accent/20 rounded-sm overflow-hidden font-mono text-[13px] shadow-xl">
-          <div class="p-4 md:p-6 space-y-3">
-            <!-- Prompt -->
-            <div class="flex items-center text-text-ink mb-4 pb-2 border-b border-border-ink">
-              <span class="text-text-secondary mr-2">❯</span>
-              <span class="text-text-ink">/plugin</span>
-            </div>
-
-            <!-- Tab bar -->
-            <div class="flex flex-wrap gap-4 text-text-secondary mb-6 tracking-wide">
-              <span>Plugins</span>
-              <span>Discover</span>
-              <span>Installed</span>
-              <span class="bg-surface-paper text-text-ink px-1 rounded-sm border border-accent/20">Marketplaces</span>
-              <span class="text-text-tertiary hidden sm:inline">(←/→ or tab to cycle)</span>
-            </div>
-
-            <!-- Add marketplace (pulsing) -->
-            <div class="flex items-center text-accent animate-pulse">
-              <span class="mr-2">❯</span>
-              <span class="font-bold">+ Add Marketplace</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- CTA -->
-        <p class="mt-10 text-base md:text-lg text-text-secondary font-serif">
-          Already a pro? Bet your skillset kicks ass... <a href="/contribute" class="text-accent hover:underline">Cohort 001, assemble!</a>
+        <!-- Registry -->
+        <p class="text-lg text-text-secondary font-serif leading-relaxed mb-3">
+          <strong class="text-text-ink">Skillsets.cc</strong> is a curated, quality-gated registry.
         </p>
+
+        <!-- Install -->
+        <p class="text-lg text-text-secondary font-serif leading-relaxed mb-12">
+          Install our plugin.
+        </p>
+        <TerminalDemo />
+
+
       </div>
 
-      <!-- Down arrow -->
-      <a href="#registry" class="absolute bottom-8 left-1/2 -translate-x-1/2 text-accent animate-bounce font-mono text-lg">
-        ↓
+      <!-- Down chevron -->
+      <a href="#registry" id="hero-chevron"
+         class="fixed bottom-10 left-1/2 -translate-x-1/2 z-40 text-accent transition-colors"
+         style="animation: bounce 2s infinite, glow-pulse 2s infinite;"
+         aria-label="Scroll to registry"
+      >
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
       </a>
     </section>
 
     <!-- Registry section — snaps to top -->
     <section id="registry" class="snap-start min-h-screen">
       <div class="max-w-5xl mx-auto px-4 pb-20">
-        <div class="sticky top-0 bg-[#020202] z-40 -mx-4 px-4 pt-4 pb-0 mb-6 border-b border-accent/20">
-          <h3 class="text-base font-bold uppercase tracking-wider text-accent font-mono glow-border-hover inline-block border-b border-accent pb-1">Registry</h3>
-          <p class="text-sm text-text-tertiary font-serif mt-2 pb-2">
-            *Skillsets come with all the guarantees of probabilistic space — as with any OSS, verify before you trust.
-          </p>
+        <div class="sticky top-0 z-40 surface-panel border border-accent/20 mb-6">
+          <SurfaceLayers />
+          <div class="relative z-10 px-4 pt-4 pb-3">
+            <h3 class="text-base font-bold uppercase tracking-wider text-accent font-mono">Registry</h3>
+            <p class="text-sm text-text-tertiary font-serif mt-2">
+              *Skillsets come with all the guarantees of probabilistic space — as with any OSS, verify before you trust.
+            </p>
+          </div>
         </div>
 
         <SkillsetGrid client:load skillsets={skillsets} />
@@ -85,4 +72,17 @@ const skillsets = getSkillsets();
     </section>
 
   </div>
+
+  <script>
+    // Hide hero chevron when scrolled past hero
+    const heroChevron = document.getElementById('hero-chevron');
+    const snapContainer = document.querySelector('.snap-y') as HTMLElement;
+    if (heroChevron && snapContainer) {
+      snapContainer.addEventListener('scroll', () => {
+        const show = snapContainer.scrollTop < window.innerHeight * 0.5;
+        heroChevron.style.visibility = show ? 'visible' : 'hidden';
+        heroChevron.classList.toggle('pointer-events-none', !show);
+      });
+    }
+  </script>
 </BaseLayout>

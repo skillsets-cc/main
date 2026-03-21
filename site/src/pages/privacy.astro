@@ -5,7 +5,8 @@ import DataControls from '@/components/DataControls.tsx';
 
 <BaseLayout title="Privacy - Skillsets.cc">
   <main class="max-w-4xl mx-auto px-4 py-12">
-    <header class="mb-8 border-b border-border-ink pb-6">
+    <header class="mb-8 border-b border-accent/20 pb-6 relative">
+      <div class="specular-edge-bottom"></div>
       <h1 class="text-4xl font-medium font-sans text-text-ink">Privacy</h1>
     </header>
 
@@ -61,16 +62,13 @@ import DataControls from '@/components/DataControls.tsx';
 
         <h3 class="text-xl font-medium font-sans text-text-ink mt-4 mb-2">Account Suspension</h3>
         <p>Accounts that repeatedly exceed usage limits may be suspended. Suspension flags are retained after account deletion under GDPR Art. 17(3) (legitimate interest in security) to prevent abuse through account cycling. These flags contain only your user ID and a boolean value — no other personal data.</p>
-        <p class="mt-2">If your account has been suspended, you will be notified via a 403 response. To request a review, contact <a href="mailto:security@skillsets.cc" class="text-accent hover:underline">security@skillsets.cc</a>.</p>
+        <p class="mt-2">If your account has been suspended, you will be notified via a 403 response. To request a review, contact <a href="mailto:privacy@skillsets.cc" class="text-accent hover:underline">privacy@skillsets.cc</a>.</p>
 
         <h3 class="text-xl font-medium font-sans text-text-ink mt-4 mb-2">IP-Based Data &amp; Account Deletion</h3>
         <p>IP-based rate limiting data is stored using hashed identifiers that are not linked to your user account. This data cannot be included in account deletion requests but automatically expires within 3 months.</p>
       </section>
 
-      <section>
-        <h2 class="text-2xl font-medium font-sans text-text-ink mb-3">Contact</h2>
-        <p>Questions or requests: <a href="mailto:hello@skillsets.cc" class="text-accent hover:underline">hello@skillsets.cc</a></p>
-      </section>
+
     </div>
 
     <DataControls client:load />

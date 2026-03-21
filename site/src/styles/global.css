@@ -25,13 +25,13 @@
     }
 
     ::-webkit-scrollbar-track {
-      background: theme('colors.surface.paper');
+      background: #000;
       border-left: 1px solid theme('colors.border.ink');
     }
 
     ::-webkit-scrollbar-thumb {
       background-color: theme('colors.border.strong');
-      border: 3px solid theme('colors.surface.paper');
+      border: 3px solid #000;
       border-radius: 0;
     }
 
@@ -51,18 +51,9 @@
     }
   }
 
-  /* Utilities for glow effects */
-  .glow-border-hover {
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-  }
-  .glow-border-hover:hover {
-    border-color: theme('colors.accent.DEFAULT');
-    box-shadow: 0 0 15px theme('colors.accent.highlight');
-  }
-
   /* Sticky header transitions */
   #sticky-header {
-    transition: padding 200ms ease, font-size 200ms ease;
+    transition: padding 200ms ease, font-size 200ms ease, border-color 200ms ease;
   }
 
   #sticky-header[data-stuck="false"] {
@@ -79,23 +70,10 @@
     font-size: 1.25rem;  /* text-xl, down from text-4xl */
   }
 
-  /* Bridge the gap between sticky-header and proof-gallery during stuck state.
-     ResizeObserver timing and sub-pixel rounding can leave a visible gap
-     between the two stacked sticky elements. This pseudo-element extends
-     the header's background downward to cover it. */
-  #sticky-header[data-stuck="true"]::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -4px;
-    height: 4px;
-    background: #020202;
-  }
-
   #sticky-header[data-stuck="true"] [data-stuck-hide] {
     display: none;
   }
+
 
   /* Proof gallery condenses when header is stuck */
   .proof-pills a,
@@ -122,9 +100,128 @@
     display: none;
   }
 
-  :root[data-header-stuck="true"] #proof-gallery .border-b {
-    margin-top: 0.5rem;
-  }
+}
+
+/* Prose pre blocks get the specular border via CSS (can't inject SurfaceLayers into markdown output) */
+.prose pre {
+  position: relative !important;
+  overflow: hidden !important;
+}
+.prose pre::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(400px circle at var(--cursor-x, 50%) var(--cursor-y, 50%), rgba(249,115,22, 0.4), transparent) fixed;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+/* Surface tokens — outside @layer so Astro doesn't tree-shake them */
+
+/* Surface treatment: fractal noise speckle texture */
+.surface-speckle {
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E');
+  background-size: 200px 200px;
+}
+
+/* Surface treatment: ambient top-down gloss */
+.surface-gloss {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), transparent);
+  pointer-events: none;
+}
+
+/* Surface base: shared bg, positioning, shadow for all card-like elements.
+   Add your own border. Pair with <SurfaceLayers /> for the full treatment. */
+.surface-panel {
+  position: relative;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 2px;
+  box-shadow: 8px 0 32px rgba(0,0,0,0.9), 2px 0 15px rgba(249,115,22,0.05);
+}
+
+/* Cursor-responsive specular edges — single-edge highlights for sidebar/bars/buttons.
+   360° border variant lives in SurfaceLayers (uses mask trick, can't be a simple class).
+
+   Usage: <div class="specular-edge-right" />   — sidebar right edge
+          <div class="specular-edge-top" />     — horizontal bars (tag filter, buttons)
+          <div class="specular-edge-top-sm" />  — small buttons (toggle, back-to-top) */
+.specular-edge-right {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 1px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(300px circle at right var(--cursor-y, 50%), rgba(249,115,22, 0.25), transparent);
+}
+
+.specular-edge-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(300px circle at var(--cursor-x, 50%) 0px, rgba(249,115,22, 0.4), transparent);
+}
+
+.specular-edge-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(300px circle at var(--cursor-x, 50%) 0px, rgba(249,115,22, 0.4), transparent) fixed;
+}
+
+.specular-edge-top-sm {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(100px circle at var(--cursor-x, 50%) top, rgba(249,115,22, 0.25), transparent) fixed;
+}
+
+/* CSS-only cursor-responsive specular border via ::after pseudo-element.
+   Use on elements that can't include <SurfaceLayers /> (e.g. prose pre/code). */
+.specular-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(400px circle at var(--cursor-x, 50%) var(--cursor-y, 50%), rgba(249,115,22, 0.4), transparent) fixed;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+.glow-border-hover {
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.glow-border-hover:hover {
+  border-color: theme('colors.accent.DEFAULT');
+  box-shadow: 0 0 15px theme('colors.accent.highlight');
 }
 
 @layer utilities {
@@ -135,4 +232,9 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(234,88,12,0.2)); opacity: 0.4; }
+  50% { filter: drop-shadow(0 0 15px rgba(234,88,12,0.8)); opacity: 1; }
 }

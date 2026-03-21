@@ -4,10 +4,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        surface: {
-          paper: '#050505', // Deep space black
-          white: '#111111', // Elevated dark surface
-        },
         text: {
           ink: '#EDEDED', // Off-white for max readability
           secondary: '#A0A0A0', // Muted text
@@ -52,7 +48,7 @@ export default {
             '--tw-prose-headings': '#EDEDED',
             '--tw-prose-links': '#f97316',
             '--tw-prose-code': '#EDEDED',
-            '--tw-prose-pre-bg': '#111111',
+            '--tw-prose-pre-bg': 'rgba(0, 0, 0, 0.8)',
             '--tw-prose-pre-code': '#EDEDED',
             '--tw-prose-bullets': '#737373',
             '--tw-prose-counters': '#737373',
@@ -60,10 +56,10 @@ export default {
             'fontSize': '1.125rem',
             'fontFamily': '"Outfit", sans-serif',
             'code': {
-              backgroundColor: '#111111',
-              border: '1px solid #222222',
+              backgroundColor: '#000',
+              border: '1px solid rgba(249, 115, 22, 0.2)',
               padding: '0.125rem 0.5rem',
-              borderRadius: '0',
+              borderRadius: '2px',
               fontWeight: '400',
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: '0.875em',
@@ -76,12 +72,14 @@ export default {
               content: '""',
             },
             'pre': {
-              backgroundColor: '#111111',
-              border: '1px solid #222222',
+              position: 'relative',
+              overflow: 'hidden',
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              border: '1px solid rgba(249, 115, 22, 0.2)',
               color: '#EDEDED',
               padding: '1rem',
-              borderRadius: '0',
-              overflow: 'auto',
+              borderRadius: '2px',
+              boxShadow: '8px 0 32px rgba(0,0,0,0.9), 2px 0 15px rgba(249,115,22,0.05)',
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: '0.875rem',
             },

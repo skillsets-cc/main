@@ -11,8 +11,8 @@ interface Props {
 const { title, description = 'Verified registry of production-ready Claude Code workflows' } = Astro.props;
 
 // Shared nav link classes — all 8 sidebar links use the same pattern
-const navLink = 'flex items-center px-2 py-3 text-text-secondary hover:bg-surface-white hover:text-accent rounded-md transition-colors';
-const navIcon = 'w-5 h-5 flex-shrink-0 ml-0.5';
+const navLink = 'flex items-center px-2 py-3 text-text-secondary hover:bg-black/50 hover:text-accent rounded-md transition-colors';
+const navIcon = 'w-5 h-5 flex-shrink-0 ml-0.5 text-accent';
 const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200';
 ---
 
@@ -32,16 +32,19 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
 
-  <body class="min-h-screen bg-[#020202] text-text-ink selection:bg-accent-highlight selection:text-text-ink font-sans flex text-base">
+  <body class="min-h-screen bg-black text-text-ink selection:bg-accent-highlight selection:text-text-ink font-sans flex text-base">
     
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] hidden md:hidden"></div>
 
-    <!-- Expanding Sidebar -->
     <aside 
       id="sidebar" 
-      class="fixed inset-y-0 left-0 z-[60] bg-surface-paper border-r border-accent/20 transition-all duration-300 w-64 -translate-x-full md:translate-x-0 md:w-16 md:hover:w-64 overflow-hidden group flex flex-col"
+      class="fixed inset-y-0 left-0 z-[60] bg-black/80 border-r border-black shadow-[8px_0_32px_rgba(0,0,0,0.9),_2px_0_15px_rgba(249,115,22,0.05)] transition-all duration-300 w-64 -translate-x-full md:translate-x-0 md:w-16 md:hover:w-64 overflow-hidden group flex flex-col"
     >
-      <nav class="flex flex-col px-3 py-6 space-y-2 whitespace-nowrap overflow-hidden flex-1">
+      <div class="surface-speckle"></div>
+      <div class="surface-gloss"></div>
+      <div class="specular-edge-right"></div>
+
+      <nav class="flex flex-col px-3 py-6 space-y-2 whitespace-nowrap overflow-hidden flex-1 relative z-10">
         <a href="/" class={navLink}>
           <svg class={navIcon} fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
           <span class={navLabel}>Registry</span>
@@ -68,10 +71,6 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
           <svg class={navIcon} fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
           <span class={navLabel}>GitHub</span>
         </a>
-        <a href="https://reddit.com/r/skillsets" target="_blank" rel="noopener noreferrer" class={navLink}>
-          <svg class={navIcon} fill="currentColor" viewBox="0 0 24 24"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
-          <span class={navLabel}>Reddit</span>
-        </a>
         <a href="mailto:hello@skillsets.cc" class={navLink}>
           <svg class={navIcon} fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
           <span class={navLabel}>Email</span>
@@ -88,39 +87,45 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
       </div>
     </aside>
 
-    <!-- Mobile Sidebar Toggle FAB -->
     <button
       id="sidebar-toggle"
-      class="fixed bottom-6 left-4 z-50 md:hidden
-             w-10 h-10 flex items-center justify-center
-             border border-accent/30 bg-[#020202]/80 backdrop-blur-sm
-             text-accent/60 hover:text-accent hover:border-accent/60
+      class="fixed bottom-6 left-4 z-50 md:hidden relative
+             w-10 h-10 flex items-center justify-center overflow-hidden rounded-md
+             border border-black bg-black/80 shadow-[0_8px_30px_0_rgba(0,0,0,0.9),_0_2px_15px_rgba(249,115,22,0.05)]
+             text-accent/60 hover:text-accent
              transition-all duration-200"
       aria-label="Open navigation"
     >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="surface-speckle"></div>
+      <div class="surface-gloss"></div>
+      <div class="specular-edge-top-sm"></div>
+
+      <svg class="w-4 h-4 relative z-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
       </svg>
     </button>
 
-    <!-- Back to Top Button -->
     <button
       id="back-to-top"
-      class="fixed bottom-6 right-4 md:right-0 md:left-16 md:mx-auto z-40
-             w-10 h-10 flex items-center justify-center
-             border border-accent/30 bg-[#020202]/80 backdrop-blur-sm
-             text-accent/60 hover:text-accent hover:border-accent/60
+      class="fixed bottom-6 right-4 md:right-0 md:left-16 md:mx-auto z-40 relative
+             w-10 h-10 flex items-center justify-center overflow-hidden rounded-md
+             border border-black bg-black/80 shadow-[0_8px_30px_0_rgba(0,0,0,0.9),_0_2px_15px_rgba(249,115,22,0.05)]
+             text-accent/60 hover:text-accent
              transition-all duration-200
              opacity-0 pointer-events-none"
       aria-label="Back to top"
     >
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <div class="surface-speckle"></div>
+      <div class="surface-gloss"></div>
+      <div class="specular-edge-top-sm"></div>
+
+      <svg class="w-4 h-4 relative z-10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/>
       </svg>
     </button>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full relative md:ml-16 transition-[margin] duration-300">
+    <main class="flex-1 min-w-0 relative md:ml-16 transition-[margin] duration-300">
       <!-- Background Ambient Glow & Grain & Terminal -->
       <div class="fixed inset-0 overflow-hidden pointer-events-none z-0" transition:persist>
         <canvas id="bg-canvas" class="absolute inset-0 w-full h-full opacity-30"></canvas>
@@ -133,6 +138,12 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
     </main>
 
     <script>
+      // Global cursor tracking
+      document.addEventListener('mousemove', (e) => {
+        document.documentElement.style.setProperty('--cursor-x', `${e.clientX}px`);
+        document.documentElement.style.setProperty('--cursor-y', `${e.clientY}px`);
+      });
+
       const sidebar = document.getElementById('sidebar');
       const overlay = document.getElementById('sidebar-overlay');
 
@@ -230,7 +241,7 @@ const navLabel = 'ml-6 font-mono text-sm tracking-wide opacity-100 md:opacity-0 
 
             // Fade overlay clears lines quickly, preventing solid unbroken columns
             ctx.globalAlpha = 1.0;
-            ctx.fillStyle = 'rgba(2, 2, 2, 0.15)';
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             ctx.font = charSize + 'px "JetBrains Mono", monospace';

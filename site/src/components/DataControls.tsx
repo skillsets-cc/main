@@ -57,13 +57,13 @@ export default function DataControls() {
     }
   }
 
-  const buttonBase = 'px-4 py-2 rounded-none text-sm font-mono font-bold transition-all border';
-  const primaryButton = `${buttonBase} bg-surface-paper border-accent text-accent hover:bg-accent hover:text-surface-paper`;
-  const dangerButton = `${buttonBase} bg-surface-paper border-status-error text-status-error hover:bg-status-error hover:text-surface-paper`;
+  const buttonBase = 'px-4 py-2 rounded-sm text-sm font-mono font-bold transition-all border';
+  const primaryButton = `${buttonBase} bg-black border-accent text-accent hover:bg-accent hover:text-black`;
+  const dangerButton = `${buttonBase} bg-black border-status-error text-status-error hover:bg-status-error hover:text-black`;
   const confirmButton = `${buttonBase} bg-status-error border-status-error text-white`;
 
   return (
-    <section className="mt-12 pt-8 border-t border-border-ink">
+    <section className="mt-12 pt-8 border-t border-accent/20">
       <h2 className="text-2xl font-medium font-serif text-text-ink mb-6">Your Data</h2>
       <div className="flex flex-wrap gap-4">
         <button onClick={handleExport} className={primaryButton} disabled={state === 'loading'}>

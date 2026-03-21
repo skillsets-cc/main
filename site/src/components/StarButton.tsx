@@ -6,10 +6,10 @@ interface StarButtonProps {
 }
 
 const BASE_STYLES =
-  'flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-mono font-bold transition-all border bg-surface-paper';
+  'flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-xs font-mono font-bold transition-all border bg-black';
 const STARRED_STYLES = 'border-accent text-accent';
 const UNSTARRED_STYLES =
-  'border-border-ink text-text-secondary hover:border-accent hover:text-accent';
+  'border-accent/20 text-text-secondary hover:border-accent hover:text-accent';
 
 export default function StarButton({
   skillsetId,

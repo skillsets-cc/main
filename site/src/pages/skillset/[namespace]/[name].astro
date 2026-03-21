@@ -58,10 +58,12 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
     <div
       id="sticky-header"
       data-stuck="false"
-      class="sticky z-50 -mx-4 px-4 bg-[#020202]"
+      class="sticky z-50 relative bg-black/80 rounded-sm specular-border border border-accent/20 px-4 mb-0"
       style="top: var(--vv-offset, 0px);"
     >
-      <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div class="surface-speckle"></div>
+      <div class="surface-gloss"></div>
+      <div class="relative z-10 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <h1 class="text-4xl font-bold font-serif text-text-ink">
           {skillset.name} <span class="text-lg font-normal text-text-secondary">by <a href={authorUrl} class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">{skillset.author.handle}</a></span>
         </h1>
@@ -95,7 +97,7 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
 
       <div class="flex flex-wrap gap-2 mb-6">
         {skillset.tags.map((tag) => (
-          <span class="px-3 py-1 text-sm font-mono border border-border-ink bg-surface-paper text-text-secondary">
+          <span class="px-3 py-1 text-sm font-mono border border-accent/20 bg-black text-text-secondary rounded-sm">
             {tag}
           </span>
         ))}
@@ -125,8 +127,10 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
       </section>
 
       {skillset.mcp_servers && skillset.mcp_servers.length > 0 && (
-        <section class="p-4 rounded-none">
-          <div class="flex flex-col gap-2 md:flex-row md:gap-6">
+        <section class="surface-panel specular-border border border-accent/20 p-4">
+          <div class="surface-speckle"></div>
+          <div class="surface-gloss"></div>
+          <div class="relative z-10 flex flex-col gap-2 md:flex-row md:gap-6">
             <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">MCP Servers</h2>
             <div class="flex-1 min-w-0">
               <div class="flex flex-wrap gap-x-8 gap-y-2">
@@ -177,8 +181,10 @@ const statusColor = STATUS_COLORS[skillset.status] ?? 'bg-text-tertiary';
         </section>
       )}
 
-      <section class="border border-border-ink bg-surface-paper p-4 rounded-none">
-        <div class="flex flex-col gap-2 md:flex-row md:gap-6">
+      <section class="surface-panel specular-border border border-accent/20 p-4">
+        <div class="surface-speckle"></div>
+        <div class="surface-gloss"></div>
+        <div class="relative z-10 flex flex-col gap-2 md:flex-row md:gap-6">
           <h2 class="text-sm font-bold font-mono text-text-ink uppercase tracking-wider whitespace-nowrap">Compatibility</h2>
           <div class="flex-1 min-w-0 flex flex-wrap gap-x-8 gap-y-1">
             <div>

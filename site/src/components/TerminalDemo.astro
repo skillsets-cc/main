@@ -1,0 +1,109 @@
+---
+// Animated terminal mockup showing the plugin install flow.
+// State 1: types /plugin, reveals Marketplaces menu
+// State 2: types skillsets-cc/main in the Add Marketplace dialog
+import SurfaceLayers from './SurfaceLayers.astro';
+---
+
+<div class="surface-panel border border-black font-mono text-[13px]">
+  <SurfaceLayers />
+
+  <!-- Animated terminal states -->
+  <div class="relative z-10 grid" id="terminal-demo">
+    <!-- State 1: /plugin → Marketplaces -->
+    <div class="p-4 md:p-6 [grid-area:1/1] transition-opacity duration-500" data-terminal-state="1">
+      <div class="flex items-center text-text-ink mb-4 pb-2 border-b border-border-ink">
+        <span class="text-text-secondary mr-2">❯</span>
+        <span id="typing-target" class="text-text-ink"></span><span id="typing-cursor" class="inline-block w-[7px] h-[14px] bg-text-secondary animate-pulse ml-px translate-y-[1px]"></span>
+      </div>
+      <div id="terminal-menu" class="space-y-3 opacity-0 transition-opacity duration-300">
+        <div class="flex flex-wrap gap-4 text-text-secondary mb-6 tracking-wide">
+          <span>Plugins</span>
+          <span>Discover</span>
+          <span>Installed</span>
+          <span class="bg-black text-text-ink px-1 rounded-sm border border-accent/20">Marketplaces</span>
+          <span class="text-text-tertiary hidden sm:inline">(←/→ or tab to cycle)</span>
+        </div>
+        <div class="flex items-center text-accent animate-pulse">
+          <span class="mr-2">❯</span>
+          <span class="font-bold">+ Add Marketplace</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 2: Add Marketplace → skillsets-cc/main -->
+    <div class="p-4 md:p-6 space-y-3 [grid-area:1/1] transition-opacity duration-500 opacity-0" data-terminal-state="2">
+      <div class="text-text-ink font-bold mb-4 pb-2 border-b border-border-ink">Add Marketplace</div>
+      <div class="space-y-1 text-text-secondary">
+        <p>Enter marketplace source:</p>
+        <p class="text-text-tertiary">Examples:</p>
+        <p class="text-text-tertiary pl-2">· owner/repo <span class="text-text-tertiary/60">(GitHub)</span></p>
+        <p class="text-text-tertiary pl-2">· git@github.com:owner/repo.git <span class="text-text-tertiary/60">(SSH)</span></p>
+        <p class="text-text-tertiary pl-2">· https://example.com/marketplace.json</p>
+        <p class="text-text-tertiary pl-2">· ./path/to/marketplace</p>
+      </div>
+      <div class="mt-4 pt-2">
+        <span id="typing-target-2" class="text-accent"></span><span id="typing-cursor-2" class="inline-block w-[7px] h-[14px] bg-text-secondary animate-pulse ml-px translate-y-[1px]"></span>
+      </div>
+      <div id="terminal-hint" class="text-text-tertiary text-[11px] mt-2 pt-2 border-t border-border-ink">
+        <span id="enter-hint">Enter to add</span> · Esc to cancel
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const terminal = document.getElementById('terminal-demo');
+  if (terminal) {
+    const state1 = terminal.querySelector('[data-terminal-state="1"]') as HTMLElement;
+    const state2 = terminal.querySelector('[data-terminal-state="2"]') as HTMLElement;
+    const typingTarget = document.getElementById('typing-target')!;
+    const typingCursor = document.getElementById('typing-cursor')!;
+    const typingTarget2 = document.getElementById('typing-target-2')!;
+    const typingCursor2 = document.getElementById('typing-cursor-2')!;
+    const menu = document.getElementById('terminal-menu')!;
+
+    const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+    async function typeText(el: HTMLElement, text: string, speed: number) {
+      for (const char of text) {
+        el.textContent += char;
+        await sleep(speed);
+      }
+    }
+
+    async function runDemo() {
+      while (true) {
+        typingTarget.textContent = '';
+        typingTarget2.textContent = '';
+        typingCursor.classList.remove('hidden');
+        typingCursor2.classList.remove('hidden');
+        menu.classList.add('opacity-0');
+        state1.classList.remove('opacity-0');
+        state2.classList.add('opacity-0');
+
+        await sleep(800);
+        await typeText(typingTarget, '/plugin', 100);
+        await sleep(400);
+
+        typingCursor.classList.add('hidden');
+        menu.classList.remove('opacity-0');
+        await sleep(3500);
+
+        state1.classList.add('opacity-0');
+        state2.classList.remove('opacity-0');
+        await sleep(600);
+
+        await typeText(typingTarget2, 'skillsets-cc/main', 80);
+        await sleep(500);
+
+        const enterHint = document.getElementById('enter-hint')!;
+        enterHint.classList.add('text-accent', 'animate-pulse');
+        await sleep(3500);
+        enterHint.classList.remove('text-accent', 'animate-pulse');
+      }
+    }
+
+    runDemo();
+  }
+</script>

@@ -2,230 +2,208 @@
 export const prerender = true;
 
 import BaseLayout from '@layouts/BaseLayout.astro';
-import CopyCommand from '@components/CopyCommand';
 ---
 
 <BaseLayout title="Contribute - Skillsets.cc">
   <main class="max-w-4xl mx-auto px-4 py-8 md:py-12 overflow-x-hidden">
-    <header class="mb-8 border-b border-border-ink pb-6">
+    <header class="mb-8 border-b border-accent/20 pb-6 relative">
+      <div class="specular-edge-bottom"></div>
       <h1 class="text-4xl font-medium font-serif text-text-ink">We'd all love to learn from you!</h1>
     </header>
 
-    <div class="border border-border-ink bg-surface-paper p-4 md:p-8 rounded-none mb-8">
-      <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">
-        You built a skillset that works — skills, agents, hooks, plugins, MCP, all wired together
-        and battle-tested on real projects. You're committed to maintain and improve it going forward.
-      </p>
-      <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">
-        <strong class="text-text-ink">Skillsets.cc</strong> is the high-signal path between you and the community.
-      </p>
-      <ul class="space-y-3 text-lg text-text-secondary font-serif">
-        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">1.</span> <span><strong class="text-text-ink">Prove it shipped.</strong> Link to at least one live product.</span></li>
-        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">2.</span> <span><strong class="text-text-ink">Document it clearly.</strong> Someone else should be able to adapt and run your workflow cold.</span></li>
-        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">3.</span> <span><strong class="text-text-ink">Pass the structural audit.</strong> <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit</code> checks schema, files, secrets, content structure.</span></li>
-        <li class="flex gap-3"><span class="text-accent font-bold flex-shrink-0">4.</span> <span><strong class="text-text-ink">Survive the Opus review.</strong> <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">/audit-skill</code> evaluates your primitives, verifies collaboration artifacts in reference repo, and discovers any MCP servers to declare.</span></li>
-      </ul>
+    <div class="surface-panel specular-border border border-accent/20 p-4 md:p-8 mb-8">
+      <div class="surface-speckle"></div>
+      <div class="surface-gloss"></div>
+      <div class="relative z-10">
+        <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">
+          You built a skillset that works — skills, agents, hooks, plugins, MCP, all wired together
+          and battle-tested on real projects. You're committed to maintain and improve it going forward.
+        </p>
+        <p class="text-lg text-text-secondary mb-6 font-serif leading-relaxed">
+          <strong class="text-text-ink">Skillsets.cc</strong> is the high-signal path between you and the community.
+        </p>
+        <p class="text-lg text-text-secondary font-serif leading-relaxed">
+          Add the marketplace, run <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">/contribute</code>, and Claude walks you through the entire process.
+        </p>
+      </div>
     </div>
 
-    <div class="border border-transparent p-4 md:p-8 rounded-none mb-8">
-      <h2 class="text-2xl font-bold font-serif mb-6 text-text-ink">Submission Process</h2>
+    <div class="p-4 md:p-8 mb-8">
+      <h2 class="text-2xl font-bold font-serif mb-6 text-text-ink">What the process looks like</h2>
 
       <div class="space-y-6">
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-sm bg-accent text-white flex items-center justify-center font-bold font-mono">
             1
           </div>
           <div class="min-w-0">
             <h3 class="text-lg font-bold font-serif text-text-ink mb-2">Claim a Slot</h3>
-            <p class="text-lg text-text-secondary mb-3 font-serif">
-              Submissions for cohort 001 are open! Sign in with GitHub to claim an open slot.
-              Once claimed, you have <strong class="text-text-ink">one week</strong> to consolidate your skillset and submit.
-              Your handle is not made public until your PR is approved.
+            <p class="text-lg text-text-secondary font-serif">
+              Sign in with GitHub and claim an open slot from the <a href="/" class="text-accent hover:underline">registry</a>.
+              Once claimed, you have <strong class="text-text-ink">one week</strong> to submit.
+              Your handle stays private until the PR is approved.
             </p>
           </div>
         </div>
 
-        <div class="border border-accent/30 bg-surface-paper p-4 rounded-none ml-12">
-          <p class="text-lg text-text-secondary font-serif">
-            <strong class="text-text-ink">Guided walkthrough:</strong> Add the marketplace and run
-            <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">/contribute</code>.
-            Claude will walk you through each remaining step.
-          </p>
-        </div>
-
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-sm bg-accent text-white flex items-center justify-center font-bold font-mono">
             2
           </div>
           <div class="min-w-0">
-            <h3 class="text-lg font-bold font-serif text-text-ink mb-2">Initialize Your Skillset</h3>
+            <h3 class="text-lg font-bold font-serif text-text-ink mb-2">Scaffold</h3>
             <p class="text-lg text-text-secondary mb-3 font-serif">
-              Run the init command in your skillset repo. It will auto-detect existing
-              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">CLAUDE.md</code>,
-              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">README.md</code>,
-              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.claude/</code>,
-              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">.mcp.json</code>, and
-              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">docker/</code>
-              and offer to copy them into <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">content/</code>.
+              Claude auto-detects your existing
+              <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">CLAUDE.md</code>,
+              <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">.claude/</code>,
+              <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">.mcp.json</code>,
+              and any support stacks, then scaffolds the submission structure.
             </p>
-            <CopyCommand client:load command="npx skillsets init" />
-            <p class="text-lg text-text-tertiary mt-3 mb-2 font-serif">This scaffolds the following structure:</p>
-            <pre class="bg-surface-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto"><code>your-skillset/
-├── .claude/skills/        # Local dev tooling (not distributed)
-│   └── audit-skill/       # Qualitative review skill
+            <div class="surface-panel specular-border border border-accent/20">
+              <div class="surface-speckle"></div>
+              <div class="surface-gloss"></div>
+              <pre class="relative z-10 p-4 text-sm overflow-x-auto"><code>your-skillset/
 ├── skillset.yaml          # Manifest (required)
 ├── PROOF.md               # Production evidence (required)
-├── AUDIT_REPORT.md        # Generated by audit commands
-└── content/               # What npx skillsets install actually installs
+├── AUDIT_REPORT.md        # Generated by the audit steps
+└── content/               # What /install actually delivers
     ├── CLAUDE.md          # Project instructions
-    ├── README_&lt;NAME&gt;.md   # Skillset docs (required, won't clobber user's README)
-    ├── LICENSE            # License (required, populated before audit)
+    ├── README_&lt;NAME&gt;.md   # Skillset docs (won't clobber user's README)
+    ├── LICENSE            # License (required)
     ├── .claude/           # Claude Code settings
     ├── .mcp.json          # MCP servers (if any)
-    └── docker/            # Docker configs (if any)</code></pre>
+    └── [support stacks]   # Docker, configs, etc. (if any)</code></pre>
+            </div>
           </div>
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-sm bg-accent text-white flex items-center justify-center font-bold font-mono">
             3
           </div>
           <div class="min-w-0">
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Develop & Document</h3>
-            <p class="text-lg text-text-secondary mb-3 font-serif">
+            <p class="text-lg text-text-secondary font-serif">
               Develop your skillset in
-              <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">content/</code>.
-              Edit <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">PROOF.md</code>
-              with evidence of production use: project links, metrics, or links to videos/writeups.
+              <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">content/</code>.
+              Edit <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">PROOF.md</code>
+              with evidence of production use — project links, metrics, videos, or writeups.
             </p>
           </div>
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-sm bg-accent text-white flex items-center justify-center font-bold font-mono">
             4
           </div>
           <div class="min-w-0">
-            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Run the Structural Audit</h3>
-            <p class="text-lg text-text-secondary mb-3 font-serif">
-              Validate your skillset structure and generate an audit report.
-            </p>
-            <CopyCommand client:load command="npx skillsets audit" />
-            <p class="text-text-tertiary mt-3 font-serif text-lg">
-              Tier 1: manifest schema, required files, content structure, file sizes, secrets detection.
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Structural Audit</h3>
+            <p class="text-lg text-text-secondary font-serif">
+              Manifest schema, required files, content structure, file sizes, and secrets detection.
+              Claude runs this automatically and reports any issues to fix.
             </p>
           </div>
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-sm bg-accent text-white flex items-center justify-center font-bold font-mono">
             5
           </div>
           <div class="min-w-0">
-            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Run the Qualitative Review</h3>
-            <p class="text-lg text-text-secondary mb-3 font-serif">
-              Once structural audit passes, run the qualitative review <strong class="text-text-ink">from your skillset directory</strong>. Grant Claude permission to access the reference repo when prompted.
-            </p>
-            <CopyCommand client:load command="/audit-skill [AUDIT_REPORT.md] [path/to/reference-repo]" />
-            <p class="text-text-tertiary mt-3 font-serif text-lg">
-              Tier 2: discovers MCP servers and populates <code class="font-mono">skillset.yaml</code>,
-              evaluates primitives against best practices, and verifies collaboration artifacts in the reference repo
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Qualitative Review</h3>
+            <p class="text-lg text-text-secondary font-serif">
+              Evaluates every primitive against published criteria, discovers MCP servers,
+              verifies collaboration artifacts in the reference repo, and runs a safety scan.
+              Grant Claude permission to access the reference repo when prompted.
             </p>
           </div>
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-sm bg-accent text-white flex items-center justify-center font-bold font-mono">
             6
           </div>
           <div class="min-w-0">
-            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Submit via CLI</h3>
-            <p class="text-lg text-text-secondary mb-3 font-serif">
-              Once your audit passes, submit directly from the command line.
+            <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Submit</h3>
+            <p class="text-lg text-text-secondary font-serif">
+              Claude forks the registry, creates a branch, and opens the PR.
               Requires <a href="https://cli.github.com/" class="text-accent hover:underline" target="_blank" rel="noopener noreferrer">GitHub CLI</a> installed and authenticated.
-            </p>
-            <CopyCommand client:load command="npx skillsets submit" />
-            <p class="text-text-tertiary mt-3 font-serif text-lg">
-              This forks the registry, creates a branch, and opens a PR automatically.
             </p>
           </div>
         </div>
 
         <div class="flex gap-4">
-          <div class="flex-shrink-0 w-8 h-8 rounded-none bg-accent text-white flex items-center justify-center font-bold font-mono">
+          <div class="flex-shrink-0 w-8 h-8 rounded-sm bg-accent text-white flex items-center justify-center font-bold font-mono">
             7
           </div>
           <div class="min-w-0">
             <h3 class="text-lg font-bold font-serif mb-2 text-text-ink">Review & Merge</h3>
             <p class="text-lg text-text-secondary font-serif">
-              Maintainers will review your production proof and validate the audit report.
-              Once approved, your skillset will be published to the registry.
+              Maintainers review your production proof and validate the audit report.
+              Once approved, your skillset is published to the registry.
             </p>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="border border-border-ink bg-surface-paper p-4 md:p-8 rounded-none mb-8">
-      <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-border-ink pb-2 inline-block">Hard Constraints</h2>
-      <p class="text-lg text-text-secondary mb-4 font-serif">
-        CI runs <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">npx skillsets audit --check</code> on every PR. These checks are gating — your submission will not merge until all pass.
-      </p>
-      <div class="overflow-x-auto">
-      <table class="min-w-full text-left border-collapse">
-        <thead>
-          <tr class="border-b border-border-ink">
-            <th class="py-2 pr-4 font-bold font-serif text-text-ink">Check</th>
-            <th class="py-2 font-bold font-serif text-text-ink">Rule</th>
-          </tr>
-        </thead>
-        <tbody class="text-text-secondary font-serif">
-          <tr class="border-b border-border-ink/30">
-            <td class="py-2 pr-4 font-bold text-text-ink">Manifest</td>
-            <td class="py-2">Valid schema, semver version, author handle, tags, production links</td>
-          </tr>
-          <tr class="border-b border-border-ink/30">
-            <td class="py-2 pr-4 font-bold text-text-ink">Required files</td>
-            <td class="py-2"><code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">skillset.yaml</code>, <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/</code>, <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/README_&lt;NAME&gt;.md</code>, <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/LICENSE</code></td>
-          </tr>
-          <tr class="border-b border-border-ink/30">
-            <td class="py-2 pr-4 font-bold text-text-ink">Content structure</td>
-            <td class="py-2">Both <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> and <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/CLAUDE.md</code> present</td>
-          </tr>
-          <tr class="border-b border-border-ink/30">
-            <td class="py-2 pr-4 font-bold text-text-ink">Secrets</td>
-            <td class="py-2">No hardcoded credentials (AWS <code class="font-mono text-sm">AKIA</code>, GitHub <code class="font-mono text-sm">ghp_</code>, OpenAI <code class="font-mono text-sm">sk-</code>, Anthropic <code class="font-mono text-sm">sk-ant-</code>)</td>
-          </tr>
-          <tr class="border-b border-border-ink/30">
-            <td class="py-2 pr-4 font-bold text-text-ink">README links</td>
-            <td class="py-2">Links to <code class="bg-surface-white border border-border-ink px-1 py-0.5 rounded-none font-mono text-sm">content/.claude/</code> must use full GitHub URLs</td>
-          </tr>
-          <tr class="border-b border-border-ink/30">
-            <td class="py-2 pr-4 font-bold text-text-ink">Version</td>
-            <td class="py-2">Updates must have version &gt; existing registry version</td>
-          </tr>
-          <tr>
-            <td class="py-2 pr-4 font-bold text-text-ink">MCP consistency</td>
-            <td class="py-2">Content&#x2194;manifest MCP declarations must match</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="surface-panel specular-border border border-accent/20 p-4 md:p-8 mb-8">
+      <div class="surface-speckle"></div>
+      <div class="surface-gloss"></div>
+      <div class="relative z-10">
+        <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink border-b border-accent/20 pb-2 inline-block">Hard Constraints</h2>
+        <p class="text-lg text-text-secondary mb-4 font-serif">
+          CI re-validates every PR before merge. These checks are gating.
+        </p>
+        <div class="overflow-x-auto">
+        <table class="min-w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-accent/20">
+              <th class="py-2 pr-4 font-bold font-serif text-text-ink">Check</th>
+              <th class="py-2 font-bold font-serif text-text-ink">Rule</th>
+            </tr>
+          </thead>
+          <tbody class="text-text-secondary font-serif">
+            <tr class="border-b border-accent/10">
+              <td class="py-2 pr-4 font-bold text-text-ink">Manifest</td>
+              <td class="py-2">Valid schema, semver version, author handle, tags, production links</td>
+            </tr>
+            <tr class="border-b border-accent/10">
+              <td class="py-2 pr-4 font-bold text-text-ink">Required files</td>
+              <td class="py-2"><code class="bg-black border border-accent/20 px-1 py-0.5 rounded-sm font-mono text-sm">skillset.yaml</code>, <code class="bg-black border border-accent/20 px-1 py-0.5 rounded-sm font-mono text-sm">content/</code>, <code class="bg-black border border-accent/20 px-1 py-0.5 rounded-sm font-mono text-sm">content/README_&lt;NAME&gt;.md</code>, <code class="bg-black border border-accent/20 px-1 py-0.5 rounded-sm font-mono text-sm">content/LICENSE</code></td>
+            </tr>
+            <tr class="border-b border-accent/10">
+              <td class="py-2 pr-4 font-bold text-text-ink">Content structure</td>
+              <td class="py-2">Both <code class="bg-black border border-accent/20 px-1 py-0.5 rounded-sm font-mono text-sm">content/.claude/</code> and <code class="bg-black border border-accent/20 px-1 py-0.5 rounded-sm font-mono text-sm">content/CLAUDE.md</code> present</td>
+            </tr>
+            <tr class="border-b border-accent/10">
+              <td class="py-2 pr-4 font-bold text-text-ink">Secrets</td>
+              <td class="py-2">No hardcoded credentials (AWS <code class="font-mono text-sm">AKIA</code>, GitHub <code class="font-mono text-sm">ghp_</code>, OpenAI <code class="font-mono text-sm">sk-</code>, Anthropic <code class="font-mono text-sm">sk-ant-</code>)</td>
+            </tr>
+            <tr class="border-b border-accent/10">
+              <td class="py-2 pr-4 font-bold text-text-ink">README links</td>
+              <td class="py-2">Links to <code class="bg-black border border-accent/20 px-1 py-0.5 rounded-sm font-mono text-sm">content/.claude/</code> must use full GitHub URLs</td>
+            </tr>
+            <tr class="border-b border-accent/10">
+              <td class="py-2 pr-4 font-bold text-text-ink">Version</td>
+              <td class="py-2">Updates must have version &gt; existing registry version</td>
+            </tr>
+            <tr>
+              <td class="py-2 pr-4 font-bold text-text-ink">MCP consistency</td>
+              <td class="py-2">Content&#x2194;manifest MCP declarations must match</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
       </div>
     </div>
 
-    <div class="border border-transparent p-4 md:p-8 rounded-none mb-8">
+    <div class="p-4 md:p-8 mb-8">
       <h2 class="text-2xl font-bold font-serif mb-4 text-text-ink">Updating an Existing Skillset</h2>
       <p class="text-lg text-text-secondary mb-4 font-serif leading-relaxed">
-        Already have a skillset in the registry? The same commands work for updates.
+        Already published? Run <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">/contribute</code> again.
+        Bump the version in <code class="bg-black border border-accent/20 px-2 py-1 rounded-sm font-mono text-sm">skillset.yaml</code>, and Claude handles the rest.
       </p>
-      <ol class="list-decimal list-inside space-y-3 text-lg text-text-secondary font-serif">
-        <li><strong class="text-text-ink">Bump the version</strong> in <code class="bg-surface-white border border-border-ink px-2 py-1 rounded-none font-mono text-sm">skillset.yaml</code> (must be higher than published)</li>
-        <li><strong class="text-text-ink">Run the audit</strong> — it will detect the update and validate the version bump</li>
-        <li><strong class="text-text-ink">Submit</strong> — the PR will be titled "Update @author/name to vX.Y.Z"</li>
-      </ol>
-      <pre class="bg-surface-white border border-border-ink p-4 rounded-none text-sm overflow-x-auto mt-4"><code># Edit skillset.yaml: version: "1.0.0" → "1.1.0"
-npx skillsets audit   # Shows: Update: 1.0.0 → 1.1.0
-npx skillsets submit  # Creates update PR</code></pre>
     </div>
 
     <div class="mt-8 text-center">

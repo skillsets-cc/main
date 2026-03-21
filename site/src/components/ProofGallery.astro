@@ -29,12 +29,14 @@ const encodedId = skillsetId.replace('@', '%40');
 const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets/${encodedId}/AUDIT_REPORT.md`;
 ---
 
-<section id="proof-gallery" class="sticky z-50 -mx-4 px-4 pb-0 bg-[#020202]" style="top: calc(var(--header-h, 3rem) + var(--vv-offset, 0px));">
-  <div class="proof-pills flex flex-wrap gap-2">
+<section id="proof-gallery" class="sticky z-50 relative bg-black/80 rounded-sm specular-border border border-accent/20 px-4 py-3 mt-0" style="top: calc(var(--header-h, 3rem) + var(--vv-offset, 0px));">
+  <div class="surface-speckle"></div>
+  <div class="surface-gloss"></div>
+  <div class="proof-pills relative z-10 flex flex-wrap gap-2">
     {productionLinks.map((link) => (
       <a
         href={sanitizeUrl(link.url)}
-        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-black border border-accent text-accent rounded-sm"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -46,7 +48,7 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
     {hasAuditReport && (
       <a
         href={sanitizeUrl(auditReportUrl)}
-        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-black border border-accent text-accent rounded-sm"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -55,10 +57,9 @@ const auditReportUrl = `https://github.com/skillsets-cc/main/blob/main/skillsets
       </a>
     )}
 
-    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-[#020202] border border-accent text-accent rounded-none">
+    <span class="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-mono bg-black border border-accent text-accent rounded-sm">
       <span class="w-2 h-2 rounded-sm bg-status-success flex-shrink-0"></span>
       schema<span class="proof-qualifier"> valid</span>
     </span>
   </div>
-  <div class="border-b border-accent/20 mt-4"></div>
 </section>
